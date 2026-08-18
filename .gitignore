@@ -8,6 +8,9 @@ deploy_secrets.properties
 .idea/
 .vscode/
 
+# Maven
+.mvn/
+
 # CMake
 cmake-build-*/
 
