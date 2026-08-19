@@ -88,5 +88,14 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>io.github.4ndreidev</groupId>
+        <artifactId>tailwind-maven-plugin</artifactId>
+        <configuration>
+          <outputFile>${project.basedir}/src/main/webapp/css/tailwind.css</outputFile>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>

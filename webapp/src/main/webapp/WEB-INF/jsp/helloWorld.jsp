@@ -4,26 +4,13 @@
 <html>
 <head>
     <title>PAW TPE 0</title>
-    <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
-    <link rel="stylesheet" href="<c:url value="/css/button.css"/>"/>
+    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
 </head>
-<body>
-    <h1>PAW TPE 0</h1>
-    <h2><c:out value="Hello ${username}!"/></h2>
-
-    <h3>Button Component</h3>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">PAW TPE 0</h1>
+    <h2 class="text-lg font-semibold mb-2">Button component</h2>
     <paw:button text="Buy" variant="primary"/>
     <paw:button text="Cancel" variant="secondary"/>
     <paw:button text="Delete" variant="danger"/>
-
-    <h3>Sizes</h3>
-    <paw:button text="Small" variant="primary" size="sm"/>
-    <paw:button text="Medium" variant="primary" size="md"/>
-    <paw:button text="Large" variant="primary" size="lg"/>
-
-    <h3>Disabled</h3>
-    <paw:button text="Buy" variant="primary" disabled="${true}"/>
-    <paw:button text="Cancel" variant="secondary" disabled="${true}"/>
-    <paw:button text="Delete" variant="danger" disabled="${true}"/>
 </body>
 </html>
