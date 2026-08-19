@@ -1,6 +1,7 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="id" required="true" %>
 <%@ attribute name="label" required="false" %>
+<%@ attribute name="placeholder" required="false" %>
 <%@ attribute name="error" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
@@ -13,7 +14,8 @@
        invalid:border-red-600 data-error:border-red-600 invalid:outline-red-600/30 data-error:outline-red-600/30'
     : 'border-t border-b border-black/15 border-b-white/20 bg-gradient-to-b from-black/5 to-black/2 bg-border
        focus-visible:outline outline-sky-600 focus-visible:shadow-[0_0_0_3px] shadow-sky-600/30
-       invalid:outline data-error:outline invalid:outline-red-600 data-error:outline-red-600 invalid:shadow-red-600/30 data-error:shadow-red-600/30'
+       invalid:outline data-error:outline invalid:outline-red-600 data-error:outline-red-600 invalid:shadow-red-600/30 data-error:shadow-red-600/30
+       invalid:from-red-600/5 invalid:to-red-600/2 data-error:from-red-600/5 data-error:to-red-600/2'
 }"/>
 
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
@@ -33,6 +35,7 @@
       placeholder:text-black/40
       ${variantClassnames}
     "
+    placeholder="${placeholder}"
     <c:if test="${isDisabled}">disabled</c:if>
     <c:if test="${isError}">data-error</c:if>
   />

@@ -11,9 +11,9 @@
 <body class="p-8">
     <h1 class="text-2xl font-bold mb-4">PAW TPE 0</h1>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
       <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 col-span-2">
-        <h2 class="text-lg font-semibold">Button component</h2>
+        <h2 class="text-xl font-bold">Button component</h2>
 
         <h3 class="font-semibold mt-2 mb-1">Primary</h3>
         <div class="grid grid-cols-4 gap-1">
@@ -71,7 +71,7 @@
       </div>
 
       <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 max-w-lg">
-        <h2 class="text-lg font-semibold mb-2">Card component</h2>
+        <h2 class="text-xl font-bold mb-2">Card component</h2>
         <paw:card title="Asus Tuf Gaming RTX 3070 Ti" subtitle="Tarjetas Gráficas para PC">
             <div class="bg-black/5 rounded h-40 flex items-center justify-center text-black/30 text-sm mb-3">imagen</div>
             <p class="text-xl font-bold">$650.000</p>
@@ -79,11 +79,12 @@
       </div>
 
       <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 max-w-lg">
-        <h2 class="text-lg font-semibold mb-2">Input component</h2>
-        <paw:input id="myInput" label="Input" />
-        <paw:input id="myInput2" label="Input" error="This input has an error" />
-        <paw:input id="myInput" variant="outline" label="Outlined Input" />
-        <paw:input id="myInput2" variant="outline" label="Outlined Input" error="This input has an error" />
+        <h2 class="text-xl font-bold mb-2">Input component</h2>
+        <paw:input id="myInput" label="Input" placeholder="Enter some text..." />
+        <paw:input id="myInput2" label="Input" placeholder="Enter some text..." error="This input has an error" />
+
+        <paw:input id="myInput3" variant="outline" placeholder="Enter some text..." label="Outlined Input" />
+        <paw:input id="myInput4" variant="outline" placeholder="Enter some text..." label="Outlined Input" error="This input has an error" />
       </div>
     </div>
 </body>
