@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
-<body class="p-8">
-    <h1 class="text-2xl font-bold mb-4">PAW TPE 0</h1>
-
+<body class="p-8 pb-24 bg-neutral-50">
     <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-      <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 col-span-2">
+      <h1 class="text-4xl font-bold mb-4 col-span-2">PAW TPE 0: Librería de componentes</h1>
+
+      <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 col-span-2 bg-neutral-50">
         <h2 class="text-xl font-bold">Button component</h2>
 
         <h3 class="font-semibold mt-2 mb-1">Primary</h3>
@@ -70,7 +70,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 max-w-lg">
+      <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 bg-neutral-50">
         <h2 class="text-xl font-bold mb-2">Card component</h2>
         <paw:card title="Asus Tuf Gaming RTX 3070 Ti" subtitle="Tarjetas Gráficas para PC">
             <div class="bg-black/5 rounded h-40 flex items-center justify-center text-black/30 text-sm mb-3">imagen</div>
@@ -78,7 +78,7 @@
         </paw:card>
       </div>
 
-      <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 max-w-lg">
+      <div class="flex flex-col gap-2 p-4 rounded-2xl border border-black/15 bg-neutral-50">
         <h2 class="text-xl font-bold mb-2">Input component</h2>
         <paw:input id="myInput" label="Input" placeholder="Enter some text..." />
         <paw:input id="myInput2" label="Input" placeholder="Enter some text..." error="This input has an error" />
