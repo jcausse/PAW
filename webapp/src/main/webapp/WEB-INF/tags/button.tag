@@ -17,7 +17,7 @@
     ? 'border border-current/15 hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10'
     : btnVariant eq 'ghost'
     ? 'hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10'
-    : 'bg-border bg-gradient-to-b from-current/3 to-current/7 border-t border-b border-t-white/30 border-b-black/20
+    : '[background-position:-1px_-1px] [background-size:calc(100%+2px)_calc(100%+2px)] bg-gradient-to-b from-current/3 to-current/7 border-t border-b border-t-white/30 border-b-black/20
        hover:from-current/5 hover:to-current/10 active:border-t-black/15 active:border-b-white/30 active:translate-y-px'
 }"/>
 
