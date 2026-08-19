@@ -3,7 +3,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <html>
 <head>
-    <title>Tech Marketplace</title>
+    <title>PAW TPE 0</title>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/button.css"/>"/>
 </head>
