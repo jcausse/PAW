@@ -85,6 +85,8 @@
 
         <paw:input id="myInput3" variant="outline" placeholder="Enter some text..." label="Outlined Input" />
         <paw:input id="myInput4" variant="outline" placeholder="Enter some text..." label="Outlined Input" error="This input has an error" />
+
+        <paw:input id="myInput5" type="password" variant="outline" label="Password Input" />
       </div>
     </div>
 </body>

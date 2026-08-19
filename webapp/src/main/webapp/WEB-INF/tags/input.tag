@@ -1,5 +1,6 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="id" required="true" %>
+<%@ attribute name="type" required="false" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="false" %>
 <%@ attribute name="error" required="false" %>
@@ -8,6 +9,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="inputVariant" value="${not empty variant ? variant : 'default'}"/>
+<c:set var="inputType" value="${not empty type ? type : 'text'}"/>
+
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
     ? 'border border-black/20 focus-visible:border-sky-600 focus-visible:outline-2
@@ -30,6 +33,7 @@
 
   <input
     id="${id}"
+    type="${type}"
     class="
       px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30
       placeholder:text-black/40
