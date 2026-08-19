@@ -4,13 +4,14 @@
 <html>
 <head>
     <title>Tech Marketplace</title>
+    <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/button.css"/>"/>
 </head>
 <body>
     <h1>PAW TPE 0</h1>
-    <h2>Button Component</h2>
+    <h2><c:out value="Hello ${username}!"/></h2>
 
-    <h3>Variants</h3>
+    <h3>Button Component</h3>
     <paw:button text="Buy" variant="primary"/>
     <paw:button text="Cancel" variant="secondary"/>
     <paw:button text="Delete" variant="danger"/>
