@@ -9,7 +9,7 @@ public class HelloWorldController {
 
     @GetMapping("/")
     public ModelAndView helloWorld() {
-        final ModelAndView mav = new ModelAndView("helloWorld");
+        final ModelAndView mav = new ModelAndView("tpe0");
         mav.addObject("username", "PAW");
         return mav;
     }
