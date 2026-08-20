@@ -39,14 +39,6 @@
     : 'text-sky-600'
 }"/>
 
-<c:set var="cls" value="px-4 py-2 rounded text-sm font-medium cursor-pointer bg-green-600 hover:bg-green-700 text-white"/>
-<c:if test="${btnVariant == 'secondary'}">
-    <c:set var="cls" value="px-4 py-2 rounded text-sm font-medium cursor-pointer bg-black/5 hover:bg-black/10 text-black/70 border border-black/15"/>
-</c:if>
-<c:if test="${btnVariant == 'danger'}">
-    <c:set var="cls" value="px-4 py-2 rounded text-sm font-medium cursor-pointer bg-red-600 hover:bg-red-700 text-white"/>
-</c:if>
-
 <button
   type="button"
   class="
