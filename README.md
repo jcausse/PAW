@@ -2,13 +2,11 @@
 
 ## Contents
 
-- [PAW 2026b Team 08](#paw-2026b-team-08)
-  - [Contents](#contents)
-  - [Team Members](#team-members)
-  - [About This Project](#about-this-project)
-  - [Technologies Used](#technologies-used)
-  - [Running Locally](#running-locally)
-  - [Deploying To Production](#deploying-to-production)
+- [Team Members](#team-members)
+- [About This Project](#about-this-project)
+- [Technologies Used](#technologies-used)
+- [Running Locally](#running-locally)
+- [Deploying To Production](#deploying-to-production)
 
 ## Team Members
 
