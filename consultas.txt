@@ -1,0 +1,1 @@
+1. Se puede / conviene @GetMapping y @PostMapping en lugar de @RequestMapping?
