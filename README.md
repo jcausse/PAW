@@ -2,20 +2,22 @@
 
 ## Contents
 
-- [Team Members](#team-members)
-- [About This Project](#about-this-project)
-- [Technologies Used](#technologies-used)
-- [Running Locally](#running-locally)
-- [Deploying To Production](#deploying-to-production)
+- [PAW 2026b Team 08](#paw-2026b-team-08)
+  - [Contents](#contents)
+  - [Team Members](#team-members)
+  - [About This Project](#about-this-project)
+  - [Technologies Used](#technologies-used)
+  - [Running Locally](#running-locally)
+  - [Deploying To Production](#deploying-to-production)
 
 ## Team Members
 
-| **ID** | **Last Name** | **First Name** | **ITBA email**                                          |
-|--------|---------------|----------------|---------------------------------------------------------|
-| XXXXX  | Arcodaci      | Tiziano        | [tarcodaci@itba.edu.ar](mailto:tarcodaci@itba.edu.ar)   |
-| XXXXX  | Bridoux       | Juan Ignacio   | [jbridoux@itba.edu.ar](mailto:jbridoux@itba.edu.ar)     |
-| 61105  | Causse        | Juan Ignacio   | [jcausse@itba.edu.ar](mailto:jcausse@itba.edu.ar)       |
-| XXXXX  | Fumagalli     | Teo            | [tfumagalli@itba.edu.ar](mailto:tfumagalli@itba.edu.ar) |
+| **ID**     | **Last Name** | **First Name** | **ITBA email**                                          |
+|------------|---------------|----------------|---------------------------------------------------------|
+| **XXXXX**  | Arcodaci      | Tiziano        | [tarcodaci@itba.edu.ar](mailto:tarcodaci@itba.edu.ar)   |
+| **XXXXX**  | Bridoux       | Juan Ignacio   | [jbridoux@itba.edu.ar](mailto:jbridoux@itba.edu.ar)     |
+| **61105**  | Causse        | Juan Ignacio   | [jcausse@itba.edu.ar](mailto:jcausse@itba.edu.ar)       |
+| **XXXXX**  | Fumagalli     | Teo            | [tfumagalli@itba.edu.ar](mailto:tfumagalli@itba.edu.ar) |
 
 ## About This Project
 
