@@ -6,7 +6,7 @@ PYTHON := python3
 default: run
 
 run:
-	cd webapp && $(MAVEN) clean jetty:run
+	$(MAVEN) clean install -DskipTests && cd webapp && $(MAVEN) jetty:run
 
 clean:
 	$(MAVEN) clean
