@@ -11,6 +11,7 @@
     <module>persistence</module>
     <module>model</module>
     <module>serviceInterface</module>
+    <module>persistenceInterface</module>
   </modules>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
