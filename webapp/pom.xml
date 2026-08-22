@@ -14,8 +14,7 @@
   <artifactId>webapp</artifactId>
   <packaging>war</packaging>
 
-  <name>webapp Maven Webapp</name>
-  <url>http://www.example.com</url>
+  <name>Webapp</name>
 
   <dependencies>
     <dependency>

@@ -9,9 +9,7 @@
 
   <artifactId>persistenceInterface</artifactId>
 
-  <name>persistenceInterface</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <name>Persistence Interface</name>
 
   <dependencies>
   </dependencies>
