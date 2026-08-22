@@ -69,7 +69,9 @@
           <version>9.4.58.v20250814</version>
           <configuration>
             <scanIntervalSeconds>5</scanIntervalSeconds>
-            <port>8080</port>
+            <httpConnector>
+              <port>8080</port>
+            </httpConnector>
             <useTestScope>true</useTestScope>
           </configuration>
         </plugin>
