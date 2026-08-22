@@ -12,6 +12,15 @@
   <name>Persistence</name>
 
   <dependencies>
+    <dependency>
+      <groupId>ar.edu.itba.paw</groupId>
+      <artifactId>persistenceInterface</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
