@@ -5,18 +5,19 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>paw2026bg8</name>
-  
   <modules>
     <module>webapp</module>
+    <module>service</module>
+    <module>persistence</module>
+    <module>model</module>
+    <module>serviceInterface</module>
   </modules>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <org.springframework.version>5.3.33</org.springframework.version>
   </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
