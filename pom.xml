@@ -20,7 +20,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <org.springframework.version>5.3.33</org.springframework.version>
+    <spring.version>5.3.33</spring.version>
+    <postgresql.version>42.2.5</postgresql.version>
   </properties>
 
   <dependencyManagement>
@@ -28,12 +29,17 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-webmvc</artifactId>
-        <version>${org.springframework.version}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>${org.springframework.version}</version>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -46,12 +52,17 @@
         <artifactId>jstl</artifactId>
         <version>1.2</version>
       </dependency>
-        <dependency>
-          <groupId>org.projectlombok</groupId>
-          <artifactId>lombok</artifactId>
-          <version>1.18.46</version>
-          <scope>provided</scope>
-        </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.46</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
