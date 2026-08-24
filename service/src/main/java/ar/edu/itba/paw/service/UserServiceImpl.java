@@ -1,8 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.serviceInterface.UserService;
-import ar.edu.itba.paw.persistenceInterface.UserDao;
+import ar.edu.itba.paw.persistence.UserDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

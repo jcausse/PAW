@@ -19,7 +19,7 @@
   <dependencies>
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
-      <artifactId>serviceInterface</artifactId>
+      <artifactId>service-contract</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>

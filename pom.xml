@@ -12,8 +12,8 @@
     <module>service</module>
     <module>persistence</module>
     <module>model</module>
-    <module>serviceInterface</module>
-    <module>persistenceInterface</module>
+    <module>service-contract</module>
+    <module>persistence-contract</module>
   </modules>
 
   <properties>
