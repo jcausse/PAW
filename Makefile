@@ -1,18 +1,20 @@
-MAVEN := mvn
+MAVEN  := mvn
 PYTHON := python3
 
-.PHONY: run clean pack deploy
+.PHONY: dev clean pack compile deploy
 
-default: run
+dev: clean
+	$(MAVEN) install -DskipTests
+	$(MAVEN) -pl webapp jetty:run
 
-run:
-	$(MAVEN) clean install -DskipTests && cd webapp && $(MAVEN) jetty:run
+pack:
+	$(MAVEN) package -DskipTests
+
+compile:
+	$(MAVEN) compile
 
 clean:
 	$(MAVEN) clean
-
-pack:
-	$(MAVEN) clean package
 
 deploy:
 	$(PYTHON) deploy.py
