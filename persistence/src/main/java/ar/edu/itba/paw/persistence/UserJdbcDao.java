@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.persistence.schema.UserSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -22,8 +23,8 @@ public class UserJdbcDao implements UserDao {
     public UserJdbcDao(final DataSource ds) {
         jdbcTemplate = new JdbcTemplate(ds);
         jdbcInsert = new SimpleJdbcInsert(ds)
-                .usingGeneratedKeyColumns("user_id")
-                .withTableName("users");
+                .usingGeneratedKeyColumns(UserSchema.ID)
+                .withTableName(UserSchema.TABLE_NAME);
     }
 
     @Override
@@ -44,11 +45,11 @@ public class UserJdbcDao implements UserDao {
     @Override
     public User create(String username, String firstName, String lastName, String email, String password) {
         final Map<String, Object> values = new HashMap<>();
-        values.put("username", username);
-        values.put("first_name", firstName);
-        values.put("last_name", lastName);
-        values.put("email", email);
-        values.put("password", password);
+        values.put(UserSchema.USERNAME, username);
+        values.put(UserSchema.FIRST_NAME, firstName);
+        values.put(UserSchema.LAST_NAME, lastName);
+        values.put(UserSchema.EMAIL, email);
+        values.put(UserSchema.PASSWORD, password);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -74,30 +75,36 @@ public class UserJdbcDao implements UserDao {
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<User> ROW_MAPPER = (rs, rowNum) -> User.builder()
-            .id(rs.getLong("user_id"))
-            .username(rs.getString("username"))
-            .firstName(rs.getString("first_name"))
-            .lastName(rs.getString("last_name"))
-            .email(rs.getString("email"))
+            .id(rs.getLong(UserSchema.ID))
+            .username(rs.getString(UserSchema.USERNAME))
+            .firstName(rs.getString(UserSchema.FIRST_NAME))
+            .lastName(rs.getString(UserSchema.LAST_NAME))
+            .email(rs.getString(UserSchema.EMAIL))
             .build();
 
     private static final class Queries {
-        private static final String FIELDS = "user_id, username, first_name, last_name, email";
+        private static final String FIELDS = String.join(", ",
+                UserSchema.ID,
+                UserSchema.USERNAME,
+                UserSchema.FIRST_NAME,
+                UserSchema.LAST_NAME,
+                UserSchema.EMAIL
+        );
 
         private static final String GET_BY_ID =
-                "SELECT " + FIELDS + " FROM users WHERE user_id = ?";
+                "SELECT " + FIELDS + " FROM " + UserSchema.TABLE_NAME + " WHERE " + UserSchema.ID + " = ?";
 
         private static final String GET_BY_USERNAME =
-                "SELECT " + FIELDS + " FROM users WHERE username = ?";
+                "SELECT " + FIELDS + " FROM " + UserSchema.TABLE_NAME + " WHERE " + UserSchema.USERNAME + " = ?";
 
         private static final String GET_BY_EMAIL =
-                "SELECT " + FIELDS + " FROM users WHERE email = ?";
+                "SELECT " + FIELDS + " FROM " + UserSchema.TABLE_NAME + " WHERE " + UserSchema.EMAIL + " = ?";
 
         private static final String IS_USERNAME_TAKEN =
-                "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)";
+                "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME + " WHERE " + UserSchema.USERNAME + " = ?)";
 
         private static final String IS_EMAIL_TAKEN =
-                "SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)";
+                "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME + " WHERE " + UserSchema.EMAIL + " = ?)";
 
     }
 }
