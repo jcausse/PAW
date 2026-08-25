@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import java.util.Optional;
 
@@ -9,5 +8,5 @@ public interface ProductDao {
 
     Optional<Product> getByName(String name);
 
-    Product create(String name, Price price, Long creatorId);
+    Product create(String name);
 }
