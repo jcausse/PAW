@@ -1,10 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.service.dto.UserCreationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @RequiredArgsConstructor
@@ -18,5 +20,19 @@ public class UserController {
         final var mav = new ModelAndView("profile");
         mav.addObject("user", userService.getById(userId));
         return mav;
+    }
+
+    @PostMapping("/register")
+    public ModelAndView registerUser() {
+        final var ucDto = new UserCreationDto(
+                "johnDoe",
+                "John",
+                "Doe",
+                "johndoe@example.com",
+                "superSecretPassword"
+        );
+        userService.create(ucDto);
+
+        return null;
     }
 }
