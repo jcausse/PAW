@@ -1,5 +1,6 @@
 # deploy.py Secrets File
 deploy_secrets.properties
+build.log
 
 # Python Cache
 **/__pycache__/

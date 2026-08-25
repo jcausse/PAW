@@ -12,7 +12,7 @@ from configparser import RawConfigParser, NoSectionError, NoOptionError
 from typing import Dict
 
 
-SECRETS_FILENAME = 'deploy_secrets.properties'
+SECRETS_FILENAME = './.script/deploy_secrets.properties'
 SECRETS_SECTION = 'DEPLOYMENT'
 SECRETS_OPTIONS = [
     'ssh_username', 
@@ -54,7 +54,7 @@ def build() -> None:
             run(['mvn', 'package', '-DskipTests'], check=True, stdout=f)
         print(f"Done. See {BUILD_LOG_FILENAME} for details.")
     except CalledProcessError:
-        print("Build failed. See {BUILD_LOG_FILENAME} for details.")
+        print(f"Build failed. See {BUILD_LOG_FILENAME} for details.")
         raise
 
 

@@ -1,11 +1,17 @@
 MAVEN  := mvn
 PYTHON := python3
 
-.PHONY: dev clean pack compile deploy
+.PHONY: dev clean pack compile deploy db-start db-stop
 
-dev: clean
+dev: clean db-start
 	$(MAVEN) install -DskipTests
 	$(MAVEN) -pl webapp jetty:run
+
+db-start:
+	@./.script/db-start.sh
+
+db-stop:
+	@./.script/db-stop.sh
 
 pack:
 	$(MAVEN) package -DskipTests
@@ -17,4 +23,4 @@ clean:
 	$(MAVEN) clean
 
 deploy:
-	$(PYTHON) deploy.py
+	$(PYTHON) ./.script/deploy.py
