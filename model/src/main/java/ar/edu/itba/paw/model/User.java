@@ -1,18 +1,16 @@
 package ar.edu.itba.paw.model;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
-@Getter
 @AllArgsConstructor
 @EqualsAndHashCode
+@Getter
+@Builder
 @ToString
-public class User {
-    private final Long id;
-    private final String username;
-    private final String firstName;
-    private final String lastName;
-    private final String email;
+public final class User {
+    private final @NonNull Long id;
+    private final @NonNull String username;
+    private final @NonNull String firstName;
+    private final @NonNull String lastName;
+    private final @NonNull String email;
 }
