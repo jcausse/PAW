@@ -73,8 +73,7 @@ public class ListingJdbcDao implements ListingDao {
                 User.builder()
                     .id(rs.getLong(UserSchema.ID))
                     .username(rs.getString(UserSchema.USERNAME))
-                    .firstName(rs.getString(UserSchema.FIRST_NAME))
-                    .lastName(rs.getString(UserSchema.LAST_NAME))
+                    .displayName(rs.getString(UserSchema.DISPLAY_NAME))
                     .email(rs.getString(UserSchema.EMAIL))
                     .build()
             )
@@ -91,8 +90,7 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.TITLE,
             ListingSchema.PRICE,
             "c." + UserSchema.USERNAME,
-            "c." + UserSchema.FIRST_NAME,
-            "c." + UserSchema.LAST_NAME,
+            "c." + UserSchema.DISPLAY_NAME,
             "c." + UserSchema.EMAIL,
             "p." + ProductSchema.NAME
         );

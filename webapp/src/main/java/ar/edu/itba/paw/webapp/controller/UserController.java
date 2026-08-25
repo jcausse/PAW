@@ -21,13 +21,14 @@ public class UserController {
 
     private static final String USER_ID_ATTR = "userId";
     private static final String USERNAME_ATTR = "username";
-    private static final String REDIRECT_AFTER_LOGIN_ATTR = "redirectAfterLogin";
+    private static final String REDIRECT_AFTER_LOGIN_ATTR =
+        "redirectAfterLogin";
 
     private final UserService userService;
 
     @GetMapping("/profile/{userId}")
     public ModelAndView profile(@PathVariable Long userId) {
-        var mav = new ModelAndView("profile");
+        final var mav = new ModelAndView("profile");
         mav.addObject("user", userService.getById(userId));
         return mav;
     }
@@ -80,11 +81,14 @@ public class UserController {
 
     @PostMapping("/login")
     public ModelAndView login(
-            @Valid @ModelAttribute("loginForm") LoginForm form,
-            BindingResult errors,
-            HttpSession session
+        @Valid @ModelAttribute("loginForm") LoginForm form,
+        BindingResult errors,
+        HttpSession session
     ) {
-        if (!errors.hasErrors() && !userService.isUsernameTaken(form.getUsername())) {
+        if (
+            !errors.hasErrors() &&
+            !userService.isUsernameTaken(form.getUsername())
+        ) {
             errors.rejectValue("username", "error.username.notfound");
         }
 
