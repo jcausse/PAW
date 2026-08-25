@@ -95,6 +95,7 @@ public class ListingJdbcDao implements ListingDao {
             "p." + ProductSchema.NAME
         );
 
+        // TODO user
         private static final String GET_BY_ID =
             "SELECT " +
             FIELDS +
