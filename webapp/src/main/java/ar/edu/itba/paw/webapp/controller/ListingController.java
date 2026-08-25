@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,14 +8,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 @RequiredArgsConstructor
 @Controller
-public class UserController {
+public class ListingController {
 
-    private final UserService userService;
+    // TODO add the service
 
-    @GetMapping("/profile/{userId}")
-    public ModelAndView profile(@PathVariable Long userId) {
-        final var mav = new ModelAndView("profile");
-        mav.addObject("user", userService.getById(userId));
+    @GetMapping("/listing/{id}")
+    public ModelAndView profile(@PathVariable Long id) {
+        final var mav = new ModelAndView("listing");
+        // mav.addObject("user", userService.getById(userId));
         return mav;
     }
 }
