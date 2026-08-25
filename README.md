@@ -48,7 +48,7 @@ To build and run the project locally, you must first install OpenJDK 21 or any o
 and Maven. After installing those requirements, just run:
 
 ```shell
-make run
+make dev
 ```
 
 Alternatively, you can run `cd webapp && mvn clean jetty:run` if you do not have `make` installed.
