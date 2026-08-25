@@ -37,29 +37,30 @@ This webapp project uses:
 
 - Java (version 21)
 - Spring (version 5.3.33)
-- PostgreSQL (version XXXXX)
 - Maven
 - Make
+- PostgreSQL (version XXXXX)
+- Docker (for local development database management)
 - Python 3 (for automated deployment to production)
 
 ## Running Locally
 
 To build and run the project locally, you must first install OpenJDK 21 or any other JAVA SDK that supports Java 21, 
-and Maven. After installing those requirements, just run:
+Maven and Docker (so that the local development database can be automatically created by the build scripts). 
+
+After installing those requirements, just run:
 
 ```shell
 make dev
 ```
 
-Alternatively, you can run `cd webapp && mvn clean jetty:run` if you do not have `make` installed.
-
 ## Deploying To Production
 
-The Python script `deploy.py` automates deploy to production. To be able to use it, you must create a file named
-`deploy_secrets.properties` with your credentials (which will be ignored by Git) and then run this to deploy:
+The Python script `.script/deploy.py` automates deploy to production. To be able to use it, you must create a file named
+`.script/deploy_secrets.properties` with your credentials (which will be ignored by Git) and then run this to deploy:
 
 ```shell
 make deploy
 ```
 
-See `deploy_secrets.properties.sample` for a configuration example.
+See `.script/deploy_secrets.properties.sample` for a configuration example.
