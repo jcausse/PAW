@@ -16,22 +16,22 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/profile/{userId}")
-    public ModelAndView profile(@PathVariable Long userId) {
+    public ModelAndView profile(@PathVariable Long id) {
         final var mav = new ModelAndView("profile");
-        mav.addObject("user", userService.getById(userId));
+        mav.addObject("user", userService.getById(id));
         return mav;
     }
 
     @PostMapping("/register")
     public ModelAndView registerUser() {
-        final var ucDto = new UserCreationDto(
-                "johnDoe",
-                "John",
-                "Doe",
-                "johndoe@example.com",
-                "superSecretPassword"
+        final var dto = new UserCreationDto(
+            "johnDoe",
+            "John",
+            "Doe",
+            "johndoe@example.com",
+            "superSecretPassword"
         );
-        userService.create(ucDto);
+        userService.create(dto);
 
         return null;
     }
