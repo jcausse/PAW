@@ -53,15 +53,13 @@ public class UserJdbcDao implements UserDao {
     @Override
     public User create(
         String username,
-        String firstName,
-        String lastName,
+        String displayName,
         String email,
         String password
     ) {
         final Map<String, Object> values = new HashMap<>();
         values.put(UserSchema.USERNAME, username);
-        values.put(UserSchema.FIRST_NAME, firstName);
-        values.put(UserSchema.LAST_NAME, lastName);
+        values.put(UserSchema.DISPLAY_NAME, displayName);
         values.put(UserSchema.EMAIL, email);
         values.put(UserSchema.PASSWORD, password);
 
@@ -70,8 +68,7 @@ public class UserJdbcDao implements UserDao {
         return User.builder()
             .id(key)
             .username(username)
-            .firstName(firstName)
-            .lastName(lastName)
+            .displayName(displayName)
             .email(email)
             .build();
     }
@@ -100,8 +97,7 @@ public class UserJdbcDao implements UserDao {
         User.builder()
             .id(rs.getLong(UserSchema.ID))
             .username(rs.getString(UserSchema.USERNAME))
-            .firstName(rs.getString(UserSchema.FIRST_NAME))
-            .lastName(rs.getString(UserSchema.LAST_NAME))
+            .displayName(rs.getString(UserSchema.DISPLAY_NAME))
             .email(rs.getString(UserSchema.EMAIL))
             .build();
 
@@ -111,8 +107,7 @@ public class UserJdbcDao implements UserDao {
             ", ",
             UserSchema.ID,
             UserSchema.USERNAME,
-            UserSchema.FIRST_NAME,
-            UserSchema.LAST_NAME,
+            UserSchema.DISPLAY_NAME,
             UserSchema.EMAIL
         );
 

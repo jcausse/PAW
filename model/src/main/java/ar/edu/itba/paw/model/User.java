@@ -11,7 +11,6 @@ public final class User {
 
     private final @NonNull Long id;
     private final @NonNull String username;
-    private final @NonNull String firstName;
-    private final @NonNull String lastName;
+    private final @NonNull String displayName;
     private final @NonNull String email;
 }

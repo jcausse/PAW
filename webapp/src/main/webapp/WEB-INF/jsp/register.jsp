@@ -19,16 +19,10 @@
                 <form:errors path="username" element="div" cssClass="text-xs text-red-600"/>
             </div>
             <div class="flex flex-col gap-1">
-                <label for="firstName" class="text-xs text-black/70 font-medium">First name</label>
-                <form:input path="firstName" id="firstName"
+                <label for="displayName" class="text-xs text-black/70 font-medium">Display name</label>
+                <form:input path="displayName" id="displayName"
                             cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 border border-black/20 focus-visible:border-sky-600 focus-visible:outline-2"/>
-                <form:errors path="firstName" element="div" cssClass="text-xs text-red-600"/>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="lastName" class="text-xs text-black/70 font-medium">Last name</label>
-                <form:input path="lastName" id="lastName"
-                            cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 border border-black/20 focus-visible:border-sky-600 focus-visible:outline-2"/>
-                <form:errors path="lastName" element="div" cssClass="text-xs text-red-600"/>
+                <form:errors path="displayName" element="div" cssClass="text-xs text-red-600"/>
             </div>
             <div class="flex flex-col gap-1">
                 <label for="email" class="text-xs text-black/70 font-medium">Email</label>

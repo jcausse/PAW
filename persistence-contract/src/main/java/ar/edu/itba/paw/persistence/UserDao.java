@@ -7,13 +7,14 @@ public interface UserDao {
     Optional<User> getById(Long id);
     Optional<User> getByUsername(String username);
     Optional<User> getByEmail(String email);
+
     User create(
         String username,
-        String firstName,
-        String lastName,
+        String displayName,
         String email,
         String password
     );
+
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
 }

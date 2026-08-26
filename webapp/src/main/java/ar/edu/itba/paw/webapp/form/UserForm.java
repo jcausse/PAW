@@ -13,20 +13,16 @@ import lombok.Setter;
 public class UserForm {
 
     @NotEmpty
-    @Size(min = 3, max = 16)
+    @Size(min = 3, max = 24)
     private String username;
 
     @NotEmpty
-    @Size(max = 16)
-    private String firstName;
-
-    @NotEmpty
-    @Size(max = 16)
-    private String lastName;
+    @Size(max = 50)
+    private String displayName;
 
     @NotEmpty
     @Email
-    @Size(max = 256)
+    @Size(max = 254)
     private String email;
 
     //    @NotEmpty
