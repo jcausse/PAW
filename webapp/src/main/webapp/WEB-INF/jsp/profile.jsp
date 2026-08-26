@@ -10,10 +10,10 @@
 <body class="p-8 pb-24 bg-neutral-50">
     <div class="max-w-2xl mx-auto">
       <h1 class="text-4xl font-bold mb-4">Hello, <c:out value="${user.id}"/></h1>
-      <p>Username: --------- <c:out value="${user.username}"/></p
-      <p>Email: ------------ <c:out value="${user.email}"/></p
-      <p>First Name: ------- <c:out value="${user.firstName}"/></p
-      <p>Last Name: -------- <c:out value="${user.lastName}"/></p
+      <p>Username: --------- <c:out value="${user.username}"/>
+      <p>Email: ------------ <c:out value="${user.email}"/>
+      <p>First Name: ------- <c:out value="${user.firstName}"/>
+      <p>Last Name: -------- <c:out value="${user.lastName}"/>
     </div>
 </body>
 </html>
