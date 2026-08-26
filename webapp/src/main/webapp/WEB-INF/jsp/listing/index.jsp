@@ -13,6 +13,7 @@
         <div class="flex-2 bg-white"></div>
         <div class="flex-1 bg-white min-w-sm">
           <h1>${listing.title}</h1>
+          <p>${listing.creator.username}</p>
         </div>
       </div>
     </div>

@@ -26,10 +26,6 @@ public class ListingServiceImpl implements ListingService {
     // @Transactional
     public Listing create(ListingCreationDto dto) {
         Objects.requireNonNull(dto, "ListingCreationDto cannot be null");
-        return listingDao.create(
-            dto.title(),
-            dto.price(),
-            dto.creator().getId()
-        );
+        return listingDao.create(dto.title(), dto.price(), dto.creator());
     }
 }

@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
+import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,17 +38,17 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
-    public Listing create(String title, Price price, Long creatorId) {
+    public Listing create(String title, Price price, User creator) {
         final Map<String, Object> values = new HashMap<>();
         values.put(ListingSchema.TITLE, title);
-        values.put(ListingSchema.CREATOR_ID, creatorId);
+        values.put(ListingSchema.CREATOR_ID, creator.getId());
         values.put(ListingSchema.PRICE, price.getAmount());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
         return Listing.builder()
             .id(key)
             .title(title)
-            .creator(new User(0l, "", "", "", "")) // TODO
+            .creator(creator)
             .price(price)
             .build();
     }
@@ -59,7 +60,15 @@ public class ListingJdbcDao implements ListingDao {
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
-            .creator(new User(0l, "", "", "", ""))
+            .creator(
+                User.builder()
+                    .id(rs.getLong(UserSchema.ID))
+                    .username(rs.getString(UserSchema.USERNAME))
+                    .firstName(rs.getString(UserSchema.FIRST_NAME))
+                    .lastName(rs.getString(UserSchema.LAST_NAME))
+                    .email(rs.getString(UserSchema.EMAIL))
+                    .build()
+            )
             .build();
 
     private static final class Queries {
@@ -68,15 +77,25 @@ public class ListingJdbcDao implements ListingDao {
             ", ",
             ListingSchema.ID,
             ListingSchema.TITLE,
-            ListingSchema.PRICE
+            ListingSchema.PRICE,
+            "c." + UserSchema.ID,
+            "c." + UserSchema.USERNAME,
+            "c." + UserSchema.FIRST_NAME,
+            "c." + UserSchema.LAST_NAME,
+            "c." + UserSchema.EMAIL
         );
 
-        // TODO user
         private static final String GET_BY_ID =
             "SELECT " +
             FIELDS +
             " FROM " +
             ListingSchema.TABLE_NAME +
+            " JOIN " +
+            UserSchema.TABLE_NAME +
+            " AS c ON c." +
+            UserSchema.ID +
+            " = " +
+            ListingSchema.CREATOR_ID +
             " WHERE " +
             ListingSchema.ID +
             " = ?";
