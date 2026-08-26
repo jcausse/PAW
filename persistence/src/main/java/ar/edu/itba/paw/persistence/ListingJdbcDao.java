@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,13 +41,13 @@ public class ListingJdbcDao implements ListingDao {
         final Map<String, Object> values = new HashMap<>();
         values.put(ListingSchema.TITLE, title);
         values.put(ListingSchema.CREATOR_ID, creatorId);
-        values.put(ListingSchema.PRICE, price);
+        values.put(ListingSchema.PRICE, price.getAmount());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
         return Listing.builder()
             .id(key)
             .title(title)
-            .creator(null) // TODO
+            .creator(new User(0l, "", "", "", "")) // TODO
             .price(price)
             .build();
     }
@@ -57,7 +58,8 @@ public class ListingJdbcDao implements ListingDao {
         Listing.builder()
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
-            .price(new Price(rs.getLong(ListingSchema.PRICE)))
+            .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
+            .creator(new User(0l, "", "", "", ""))
             .build();
 
     private static final class Queries {

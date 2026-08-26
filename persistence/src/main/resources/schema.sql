@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS listings (
   listing_id    SERIAL PRIMARY KEY,
-  name          VARCHAR(255) NOT NULL,
+  title         VARCHAR(255) NOT NULL,
   creator_id    INTEGER REFERENCES users,
   price         DECIMAL(100, 2) NOT NULL
 );

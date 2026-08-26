@@ -7,12 +7,11 @@ import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.form.ListingForm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.ModelAndView;
 
 @RequiredArgsConstructor
@@ -35,11 +34,8 @@ public class ListingController {
         return mav;
     }
 
-    @PostMapping(
-        value = "/listing",
-        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-    )
-    public ModelAndView createListing(@RequestBody ListingForm listingForm) {
+    @PostMapping("/listing")
+    public ModelAndView createListing(@ModelAttribute ListingForm listingForm) {
         final var creator = userService.getById(listingForm.getCreatorId());
         final var product = new Product(
             listingForm.getProductId(),
@@ -52,8 +48,8 @@ public class ListingController {
             creator,
             product
         );
-        listingService.create(dto);
+        final var newListing = listingService.create(dto);
 
-        return null;
+        return new ModelAndView("redirect:/listing/" + newListing.getId());
     }
 }

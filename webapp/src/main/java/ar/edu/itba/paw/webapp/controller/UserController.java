@@ -15,7 +15,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/profile/{userId}")
+    @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id) {
         final var mav = new ModelAndView("profile");
         mav.addObject("user", userService.getById(id));
