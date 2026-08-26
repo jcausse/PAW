@@ -54,8 +54,7 @@ public class UserController {
 
         var dto = new UserCreationDto(
                 form.getUsername(),
-                form.getFirstName(),
-                form.getLastName(),
+                form.getDisplayName(),
                 form.getEmail(),
                 "no-password"  // MVP: no password auth
         );
