@@ -1,5 +1,6 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="id" required="true" %>
+<%@ attribute name="name" required="false" %>
 <%@ attribute name="type" required="false" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="false" %>
@@ -33,6 +34,7 @@
 
   <input
     id="${id}"
+    name="${name}"
     type="${type}"
     class="
       px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30

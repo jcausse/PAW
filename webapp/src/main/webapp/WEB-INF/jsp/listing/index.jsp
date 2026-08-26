@@ -12,7 +12,7 @@
       <div class="flex flex-row gap-4">
         <div class="flex-2 bg-white"></div>
         <div class="flex-1 bg-white min-w-sm">
-          <h1>Product name</h1>
+          <h1>${listing.title}</h1>
         </div>
       </div>
     </div>

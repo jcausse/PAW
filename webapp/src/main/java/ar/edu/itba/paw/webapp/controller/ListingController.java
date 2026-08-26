@@ -7,6 +7,7 @@ import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.form.ListingForm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,18 +24,21 @@ public class ListingController {
 
     @GetMapping("/listing/{id}")
     public ModelAndView listing(@PathVariable Long id) {
-        final var mav = new ModelAndView("listing");
+        final var mav = new ModelAndView("listing/index");
         mav.addObject("listing", listingService.getById(id));
         return mav;
     }
 
     @GetMapping("/listing/new")
     public ModelAndView listingNew() {
-        final var mav = new ModelAndView("listingNew");
+        final var mav = new ModelAndView("listing/new");
         return mav;
     }
 
-    @PostMapping("/listing")
+    @PostMapping(
+        value = "/listing",
+        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+    )
     public ModelAndView createListing(@RequestBody ListingForm listingForm) {
         final var creator = userService.getById(listingForm.getCreatorId());
         final var product = new Product(

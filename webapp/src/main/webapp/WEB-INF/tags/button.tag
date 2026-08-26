@@ -40,7 +40,6 @@
 }"/>
 
 <button
-  type="button"
   class="
     font-semibold rounded-lg
     flex flex-row items-center justify-center gap-2
