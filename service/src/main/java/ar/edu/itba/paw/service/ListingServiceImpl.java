@@ -1,12 +1,18 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Listing;
+<<<<<<< HEAD
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+=======
+import ar.edu.itba.paw.persistence.ListingDao;
+import ar.edu.itba.paw.service.dto.ListingCreationDto;
+import ar.edu.itba.paw.service.exception.UserNotFoundException;
+>>>>>>> e6b3233 (listing controller and service)
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

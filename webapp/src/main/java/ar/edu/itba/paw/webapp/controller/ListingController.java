@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Price;
-import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.service.ListingService;
-import ar.edu.itba.paw.service.ProductService;
-import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.form.ListingForm;
 import lombok.RequiredArgsConstructor;
