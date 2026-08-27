@@ -4,8 +4,8 @@ PYTHON := python3
 .PHONY: dev clean pack compile deploy db-start db-stop
 
 dev: clean db-start
-	$(MAVEN) install -DskipTests
-	$(MAVEN) -pl webapp jetty:run
+	$(MAVEN) install -DskipTests -Pdev
+	$(MAVEN) -pl webapp jetty:run -Pdev
 
 db-start:
 	@./.script/db-start.sh

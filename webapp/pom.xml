@@ -70,6 +70,14 @@
 
   <build>
     <finalName>webapp</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/main/environments/${environment}</directory>
+      </resource>
+    </resources>
     <pluginManagement>
       <plugins>
         <plugin>
