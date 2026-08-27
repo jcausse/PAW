@@ -7,7 +7,9 @@ public interface UserService {
     User getById(Long id);
     User getByUsername(String username);
     User getByEmail(String email);
+
     User create(UserCreationDto dto);
+
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
 }

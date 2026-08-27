@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS listings (
   listing_id    SERIAL PRIMARY KEY,
   title         VARCHAR(255) NOT NULL,
   creator_id    INTEGER REFERENCES users,
+  product_id    INTEGER REFERENCES product,
   price         DECIMAL(100, 2) NOT NULL
 );

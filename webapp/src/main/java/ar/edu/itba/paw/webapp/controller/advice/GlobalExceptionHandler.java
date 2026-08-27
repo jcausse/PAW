@@ -14,15 +14,18 @@ public class GlobalExceptionHandler {
     /* Routes that do not have a mapping fall here */
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNoHandlerFound(){
+    public ModelAndView handleNoHandlerFound() {
         return new ModelAndView("error/notFound");
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleUserNotFound(){
+    public ModelAndView handleUserNotFound() {
         return new ModelAndView("error/notFound")
             .addObject("title", "User Not Found")
-            .addObject("message","Looks like the user you were looking for has not registered yet, but soon they will!");
+            .addObject(
+                "message",
+                "Looks like the user you were looking for has not registered yet, but soon they will!"
+            );
     }
 }

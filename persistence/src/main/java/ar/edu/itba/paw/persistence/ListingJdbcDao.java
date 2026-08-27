@@ -2,8 +2,10 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
+import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,10 +40,16 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
-    public Listing create(String title, Price price, User creator) {
+    public Listing create(
+        String title,
+        Price price,
+        User creator,
+        Product product
+    ) {
         final Map<String, Object> values = new HashMap<>();
         values.put(ListingSchema.TITLE, title);
         values.put(ListingSchema.CREATOR_ID, creator.getId());
+        values.put(ListingSchema.PRODUCT_ID, product.getId());
         values.put(ListingSchema.PRICE, price.getAmount());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
@@ -49,6 +57,7 @@ public class ListingJdbcDao implements ListingDao {
             .id(key)
             .title(title)
             .creator(creator)
+            .product(product)
             .price(price)
             .build();
     }
@@ -69,6 +78,9 @@ public class ListingJdbcDao implements ListingDao {
                     .email(rs.getString(UserSchema.EMAIL))
                     .build()
             )
+            .product(
+                Product.builder().name(rs.getString(ProductSchema.NAME)).build()
+            )
             .build();
 
     private static final class Queries {
@@ -78,11 +90,11 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.ID,
             ListingSchema.TITLE,
             ListingSchema.PRICE,
-            "c." + UserSchema.ID,
             "c." + UserSchema.USERNAME,
             "c." + UserSchema.FIRST_NAME,
             "c." + UserSchema.LAST_NAME,
-            "c." + UserSchema.EMAIL
+            "c." + UserSchema.EMAIL,
+            "p." + ProductSchema.NAME
         );
 
         private static final String GET_BY_ID =
@@ -96,6 +108,12 @@ public class ListingJdbcDao implements ListingDao {
             UserSchema.ID +
             " = " +
             ListingSchema.CREATOR_ID +
+            " JOIN " +
+            ProductSchema.TABLE_NAME +
+            " AS p ON p." +
+            ProductSchema.ID +
+            " = " +
+            ListingSchema.PRODUCT_ID +
             " WHERE " +
             ListingSchema.ID +
             " = ?";
