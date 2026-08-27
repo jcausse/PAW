@@ -16,7 +16,7 @@
             <paw:formInput path="username" label="Username" variant="outline"/>
             <paw:formInput path="displayName" label="Display name" variant="outline"/>
             <paw:formInput path="email" type="email" label="Email" variant="outline"/>
-            <paw:formButton text="Sign up"/>
+            <paw:button text="Sign up" type="submit"/>
         </form:form>
     </div>
 
