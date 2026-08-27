@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.webapp.form.LoginForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -20,6 +21,7 @@ public class UserController {
 
     private static final String USER_ID_ATTR = "userId";
     private static final String USERNAME_ATTR = "username";
+    private static final String REDIRECT_AFTER_LOGIN_ATTR = "redirectAfterLogin";
 
     private final UserService userService;
 
@@ -29,6 +31,8 @@ public class UserController {
         mav.addObject("user", userService.getById(userId));
         return mav;
     }
+
+    /* REGISTER */
 
     @GetMapping("/register")
     public ModelAndView registerForm(@ModelAttribute("userForm") UserForm form) {
@@ -60,9 +64,53 @@ public class UserController {
         );
         var user = userService.create(dto);
 
-        session.setAttribute(USER_ID_ATTR, user.getId());
-        session.setAttribute(USERNAME_ATTR, user.getUsername());
+        logIn(session, user.getId(), user.getUsername());
 
+        return new ModelAndView("redirect:/");
+    }
+
+    /* LOGIN */
+
+    @GetMapping("/login")
+    public ModelAndView loginForm(@ModelAttribute("loginForm") LoginForm form) {
+        return new ModelAndView("login");
+    }
+
+    @PostMapping("/login")
+    public ModelAndView login(
+            @Valid @ModelAttribute("loginForm") LoginForm form,
+            BindingResult errors,
+            HttpSession session
+    ) {
+        if (!errors.hasErrors() && !userService.isUsernameTaken(form.getUsername())) {
+            errors.rejectValue("username", "error.username.notfound");
+        }
+
+        if (errors.hasErrors()) {
+            return loginForm(form);
+        }
+
+        var user = userService.getByUsername(form.getUsername());
+        logIn(session, user.getId(), user.getUsername());
+
+        var redirect = (String) session.getAttribute(REDIRECT_AFTER_LOGIN_ATTR);
+        if (redirect != null) {
+            session.removeAttribute(REDIRECT_AFTER_LOGIN_ATTR);
+            return new ModelAndView("redirect:" + redirect);
+        }
+        return new ModelAndView("redirect:/");
+    }
+
+    private void logIn(HttpSession session, Long userId, String username) {
+        session.setAttribute(USER_ID_ATTR, userId);
+        session.setAttribute(USERNAME_ATTR, username);
+    }
+
+    /* LOGOUT */
+
+    @PostMapping("/logout")
+    public ModelAndView logout(HttpSession session) {
+        session.invalidate();
         return new ModelAndView("redirect:/");
     }
 }
