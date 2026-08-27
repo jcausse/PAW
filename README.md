@@ -64,3 +64,5 @@ make deploy
 ```
 
 See `.script/deploy_secrets.properties.sample` for a configuration example.
+
+Production URL: `https://pawserver.it.itba.edu.ar/paw-2026b-08/`
