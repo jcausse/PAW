@@ -1,9 +1,12 @@
 package ar.edu.itba.paw.webapp.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
@@ -17,14 +20,26 @@ import org.springframework.web.servlet.view.JstlView;
 
 import javax.sql.DataSource;
 
+@Configuration
 @EnableWebMvc
 @ComponentScan({
         "ar.edu.itba.paw.webapp.controller",
         "ar.edu.itba.paw.service",
         "ar.edu.itba.paw.persistence"
 })
-@Configuration
+@PropertySource("classpath:app.properties")
 public class WebConfig implements WebMvcConfigurer {
+
+    /* --------------------------------------------------------------- */
+    /* ENVIRONMENT (properties management) */
+    /* --------------------------------------------------------------- */
+
+    private final Environment env;
+
+    @Autowired
+    public WebConfig(Environment env) {
+        this.env = env;
+    }
 
     /* --------------------------------------------------------------- */
     /* FRONTEND (resource management and view resolvers) */
@@ -55,9 +70,9 @@ public class WebConfig implements WebMvcConfigurer {
     public DataSource dataSource() {
         final var dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(org.postgresql.Driver.class);
-        dataSource.setUrl("jdbc:postgresql://localhost/paw");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("postgres");
+        dataSource.setUrl(env.getRequiredProperty("database.jdbc.url"));
+        dataSource.setUsername(env.getRequiredProperty("database.jdbc.username"));
+        dataSource.setPassword(env.getRequiredProperty("database.jdbc.password"));
         return dataSource;
     }
 
