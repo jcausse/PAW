@@ -5,12 +5,12 @@ import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.exception.UserNotFoundException;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-// @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    // @Transactional
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
         return userDao.create(
@@ -46,6 +45,11 @@ public class UserServiceImpl implements UserService {
             dto.email().toLowerCase(), // Unique
             dto.password()
         );
+    }
+
+    @Override
+    public Optional<User> login(String username, String password) {
+        return userDao.getByCredentials(username.toLowerCase(), password);
     }
 
     @Override

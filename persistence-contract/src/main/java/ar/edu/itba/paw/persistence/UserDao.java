@@ -17,4 +17,12 @@ public interface UserDao {
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
+
+    /**
+     * Get a {@link User} via their username and password.
+     * @param username User's username.
+     * @param password User's password.
+     * @return An {@link Optional} that is empty if no user matches the given credentials.
+     */
+    Optional<User> getByCredentials(String username, String password);
 }

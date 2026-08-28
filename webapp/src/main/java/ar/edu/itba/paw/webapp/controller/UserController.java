@@ -88,18 +88,17 @@ public class UserController {
         BindingResult errors,
         HttpSession session
     ) {
-        if (
-            !errors.hasErrors() &&
-            !userService.isUsernameTaken(form.getUsername())
-        ) {
-            errors.rejectValue("username", "error.username.notfound");
-        }
-
         if (errors.hasErrors()) {
             return loginForm(form);
         }
 
-        var user = userService.getByUsername(form.getUsername());
+        var loggedUser = userService.login(form.getUsername(), form.getPassword());
+        if (loggedUser.isEmpty()) {
+            errors.reject("error.login.invalid");
+            return loginForm(form);
+        }
+
+        var user = loggedUser.get();
         logIn(session, user.getId(), user.getUsername());
 
         var redirect = (String) session.getAttribute(REDIRECT_AFTER_LOGIN_ATTR);

@@ -14,6 +14,7 @@
         <c:url value="/login" var="loginUrl"/>
         <form:form modelAttribute="loginForm" action="${loginUrl}" method="post" cssClass="flex flex-col gap-4">
             <paw:formInput path="username" label="Username" variant="outline"/>
+            <paw:formInput path="password" type="password" label="Password" variant="outline"/>
             <paw:button text="Log in" type="submit"/>
         </form:form>
     </div>
