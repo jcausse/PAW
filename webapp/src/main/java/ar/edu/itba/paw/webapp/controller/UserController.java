@@ -48,6 +48,9 @@ public class UserController {
         BindingResult errors,
         HttpSession session
     ) {
+        if (!form.getPassword().equals(form.getConfirmPassword())) {
+            errors.rejectValue("confirmPassword", "error.password.mismatch");
+        }
         if (userService.isUsernameTaken(form.getUsername())) {
             errors.rejectValue("username", "error.username.taken");
         }
@@ -63,7 +66,7 @@ public class UserController {
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
-            "no-password" // MVP: no password auth
+            form.getPassword()
         );
         var user = userService.create(dto);
 
