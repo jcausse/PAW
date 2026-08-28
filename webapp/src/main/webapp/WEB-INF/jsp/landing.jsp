@@ -22,7 +22,9 @@
       <div class="flex items-center gap-12 mt-8">
           <div class="flex flex-col items-center gap-3">
               <span class="text-sm font-medium">Adquirí lo que buscás</span>
-              <paw:button text="Buscar" size="lg"/>
+              <a href="<c:url value="/home"/>">
+                <paw:button text="Buscar" size="lg"/>
+            </a>
           </div>
 
           <div class="w-px h-16 bg-black/15"></div>
