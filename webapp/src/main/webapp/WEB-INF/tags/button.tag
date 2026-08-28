@@ -1,14 +1,18 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="text" required="true" %>
+<%@ attribute name="type" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="size" required="false" %>
 <%@ attribute name="role" required="false" %>
+<%@ attribute name="classname" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<c:set var="btnType" value="${not empty type ? type : 'button'}"/>
 <c:set var="btnVariant" value="${not empty variant ? variant : 'default'}"/>
 <c:set var="btnSize" value="${not empty size ? size : 'md'}"/>
 <c:set var="btnRole" value="${not empty role ? role : 'default'}"/>
+<c:set var="btnClass" value="${not empty classname ? classname : ''}"/>
 
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
 
@@ -40,7 +44,7 @@
 }"/>
 
 <button
-  type="button"
+  type="${btnType}"
   class="
     font-semibold rounded-lg
     flex flex-row items-center justify-center gap-2
@@ -51,6 +55,7 @@
     ${variantClassnames}
     ${sizeClassnames}
     ${roleClassnames}
+    ${btnClass}
   "
   <c:if test="${isDisabled}">disabled</c:if>
 >

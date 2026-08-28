@@ -1,13 +1,12 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
-<%@ attribute name="id" required="true" %>
-<%@ attribute name="name" required="false" %>
+<%@ attribute name="path" required="true" %>
 <%@ attribute name="type" required="false" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="false" %>
-<%@ attribute name="error" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <c:set var="inputVariant" value="${not empty variant ? variant : 'default'}"/>
 <c:set var="inputType" value="${not empty type ? type : 'text'}"/>
@@ -23,32 +22,22 @@
 }"/>
 
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
-<c:set var="isError" value="${not empty error}"/>
 
 <div class="flex flex-col gap-1">
   <c:if test="${not empty label}">
-    <label for="${id}" class="text-xs text-black/70 font-medium">
+    <label for="${path}" class="text-xs text-black/70 font-medium">
       ${label}
     </label>
   </c:if>
 
-  <input
-    id="${id}"
-    name="${name}"
-    type="${type}"
-    class="
-      px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30
-      placeholder:text-black/40
-      ${variantClassnames}
-    "
+  <form:input
+    path="${path}"
+    id="${path}"
+    type="${inputType}"
     placeholder="${placeholder}"
-    <c:if test="${isDisabled}">disabled</c:if>
-    <c:if test="${isError}">data-error</c:if>
+    disabled="${isDisabled}"
+    cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
   />
 
-  <c:if test="${not empty error}">
-    <div class="text-xs text-red-600">
-      ${error}
-    </div>
-  </c:if>
+  <form:errors path="${path}" element="div" cssClass="text-xs text-red-600"/>
 </div>

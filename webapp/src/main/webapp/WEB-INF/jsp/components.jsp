@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
-<body class="p-8 pb-24 bg-neutral-50">
+<body class="pb-24 bg-neutral-50">
+    <paw:navbar/>
     <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
       <h1 class="text-4xl font-bold mb-4 col-span-2">PAW TPE 0: Librería de componentes</h1>
 

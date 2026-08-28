@@ -12,6 +12,27 @@
 
   <name>Parent</name>
 
+  <profiles>
+    <!-- Development Profile -->
+    <profile>
+      <id>dev</id>
+      <properties>
+        <environment>dev</environment>
+      </properties>
+    </profile>
+
+    <!-- Production Profile -->
+    <profile>
+      <id>prod</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <environment>prod</environment>
+      </properties>
+    </profile>
+  </profiles>
+
   <modules>
     <module>webapp</module>
     <module>service</module>
@@ -28,6 +49,7 @@
     <postgresql.version>42.2.5</postgresql.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
     <hibernate.validator.version>6.2.4.Final</hibernate.validator.version>
+    <environment>prod</environment>
   </properties>
 
   <dependencyManagement>

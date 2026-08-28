@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.service.exception;
 
-public class UserNotFoundException extends RuntimeException {
+public class UserNotFoundException extends NotFoundException {
 
     public UserNotFoundException(String message) {
         super(message);
@@ -19,10 +19,14 @@ public class UserNotFoundException extends RuntimeException {
     }
 
     public static UserNotFoundException byUsername(String username) {
-        return new UserNotFoundException("User with username '" + username + "' not found");
+        return new UserNotFoundException(
+            "User with username '" + username + "' not found"
+        );
     }
 
     public static UserNotFoundException byEmail(String email) {
-        return new UserNotFoundException("User with email '" + email + "' not found");
+        return new UserNotFoundException(
+            "User with email '" + email + "' not found"
+        );
     }
 }
