@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.controller.advice;
 
+import ar.edu.itba.paw.service.exception.BadParameterException;
+import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.service.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,6 +18,22 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleNoHandlerFound() {
         return new ModelAndView("error/notFound");
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handleGenericNotFound() {
+        return new ModelAndView("error/notFound")
+            .addObject("title", "Not Found")
+            .addObject("message", "Oops!");
+    }
+
+    @ExceptionHandler(BadParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleBadParameter() {
+        return new ModelAndView("error/notFound")
+            .addObject("title", "Bad request")
+            .addObject("message", "TODO make another page for this");
     }
 
     @ExceptionHandler(UserNotFoundException.class)
