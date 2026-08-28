@@ -21,29 +21,32 @@ public class UserController {
 
     private static final String USER_ID_ATTR = "userId";
     private static final String USERNAME_ATTR = "username";
-    private static final String REDIRECT_AFTER_LOGIN_ATTR = "redirectAfterLogin";
+    private static final String REDIRECT_AFTER_LOGIN_ATTR =
+        "redirectAfterLogin";
 
     private final UserService userService;
 
     @GetMapping("/profile/{userId}")
-    public ModelAndView profile(@PathVariable Long userId) {
-        var mav = new ModelAndView("profile");
-        mav.addObject("user", userService.getById(userId));
+    public ModelAndView profile(@PathVariable Long id) {
+        final var mav = new ModelAndView("profile");
+        mav.addObject("user", userService.getById(id));
         return mav;
     }
 
     /* REGISTER */
 
     @GetMapping("/register")
-    public ModelAndView registerForm(@ModelAttribute("userForm") UserForm form) {
+    public ModelAndView registerForm(
+        @ModelAttribute("userForm") UserForm form
+    ) {
         return new ModelAndView("register");
     }
 
     @PostMapping("/register")
     public ModelAndView register(
-            @Valid @ModelAttribute("userForm") UserForm form,
-            BindingResult errors,
-            HttpSession session
+        @Valid @ModelAttribute("userForm") UserForm form,
+        BindingResult errors,
+        HttpSession session
     ) {
         if (userService.isUsernameTaken(form.getUsername())) {
             errors.rejectValue("username", "error.username.taken");
@@ -57,10 +60,10 @@ public class UserController {
         }
 
         var dto = new UserCreationDto(
-                form.getUsername(),
-                form.getDisplayName(),
-                form.getEmail(),
-                "no-password"  // MVP: no password auth
+            form.getUsername(),
+            form.getDisplayName(),
+            form.getEmail(),
+            "no-password" // MVP: no password auth
         );
         var user = userService.create(dto);
 
@@ -78,11 +81,14 @@ public class UserController {
 
     @PostMapping("/login")
     public ModelAndView login(
-            @Valid @ModelAttribute("loginForm") LoginForm form,
-            BindingResult errors,
-            HttpSession session
+        @Valid @ModelAttribute("loginForm") LoginForm form,
+        BindingResult errors,
+        HttpSession session
     ) {
-        if (!errors.hasErrors() && !userService.isUsernameTaken(form.getUsername())) {
+        if (
+            !errors.hasErrors() &&
+            !userService.isUsernameTaken(form.getUsername())
+        ) {
             errors.rejectValue("username", "error.username.notfound");
         }
 

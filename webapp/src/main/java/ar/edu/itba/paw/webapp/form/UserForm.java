@@ -25,11 +25,11 @@ public class UserForm {
     @Size(max = 254)
     private String email;
 
-//    @NotEmpty
-//    @Size(min = 6, max = 32)
-//    private String password;              // DO NOT DELETE
+    //    @NotEmpty
+    //    @Size(min = 6, max = 32)
+    //    private String password;              // DO NOT DELETE
 
-//    @NotEmpty
-//    @Size(min = 6, max = 32)
-//    private String confirmPassword;       // DO NOT DELETE
+    //    @NotEmpty
+    //    @Size(min = 6, max = 32)
+    //    private String confirmPassword;       // DO NOT DELETE
 }

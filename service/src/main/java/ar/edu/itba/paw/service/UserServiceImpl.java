@@ -4,10 +4,9 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.exception.UserNotFoundException;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -18,20 +17,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getById(Long id) {
-        return userDao.getById(id)
-                .orElseThrow(() -> UserNotFoundException.byId(id));
+        return userDao
+            .getById(id)
+            .orElseThrow(() -> UserNotFoundException.byId(id));
     }
 
     @Override
     public User getByUsername(String username) {
-        return userDao.getByUsername(username.toLowerCase())
-                .orElseThrow(() -> UserNotFoundException.byUsername(username));
+        return userDao
+            .getByUsername(username.toLowerCase())
+            .orElseThrow(() -> UserNotFoundException.byUsername(username));
     }
 
     @Override
     public User getByEmail(String email) {
-        return userDao.getByEmail(email.toLowerCase())
-                .orElseThrow(() -> UserNotFoundException.byEmail(email));
+        return userDao
+            .getByEmail(email.toLowerCase())
+            .orElseThrow(() -> UserNotFoundException.byEmail(email));
     }
 
     @Override
@@ -39,10 +41,10 @@ public class UserServiceImpl implements UserService {
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
         return userDao.create(
-                dto.username().toLowerCase(),   // Unique
-                dto.displayName(),
-                dto.email().toLowerCase(),      // Unique
-                dto.password()
+            dto.username().toLowerCase(), // Unique
+            dto.displayName(),
+            dto.email().toLowerCase(), // Unique
+            dto.password()
         );
     }
 
