@@ -13,7 +13,7 @@
 | **ID**     | **Last Name** | **First Name** | **ITBA email**                                          |
 |------------|---------------|----------------|---------------------------------------------------------|
 | **XXXXX**  | Arcodaci      | Tiziano        | [tarcodaci@itba.edu.ar](mailto:tarcodaci@itba.edu.ar)   |
-| **XXXXX**  | Bridoux       | Juan Ignacio   | [jbridoux@itba.edu.ar](mailto:jbridoux@itba.edu.ar)     |
+| **64092**  | Bridoux       | Juan Ignacio   | [jbridoux@itba.edu.ar](mailto:jbridoux@itba.edu.ar)     |
 | **61105**  | Causse        | Juan Ignacio   | [jcausse@itba.edu.ar](mailto:jcausse@itba.edu.ar)       |
 | **XXXXX**  | Fumagalli     | Teo            | [tfumagalli@itba.edu.ar](mailto:tfumagalli@itba.edu.ar) |
 
@@ -42,6 +42,7 @@ This webapp project uses:
 - PostgreSQL (version XXXXX)
 - Docker (for local development database management)
 - Python 3 (for automated deployment to production)
+- Tailwind (version 4.3.3)
 
 ## Running Locally
 
