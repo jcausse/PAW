@@ -29,13 +29,12 @@ public interface UserDao {
     /**
      * Create and persist a new {@link User}.
      * @param username User's unique username.
-     * @param firstName User's first name.
-     * @param lastName User's last name.
+     * @param displayName User's display name.
      * @param email User's unique email.
      * @param password User's password (or password hash).
      * @return The persisted {@link User} entity.
      */
-    User create(String username, String firstName, String lastName, String email, String password);
+    User create(String username, String displayName, String email, String password);
 
     /**
      * Check whether a username is already taken.

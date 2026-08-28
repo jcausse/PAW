@@ -40,8 +40,7 @@ public class UserServiceImpl implements UserService {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
         return userDao.create(
                 dto.username().toLowerCase(),   // Unique
-                dto.firstName(),
-                dto.lastName(),
+                dto.displayName(),
                 dto.email().toLowerCase(),      // Unique
                 dto.password()
         );

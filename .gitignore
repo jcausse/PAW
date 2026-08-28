@@ -85,6 +85,8 @@ webapp/src/main/webapp/css/tailwind.css
 # Eclipse m2e generated files
 # Eclipse Core
 .project
+.settings/
+.factorypath
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
