@@ -14,4 +14,8 @@ public class LoginForm {
     @NotEmpty
     @Size(min = 3, max = 24)
     private String username;
+
+    @NotEmpty
+    @Size(min = 8)
+    private String password;
 }
