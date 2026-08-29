@@ -26,10 +26,10 @@ public class UserForm {
     private String email;
 
     @NotEmpty
-    @Size(min = 6, max = 32)
+    @Size(min = 8)
     private String password;
 
     @NotEmpty
-    @Size(min = 6, max = 32)
+    @Size(min = 8)
     private String confirmPassword;
 }

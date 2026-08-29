@@ -7,6 +7,7 @@ import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +71,7 @@ public class UserController {
         );
         var user = userService.create(dto);
 
-        logIn(session, user.getId(), user.getUsername());
+        login(session, user.getId(), user.getUsername());
 
         return new ModelAndView("redirect:/");
     }
@@ -92,24 +93,29 @@ public class UserController {
             return loginForm(form);
         }
 
-        var loggedUser = userService.login(form.getUsername(), form.getPassword());
-        if (loggedUser.isEmpty()) {
+        try {
+            var user = userService.login(
+                form.getUsername(),
+                form.getPassword()
+            );
+
+            login(session, user.getId(), user.getUsername());
+
+            var redirect = (String) session.getAttribute(
+                REDIRECT_AFTER_LOGIN_ATTR
+            );
+            if (redirect != null) {
+                session.removeAttribute(REDIRECT_AFTER_LOGIN_ATTR);
+                return new ModelAndView("redirect:" + redirect);
+            }
+            return new ModelAndView("redirect:/");
+        } catch (BadCredentialsException e) {
             errors.reject("error.login.invalid");
             return loginForm(form);
         }
-
-        var user = loggedUser.get();
-        logIn(session, user.getId(), user.getUsername());
-
-        var redirect = (String) session.getAttribute(REDIRECT_AFTER_LOGIN_ATTR);
-        if (redirect != null) {
-            session.removeAttribute(REDIRECT_AFTER_LOGIN_ATTR);
-            return new ModelAndView("redirect:" + redirect);
-        }
-        return new ModelAndView("redirect:/");
     }
 
-    private void logIn(HttpSession session, Long userId, String username) {
+    private void login(HttpSession session, Long userId, String username) {
         session.setAttribute(USER_ID_ATTR, userId);
         session.setAttribute(USERNAME_ATTR, username);
     }

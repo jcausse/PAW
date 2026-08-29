@@ -51,9 +51,13 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<User> getByCredentials(String username, String password) {
+    public Optional<String> getPasswordByUsername(String username) {
         return jdbcTemplate
-            .query(Queries.GET_BY_CREDENTIALS, ROW_MAPPER, username, password)
+            .query(
+                Queries.GET_PASSWORD_BY_USERNAME,
+                PASSWORD_ROW_MAPPER,
+                username
+            )
             .stream()
             .findFirst();
     }
@@ -109,6 +113,9 @@ public class UserJdbcDao implements UserDao {
             .email(rs.getString(UserSchema.EMAIL))
             .build();
 
+    private static final RowMapper<String> PASSWORD_ROW_MAPPER = (rs, rowNum) ->
+        rs.getString(UserSchema.PASSWORD);
+
     private static final class Queries {
 
         private static final String FIELDS = String.join(
@@ -137,6 +144,15 @@ public class UserJdbcDao implements UserDao {
             UserSchema.USERNAME +
             " = ?";
 
+        private static final String GET_PASSWORD_BY_USERNAME =
+            "SELECT " +
+            String.join(", ", FIELDS, UserSchema.PASSWORD) +
+            " FROM " +
+            UserSchema.TABLE_NAME +
+            " WHERE " +
+            UserSchema.USERNAME +
+            " = ?";
+
         private static final String GET_BY_EMAIL =
             "SELECT " +
             FIELDS +
@@ -144,17 +160,6 @@ public class UserJdbcDao implements UserDao {
             UserSchema.TABLE_NAME +
             " WHERE " +
             UserSchema.EMAIL +
-            " = ?";
-
-        private static final String GET_BY_CREDENTIALS =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.USERNAME +
-            " = ? AND " +
-            UserSchema.PASSWORD +
             " = ?";
 
         private static final String IS_USERNAME_TAKEN =

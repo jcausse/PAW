@@ -8,6 +8,8 @@ public interface UserDao {
     Optional<User> getByUsername(String username);
     Optional<User> getByEmail(String email);
 
+    Optional<String> getPasswordByUsername(String username);
+
     User create(
         String username,
         String displayName,
@@ -17,6 +19,4 @@ public interface UserDao {
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
-
-    Optional<User> getByCredentials(String username, String password);
 }
