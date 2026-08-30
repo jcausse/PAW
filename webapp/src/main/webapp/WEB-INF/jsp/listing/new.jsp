@@ -16,13 +16,12 @@
         <div class="flex-2 bg-white">
           <c:url value="/listing/new" var="newListingUrl"/>
           <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post">
-            <%-- TODO add error handling --%>
-            <paw:input id="titleInput" name="title" label="Listing title" />
-            <paw:input type="number" id="creatorIdInput" name="creatorId" label="Creator ID" />
-            <paw:input type="number" id="productIdInput" name="productId" label="Product ID" />
-            <paw:input type="number" id="priceInput" name="price" label="Price" />
+            <paw:formInput path="title" label="Listing title" />
+            <paw:formInput path="creatorId" type="number" label="Creator ID" />
+            <paw:formInput path="productId" type="number" label="Product ID" />
+            <paw:formInput path="price" type="number" label="Price" />
 
-            <paw:button text="Submit" />
+            <paw:button text="Submit" type="submit" />
           </form:form>
         </div>
         <div class="flex-1 bg-white min-w-sm">
