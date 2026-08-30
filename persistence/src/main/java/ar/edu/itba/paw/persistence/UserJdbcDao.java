@@ -51,18 +51,6 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<String> getPasswordByUsername(String username) {
-        return jdbcTemplate
-            .query(
-                Queries.GET_PASSWORD_BY_USERNAME,
-                PASSWORD_ROW_MAPPER,
-                username
-            )
-            .stream()
-            .findFirst();
-    }
-
-    @Override
     public User create(
         String username,
         String displayName,
@@ -113,9 +101,6 @@ public class UserJdbcDao implements UserDao {
             .email(rs.getString(UserSchema.EMAIL))
             .build();
 
-    private static final RowMapper<String> PASSWORD_ROW_MAPPER = (rs, rowNum) ->
-        rs.getString(UserSchema.PASSWORD);
-
     private static final class Queries {
 
         private static final String FIELDS = String.join(
@@ -138,15 +123,6 @@ public class UserJdbcDao implements UserDao {
         private static final String GET_BY_USERNAME =
             "SELECT " +
             FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.USERNAME +
-            " = ?";
-
-        private static final String GET_PASSWORD_BY_USERNAME =
-            "SELECT " +
-            String.join(", ", FIELDS, UserSchema.PASSWORD) +
             " FROM " +
             UserSchema.TABLE_NAME +
             " WHERE " +

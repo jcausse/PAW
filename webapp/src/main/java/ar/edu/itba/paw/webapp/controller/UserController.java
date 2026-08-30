@@ -7,7 +7,6 @@ import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,9 +48,6 @@ public class UserController {
         BindingResult errors,
         HttpSession session
     ) {
-        if (!form.getPassword().equals(form.getConfirmPassword())) {
-            errors.rejectValue("confirmPassword", "error.password.mismatch");
-        }
         if (userService.isUsernameTaken(form.getUsername())) {
             errors.rejectValue("username", "error.username.taken");
         }
@@ -67,7 +63,7 @@ public class UserController {
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
-            form.getPassword()
+            "no-password" // MVP: no password auth
         );
         var user = userService.create(dto);
 
@@ -89,30 +85,26 @@ public class UserController {
         BindingResult errors,
         HttpSession session
     ) {
+        if (
+            !errors.hasErrors() &&
+            !userService.isUsernameTaken(form.getUsername())
+        ) {
+            errors.rejectValue("username", "error.username.notfound");
+        }
+
         if (errors.hasErrors()) {
             return loginForm(form);
         }
 
-        try {
-            var user = userService.login(
-                form.getUsername(),
-                form.getPassword()
-            );
+        var user = userService.getByUsername(form.getUsername());
+        login(session, user.getId(), user.getUsername());
 
-            login(session, user.getId(), user.getUsername());
-
-            var redirect = (String) session.getAttribute(
-                REDIRECT_AFTER_LOGIN_ATTR
-            );
-            if (redirect != null) {
-                session.removeAttribute(REDIRECT_AFTER_LOGIN_ATTR);
-                return new ModelAndView("redirect:" + redirect);
-            }
-            return new ModelAndView("redirect:/");
-        } catch (BadCredentialsException e) {
-            errors.reject("error.login.invalid");
-            return loginForm(form);
+        var redirect = (String) session.getAttribute(REDIRECT_AFTER_LOGIN_ATTR);
+        if (redirect != null) {
+            session.removeAttribute(REDIRECT_AFTER_LOGIN_ATTR);
+            return new ModelAndView("redirect:" + redirect);
         }
+        return new ModelAndView("redirect:/");
     }
 
     private void login(HttpSession session, Long userId, String username) {
