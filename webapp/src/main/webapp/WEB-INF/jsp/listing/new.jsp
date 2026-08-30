@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
@@ -14,20 +15,24 @@
     <div class="max-w-5xl mx-auto">
       <div class="flex flex-row gap-4">
         <div class="flex-2 bg-white">
-          <form action="/listing" method="post">
+          <c:url value="/listing/new" var="newListingUrl"/>
+          <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post">
             <%-- TODO add error handling --%>
             <spring:message code="listing.new.titleLabel" var="titleLabel"/>
-            <paw:input id="titleInput" name="title" label="${titleLabel}" />
+            <paw:formInput path="title" label="${titleLabel}" />
+
             <spring:message code="listing.new.creatorId" var="creatorIdLabel"/>
-            <paw:input type="number" id="creatorIdInput" name="creatorId" label="${creatorIdLabel}" />
+            <paw:formInput path="creatorId" type="number" label="${creatorIdLabel}" />
+
             <spring:message code="listing.new.productId" var="productIdLabel"/>
-            <paw:input type="number" id="productIdInput" name="productId" label="${productIdLabel}" />
+            <paw:formInput path="productId" type="number" label="${productIdLabel}" />
+
             <spring:message code="listing.new.price" var="priceLabel"/>
-            <paw:input type="number" id="priceInput" name="price" label="${priceLabel}" />
+            <paw:formInput path="price" type="number" label="${priceLabel}" />
 
             <spring:message code="listing.new.submit" var="submitLabel"/>
-            <paw:button text="${submitLabel}" />
-          </form>
+            <paw:button text="${submitLabel}" type="submit" />
+          </form:form>
         </div>
         <div class="flex-1 bg-white min-w-sm">
           <h1><spring:message code="listing.new.productName"/></h1>

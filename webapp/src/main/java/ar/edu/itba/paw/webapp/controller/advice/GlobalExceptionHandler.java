@@ -30,10 +30,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleBadParameter() {
-        return new ModelAndView("error/notFound")
-            .addObject("title", "Bad request")
-            .addObject("message", "TODO make another page for this");
+    public ModelAndView handleBadParameter(final BadParameterException e) {
+        return new ModelAndView("error/badRequest")
+            .addObject("title", "Bad Request")
+            .addObject("message", e.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
