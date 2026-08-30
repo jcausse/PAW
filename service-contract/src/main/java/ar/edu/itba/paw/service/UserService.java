@@ -9,7 +9,6 @@ public interface UserService {
     User getByEmail(String email);
 
     User create(UserCreationDto dto);
-    User login(String username, String password);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);

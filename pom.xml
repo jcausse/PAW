@@ -46,7 +46,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>21</maven.compiler.release>
     <spring.version>5.3.33</spring.version>
-    <spring-security.version>7.1.1</spring-security.version>
     <postgresql.version>42.2.5</postgresql.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
     <hibernate.validator.version>6.2.4.Final</hibernate.validator.version>
@@ -70,13 +69,6 @@
         <artifactId>spring-jdbc</artifactId>
         <version>${spring.version}</version>
       </dependency>
-      <dependency>
-  			<groupId>org.springframework.security</groupId>
-  			<artifactId>spring-security-bom</artifactId>
-  			<version>${spring-security.version}</version>
-  			<type>pom</type>
-  			<scope>import</scope>
-  		</dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
