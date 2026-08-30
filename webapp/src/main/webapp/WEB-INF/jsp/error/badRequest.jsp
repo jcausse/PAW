@@ -12,7 +12,7 @@
                 <c:out value="${title}"/>
             </c:when>
             <c:otherwise>
-                Not Found
+                400 - Bad Request
             </c:otherwise>
         </c:choose>
     </title>
@@ -22,8 +22,8 @@
 <body class="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
     <div class="max-w-md w-full text-center flex flex-col items-center gap-6 p-8 rounded-2xl border border-black/15 bg-white shadow-sm">
         <div class="flex flex-col items-center gap-2">
-            <span class="px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full bg-red-100 text-red-700">
-                404 Not Found
+            <span class="px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full bg-amber-100 text-amber-800">
+                400 Bad Request
             </span>
             <h1 class="text-3xl font-extrabold text-neutral-900 mt-2">
                 <c:choose>
@@ -31,7 +31,7 @@
                         <c:out value="${title}"/>
                     </c:when>
                     <c:otherwise>
-                        Page Not Found
+                        Bad Request
                     </c:otherwise>
                 </c:choose>
             </h1>
@@ -43,7 +43,7 @@
                     <c:out value="${message}"/>
                 </c:when>
                 <c:otherwise>
-                    The resource you are looking for could not be found or does not exist.
+                    The request could not be processed due to invalid parameters or data.
                 </c:otherwise>
             </c:choose>
         </p>

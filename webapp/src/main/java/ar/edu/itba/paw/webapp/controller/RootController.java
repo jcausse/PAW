@@ -5,12 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class HelloWorldController {
+public class RootController {
 
     @GetMapping("/")
     public ModelAndView helloWorld() {
-        final ModelAndView mav = new ModelAndView("helloWorld");
-        mav.addObject("username", "PAW");
-        return mav;
+        return new ModelAndView("helloWorld");
     }
 }

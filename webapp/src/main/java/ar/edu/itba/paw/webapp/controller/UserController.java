@@ -26,19 +26,16 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/profile/{userId}")
+    @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id) {
-        final var mav = new ModelAndView("profile");
-        mav.addObject("user", userService.getById(id));
-        return mav;
+        return new ModelAndView("profile")
+                .addObject("user", userService.getById(id));
     }
 
     /* REGISTER */
 
     @GetMapping("/register")
-    public ModelAndView registerForm(
-        @ModelAttribute("userForm") UserForm form
-    ) {
+    public ModelAndView registerForm(@ModelAttribute("userForm") UserForm form) {
         return new ModelAndView("register");
     }
 
@@ -48,6 +45,10 @@ public class UserController {
         BindingResult errors,
         HttpSession session
     ) {
+        if (errors.hasErrors()) {
+            return registerForm(form);
+        }
+
         if (userService.isUsernameTaken(form.getUsername())) {
             errors.rejectValue("username", "error.username.taken");
         }
@@ -55,15 +56,11 @@ public class UserController {
             errors.rejectValue("email", "error.email.taken");
         }
 
-        if (errors.hasErrors()) {
-            return registerForm(form);
-        }
-
         var dto = new UserCreationDto(
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
-            "no-password" // MVP: no password auth
+            "" // LEAVE EMPTY SO WHEN WE HAVE AUTHENTICATED USERS WE CAN EMAIL USERS TO FINISH SIGNUP
         );
         var user = userService.create(dto);
 
@@ -85,10 +82,7 @@ public class UserController {
         BindingResult errors,
         HttpSession session
     ) {
-        if (
-            !errors.hasErrors() &&
-            !userService.isUsernameTaken(form.getUsername())
-        ) {
+        if (!errors.hasErrors() && !userService.isUsernameTaken(form.getUsername())) {
             errors.rejectValue("username", "error.username.notfound");
         }
 
