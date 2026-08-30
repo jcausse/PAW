@@ -1,6 +1,7 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <%-- The logged-in username is read from the session (set on login/register). --%>
 <c:set var="currentUser" value="${sessionScope.username}"/>
@@ -16,15 +17,17 @@
       <div class="ml-auto flex flex-row items-center gap-3">
         <c:choose>
           <c:when test="${not empty currentUser}">
-            <span class="text-sm text-black/70">Hey, <c:out value="${currentUser}"/></span>
+            <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser}"/></span>
             <c:url value="/logout" var="logoutUrl"/>
             <form action="${logoutUrl}" method="post">
-              <paw:button text="Log out" type="submit" variant="outline" size="sm" role="secondary"/>
+              <spring:message code="navbar.logout" var="logoutLabel"/>
+              <paw:button text="${logoutLabel}" type="submit" variant="outline" size="sm" role="secondary"/>
             </form>
           </c:when>
           <c:otherwise>
             <a href="<c:url value='/login'/>">
-              <paw:button text="Sign in" variant="outline" size="sm"/>
+              <spring:message code="navbar.signin" var="signinLabel"/>
+              <paw:button text="${signinLabel}" variant="outline" size="sm"/>
             </a>
           </c:otherwise>
         </c:choose>
