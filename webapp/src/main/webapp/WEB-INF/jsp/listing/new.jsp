@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <!DOCTYPE html>
@@ -13,7 +14,8 @@
     <div class="max-w-5xl mx-auto">
       <div class="flex flex-row gap-4">
         <div class="flex-2 bg-white">
-          <form action="/listing" method="post">
+          <c:url value="/listing/new" var="newListingUrl"/>
+          <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post">
             <%-- TODO add error handling --%>
             <paw:input id="titleInput" name="title" label="Listing title" />
             <paw:input type="number" id="creatorIdInput" name="creatorId" label="Creator ID" />
@@ -21,7 +23,7 @@
             <paw:input type="number" id="priceInput" name="price" label="Price" />
 
             <paw:button text="Submit" />
-          </form>
+          </form:form>
         </div>
         <div class="flex-1 bg-white min-w-sm">
           <h1>Product name</h1>
