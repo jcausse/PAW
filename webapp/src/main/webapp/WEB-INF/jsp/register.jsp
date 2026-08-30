@@ -12,7 +12,6 @@
     <div class="w-96 bg-white border border-black/10 rounded-2xl p-6">
         <c:url value="/register" var="registerUrl"/>
         <form:form modelAttribute="userForm" action="${registerUrl}" method="post" cssClass="flex flex-col gap-4">
-            <%-- TODO this crashes due to missing translations --%>
             <form:errors path="" element="div" cssClass="text-xs text-red-600"/>
             <paw:formInput path="username" label="Username" variant="outline"/>
             <paw:formInput path="displayName" label="Display name" variant="outline"/>
