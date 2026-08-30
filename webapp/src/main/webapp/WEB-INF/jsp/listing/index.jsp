@@ -1,10 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
-    <title>Listing</title>
+    <title><spring:message code="listing.detail.title"/></title>
     <%-- FOR DEVELOPMENT ONLY!! --%>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
@@ -35,7 +36,8 @@
 
               <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
 
-              <paw:button size="lg" classname="w-full" text="Make an offer" />
+              <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
+              <paw:button size="lg" classname="w-full" text="${makeOfferLabel}" />
             </div>
           </paw:card>
         </div>
