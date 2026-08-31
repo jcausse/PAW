@@ -23,27 +23,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleGenericNotFound() {
-        return new ModelAndView("error/notFound")
-            .addObject("title", "Not Found")
-            .addObject("message", "Oops!");
+        return new ModelAndView("error/notFound");
     }
 
     @ExceptionHandler(BadParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleBadParameter(final BadParameterException e) {
-        return new ModelAndView("error/badRequest")
-            .addObject("title", "Bad Request")
-            .addObject("message", e.getMessage());
+    public ModelAndView handleBadParameter() {
+        return new ModelAndView("error/badRequest");
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleUserNotFound() {
         return new ModelAndView("error/notFound")
-            .addObject("title", "User Not Found")
-            .addObject(
-                "message",
-                "Looks like the user you were looking for has not registered yet, but soon they will!"
-            );
+            .addObject("messageCode", "userNotFound");
     }
 }

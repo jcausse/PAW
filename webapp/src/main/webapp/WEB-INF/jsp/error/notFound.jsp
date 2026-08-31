@@ -2,21 +2,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+<%-- Controllers may set 'messageCode' to a prefix (e.g. "userNotFound") to customise the page.
+     Defaults to "notFound" when not provided. --%>
+<c:set var="prefix" value="${not empty messageCode ? messageCode : 'notFound'}"/>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${pageContext.response.locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <c:choose>
-            <c:when test="${not empty title}">
-                <c:out value="${title}"/>
-            </c:when>
-            <c:otherwise>
-                <spring:message code="notFound.heading"/>
-            </c:otherwise>
-        </c:choose>
-    </title>
+    <title><spring:message code="${prefix}.heading"/></title>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
@@ -27,26 +22,12 @@
                 <spring:message code="notFound.badge"/>
             </span>
             <h1 class="text-3xl font-extrabold text-neutral-900 mt-2">
-                <c:choose>
-                    <c:when test="${not empty title}">
-                        <c:out value="${title}"/>
-                    </c:when>
-                    <c:otherwise>
-                        <spring:message code="notFound.heading"/>
-                    </c:otherwise>
-                </c:choose>
+                <spring:message code="${prefix}.heading"/>
             </h1>
         </div>
 
         <p class="text-neutral-600 text-base">
-            <c:choose>
-                <c:when test="${not empty message}">
-                    <c:out value="${message}"/>
-                </c:when>
-                <c:otherwise>
-                    <spring:message code="notFound.message"/>
-                </c:otherwise>
-            </c:choose>
+            <spring:message code="${prefix}.message"/>
         </p>
 
         <a href="<c:url value="/"/>"

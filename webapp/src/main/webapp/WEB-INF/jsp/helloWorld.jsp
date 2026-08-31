@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
-<html>
+<html lang="${pageContext.response.locale.language}">
 <head>
     <title>PAW TPE 0</title>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>

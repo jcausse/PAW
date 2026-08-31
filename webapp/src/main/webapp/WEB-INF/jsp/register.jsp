@@ -3,7 +3,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<html>
+<html lang="${pageContext.response.locale.language}">
 <head>
     <title><spring:message code="register.title"/></title>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>

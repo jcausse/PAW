@@ -5,7 +5,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${pageContext.response.locale.language}">
 <head>
     <title><spring:message code="listing.new.title"/></title>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
