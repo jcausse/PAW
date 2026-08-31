@@ -15,6 +15,23 @@
       </a>
 
       <div class="ml-auto flex flex-row items-center gap-3">
+
+        <%-- Language toggle. /language stores the locale (via LocaleChangeInterceptor) and redirects back. --%>
+        <c:set var="currentLang" value="${pageContext.response.locale.language}"/>
+        <c:url value="/language" var="langUrlEs"><c:param name="lang" value="es"/></c:url>
+        <c:url value="/language" var="langUrlEn"><c:param name="lang" value="en"/></c:url>
+        <div class="flex flex-row items-center text-xs font-medium">
+          <a href="${langUrlEs}"
+             class="px-1.5 py-0.5 rounded ${currentLang eq 'es' ? 'text-sky-600 font-bold' : 'text-black/40 hover:text-black/70'}">
+            <spring:message code="navbar.lang.es"/>
+          </a>
+          <span class="text-black/20">|</span>
+          <a href="${langUrlEn}"
+             class="px-1.5 py-0.5 rounded ${currentLang eq 'en' ? 'text-sky-600 font-bold' : 'text-black/40 hover:text-black/70'}">
+            <spring:message code="navbar.lang.en"/>
+          </a>
+        </div>
+
         <c:choose>
           <c:when test="${not empty currentUser}">
             <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser}"/></span>
