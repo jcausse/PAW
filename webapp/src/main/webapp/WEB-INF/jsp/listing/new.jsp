@@ -2,11 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Listing</title>
+    <title><spring:message code="listing.new.title"/></title>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
@@ -16,16 +17,25 @@
         <div class="flex-2 bg-white">
           <c:url value="/listing/new" var="newListingUrl"/>
           <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post">
-            <paw:formInput path="title" label="Listing title" />
-            <paw:formInput path="creatorId" type="number" label="Creator ID" />
-            <paw:formInput path="productId" type="number" label="Product ID" />
-            <paw:formInput path="price" type="number" label="Price" />
+            <%-- TODO add error handling --%>
+            <spring:message code="listing.new.titleLabel" var="titleLabel"/>
+            <paw:formInput path="title" label="${titleLabel}" />
 
-            <paw:button text="Submit" type="submit" />
+            <spring:message code="listing.new.creatorId" var="creatorIdLabel"/>
+            <paw:formInput path="creatorId" type="number" label="${creatorIdLabel}" />
+
+            <spring:message code="listing.new.productId" var="productIdLabel"/>
+            <paw:formInput path="productId" type="number" label="${productIdLabel}" />
+
+            <spring:message code="listing.new.price" var="priceLabel"/>
+            <paw:formInput path="price" type="number" label="${priceLabel}" />
+
+            <spring:message code="listing.new.submit" var="submitLabel"/>
+            <paw:button text="${submitLabel}" type="submit" />
           </form:form>
         </div>
         <div class="flex-1 bg-white min-w-sm">
-          <h1>Product name</h1>
+          <h1><spring:message code="listing.new.productName"/></h1>
         </div>
       </div>
     </div>
