@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-// @Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductDao productDao;
@@ -45,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    // @Transactional
+    @Transactional
     public Product create(ProductCreationDto dto) {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
         return productDao.create(dto.name(), dto.brand(), dto.model(), dto.year(), dto.subcategoryId());

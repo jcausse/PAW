@@ -10,10 +10,11 @@ import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-// @Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class ListingServiceImpl implements ListingService {
 
     private final ListingDao listingDao;
@@ -31,7 +32,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    // @Transactional
+    @Transactional
     public Listing create(ListingCreationDto dto) {
         Objects.requireNonNull(dto, "ListingCreationDto cannot be null");
 
