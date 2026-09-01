@@ -10,9 +10,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -32,6 +35,7 @@ import java.util.Locale;
 
 @Configuration
 @EnableWebMvc
+@EnableTransactionManagement
 @ComponentScan({
         "ar.edu.itba.paw.webapp.controller",
         "ar.edu.itba.paw.service",
@@ -144,5 +148,14 @@ public class WebConfig implements WebMvcConfigurer {
         final var populator = new ResourceDatabasePopulator();
         populator.addScript(schema);
         return populator;
+    }
+
+    /* --------------------------------------------------------------- */
+    /* TRANSACTION MANAGEMENT (@Transactional annotations) */
+    /* --------------------------------------------------------------- */
+
+    @Bean
+    public PlatformTransactionManager transactionManager(final DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 }
