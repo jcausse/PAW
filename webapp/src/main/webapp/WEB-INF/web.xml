@@ -15,7 +15,10 @@
   </context-param>
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>ar.edu.itba.paw.webapp.config.WebConfig</param-value>
+    <param-value>
+      ar.edu.itba.paw.webapp.config.WebConfig,
+      ar.edu.itba.paw.webapp.config.WebAuthConfig
+    </param-value>
   </context-param>
 
   <!-- Listener for application state changes and configuration changes -->
@@ -30,13 +33,6 @@
     <init-param>
       <param-name>contextClass</param-name>
       <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
-    </init-param>
-    <init-param>
-      <param-name>contextConfigLocation</param-name>
-      <param-value>
-        ar.edu.itba.paw.webapp.config.WebConfig,
-        ar.edu.itba.paw.webapp.config.WebAuthConfig
-      </param-value>
     </init-param>
 
     <!-- Route 404 Not Found errors through the GlobalExceptionHandler ControllerAdvice -->
