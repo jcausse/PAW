@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.LoginForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.servlet.http.HttpSession;
@@ -90,7 +91,9 @@ public class UserController {
             return loginForm(form);
         }
 
-        var user = userService.getByUsername(form.getUsername());
+        var user = userService.getByUsername(form.getUsername())
+                .orElseThrow(() -> UserNotFoundException.byUsername(form.getUsername()));
+
         login(session, user.getId(), user.getUsername());
 
         var redirect = (String) session.getAttribute(REDIRECT_AFTER_LOGIN_ATTR);
