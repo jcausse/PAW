@@ -2,12 +2,13 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
-import ar.edu.itba.paw.service.exception.UserNotFoundException;
-import ar.edu.itba.paw.webapp.form.LoginForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class UserController {
 
-    private static final String USER_ID_ATTR = "userId";
-    private static final String USERNAME_ATTR = "username";
-    private static final String REDIRECT_AFTER_LOGIN_ATTR =
-        "redirectAfterLogin";
-
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id) {
@@ -43,11 +41,10 @@ public class UserController {
     @PostMapping("/register")
     public ModelAndView register(
         @Valid @ModelAttribute("userForm") UserForm form,
-        BindingResult errors,
-        HttpSession session
+        BindingResult errors
     ) {
-        if (errors.hasErrors()) {
-            return registerForm(form);
+        if (!form.getPassword().equals(form.getConfirmPassword())) {
+            errors.rejectValue("confirmPassword", "error.password.mismatch");
         }
 
         if (userService.isUsernameTaken(form.getUsername())) {
@@ -57,15 +54,25 @@ public class UserController {
             errors.rejectValue("email", "error.email.taken");
         }
 
+        if (errors.hasErrors()) {
+            return registerForm(form);
+        }
+
         var dto = new UserCreationDto(
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
-            "" // LEAVE EMPTY SO WHEN WE HAVE AUTHENTICATED USERS WE CAN EMAIL USERS TO FINISH SIGNUP
+            passwordEncoder.encode(form.getPassword())
         );
-        var user = userService.create(dto);
+        userService.create(dto);
 
-        login(session, user.getId(), user.getUsername());
+        /* Auto-Login */
+        SecurityContextHolder.getContext().setAuthentication(
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    form.getUsername(),
+                    form.getPassword()
+            )
+        ));
 
         return new ModelAndView("redirect:/");
     }
@@ -73,47 +80,7 @@ public class UserController {
     /* LOGIN */
 
     @GetMapping("/login")
-    public ModelAndView loginForm(@ModelAttribute("loginForm") LoginForm form) {
+    public ModelAndView loginForm() {
         return new ModelAndView("login");
-    }
-
-    @PostMapping("/login")
-    public ModelAndView login(
-        @Valid @ModelAttribute("loginForm") LoginForm form,
-        BindingResult errors,
-        HttpSession session
-    ) {
-        if (!errors.hasErrors() && !userService.isUsernameTaken(form.getUsername())) {
-            errors.rejectValue("username", "error.username.notfound");
-        }
-
-        if (errors.hasErrors()) {
-            return loginForm(form);
-        }
-
-        var user = userService.getByUsername(form.getUsername())
-                .orElseThrow(() -> UserNotFoundException.byUsername(form.getUsername()));
-
-        login(session, user.getId(), user.getUsername());
-
-        var redirect = (String) session.getAttribute(REDIRECT_AFTER_LOGIN_ATTR);
-        if (redirect != null) {
-            session.removeAttribute(REDIRECT_AFTER_LOGIN_ATTR);
-            return new ModelAndView("redirect:" + redirect);
-        }
-        return new ModelAndView("redirect:/");
-    }
-
-    private void login(HttpSession session, Long userId, String username) {
-        session.setAttribute(USER_ID_ATTR, userId);
-        session.setAttribute(USERNAME_ATTR, username);
-    }
-
-    /* LOGOUT */
-
-    @PostMapping("/logout")
-    public ModelAndView logout(HttpSession session) {
-        session.invalidate();
-        return new ModelAndView("redirect:/");
     }
 }

@@ -13,15 +13,22 @@
 
     <div class="w-96 bg-white border border-black/10 rounded-2xl p-6">
         <c:url value="/login" var="loginUrl"/>
-        <form:form modelAttribute="loginForm" action="${loginUrl}" method="post" cssClass="flex flex-col gap-4">
-            <form:errors path="" element="div" cssClass="text-xs text-red-600"/>
+        <form action="${loginUrl}" method="post" class="flex flex-col gap-4">
+            <c:if test="${param.error != null}">
+                <div class="text-xs text-red-600 font-medium">
+                    <spring:message code="login.error.invalidCredentials"/>
+                </div>
+            </c:if>
 
             <spring:message code="field.username" var="usernameLabel"/>
-            <paw:formInput path="username" label="${usernameLabel}" variant="outline"/>
+            <paw:input id="username" name="username" label="${usernameLabel}" variant="outline"/>
+
+            <spring:message code="field.password" var="passwordLabel"/>
+            <paw:input id="password" name="password" type="password" label="${passwordLabel}" variant="outline"/>
 
             <spring:message code="login.submit" var="submitLabel"/>
             <paw:button text="${submitLabel}" type="submit"/>
-        </form:form>
+        </form>
     </div>
 
     <a href="<c:url value="/register"/>" class="text-sm underline mt-4"><spring:message code="login.noAccount"/></a>

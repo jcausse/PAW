@@ -3,8 +3,8 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%-- The logged-in username is read from the session (set on login/register). --%>
-<c:set var="currentUser" value="${sessionScope.username}"/>
+<%-- The logged-in username is read from the request principal (populated by Spring Security). --%>
+<c:set var="currentUser" value="${pageContext.request.userPrincipal.name}"/>
 
 <div class="sticky top-0 pt-3 px-6 z-50">
   <nav class="mx-auto max-w-6xl rounded-xl overflow-hidden relative z-10">
