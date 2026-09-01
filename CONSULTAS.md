@@ -23,3 +23,5 @@
 2. Esta bien que el `PasswordEncoder` vaya en `UserController` en lugar de `UserServiceImpl`?
    - Separación de responsabilidades?
    - Dependencia circular al ponerlo en el servicio.
+
+3. Para que era lo de `javax.servlet.servlet-api` que es `provided`? Es necesario para `spring-security`?
