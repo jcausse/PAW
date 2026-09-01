@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.persistence.ProductDao;
 import ar.edu.itba.paw.service.dto.ProductCreationDto;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,9 +35,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getByCategory(Long categoryId) {
+        return productDao.getByCategory(categoryId);
+    }
+
+    @Override
+    public List<Product> getBySubcategory(Long subcategoryId) {
+        return productDao.getBySubcategory(subcategoryId);
+    }
+
+    @Override
     // @Transactional
     public Product create(ProductCreationDto dto) {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
-        return productDao.create(dto.name());
+        return productDao.create(dto.name(), dto.brand(), dto.model(), dto.year(), dto.subcategoryId());
     }
 }
