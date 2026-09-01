@@ -4,7 +4,7 @@
 
 This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a multi-module Maven project using Spring WebMVC (not Spring Boot), JSP views, JSTL, and PostgreSQL via Spring JDBC (will later use JPA/Hibernate but not yet until this file changes).
 
-The student has prior Spring/Spring Boot knowledge but must follow the course progression. Features like Spring Security, `@Transactional`, and password hashing will be added later — do not remove commented-out code left as reminders for future implementation.
+The student has prior Spring/Spring Boot knowledge but must follow the course progression. Features like, `@Transactional`, and password hashing will be added later — do not remove commented-out code left as reminders for future implementation.
 
 ## Important
 
@@ -79,6 +79,14 @@ The student has prior Spring/Spring Boot knowledge but must follow the course pr
 - POST handlers should use `@Valid @ModelAttribute` with `BindingResult`.
 - Use `@ResponseStatus` on `@ExceptionHandler` methods.
 - Services must throw custom exceptions for their errors, which are caught by the `GlobalExceptionHandler` `@ControllerAdvice`.
+
+## Spring Security
+
+- Spring Security configuration is at `ar.edu.itba.paw.webapp.config.WebAuthConfig` and that file should remain the only source of truth about security configurations, especially
+  related to access control lists.
+- Authentication is made using `username` and `password` and is handled by service `ar.edu.itba.paw.webapp.auth.AuthUserDetailsService`.
+- User details for Spring Security uses class `ar.edu.itba.paw.webapp.auth.AuthUserDetails`, which contains a domain user (`ar.edu.itba.paw.model.User`).
+- Passwords must be BCrypt-encoded.
 
 ## Other Conventions
 

@@ -19,3 +19,7 @@
         return new DatabaseLocaleResolver(userService);
     }
     ```
+
+2. Esta bien que el `PasswordEncoder` vaya en `UserController` en lugar de `UserServiceImpl`?
+   - Separación de responsabilidades?
+   - Dependencia circular al ponerlo en el servicio.
