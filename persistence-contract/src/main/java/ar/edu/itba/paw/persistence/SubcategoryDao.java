@@ -11,5 +11,7 @@ public interface SubcategoryDao {
 
     List<Subcategory> getAll();
 
+    List<Subcategory> getByCategoryId(Long categoryId);
+
     Subcategory create(String name, Long categoryId);
 }

@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
-import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
-import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,27 +57,12 @@ public class CategoryJdbcDao implements CategoryDao {
         return Category.builder().id(key).name(name).build();
     }
 
-    @Override
-    public List<Subcategory> getSubcategories(Long categoryId) {
-        return jdbcTemplate.query(Queries.GET_SUBCATEGORIES, SUBCATEGORY_ROW_MAPPER, categoryId);
-    }
-
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Category> ROW_MAPPER = (rs, rowNum) ->
         Category.builder()
             .id(rs.getLong(CategorySchema.ID))
             .name(rs.getString(CategorySchema.NAME))
-            .build();
-
-    private static final RowMapper<Subcategory> SUBCATEGORY_ROW_MAPPER = (rs, rowNum) ->
-        Subcategory.builder()
-            .id(rs.getLong(SubcategorySchema.ID))
-            .name(rs.getString(SubcategorySchema.NAME))
-            .category(Category.builder()
-                .id(rs.getLong(CategorySchema.ID))
-                .name(rs.getString(CategorySchema.NAME))
-                .build())
             .build();
 
     private static final class Queries {
@@ -113,20 +96,5 @@ public class CategoryJdbcDao implements CategoryDao {
             FIELDS +
             " FROM " +
             CategorySchema.TABLE_NAME;
-
-        private static final String GET_SUBCATEGORIES =
-            "SELECT " +
-            String.join(", ",
-                SubcategorySchema.ID,
-                SubcategorySchema.NAME,
-                CategorySchema.ID,
-                CategorySchema.NAME
-            ) +
-            " FROM " +
-            SubcategorySchema.TABLE_NAME +
-            " JOIN " +
-            CategorySchema.TABLE_NAME +
-            " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID + " = " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID +
-            " WHERE " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID + " = ?";
     }
 }

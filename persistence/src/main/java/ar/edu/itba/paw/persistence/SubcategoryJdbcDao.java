@@ -51,6 +51,11 @@ public class SubcategoryJdbcDao implements SubcategoryDao {
     }
 
     @Override
+    public List<Subcategory> getByCategoryId(Long categoryId) {
+        return jdbcTemplate.query(Queries.GET_BY_CATEGORY_ID, ROW_MAPPER, categoryId);
+    }
+
+    @Override
     public Subcategory create(String name, Long categoryId) {
         final Map<String, Object> values = new HashMap<>();
         values.put(SubcategorySchema.NAME, name);
@@ -114,5 +119,15 @@ public class SubcategoryJdbcDao implements SubcategoryDao {
             " JOIN " +
             CategorySchema.TABLE_NAME +
             " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID + " = " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID;
+
+        private static final String GET_BY_CATEGORY_ID =
+            "SELECT " +
+            FIELDS +
+            " FROM " +
+            SubcategorySchema.TABLE_NAME +
+            " JOIN " +
+            CategorySchema.TABLE_NAME +
+            " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID + " = " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID +
+            " WHERE " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID + " = ?";
     }
 }
