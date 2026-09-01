@@ -90,6 +90,30 @@
         <directory>src/main/environments/${environment}</directory>
       </resource>
     </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.46</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.github.4ndreidev</groupId>
+        <artifactId>tailwind-maven-plugin</artifactId>
+        <configuration>
+          <outputFile>
+            ${project.basedir}/src/main/webapp/css/tailwind.css
+          </outputFile>
+        </configuration>
+      </plugin>
+    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -146,16 +170,5 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>io.github.4ndreidev</groupId>
-        <artifactId>tailwind-maven-plugin</artifactId>
-        <configuration>
-          <outputFile>
-            ${project.basedir}/src/main/webapp/css/tailwind.css
-          </outputFile>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 </project>

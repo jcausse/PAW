@@ -66,6 +66,33 @@ public class ProductJdbcDao implements ProductDao {
     }
 
     @Override
+    public List<Product> getBySubcategoryAndFilters(Long subcategoryId, String brand, String model, Integer year) {
+        return jdbcTemplate.query(
+            Queries.GET_BY_SUBCATEGORY_AND_FILTERS,
+            ROW_MAPPER,
+            subcategoryId,
+            brand,
+            model,
+            year
+        );
+    }
+
+    @Override
+    public List<String> getBrandsBySubcategory(Long subcategoryId) {
+        return jdbcTemplate.queryForList(Queries.GET_BRANDS_BY_SUBCATEGORY, String.class, subcategoryId);
+    }
+
+    @Override
+    public List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand) {
+        return jdbcTemplate.queryForList(Queries.GET_MODELS_BY_SUBCATEGORY_AND_BRAND, String.class, subcategoryId, brand);
+    }
+
+    @Override
+    public List<Integer> getYearsBySubcategoryAndBrandAndModel(Long subcategoryId, String brand, String model) {
+        return jdbcTemplate.queryForList(Queries.GET_YEARS_BY_SUBCATEGORY_AND_BRAND_AND_MODEL, Integer.class, subcategoryId, brand, model);
+    }
+
+    @Override
     public Product create(
         String name,
         String brand,
@@ -211,5 +238,41 @@ public class ProductJdbcDao implements ProductDao {
             "." +
             SubcategorySchema.ID +
             " = ?";
+
+        private static final String GET_BY_SUBCATEGORY_AND_FILTERS =
+            "SELECT " +
+            FIELDS +
+            ", " +
+            SUBCATEGORY_FIELDS +
+            BASE_FROM +
+            " WHERE " +
+            SubcategorySchema.TABLE_NAME +
+            "." +
+            SubcategorySchema.ID +
+            " = ?" +
+            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ?" +
+            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ?" +
+            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.YEAR + " = ?";
+
+        private static final String GET_BRANDS_BY_SUBCATEGORY =
+            "SELECT DISTINCT " + ProductSchema.BRAND +
+            " FROM " + ProductSchema.TABLE_NAME +
+            " WHERE " + ProductSchema.SUBCATEGORY_ID + " = ?" +
+            " ORDER BY " + ProductSchema.BRAND;
+
+        private static final String GET_MODELS_BY_SUBCATEGORY_AND_BRAND =
+            "SELECT DISTINCT " + ProductSchema.MODEL +
+            " FROM " + ProductSchema.TABLE_NAME +
+            " WHERE " + ProductSchema.SUBCATEGORY_ID + " = ?" +
+            " AND " + ProductSchema.BRAND + " = ?" +
+            " ORDER BY " + ProductSchema.MODEL;
+
+        private static final String GET_YEARS_BY_SUBCATEGORY_AND_BRAND_AND_MODEL =
+            "SELECT DISTINCT " + ProductSchema.YEAR +
+            " FROM " + ProductSchema.TABLE_NAME +
+            " WHERE " + ProductSchema.SUBCATEGORY_ID + " = ?" +
+            " AND " + ProductSchema.BRAND + " = ?" +
+            " AND " + ProductSchema.MODEL + " = ?" +
+            " ORDER BY " + ProductSchema.YEAR + " DESC";
     }
 }
