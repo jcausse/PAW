@@ -51,12 +51,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public User create(
-        String username,
-        String displayName,
-        String email,
-        String password
-    ) {
+    public User create(String username, String displayName, String email, String password) {
         final Map<String, Object> values = new HashMap<>();
         values.put(UserSchema.USERNAME, username);
         values.put(UserSchema.DISPLAY_NAME, displayName);
@@ -70,6 +65,7 @@ public class UserJdbcDao implements UserDao {
             .username(username)
             .displayName(displayName)
             .email(email)
+            .password(password)
             .build();
     }
 
@@ -99,6 +95,7 @@ public class UserJdbcDao implements UserDao {
             .username(rs.getString(UserSchema.USERNAME))
             .displayName(rs.getString(UserSchema.DISPLAY_NAME))
             .email(rs.getString(UserSchema.EMAIL))
+            .password(rs.getString(UserSchema.PASSWORD))
             .build();
 
     private static final class Queries {
@@ -108,48 +105,31 @@ public class UserJdbcDao implements UserDao {
             UserSchema.ID,
             UserSchema.USERNAME,
             UserSchema.DISPLAY_NAME,
-            UserSchema.EMAIL
+            UserSchema.EMAIL,
+            UserSchema.PASSWORD
         );
 
         private static final String GET_BY_ID =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.ID +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.ID + " = ?";
 
         private static final String GET_BY_USERNAME =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.USERNAME +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.USERNAME + " = ?";
 
         private static final String GET_BY_EMAIL =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.EMAIL +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.EMAIL + " = ?";
 
         private static final String IS_USERNAME_TAKEN =
-            "SELECT EXISTS(SELECT 1 FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.USERNAME +
-            " = ?)";
+            "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.USERNAME + " = ?)";
 
         private static final String IS_EMAIL_TAKEN =
-            "SELECT EXISTS(SELECT 1 FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.EMAIL +
-            " = ?)";
+            "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.EMAIL + " = ?)";
     }
 }

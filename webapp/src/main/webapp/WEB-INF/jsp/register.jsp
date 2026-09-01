@@ -24,6 +24,12 @@
             <spring:message code="register.email" var="emailLabel"/>
             <paw:formInput path="email" type="email" label="${emailLabel}" variant="outline"/>
 
+            <spring:message code="field.password" var="passwordLabel"/>
+            <paw:formInput path="password" type="password" label="${passwordLabel}" variant="outline"/>
+
+            <spring:message code="field.confirmPassword" var="confirmPasswordLabel"/>
+            <paw:formInput path="confirmPassword" type="password" label="${confirmPasswordLabel}" variant="outline"/>
+
             <spring:message code="register.submit" var="submitLabel"/>
             <paw:button text="${submitLabel}" type="submit"/>
         </form:form>
