@@ -12,6 +12,11 @@ public interface ProductDao {
     List<Product> getByCategory(Long categoryId);
 
     List<Product> getBySubcategory(Long subcategoryId);
+    List<Product> getBySubcategoryAndFilters(Long subcategoryId, String brand, String model, Integer year);
+
+    List<String> getBrandsBySubcategory(Long subcategoryId);
+    List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand);
+    List<Integer> getYearsBySubcategoryAndBrandAndModel(Long subcategoryId, String brand, String model);
 
     Product create(String name, String brand, String model, Integer year, Long subcategoryId);
 }
