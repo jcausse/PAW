@@ -56,12 +56,16 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
+    /* --------------------------------------------------------------- */
+    /* ACCESS CONTROL LIST */
+    /* --------------------------------------------------------------- */
+
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.userDetailsService(userDetailsService).sessionManagement()
 
             /* Invalid Sessions */
-            .invalidSessionUrl("/login")
+            .invalidSessionUrl("/")
 
             /* Access Control */
             .and().authorizeRequests()
@@ -99,12 +103,15 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+    /* --------------------------------------------------------------- */
+    /* STATIC RESOURCES */
+    /* --------------------------------------------------------------- */
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers(
                 "/css/**",
                 "/js/**",
-                "/image/**",
                 "/static-image/**",
                 "/favicon.ico"
         );
