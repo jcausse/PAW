@@ -43,14 +43,19 @@ public class ListingController {
             if (form.getCategoryId() == null) {
                 bindingResult.rejectValue("categoryId", "NotNull.listingForm.categoryId");
             }
-            if (form.getSubcategoryId() == null) {
-                bindingResult.rejectValue("subcategoryId", "NotNull.listingForm.subcategoryId");
-            }
 
             if (!bindingResult.hasErrors()) {
                 form.setStep(2);
             }
         } else if (form.getStep() == 2) {
+            if (form.getSubcategoryId() == null) {
+                bindingResult.rejectValue("subcategoryId", "NotNull.listingForm.subcategoryId");
+            }
+
+            if (!bindingResult.hasErrors()) {
+                form.setStep(3);
+            }
+        } else if (form.getStep() == 3) {
             if (form.getProductSelectionMode() == null) {
                 bindingResult.rejectValue("productSelectionMode", "NotNull.listingForm.productSelectionMode");
             } else if ("existing".equals(form.getProductSelectionMode())) {
@@ -89,10 +94,10 @@ public class ListingController {
                     ));
                     productId = product.getId();
                 }
-                form.setStep(3);
+                form.setStep(4);
                 form.setSelectedProductId(productId);
             }
-        } else if (form.getStep() == 3) {
+        } else if (form.getStep() == 4) {
             if (form.getTitle() == null || form.getTitle().isBlank()) {
                 bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
             }
@@ -116,10 +121,12 @@ public class ListingController {
     }
 
     private void populateModel(ModelAndView mav, ListingForm form) {
-        if (form.getStep() >= 2 && form.getCategoryId() != null) {
+        mav.addObject("categories", productService.getAllCategories());
+
+        if (form.getCategoryId() != null) {
             mav.addObject("subcategories", productService.getSubcategoriesByCategory(form.getCategoryId()));
         }
-        if (form.getStep() >= 2 && form.getSubcategoryId() != null) {
+        if (form.getSubcategoryId() != null) {
             mav.addObject("brands", productService.getBrandsBySubcategory(form.getSubcategoryId()));
             if (form.getNewProductBrand() != null) {
                 mav.addObject("models", productService.getModelsBySubcategoryAndBrand(form.getSubcategoryId(), form.getNewProductBrand()));
@@ -130,9 +137,6 @@ public class ListingController {
             if ("existing".equals(form.getProductSelectionMode())) {
                 mav.addObject("products", productService.getBySubcategory(form.getSubcategoryId()));
             }
-        }
-        if (form.getStep() == 1) {
-            mav.addObject("categories", productService.getAllCategories());
         }
     }
 
