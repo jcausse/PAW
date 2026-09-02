@@ -131,12 +131,11 @@ public class ListingController {
             mav.addObject("brands", productService.getBrandsBySubcategory(form.getSubcategoryId()));
             if (form.getNewProductBrand() != null) {
                 mav.addObject("models", productService.getModelsBySubcategoryAndBrand(form.getSubcategoryId(), form.getNewProductBrand()));
-                if (form.getNewProductModel() != null) {
-                    mav.addObject("years", productService.getYearsBySubcategoryAndBrandAndModel(form.getSubcategoryId(), form.getNewProductBrand(), form.getNewProductModel()));
-                }
             }
 
-            mav.addObject("products", productService.getBySubcategory(form.getSubcategoryId()));
+            var brand = form.getNewProductBrand();
+            var model = form.getNewProductModel();
+            mav.addObject("products", productService.getBySubcategoryBrandModel(form.getSubcategoryId(), brand, model));
         }
     }
 

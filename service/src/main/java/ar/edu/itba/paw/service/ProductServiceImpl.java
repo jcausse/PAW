@@ -51,8 +51,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getBySubcategoryAndFilters(Long subcategoryId, String brand, String model, Integer year) {
-        return productDao.getBySubcategoryAndFilters(subcategoryId, brand, model, year);
+    public List<Product> getBySubcategoryBrandModel(Long subcategoryId, String brand, String model) {
+        return productDao.getBySubcategoryBrandModel(subcategoryId, brand, model);
     }
 
     @Override
@@ -73,11 +73,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand) {
         return productDao.getModelsBySubcategoryAndBrand(subcategoryId, brand);
-    }
-
-    @Override
-    public List<Integer> getYearsBySubcategoryAndBrandAndModel(Long subcategoryId, String brand, String model) {
-        return productDao.getYearsBySubcategoryAndBrandAndModel(subcategoryId, brand, model);
     }
 
     @Override

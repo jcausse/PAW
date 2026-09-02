@@ -66,14 +66,15 @@ public class ProductJdbcDao implements ProductDao {
     }
 
     @Override
-    public List<Product> getBySubcategoryAndFilters(Long subcategoryId, String brand, String model, Integer year) {
+    public List<Product> getBySubcategoryBrandModel(Long subcategoryId, String brand, String model) {
         return jdbcTemplate.query(
-            Queries.GET_BY_SUBCATEGORY_AND_FILTERS,
+            Queries.GET_BY_SUBCATEGORY_BRAND_MODEL,
             ROW_MAPPER,
             subcategoryId,
             brand,
+            brand,
             model,
-            year
+            model
         );
     }
 
@@ -239,7 +240,7 @@ public class ProductJdbcDao implements ProductDao {
             SubcategorySchema.ID +
             " = ?";
 
-        private static final String GET_BY_SUBCATEGORY_AND_FILTERS =
+        private static final String GET_BY_SUBCATEGORY_BRAND_MODEL =
             "SELECT " +
             FIELDS +
             ", " +
@@ -250,9 +251,8 @@ public class ProductJdbcDao implements ProductDao {
             "." +
             SubcategorySchema.ID +
             " = ?" +
-            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ?" +
-            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ?" +
-            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.YEAR + " = ?";
+            " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ? OR ? IS NULL)" +
+            " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ? OR ? IS NULL)";
 
         private static final String GET_BRANDS_BY_SUBCATEGORY =
             "SELECT DISTINCT " + ProductSchema.BRAND +
