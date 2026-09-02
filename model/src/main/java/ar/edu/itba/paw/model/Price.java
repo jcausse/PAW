@@ -3,7 +3,7 @@ package ar.edu.itba.paw.model;
 import java.math.BigDecimal;
 import lombok.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
 @ToString
