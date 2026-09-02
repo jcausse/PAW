@@ -17,13 +17,11 @@
 
         <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
-            <form:hidden path="productSelectionMode"/>
-            <form:hidden path="existingProductId"/>
-            <form:hidden path="newProductName"/>
             <form:hidden path="newProductBrand"/>
             <form:hidden path="newProductModel"/>
             <form:hidden path="newProductYear"/>
             <form:hidden path="newProductSubcategoryId"/>
+            <form:hidden path="existingProductId"/>
             <form:hidden path="selectedProductId"/>
 
             <div class="mb-6">
@@ -55,7 +53,7 @@
                 <div class="mb-6">
                     <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
                     <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
-                    <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${categoryPlaceholder}" items="${subcategories}" />
+                    <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${subcategoryPlaceholder}" items="${subcategories}" />
                 </div>
             </c:if>
 
@@ -65,65 +63,24 @@
                     <spring:message code="listing.new.step3.title" var="step3Title"/>
                     <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
 
-                    <spring:message code="listing.new.productSelectionMode" var="productSelectionModeLabel"/>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-neutral-700 mb-2"><c:out value="${productSelectionModeLabel}"/></label>
-                        <div class="flex gap-4">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <form:radiobutton path="productSelectionMode" value="existing"/>
-                                <spring:message code="listing.new.productSelection.existing" var="existingLabel"/>
-                                <span><c:out value="${existingLabel}"/></span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <form:radiobutton path="productSelectionMode" value="new"/>
-                                <spring:message code="listing.new.productSelection.new" var="newLabel"/>
-                                <span><c:out value="${newLabel}"/></span>
-                            </label>
-                        </div>
-                        <form:errors path="productSelectionMode" cssClass="text-xs text-red-600 mt-1"/>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <spring:message code="listing.new.newProduct.brand" var="newProductBrandLabel"/>
+                        <spring:message code="listing.new.newProduct.brand.select" var="brandPlaceholder"/>
+                        <paw:formSelect path="newProductBrand" label="${newProductBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" />
+
+                        <spring:message code="listing.new.newProduct.model" var="newProductModelLabel"/>
+                        <spring:message code="listing.new.newProduct.model.select" var="modelPlaceholder"/>
+                        <paw:formSelect path="newProductModel" label="${newProductModelLabel}" placeholder="${modelPlaceholder}" items="${models}" />
+
+                        <spring:message code="listing.new.newProduct.year" var="newProductYearLabel"/>
+                        <spring:message code="listing.new.newProduct.year.select" var="yearPlaceholder"/>
+                        <paw:formInput path="newProductYear" label="${newProductYearLabel}" placeholder="${yearPlaceholder}" type="number" />
                     </div>
 
-                    <c:choose>
-                        <c:when test="${listingForm.productSelectionMode == 'existing'}">
-                            <%-- Existing Product Selection --%>
-                            <spring:message code="listing.new.existingProduct" var="existingProductLabel"/>
-                            <paw:formInput path="existingProductId" label="${existingProductLabel}" type="select">
-                                <form:option value=""><spring:message code="listing.new.existingProduct.select"/></form:option>
-                                <form:options items="${products}" itemValue="id" itemLabel="name"/>
-                            </paw:formInput>
-                        </c:when>
-                        <c:when test="${listingForm.productSelectionMode == 'new'}">
-                            <%-- New Product Creation --%>
-                            <spring:message code="listing.new.newProduct.title" var="newProductTitle"/>
-                            <h3 class="text-lg font-medium mb-3"><c:out value="${newProductTitle}"/></h3>
+                    <spring:message code="listing.new.existingProduct" var="existingProductLabel"/>
+                    <paw:formSelect path="existingProductId" label="${existingProductLabel}" placeholder="${existingProductLabel}" items="${products}" />
 
-                            <spring:message code="listing.new.newProduct.name" var="newProductNameLabel"/>
-                            <paw:formInput path="newProductName" label="${newProductNameLabel}" />
-
-                            <spring:message code="listing.new.newProduct.brand" var="newProductBrandLabel"/>
-                            <paw:formInput path="newProductBrand" label="${newProductBrandLabel}" type="select">
-                                <form:option value=""><spring:message code="listing.new.newProduct.brand.select"/></form:option>
-                                <form:options items="${brands}"/>
-                            </paw:formInput>
-
-                            <spring:message code="listing.new.newProduct.model" var="newProductModelLabel"/>
-                            <paw:formInput path="newProductModel" label="${newProductModelLabel}" type="select">
-                                <form:option value=""><spring:message code="listing.new.newProduct.model.select"/></form:option>
-                                <form:options items="${models}"/>
-                            </paw:formInput>
-
-                            <spring:message code="listing.new.newProduct.year" var="newProductYearLabel"/>
-                            <paw:formInput path="newProductYear" label="${newProductYearLabel}" type="select">
-                                <form:option value=""><spring:message code="listing.new.newProduct.year.select"/></form:option>
-                                <form:options items="${years}"/>
-                            </paw:formInput>
-
-                            <form:hidden path="newProductSubcategoryId" value="${listingForm.subcategoryId}"/>
-                        </c:when>
-                        <c:otherwise>
-                            <p class="text-neutral-500"><spring:message code="listing.new.productSelection.prompt"/></p>
-                        </c:otherwise>
-                    </c:choose>
+                    <form:hidden path="newProductSubcategoryId" value="${listingForm.subcategoryId}"/>
                 </div>
             </c:if>
 
@@ -162,8 +119,7 @@
             const subcategorySelect = document.getElementById('subcategoryId');
             const brandSelect = document.getElementById('newProductBrand');
             const modelSelect = document.getElementById('newProductModel');
-            const yearSelect = document.getElementById('newProductYear');
-            const productSelectionRadios = document.querySelectorAll('input[name="productSelectionMode"]');
+            const yearInput = document.getElementById('newProductYear');
 
             function submitForm() {
                 document.querySelector('form').submit();
@@ -181,13 +137,9 @@
             if (modelSelect) {
                 modelSelect.addEventListener('change', submitForm);
             }
-            if (yearSelect) {
-                yearSelect.addEventListener('change', submitForm);
+            if (yearInput) {
+                yearInput.addEventListener('change', submitForm);
             }
-
-            productSelectionRadios.forEach(radio => {
-                radio.addEventListener('change', submitForm);
-            });
         });
     </script>
 </body>

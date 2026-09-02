@@ -33,7 +33,7 @@
     disabled="${isDisabled}"
     cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
   >
-    <form:option value="0" label="${placeholder}" />
+    <form:option value="" label="${placeholder}" />
     <form:options items="${items}" itemValue="id" itemLabel="name"/>
   </form:select>
 
