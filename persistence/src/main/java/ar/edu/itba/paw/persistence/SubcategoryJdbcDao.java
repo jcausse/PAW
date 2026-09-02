@@ -85,10 +85,10 @@ public class SubcategoryJdbcDao implements SubcategoryDao {
 
         private static final String FIELDS = String.join(
             ", ",
-            SubcategorySchema.ID,
-            SubcategorySchema.NAME,
-            CategorySchema.ID,
-            CategorySchema.NAME
+            SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID,
+            SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.NAME,
+            CategorySchema.TABLE_NAME + "." + CategorySchema.ID,
+            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME
         );
 
         private static final String GET_BY_ID =

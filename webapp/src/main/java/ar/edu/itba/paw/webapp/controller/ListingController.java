@@ -126,6 +126,7 @@ public class ListingController {
         if (form.getCategoryId() != null) {
             mav.addObject("subcategories", productService.getSubcategoriesByCategory(form.getCategoryId()));
         }
+
         if (form.getSubcategoryId() != null) {
             mav.addObject("brands", productService.getBrandsBySubcategory(form.getSubcategoryId()));
             if (form.getNewProductBrand() != null) {
