@@ -97,6 +97,7 @@ This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a m
 - Use Optional for return values which may not be present, but DO NOT use Optional as method parameters, as it is a code smell.
 - Prefer using `var` for type inference when possible.
 - DAOs (in `persistence` layer) can read on any table, but each DAO should only write to one and just one table.
+- DAOs must never call other DAOs, nor have them injected as dependencies. As stated by another rule, if DAO A needs to access table B, it can access it directly, but never make DAO A depend on DAO B.
 
 ## Database Conventions
 

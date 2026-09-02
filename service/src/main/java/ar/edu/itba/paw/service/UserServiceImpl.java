@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
@@ -37,11 +38,17 @@ public class UserServiceImpl implements UserService {
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
         return userDao.create(
-            dto.username().toLowerCase(), // Unique
+            dto.username().toLowerCase(),   // Unique
             dto.displayName(),
-            dto.email().toLowerCase(), // Unique
+            dto.email().toLowerCase(),      // Unique
             dto.password()
         );
+    }
+
+    @Override
+    @Transactional
+    public void updateImage(User user, Image image) {
+        userDao.updateImage(user, image);
     }
 
     @Override

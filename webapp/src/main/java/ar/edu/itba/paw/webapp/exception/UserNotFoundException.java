@@ -1,4 +1,6 @@
-package ar.edu.itba.paw.service.exception;
+package ar.edu.itba.paw.webapp.exception;
+
+import ar.edu.itba.paw.service.exception.NotFoundException;
 
 public class UserNotFoundException extends NotFoundException {
 

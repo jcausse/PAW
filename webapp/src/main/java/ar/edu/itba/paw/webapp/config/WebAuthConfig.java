@@ -84,12 +84,12 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        // TODO: Change these to actual resource locations
         web.ignoring().antMatchers(
                 "/css/**",
                 "/js/**",
-                "/images/**",
-                "favicon.ico"
+                "/image/**",
+                "/static-image/**",
+                "/favicon.ico"
         );
     }
 }
