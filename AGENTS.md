@@ -4,8 +4,6 @@
 
 This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a multi-module Maven project using Spring WebMVC (not Spring Boot), JSP views, JSTL, and PostgreSQL via Spring JDBC (will later use JPA/Hibernate but not yet until this file changes).
 
-The student has prior Spring/Spring Boot knowledge but must follow the course progression. Features like, `@Transactional`, and password hashing will be added later — do not remove commented-out code left as reminders for future implementation.
-
 ## Important
 
 **Never**, ever commit nor read `.script/deploy_secrets.properties` — it contains sensible secrets and is gitignored. You do not have read/write permission on that file under any circumstances.
@@ -79,6 +77,9 @@ The student has prior Spring/Spring Boot knowledge but must follow the course pr
 - POST handlers should use `@Valid @ModelAttribute` with `BindingResult`.
 - Use `@ResponseStatus` on `@ExceptionHandler` methods.
 - Services must throw custom exceptions for their errors, which are caught by the `GlobalExceptionHandler` `@ControllerAdvice`.
+- All service methods of all services must be either marked as `@Transactional` if they perform read/write operations, or `@Transactional(readOnly = true)` if they perform read only operations.
+  - A class shall be marked `@Transactional(readOnly = true)` instead of marking every method. This shall only be done with `readOnly = true`.
+  - Write permissions are only given to those methods that explicitly need those permissions. Never give extra permissions in advance. Always give read permissions by default and then elevate those to write permissions if needed.
 
 ## Spring Security
 
@@ -95,6 +96,7 @@ The student has prior Spring/Spring Boot knowledge but must follow the course pr
 - Prefer functional-style code and the use of Java Streams.
 - Use Optional for return values which may not be present, but DO NOT use Optional as method parameters, as it is a code smell.
 - Prefer using `var` for type inference when possible.
+- DAOs (in `persistence` layer) can read on any table, but each DAO should only write to one and just one table.
 
 ## Database Conventions
 
