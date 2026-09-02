@@ -17,8 +17,6 @@
 
         <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
-            <form:hidden path="categoryId"/>
-            <form:hidden path="subcategoryId"/>
             <form:hidden path="productSelectionMode"/>
             <form:hidden path="existingProductId"/>
             <form:hidden path="newProductName"/>
@@ -49,10 +47,7 @@
             <div class="mb-6">
                 <spring:message code="listing.new.category" var="categoryLabel"/>
                 <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
-                <paw:formInput path="categoryId" label="${categoryLabel}" type="select">
-                    <form:option value=""><c:out value="${categoryPlaceholder}"/></form:option>
-                    <form:options items="${categories}" itemValue="id" itemLabel="name"/>
-                </paw:formInput>
+                <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
             </div>
 
             <%-- Step 2: Subcategory Selection (visible when category selected) --%>
@@ -60,10 +55,7 @@
                 <div class="mb-6">
                     <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
                     <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
-                    <paw:formInput path="subcategoryId" label="${subcategoryLabel}" type="select">
-                        <form:option value=""><c:out value="${subcategoryPlaceholder}"/></form:option>
-                        <form:options items="${subcategories}" itemValue="id" itemLabel="name"/>
-                    </paw:formInput>
+                    <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${categoryPlaceholder}" items="${subcategories}" />
                 </div>
             </c:if>
 
