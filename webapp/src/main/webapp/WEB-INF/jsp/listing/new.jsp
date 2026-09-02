@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
-<body class="p-8 pb-24 bg-neutral-50">
-    <div class="max-w-5xl mx-auto">
+<body class="px-8 pb-24 bg-neutral-50">
+    <paw:navbar />
+
+    <div class="max-w-5xl mx-auto mt-8">
         <c:url value="/listing/new" var="newListingUrl"/>
 
-        <form:form modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
+        <form:form id="listingForm" modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
             <form:hidden path="newProductBrand"/>
             <form:hidden path="newProductModel"/>
@@ -66,11 +68,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <spring:message code="listing.new.newProduct.brand" var="newProductBrandLabel"/>
                         <spring:message code="listing.new.newProduct.brand.select" var="brandPlaceholder"/>
-                        <paw:formSelect path="newProductBrand" label="${newProductBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" />
+                        <paw:formSelect path="newProductBrand" label="${newProductBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
 
                         <spring:message code="listing.new.newProduct.model" var="newProductModelLabel"/>
                         <spring:message code="listing.new.newProduct.model.select" var="modelPlaceholder"/>
-                        <paw:formSelect path="newProductModel" label="${newProductModelLabel}" placeholder="${modelPlaceholder}" items="${models}" />
+                        <paw:formSelect path="newProductModel" label="${newProductModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" />
 
                         <spring:message code="listing.new.newProduct.year" var="newProductYearLabel"/>
                         <spring:message code="listing.new.newProduct.year.select" var="yearPlaceholder"/>
@@ -122,7 +124,7 @@
             const yearInput = document.getElementById('newProductYear');
 
             function submitForm() {
-                document.querySelector('form').submit();
+                document.querySelector('form#listingForm').submit();
             }
 
             if (categorySelect) {

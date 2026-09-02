@@ -6,7 +6,7 @@
 <%-- The logged-in username is read from the request principal (populated by Spring Security). --%>
 <c:set var="currentUser" value="${pageContext.request.userPrincipal.name}"/>
 
-<div class="sticky top-0 pt-3 px-6 z-50">
+<div class="sticky top-0 pt-3 z-50">
   <nav class="mx-auto max-w-6xl rounded-xl overflow-hidden relative z-10">
     <div class="rounded-xl w-full p-2 flex flex-row items-center gap-6 bg-white/80 backdrop-blur-sm border border-black/10">
 
