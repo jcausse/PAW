@@ -30,42 +30,48 @@
 
             <div class="mb-6">
                 <div class="flex gap-4 mb-4">
-                    <div class="flex-1 ${listingForm.step eq 1 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
+                    <div class="flex-1 ${listingForm.step ge 1 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
                         <spring:message code="listing.new.step1" var="step1Label"/><c:out value="${step1Label}"/>
                     </div>
-                    <div class="flex-1 ${listingForm.step eq 2 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
+                    <div class="flex-1 ${listingForm.step ge 2 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
                         <spring:message code="listing.new.step2" var="step2Label"/><c:out value="${step2Label}"/>
                     </div>
-                    <div class="flex-1 ${listingForm.step eq 3 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
+                    <div class="flex-1 ${listingForm.step ge 3 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
                         <spring:message code="listing.new.step3" var="step3Label"/><c:out value="${step3Label}"/>
+                    </div>
+                    <div class="flex-1 ${listingForm.step ge 4 ? 'bg-sky-600 text-white' : 'bg-neutral-200 text-neutral-600'} px-4 py-2 rounded-lg text-center font-medium">
+                        <spring:message code="listing.new.step4" var="step4Label"/><c:out value="${step4Label}"/>
                     </div>
                 </div>
             </div>
 
-            <c:choose>
-                <c:when test="${listingForm.step == 1}">
-                    <%-- Step 1: Category and Subcategory Selection --%>
-                    <spring:message code="listing.new.step1.title" var="step1Title"/>
-                    <h2 class="text-xl font-semibold mb-4"><c:out value="${step1Title}"/></h2>
+            <%-- Step 1: Category Selection (always visible) --%>
+            <div class="mb-6">
+                <spring:message code="listing.new.category" var="categoryLabel"/>
+                <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
+                <paw:formInput path="categoryId" label="${categoryLabel}" type="select">
+                    <form:option value=""><c:out value="${categoryPlaceholder}"/></form:option>
+                    <form:options items="${categories}" itemValue="id" itemLabel="name"/>
+                </paw:formInput>
+            </div>
 
-                    <spring:message code="listing.new.category" var="categoryLabel"/>
-                    <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
-                    <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
-
+            <%-- Step 2: Subcategory Selection (visible when category selected) --%>
+            <c:if test="${listingForm.step ge 2}">
+                <div class="mb-6">
                     <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
                     <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
-                    <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${categoryPlaceholder}" items="${subcategories}" />
+                    <paw:formInput path="subcategoryId" label="${subcategoryLabel}" type="select">
+                        <form:option value=""><c:out value="${subcategoryPlaceholder}"/></form:option>
+                        <form:options items="${subcategories}" itemValue="id" itemLabel="name"/>
+                    </paw:formInput>
+                </div>
+            </c:if>
 
-                    <div class="mt-6 flex justify-end">
-                        <spring:message code="listing.new.next" var="nextLabel"/>
-                        <paw:button text="${nextLabel}" type="submit" variant="primary"/>
-                    </div>
-                </c:when>
-
-                <c:when test="${listingForm.step == 2}">
-                    <%-- Step 2: Product Selection --%>
-                    <spring:message code="listing.new.step2.title" var="step2Title"/>
-                    <h2 class="text-xl font-semibold mb-4"><c:out value="${step2Title}"/></h2>
+            <%-- Step 3: Product Selection (visible when subcategory selected) --%>
+            <c:if test="${listingForm.step ge 3}">
+                <div class="mb-6">
+                    <spring:message code="listing.new.step3.title" var="step3Title"/>
+                    <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
 
                     <spring:message code="listing.new.productSelectionMode" var="productSelectionModeLabel"/>
                     <div class="mb-4">
@@ -126,36 +132,40 @@
                             <p class="text-neutral-500"><spring:message code="listing.new.productSelection.prompt"/></p>
                         </c:otherwise>
                     </c:choose>
+                </div>
+            </c:if>
 
-                    <div class="mt-6 flex gap-4">
-                        <spring:message code="listing.new.back" var="backLabel"/>
-                        <button type="submit" name="_action" value="back" class="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition"><c:out value="${backLabel}"/></button>
-
-                        <spring:message code="listing.new.next" var="nextLabel"/>
-                        <paw:button text="${nextLabel}" type="submit" variant="primary"/>
-                    </div>
-                </c:when>
-
-                <c:when test="${listingForm.step == 3}">
-                    <%-- Step 3: Listing Details --%>
-                    <spring:message code="listing.new.step3.title" var="step3Title"/>
-                    <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
+            <%-- Step 4: Listing Details (visible when product selected) --%>
+            <c:if test="${listingForm.step ge 4}">
+                <div class="mb-6">
+                    <spring:message code="listing.new.step4.title" var="step4Title"/>
+                    <h2 class="text-xl font-semibold mb-4"><c:out value="${step4Title}"/></h2>
 
                     <spring:message code="listing.new.titleLabel" var="titleLabel"/>
                     <paw:formInput path="title" label="${titleLabel}" />
 
                     <spring:message code="listing.new.price" var="priceLabel"/>
                     <paw:formInput path="price" label="${priceLabel}" type="number" step="0.01" min="0" />
+                </div>
+            </c:if>
 
-                    <div class="mt-6 flex gap-4">
-                        <spring:message code="listing.new.back" var="backLabel"/>
-                        <button type="submit" name="_action" value="back" class="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition"><c:out value="${backLabel}"/></button>
+            <div class="mt-6 flex gap-4">
+                <c:if test="${listingForm.step gt 1}">
+                    <spring:message code="listing.new.back" var="backLabel"/>
+                    <button type="submit" name="_action" value="back" class="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition"><c:out value="${backLabel}"/></button>
+                </c:if>
 
+                <c:choose>
+                    <c:when test="${listingForm.step lt 4}">
+                        <spring:message code="listing.new.next" var="nextLabel"/>
+                        <paw:button text="${nextLabel}" type="submit" variant="primary"/>
+                    </c:when>
+                    <c:otherwise>
                         <spring:message code="listing.new.submit" var="submitLabel"/>
                         <paw:button text="${submitLabel}" type="submit" variant="primary"/>
-                    </div>
-                </c:when>
-            </c:choose>
+                    </c:otherwise>
+                </c:choose>
+            </div>
         </form:form>
     </div>
 
