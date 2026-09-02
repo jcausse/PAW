@@ -3,13 +3,16 @@ package ar.edu.itba.paw.webapp.config;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Bean;
@@ -41,6 +44,18 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Value("classpath:rememberMe.key")
+    private Resource rememberMeKey;
+
+    private String readRememberMeKey() {
+        try {
+            return new String (rememberMeKey.getInputStream().readAllBytes());
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.userDetailsService(userDetailsService).sessionManagement()
@@ -70,8 +85,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
             /* Remember Me */
             .and().rememberMe()
-                .rememberMeParameter("remember-me")
+                .rememberMeParameter("rememberMe")
                 .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
+                .key(readRememberMeKey())
+                .userDetailsService(userDetailsService)
 
             /* Exceptions */
             .and().exceptionHandling()
