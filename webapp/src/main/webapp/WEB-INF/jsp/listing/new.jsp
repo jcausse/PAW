@@ -49,16 +49,12 @@
                     <h2 class="text-xl font-semibold mb-4"><c:out value="${step1Title}"/></h2>
 
                     <spring:message code="listing.new.category" var="categoryLabel"/>
-                    <paw:formInput path="categoryId" label="${categoryLabel}" type="select">
-                        <form:option value=""><spring:message code="listing.new.category.select"/></form:option>
-                        <form:options items="${categories}" itemValue="id" itemLabel="name"/>
-                    </paw:formInput>
+                    <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
+                    <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
 
                     <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
-                    <paw:formInput path="subcategoryId" label="${subcategoryLabel}" type="select">
-                        <form:option value=""><spring:message code="listing.new.subcategory.select"/></form:option>
-                        <form:options items="${subcategories}" itemValue="id" itemLabel="name"/>
-                    </paw:formInput>
+                    <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
+                    <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${categoryPlaceholder}" items="${subcategories}" />
 
                     <div class="mt-6 flex justify-end">
                         <spring:message code="listing.new.next" var="nextLabel"/>

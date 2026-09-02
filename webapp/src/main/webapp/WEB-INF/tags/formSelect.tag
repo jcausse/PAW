@@ -1,21 +1,14 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="path" required="true" %>
-<%@ attribute name="type" required="false" %>
-<%@ attribute name="min" required="false" %>
-<%@ attribute name="max" required="false" %>
-<%@ attribute name="step" required="false" %>
+<%@ attribute name="items" required="true" type="java.lang.Object" %>
 <%@ attribute name="label" required="false" %>
-<%@ attribute name="placeholder" required="false" %>
+<%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <c:set var="inputVariant" value="${not empty variant ? variant : 'default'}"/>
-<c:set var="inputType" value="${not empty type ? type : 'text'}"/>
-<c:set var="inputMin" value="${not empty min ? min : ''}"/>
-<c:set var="inputMax" value="${not empty max ? max : ''}"/>
-<c:set var="inputStep" value="${not empty step ? step : ''}"/>
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
@@ -33,17 +26,16 @@
 <div class="flex flex-col-reverse gap-1">
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600 peer/errors errors"/>
 
-  <form:input
+  <form:select
     path="${path}"
     id="${path}"
-    type="${inputType}"
     placeholder="${placeholder}"
     disabled="${isDisabled}"
-    min="${inputMin}"
-    max="${inputMax}"
-    step="${inputStep}"
     cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
-  />
+  >
+    <form:option value="${placeholder}" />
+    <form:options items="${items}" itemValue="id" itemLabel="name"/>
+  </form:select>
 
   <c:if test="${not empty label}">
     <label for="${path}" class="text-xs text-black/70 font-medium">
