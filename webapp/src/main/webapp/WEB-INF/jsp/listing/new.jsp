@@ -142,11 +142,6 @@
             </c:if>
 
             <div class="mt-6 flex gap-4">
-                <c:if test="${listingForm.step gt 1}">
-                    <spring:message code="listing.new.back" var="backLabel"/>
-                    <button type="submit" name="_action" value="back" class="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition"><c:out value="${backLabel}"/></button>
-                </c:if>
-
                 <c:choose>
                     <c:when test="${listingForm.step lt 4}">
                         <spring:message code="listing.new.next" var="nextLabel"/>
