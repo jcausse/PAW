@@ -111,7 +111,7 @@ public class ListingJdbcDao implements ListingDao {
             ProductSchema.TABLE_NAME +
             " AS p ON p." +
             ProductSchema.ID +
-            " = " +
+            " = listings." +
             ListingSchema.PRODUCT_ID +
             " WHERE " +
             ListingSchema.ID +
