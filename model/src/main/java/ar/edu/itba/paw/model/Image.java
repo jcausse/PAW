@@ -7,9 +7,10 @@ import lombok.*;
 @Getter
 @Builder
 @ToString
-public final class Subcategory {
+public final class Image {
 
     private final @NonNull Long id;
-    private final @NonNull String name;
-    private final @NonNull Category category;
+    private final @NonNull String filename;
+    private final @NonNull String alt;
+    private final byte[] data;
 }

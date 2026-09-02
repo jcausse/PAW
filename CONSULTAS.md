@@ -25,3 +25,5 @@
    - Dependencia circular al ponerlo en el servicio.
 
 3. Para que era lo de `javax.servlet.servlet-api` que es `provided`? Es necesario para `spring-security`?
+
+4. Servicios pueden llamar a otros Servicios?

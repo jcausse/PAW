@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class UserController {
     @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id) {
         return new ModelAndView("profile")
-                .addObject("user", userService.getById(id));
+                .addObject("user", userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id)));
     }
 
     /* REGISTER */
