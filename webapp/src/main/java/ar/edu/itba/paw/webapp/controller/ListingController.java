@@ -135,9 +135,8 @@ public class ListingController {
                     mav.addObject("years", productService.getYearsBySubcategoryAndBrandAndModel(form.getSubcategoryId(), form.getNewProductBrand(), form.getNewProductModel()));
                 }
             }
-            if ("existing".equals(form.getProductSelectionMode())) {
-                mav.addObject("products", productService.getBySubcategory(form.getSubcategoryId()));
-            }
+
+            mav.addObject("products", productService.getBySubcategory(form.getSubcategoryId()));
         }
     }
 

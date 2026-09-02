@@ -150,21 +150,21 @@ public class ProductJdbcDao implements ProductDao {
 
         private static final String FIELDS = String.join(
             ", ",
-            ProductSchema.ID,
-            ProductSchema.NAME,
-            ProductSchema.BRAND,
-            ProductSchema.MODEL,
-            ProductSchema.YEAR,
-            ProductSchema.SUBCATEGORY_ID
+            ProductSchema.TABLE_NAME + "." + ProductSchema.ID,
+            ProductSchema.TABLE_NAME + "." + ProductSchema.NAME,
+            ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND,
+            ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL,
+            ProductSchema.TABLE_NAME + "." + ProductSchema.YEAR,
+            ProductSchema.TABLE_NAME + "." + ProductSchema.SUBCATEGORY_ID
         );
 
         private static final String SUBCATEGORY_FIELDS = String.join(
             ", ",
-            SubcategorySchema.ID,
-            SubcategorySchema.NAME,
-            SubcategorySchema.CATEGORY_ID,
-            CategorySchema.ID,
-            CategorySchema.NAME
+            SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID,
+            SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.NAME,
+            SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID,
+            CategorySchema.TABLE_NAME + "." + CategorySchema.ID,
+            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME
         );
 
         private static final String BASE_FROM =

@@ -1,6 +1,7 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="path" required="true" %>
 <%@ attribute name="items" required="true" type="java.lang.Object" %>
+<%@ attribute name="plainStrings" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
@@ -34,7 +35,15 @@
     cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
   >
     <form:option value="" label="${placeholder}" />
-    <form:options items="${items}" itemValue="id" itemLabel="name"/>
+
+    <c:choose>
+      <c:when test="${not empty plainStrings}">
+        <form:options items="${items}" />
+      </c:when>
+      <c:otherwise>
+        <form:options items="${items}" itemValue="id" itemLabel="name" />
+      </c:otherwise>
+    </c:choose>
   </form:select>
 
   <c:if test="${not empty label}">
