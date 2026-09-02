@@ -27,8 +27,16 @@
             <paw:input id="password" name="password" type="password" label="${passwordLabel}" variant="outline"/>
 
             <div class="flex items-center gap-2">
-                <input type="checkbox" id="rememberMe" name="rememberMe" class="rounded border-black/10 text-black focus:ring-black">
-                <label for="rememberMe" class="text-sm font-medium select-none"><spring:message code="field.rememberMe"/></label>
+                <input
+                    type="checkbox"
+                    id="rememberMe"
+                    name="rememberMe"
+                    checked
+                    class="rounded border-black/10 text-black focus:ring-black"
+                >
+                <label for="rememberMe" class="text-sm font-medium select-none">
+                    <spring:message code="field.rememberMe"/>
+                </label>
             </div>
 
             <spring:message code="login.submit" var="submitLabel"/>
