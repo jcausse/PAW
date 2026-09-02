@@ -79,8 +79,9 @@
                         <paw:formInput path="newProductYear" label="${newProductYearLabel}" placeholder="${yearPlaceholder}" type="number" />
                     </div>
 
-                    <spring:message code="listing.new.existingProduct" var="existingProductLabel"/>
-                    <paw:formSelect path="existingProductId" label="${existingProductLabel}" placeholder="${existingProductLabel}" items="${products}" />
+                    <spring:message code="listing.new.product" var="productLabel"/>
+                    <spring:message code="listing.new.product.select" var="productPlaceholder"/>
+                    <paw:formSelect path="existingProductId" label="${productLabel}" placeholder="${productPlaceholder}" items="${products}" />
 
                     <form:hidden path="newProductSubcategoryId" value="${listingForm.subcategoryId}"/>
                 </div>
