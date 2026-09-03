@@ -21,8 +21,7 @@
               <h1 class="text-2xl font-semibold">${listing.title}</h1>
 
               <c:if test="${listing.product != null}">
-                  <div class="text-black">${listing.product.name} (${listing.product.year})</div>
-                  <div class="text-sm text-black/60">${listing.product.brand} ${listing.product.model}</div>
+                  <div class="text-black">${listing.product.brand} ${listing.product.model} (${listing.product.year})</div>
               </c:if>
 
               <%-- TODO move this to a custom tag --%>
