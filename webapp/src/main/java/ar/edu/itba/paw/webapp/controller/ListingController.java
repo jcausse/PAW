@@ -50,25 +50,25 @@ public class ListingController {
                 bindingResult.rejectValue("categoryId", "NotNull.listingForm.categoryId");
             }
 
-            if (!bindingResult.hasErrors()) {
-                form.setStep(2);
-            }
+            if (!bindingResult.hasErrors()) form.setStep(2);
         } else if (form.getStep() == 2) {
             if (form.getSubcategoryId() == null) {
                 bindingResult.rejectValue("subcategoryId", "NotNull.listingForm.subcategoryId");
             }
 
-            if (!bindingResult.hasErrors()) {
-                form.setStep(3);
-            }
+            if (!bindingResult.hasErrors()) form.setStep(3);
         } else if (form.getStep() == 3) {
-            if (form.getExistingProductId() == null) {
-                bindingResult.rejectValue("existingProductId", "NotNull.listingForm.existingProductId");
+            // Advance to step 4 if brand, model, and year are all selected (non-null and non-blank for strings)
+            if (form.getNewProductBrand() == null || form.getNewProductBrand().isBlank()) {
+                bindingResult.rejectValue("newProductBrand", "NotNull");
+            } else if (form.getNewProductModel() == null || form.getNewProductModel().isBlank()) {
+                bindingResult.rejectValue("newProductModel", "NotNull");
+            }
+            if (form.getNewProductYear() == null) {
+                bindingResult.rejectValue("newProductYear", "NotNull");
             }
 
-            if (!bindingResult.hasErrors()) {
-                form.setStep(4);
-            }
+            if (!bindingResult.hasErrors()) form.setStep(4);
         } else if (form.getStep() == 4) {
             if (form.getTitle() == null || form.getTitle().isBlank()) {
                 bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
@@ -107,12 +107,6 @@ public class ListingController {
             }
             mav.addObject("models", models);
             mav.addObject("modelsEmpty", models.isEmpty());
-
-            var brand = form.getNewProductBrand();
-            if (brand == null) brand = "";
-            var model = form.getNewProductModel();
-            if (model == null) model = "";
-            mav.addObject("products", productService.getBySubcategoryBrandModel(form.getSubcategoryId(), brand, model));
         }
     }
 

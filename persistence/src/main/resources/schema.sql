@@ -28,13 +28,11 @@ CREATE TABLE IF NOT EXISTS subcategories (
 
 CREATE TABLE IF NOT EXISTS products (
     product_id      SERIAL PRIMARY KEY,
-    name            VARCHAR(255) NOT NULL,
-    brand           VARCHAR(100),
-    model           VARCHAR(100),
-    year            INTEGER,
+    brand           VARCHAR(100) NOT NULL,
+    model           VARCHAR(100) NOT NULL,
+    year            INTEGER NOT NULL,
     subcategory_id  INTEGER REFERENCES subcategories,
-    UNIQUE (brand, model, year),
-    UNIQUE (name, year)
+    UNIQUE (brand, model, year)
 );
 
 CREATE TABLE IF NOT EXISTS listings (

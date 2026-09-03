@@ -33,15 +33,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getByName(String name) {
-        return productDao
-            .getByName(name)
-            .orElseThrow(() ->
-                NotFoundException.createFor("Product '" + name + "'")
-            );
-    }
-
-    @Override
     public List<Product> getByCategory(Long categoryId) {
         return productDao.getByCategory(categoryId);
     }
@@ -80,6 +71,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Product create(ProductCreationDto dto) {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
-        return productDao.create(dto.name(), dto.brand(), dto.model(), dto.year(), dto.subcategoryId());
+        return productDao.create(dto.brand(), dto.model(), dto.year(), dto.subcategoryId());
     }
 }

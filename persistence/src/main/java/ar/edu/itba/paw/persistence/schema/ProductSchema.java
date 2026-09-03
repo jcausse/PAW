@@ -6,7 +6,6 @@ public final class ProductSchema {
 
     public static final String TABLE_NAME = "products";
     public static final String ID = "product_id";
-    public static final String NAME = "name";
     public static final String BRAND = "brand";
     public static final String MODEL = "model";
     public static final String YEAR = "year";

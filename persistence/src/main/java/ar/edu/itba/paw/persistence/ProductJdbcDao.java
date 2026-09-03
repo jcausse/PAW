@@ -40,14 +40,6 @@ public class ProductJdbcDao implements ProductDao {
     }
 
     @Override
-    public Optional<Product> getByName(String name) {
-        return jdbcTemplate
-            .query(Queries.GET_BY_NAME, ROW_MAPPER, name)
-            .stream()
-            .findFirst();
-    }
-
-    @Override
     public List<Product> getByCategory(Long categoryId) {
         return jdbcTemplate.query(
             Queries.GET_BY_CATEGORY,
@@ -80,7 +72,7 @@ public class ProductJdbcDao implements ProductDao {
 
     @Override
     public List<String> getBrandsBySubcategory(Long subcategoryId) {
-        return jdbcTemplate.queryForList(Queries.GET_BRANDS_BY_SUBCATEGORY, String.class, subcategoryId);
+        return jdbcTemplate.queryForList(Queries.GET_BRAND_BY_SUBCATEGORY, String.class, subcategoryId);
     }
 
     @Override
@@ -95,14 +87,12 @@ public class ProductJdbcDao implements ProductDao {
 
     @Override
     public Product create(
-        String name,
         String brand,
         String model,
         Integer year,
         Long subcategoryId
     ) {
         final Map<String, Object> values = new HashMap<>();
-        values.put(ProductSchema.NAME, name);
         values.put(ProductSchema.BRAND, brand);
         values.put(ProductSchema.MODEL, model);
         values.put(ProductSchema.YEAR, year);
@@ -111,7 +101,6 @@ public class ProductJdbcDao implements ProductDao {
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
         return Product.builder()
             .id(key)
-            .name(name)
             .brand(brand)
             .model(model)
             .year(year)
@@ -139,7 +128,6 @@ public class ProductJdbcDao implements ProductDao {
             .build();
         return Product.builder()
             .id(rs.getLong(ProductSchema.ID))
-            .name(rs.getString(ProductSchema.NAME))
             .brand(rs.getString(ProductSchema.BRAND))
             .model(rs.getString(ProductSchema.MODEL))
             .year(rs.getInt(ProductSchema.YEAR))
@@ -152,7 +140,6 @@ public class ProductJdbcDao implements ProductDao {
         private static final String FIELDS = String.join(
             ", ",
             ProductSchema.TABLE_NAME + "." + ProductSchema.ID,
-            ProductSchema.TABLE_NAME + "." + ProductSchema.NAME,
             ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND,
             ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL,
             ProductSchema.TABLE_NAME + "." + ProductSchema.YEAR,
@@ -204,18 +191,6 @@ public class ProductJdbcDao implements ProductDao {
             ProductSchema.ID +
             " = ?";
 
-        private static final String GET_BY_NAME =
-            "SELECT " +
-            FIELDS +
-            ", " +
-            SUBCATEGORY_FIELDS +
-            BASE_FROM +
-            " WHERE " +
-            ProductSchema.TABLE_NAME +
-            "." +
-            ProductSchema.NAME +
-            " = ?";
-
         private static final String GET_BY_CATEGORY =
             "SELECT " +
             FIELDS +
@@ -254,7 +229,7 @@ public class ProductJdbcDao implements ProductDao {
             " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ? OR ? = '')" +
             " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ? OR ? = '')";
 
-        private static final String GET_BRANDS_BY_SUBCATEGORY =
+        private static final String GET_BRAND_BY_SUBCATEGORY =
             "SELECT DISTINCT " + ProductSchema.BRAND +
             " FROM " + ProductSchema.TABLE_NAME +
             " WHERE " + ProductSchema.SUBCATEGORY_ID + " = ?" +

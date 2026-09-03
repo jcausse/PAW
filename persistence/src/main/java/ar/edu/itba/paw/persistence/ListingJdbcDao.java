@@ -68,7 +68,7 @@ public class ListingJdbcDao implements ListingDao {
 
     /* ---------------------------------------------------------------------------------------------- */
 
-    private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
+private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
         return Listing.builder()
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
@@ -81,14 +81,13 @@ public class ListingJdbcDao implements ListingDao {
                     .email(rs.getString(UserSchema.EMAIL))
                     .password("<redacted>")
                     .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
-                                        .map(Integer::longValue)
-                                        .orElse(null))
-                    .build()
+                                    .map(Integer::longValue)
+                                    .orElse(null))
+                        .build()
             )
             .product(
                 Product.builder()
                     .id(rs.getLong(ProductSchema.ID))
-                    .name(rs.getString(ProductSchema.NAME))
                     .brand(rs.getString(ProductSchema.BRAND))
                     .model(rs.getString(ProductSchema.MODEL))
                     .year(rs.getInt(ProductSchema.YEAR))
@@ -122,7 +121,6 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.EMAIL,
             "c." + UserSchema.IMAGE_ID,
             "p." + ProductSchema.ID,
-            "p." + ProductSchema.NAME,
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,
             "p." + ProductSchema.YEAR,

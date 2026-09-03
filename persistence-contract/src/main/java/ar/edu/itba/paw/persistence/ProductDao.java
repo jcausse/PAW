@@ -7,8 +7,6 @@ import java.util.Optional;
 public interface ProductDao {
     Optional<Product> getById(Long id);
 
-    Optional<Product> getByName(String name);
-
     List<Product> getByCategory(Long categoryId);
 
     List<Product> getBySubcategory(Long subcategoryId);
@@ -18,5 +16,5 @@ public interface ProductDao {
     List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand);
     List<Integer> getYearsBySubcategoryAndBrandAndModel(Long subcategoryId, String brand, String model);
 
-    Product create(String name, String brand, String model, Integer year, Long subcategoryId);
+    Product create(String brand, String model, Integer year, Long subcategoryId);
 }

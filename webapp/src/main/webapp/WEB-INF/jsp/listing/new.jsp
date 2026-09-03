@@ -72,11 +72,6 @@
                         <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
                         <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" />
                     </div>
-
-                    <spring:message code="listing.new.product" var="productLabel"/>
-                    <spring:message code="listing.new.product.select" var="productPlaceholder"/>
-                    <paw:formSelect path="existingProductId" label="${productLabel}" placeholder="${productPlaceholder}" items="${products}" />
-
                 </div>
             </c:if>
 
@@ -130,13 +125,6 @@
             }
             if (brandSelect) {
                 brandSelect.addEventListener('change', submitForm);
-            }
-            if (modelSelect) {
-                modelSelect.addEventListener('change', submitForm);
-            }
-            // Year is just a filter, no submit on change
-            if (productSelect) {
-                productSelect.addEventListener('change', submitForm);
             }
         });
     </script>
