@@ -45,30 +45,49 @@ public class ListingController {
             form.setNewProductModel(null);
         }
 
+        // Skip validation for auto-submits (triggered by field changes during form filling)
+        var isAutoSubmit = form.getIsAutoSubmit();
+        if (isAutoSubmit) form.setIsAutoSubmit(false); // Reset for next request
+
         if (form.getStep() == 1) {
-            if (form.getCategoryId() == null) {
+            var hasCategory = form.getCategoryId() != null;
+			if (!isAutoSubmit && !hasCategory) {
                 bindingResult.rejectValue("categoryId", "NotNull.listingForm.categoryId");
             }
 
-            if (!bindingResult.hasErrors()) form.setStep(2);
+            if (!bindingResult.hasErrors() && hasCategory) {
+                form.setStep(2);
+                form.setSubcategoryId(null);
+            }
         } else if (form.getStep() == 2) {
-            if (form.getSubcategoryId() == null) {
+            var hasSubcategory = form.getSubcategoryId() != null;
+			if (!isAutoSubmit && !hasSubcategory) {
                 bindingResult.rejectValue("subcategoryId", "NotNull.listingForm.subcategoryId");
             }
 
-            if (!bindingResult.hasErrors()) form.setStep(3);
+            if (!bindingResult.hasErrors() && hasSubcategory) {
+                form.setStep(3);
+                form.setNewProductBrand(null);
+                form.setNewProductModel(null);
+                form.setNewProductYear(null);
+            }
         } else if (form.getStep() == 3) {
-            // Advance to step 4 if brand, model, and year are all selected (non-null and non-blank for strings)
-            if (form.getNewProductBrand() == null || form.getNewProductBrand().isBlank()) {
+            var hasBrand = form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank();
+            var hasModel = form.getNewProductModel() != null && !form.getNewProductModel().isBlank();
+            var hasYear = form.getNewProductYear() != null;
+
+            if (!isAutoSubmit && !hasBrand) {
                 bindingResult.rejectValue("newProductBrand", "NotNull");
-            } else if (form.getNewProductModel() == null || form.getNewProductModel().isBlank()) {
+            }
+            if (!isAutoSubmit && !hasModel) {
                 bindingResult.rejectValue("newProductModel", "NotNull");
             }
-            if (form.getNewProductYear() == null) {
+            if (!isAutoSubmit && !hasYear) {
                 bindingResult.rejectValue("newProductYear", "NotNull");
             }
 
-            if (!bindingResult.hasErrors()) form.setStep(4);
+            // Advance to step 4 if brand, model, and year are all selected (non-null and non-blank for strings)
+            if (!bindingResult.hasErrors() && hasBrand && hasModel && hasYear) form.setStep(4);
         } else if (form.getStep() == 4) {
             if (form.getTitle() == null || form.getTitle().isBlank()) {
                 bindingResult.rejectValue("title", "NotEmpty.listingForm.title");

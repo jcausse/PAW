@@ -19,6 +19,7 @@
 
         <form:form id="listingForm" modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
+            <form:hidden path="isAutoSubmit"/>
 
             <div class="mb-6">
                 <div class="flex gap-4 mb-4">
@@ -112,8 +113,12 @@
             const modelSelect = document.getElementById('newProductModel');
             const yearInput = document.getElementById('newProductYear');
             const productSelect = document.getElementById('existingProductId');
+            const isAutoSubmitInput = document.getElementById('isAutoSubmit');
 
             function submitForm() {
+                if (isAutoSubmitInput) {
+                    isAutoSubmitInput.value = 'true';
+                }
                 document.querySelector('form#listingForm').submit();
             }
 

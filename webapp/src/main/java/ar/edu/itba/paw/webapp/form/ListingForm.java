@@ -20,6 +20,8 @@ public class ListingForm {
     private String newProductModel;
     private Integer newProductYear;
 
+    private Boolean isAutoSubmit = false;
+
     private String title;
     private BigDecimal price;
 }
