@@ -17,7 +17,7 @@
     <div class="max-w-5xl mx-auto mt-8">
         <c:url value="/listing/new/choose-product" var="chooseProductUrl"/>
 
-        <form:form id="listingForm" modelAttribute="listingForm" action="${chooseProductUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
+        <form:form id="chooseProductForm" modelAttribute="chooseProductForm" action="${chooseProductUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
             <form:hidden path="isAutoSubmit"/>
             <form:hidden path="previousCategoryId"/>
@@ -81,7 +81,7 @@
                 if (isAutoSubmitInput) {
                     isAutoSubmitInput.value = 'true';
                 }
-                document.querySelector('form#listingForm').submit();
+                document.querySelector('form#chooseProductForm').submit();
             }
 
             if (categorySelect) {

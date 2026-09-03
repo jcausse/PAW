@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.form;
 
-import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,14 +7,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ListingForm {
+public class ChooseProductForm {
 
     private Integer step = 1;
 
     private Long categoryId;
     private Long subcategoryId;
 
-    private Long existingProductId;
     private String newProductBrand;
     private String newProductModel;
     private Integer newProductYear;
@@ -24,9 +22,6 @@ public class ListingForm {
 
     private Long previousCategoryId;
     private Long previousSubcategoryId;
-
-    private String title;
-    private BigDecimal price;
 
     public boolean isCategoryChanged() {
         return categoryId != null && !categoryId.equals(previousCategoryId);

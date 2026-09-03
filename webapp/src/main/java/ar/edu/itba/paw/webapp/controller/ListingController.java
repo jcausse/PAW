@@ -5,7 +5,8 @@ import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
-import ar.edu.itba.paw.webapp.form.ListingForm;
+import ar.edu.itba.paw.webapp.form.ChooseProductForm;
+import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +31,14 @@ public class ListingController {
     }
 
     @GetMapping("/new/choose-product")
-    public ModelAndView chooseProduct(@ModelAttribute("listingForm") ListingForm form) {
+    public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form) {
         form.setStep(1);
         return new ModelAndView("listing/new/chooseProduct")
                 .addObject("categories", productService.getAllCategories());
     }
 
     @PostMapping("/new/choose-product")
-    public ModelAndView chooseProductPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
+    public ModelAndView chooseProductPost(@Valid @ModelAttribute("chooseProductForm") ChooseProductForm form, BindingResult bindingResult) {
         var mav = new ModelAndView("listing/new/chooseProduct");
 
         // Skip validation for auto-submits (triggered by field changes during form filling)
@@ -112,8 +113,7 @@ public class ListingController {
                         form.getNewProductYear(),
                         form.getSubcategoryId()
                 );
-                form.setExistingProductId(product.getId());
-                return new ModelAndView("redirect:/listing/new/details");
+                return new ModelAndView("redirect:/listing/new/details?productId=" + product.getId());
             }
         }
 
@@ -125,15 +125,17 @@ public class ListingController {
     }
 
     @GetMapping("/new/details")
-    public ModelAndView details(@ModelAttribute("listingForm") ListingForm form) {
-        if (form.getExistingProductId() == null) {
-            return new ModelAndView("redirect:/listing/new/choose-product");
-        }
-        return new ModelAndView("listing/new/details");
+    public ModelAndView details(@RequestParam("productId") Long productId, @ModelAttribute("detailsForm") ListingDetailsForm form) {
+        var product = productService.getById(productId);
+        var mav = new ModelAndView("listing/new/details");
+
+        mav.addObject("product", product);
+        form.setProductId(product.getId());
+        return mav;
     }
 
     @PostMapping("/new/details")
-    public ModelAndView detailsPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
+    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult) {
         if (form.getTitle() == null || form.getTitle().isBlank()) {
             bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
         }
@@ -146,7 +148,7 @@ public class ListingController {
                     form.getTitle(),
                     new Price(form.getPrice()),
                     getCurrentUserId(),
-                    form.getExistingProductId()
+                    form.getProductId()
             ));
             return new ModelAndView("redirect:/listing/" + newListing.getId());
         }
@@ -154,7 +156,7 @@ public class ListingController {
         return new ModelAndView("listing/new/details");
     }
 
-    private void populateModel(ModelAndView mav, ListingForm form) {
+    private void populateModel(ModelAndView mav, ChooseProductForm form) {
         mav.addObject("categories", productService.getAllCategories());
 
         if (form.getCategoryId() != null) {

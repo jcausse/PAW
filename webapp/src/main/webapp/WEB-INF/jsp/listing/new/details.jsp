@@ -17,8 +17,8 @@
     <div class="max-w-5xl mx-auto mt-8">
         <c:url value="/listing/new/details" var="detailsUrl"/>
 
-        <form:form id="detailsForm" modelAttribute="listingForm" action="${detailsUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
-            <form:hidden path="existingProductId"/>
+        <form:form id="detailsForm" modelAttribute="detailsForm" action="${detailsUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
+            <form:hidden path="productId"/>
 
             <h2 class="text-2xl font-semibold mb-6"><spring:message code="listing.new.step4.title"/></h2>
 
