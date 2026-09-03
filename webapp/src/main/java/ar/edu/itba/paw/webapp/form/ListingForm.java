@@ -22,6 +22,22 @@ public class ListingForm {
 
     private Boolean isAutoSubmit = false;
 
+    private Long previousCategoryId;
+    private Long previousSubcategoryId;
+
     private String title;
     private BigDecimal price;
+
+    public boolean isCategoryChanged() {
+        return categoryId != null && !categoryId.equals(previousCategoryId);
+    }
+
+    public boolean isSubcategoryChanged() {
+        return subcategoryId != null && !subcategoryId.equals(previousSubcategoryId);
+    }
+
+    public void updatePreviousValues() {
+        this.previousCategoryId = this.categoryId;
+        this.previousSubcategoryId = this.subcategoryId;
+    }
 }

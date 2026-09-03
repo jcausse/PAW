@@ -20,6 +20,8 @@
         <form:form id="listingForm" modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
             <form:hidden path="isAutoSubmit"/>
+            <form:hidden path="previousCategoryId"/>
+            <form:hidden path="previousSubcategoryId"/>
 
             <div class="mb-6">
                 <div class="flex gap-4 mb-4">

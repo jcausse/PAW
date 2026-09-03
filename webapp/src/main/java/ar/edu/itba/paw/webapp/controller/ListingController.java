@@ -40,18 +40,35 @@ public class ListingController {
     public ModelAndView listingNewPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
         var mav = new ModelAndView("listing/new");
 
+        // Skip validation for auto-submits (triggered by field changes during form filling)
+        var isAutoSubmit = Boolean.TRUE.equals(form.getIsAutoSubmit());
+        if (isAutoSubmit) form.setIsAutoSubmit(false); // Reset for next request
+
+        // Reset downstream fields when user goes back and changes a previous field
+        var step = form.getStep();
+        if (step > 1 && form.isCategoryChanged()) {
+            // Category was changed - reset subcategory and product fields
+            form.setSubcategoryId(null);
+            form.setNewProductBrand(null);
+            form.setNewProductModel(null);
+            form.setNewProductYear(null);
+            form.setStep(2);
+        } else if (step > 2 && form.isSubcategoryChanged()) {
+            // Subcategory was changed - reset product fields
+            form.setNewProductBrand(null);
+            form.setNewProductModel(null);
+            form.setNewProductYear(null);
+            form.setStep(3);
+        }
+
         // Reset model if brand is "Any" (empty string)
         if (form.getNewProductBrand() != null && form.getNewProductBrand().isBlank()) {
             form.setNewProductModel(null);
         }
 
-        // Skip validation for auto-submits (triggered by field changes during form filling)
-        var isAutoSubmit = form.getIsAutoSubmit();
-        if (isAutoSubmit) form.setIsAutoSubmit(false); // Reset for next request
-
         if (form.getStep() == 1) {
             var hasCategory = form.getCategoryId() != null;
-			if (!isAutoSubmit && !hasCategory) {
+            if (!isAutoSubmit && !hasCategory) {
                 bindingResult.rejectValue("categoryId", "NotNull.listingForm.categoryId");
             }
 
@@ -61,7 +78,7 @@ public class ListingController {
             }
         } else if (form.getStep() == 2) {
             var hasSubcategory = form.getSubcategoryId() != null;
-			if (!isAutoSubmit && !hasSubcategory) {
+            if (!isAutoSubmit && !hasSubcategory) {
                 bindingResult.rejectValue("subcategoryId", "NotNull.listingForm.subcategoryId");
             }
 
@@ -106,6 +123,9 @@ public class ListingController {
                 return new ModelAndView("redirect:/listing/" + newListing.getId());
             }
         }
+
+        // Update previous values for next request
+        form.updatePreviousValues();
 
         populateModel(mav, form);
         return mav;
