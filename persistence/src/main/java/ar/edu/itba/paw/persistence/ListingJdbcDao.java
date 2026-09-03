@@ -75,10 +75,15 @@ public class ListingJdbcDao implements ListingDao {
                     .username(rs.getString(UserSchema.USERNAME))
                     .displayName(rs.getString(UserSchema.DISPLAY_NAME))
                     .email(rs.getString(UserSchema.EMAIL))
+                    .password("<redacted>")
+                    .imageId(rs.getLong(UserSchema.IMAGE_ID))
                     .build()
             )
             .product(
-                Product.builder().name(rs.getString(ProductSchema.NAME)).build()
+                Product.builder()
+                    .id(rs.getLong(ProductSchema.ID))
+                    .name(rs.getString(ProductSchema.NAME))
+                    .build()
             )
             .build();
 
@@ -89,32 +94,19 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.ID,
             ListingSchema.TITLE,
             ListingSchema.PRICE,
+            "c." + UserSchema.ID,
             "c." + UserSchema.USERNAME,
             "c." + UserSchema.DISPLAY_NAME,
             "c." + UserSchema.EMAIL,
+            "c." + UserSchema.IMAGE_ID,
             "p." + ProductSchema.NAME
         );
 
-        // TODO user
         private static final String GET_BY_ID =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            ListingSchema.TABLE_NAME +
-            " JOIN " +
-            UserSchema.TABLE_NAME +
-            " AS c ON c." +
-            UserSchema.ID +
-            " = " +
-            ListingSchema.CREATOR_ID +
-            " JOIN " +
-            ProductSchema.TABLE_NAME +
-            " AS p ON p." +
-            ProductSchema.ID +
-            " = listings." +
-            ListingSchema.PRODUCT_ID +
-            " WHERE " +
-            ListingSchema.ID +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + ListingSchema.TABLE_NAME +
+            " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = " + ListingSchema.CREATOR_ID +
+            " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = listings." + ListingSchema.PRODUCT_ID +
+            " WHERE " + ListingSchema.ID + " = ?";
     }
 }
