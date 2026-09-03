@@ -25,11 +25,26 @@
 
               <%-- TODO move this to a custom tag --%>
               <div class="flex flex-row gap-2 items-center text-sm">
-                <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center">
-                  <span class="text-lg font-bold">JD</span>
+                <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center overflow-hidden">
+                  <c:choose>
+                      <c:when test="${listing.creator.imageId.present}">
+                          <img
+                              src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
+                              alt="<c:out value='${listing.creator.displayName}'/>&quot;s Profile Picture"
+                              class="w-full h-full object-cover shadow-sm"
+                          >
+                      </c:when>
+                      <c:otherwise>
+                          <img
+                              src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
+                              alt="Default Profile Picture"
+                              class="w-full h-full object-cover shadow-sm"
+                          >
+                      </c:otherwise>
+                  </c:choose>
                 </div>
                 <p>
-                  ${listing.creator.firstName} ${listing.creator.lastName}
+                  ${listing.creator.displayName}
                   <span class="text-black/60">(${listing.creator.username})</span>
                 </p>
               </div>
