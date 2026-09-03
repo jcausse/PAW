@@ -4,5 +4,8 @@ public record UserCreationDto(
         String username,
         String displayName,
         String email,
-        String password
+        String password,
+        byte[] imageBytes,
+        String imageFilename,
+        String imageContentType
 ) {}

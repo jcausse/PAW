@@ -12,7 +12,7 @@
     <h2 class="text-3xl font-bold mb-4"><spring:message code="register.title"/></h2>
     <div class="w-96 bg-white border border-black/10 rounded-2xl p-6">
         <c:url value="/register" var="registerUrl"/>
-        <form:form modelAttribute="userForm" action="${registerUrl}" method="post" cssClass="flex flex-col gap-4">
+        <form:form modelAttribute="userForm" action="${registerUrl}" method="post" enctype="multipart/form-data" cssClass="flex flex-col gap-4">
             <form:errors path="" element="div" cssClass="text-xs text-red-600"/>
 
             <spring:message code="field.username" var="usernameLabel"/>
@@ -23,6 +23,9 @@
 
             <spring:message code="register.email" var="emailLabel"/>
             <paw:formInput path="email" type="email" label="${emailLabel}" variant="outline"/>
+
+            <spring:message code="register.profilePicture" var="profilePictureLabel"/>
+            <paw:formInput path="profilePicture" type="file" label="${profilePictureLabel}" variant="outline"/>
 
             <spring:message code="field.password" var="passwordLabel"/>
             <paw:formInput path="password" type="password" label="${passwordLabel}" variant="outline"/>

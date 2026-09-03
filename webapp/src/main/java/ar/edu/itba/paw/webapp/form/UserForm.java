@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @NoArgsConstructor
 @Getter
@@ -32,4 +33,6 @@ public class UserForm {
     @NotEmpty
     @Size(min = 8)
     private String confirmPassword;
+
+    private MultipartFile profilePicture;
 }

@@ -18,7 +18,10 @@ public class ImageController {
     public ResponseEntity<byte[]> getImage(@PathVariable("id") Long id) {
         return imageService.getById(id)
                 .map(image -> ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
+                        .contentType(image.getContentType()
+                                .map(MediaType::parseMediaType)
+                                .orElse(MediaType.APPLICATION_OCTET_STREAM)
+                        )
                         .body(image.getData()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

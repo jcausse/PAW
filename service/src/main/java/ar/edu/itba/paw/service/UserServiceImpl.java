@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final ImageService imageService;
 
     @Override
     public Optional<User> getById(Long id) {
@@ -37,11 +38,19 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
+        
+        Image image = null;
+        if (dto.imageBytes() != null && dto.imageBytes().length > 0) {
+            String alt = dto.username() + "'s profile picture";
+            image = imageService.create(dto.imageFilename(), alt, dto.imageContentType(), dto.imageBytes());
+        }
+
         return userDao.create(
             dto.username().toLowerCase(),   // Unique
             dto.displayName(),
             dto.email().toLowerCase(),      // Unique
-            dto.password()
+            dto.password(),
+            image
         );
     }
 

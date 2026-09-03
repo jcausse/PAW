@@ -2,7 +2,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.persistence.schema.ImageSchema;
-import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +31,11 @@ public class ImageJdbcDao implements ImageDao {
 
     @Override
     public Image create(String filename, String alt, String contentType, byte[] data) {
-        final Map<String, Object> values = Map.ofEntries(
-                Map.entry(ImageSchema.FILENAME, filename),
-                Map.entry(ImageSchema.ALT, alt),
-                Map.entry(ImageSchema.CONTENT_TYPE, contentType),
-                Map.entry(ImageSchema.DATA, data)
-        );
+        final java.util.Map<String, Object> values = new java.util.HashMap<>();
+        values.put(ImageSchema.FILENAME, filename);
+        values.put(ImageSchema.ALT, alt);
+        values.put(ImageSchema.CONTENT_TYPE, contentType);
+        values.put(ImageSchema.DATA, data);
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
         return Image.builder()
                 .id(key)

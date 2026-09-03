@@ -59,11 +59,28 @@ public class UserController {
             return registerForm(form);
         }
 
+        byte[] imageBytes = null;
+        String imageFilename = null;
+        String imageContentType = null;
+        if (form.getProfilePicture() != null && !form.getProfilePicture().isEmpty()) {
+            try {
+                imageBytes = form.getProfilePicture().getBytes();
+                imageFilename = form.getProfilePicture().getOriginalFilename();
+                imageContentType = form.getProfilePicture().getContentType();
+            } catch (java.io.IOException e) {
+                errors.rejectValue("profilePicture", "error.image.upload");
+                return registerForm(form);
+            }
+        }
+
         var dto = new UserCreationDto(
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
-            passwordEncoder.encode(form.getPassword())
+            passwordEncoder.encode(form.getPassword()),
+            imageBytes,
+            imageFilename,
+            imageContentType
         );
         userService.create(dto);
 
