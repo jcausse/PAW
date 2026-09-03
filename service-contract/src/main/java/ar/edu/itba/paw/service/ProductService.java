@@ -18,5 +18,7 @@ public interface ProductService {
     List<String> getBrandsBySubcategory(Long subcategoryId);
     List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand);
 
+    Product findOrCreateByBrandModelYear(String brand, String model, Integer year, Long subcategoryId);
+
     Product create(ProductCreationDto dto);
 }

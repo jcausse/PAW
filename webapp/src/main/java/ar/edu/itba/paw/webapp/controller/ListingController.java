@@ -29,16 +29,16 @@ public class ListingController {
                 .addObject("listing", listingService.getById(id));
     }
 
-    @GetMapping("/new")
-    public ModelAndView listingNew(@ModelAttribute("listingForm") ListingForm form) {
+    @GetMapping("/new/choose-product")
+    public ModelAndView chooseProduct(@ModelAttribute("listingForm") ListingForm form) {
         form.setStep(1);
-        return new ModelAndView("listing/new")
+        return new ModelAndView("listing/new/chooseProduct")
                 .addObject("categories", productService.getAllCategories());
     }
 
-    @PostMapping("/new")
-    public ModelAndView listingNewPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
-        var mav = new ModelAndView("listing/new");
+    @PostMapping("/new/choose-product")
+    public ModelAndView chooseProductPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
+        var mav = new ModelAndView("listing/new/chooseProduct");
 
         // Skip validation for auto-submits (triggered by field changes during form filling)
         var isAutoSubmit = Boolean.TRUE.equals(form.getIsAutoSubmit());
@@ -103,24 +103,17 @@ public class ListingController {
                 bindingResult.rejectValue("newProductYear", "NotNull");
             }
 
-            // Advance to step 4 if brand, model, and year are all selected (non-null and non-blank for strings)
-            if (!bindingResult.hasErrors() && hasBrand && hasModel && hasYear) form.setStep(4);
-        } else if (form.getStep() == 4) {
-            if (form.getTitle() == null || form.getTitle().isBlank()) {
-                bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
-            }
-            if (form.getPrice() == null) {
-                bindingResult.rejectValue("price", "NotNull.listingForm.price");
-            }
-
-            if (!bindingResult.hasErrors()) {
-                var newListing = listingService.create(new ListingCreationDto(
-                        form.getTitle(),
-                        new Price(form.getPrice()),
-                        getCurrentUserId(),
-                        form.getExistingProductId()
-                ));
-                return new ModelAndView("redirect:/listing/" + newListing.getId());
+            // Advance to details page if brand, model, and year are all selected
+            if (!bindingResult.hasErrors() && hasBrand && hasModel && hasYear) {
+                // Find or create product by brand, model, year and subcategory
+                var product = productService.findOrCreateByBrandModelYear(
+                        form.getNewProductBrand(),
+                        form.getNewProductModel(),
+                        form.getNewProductYear(),
+                        form.getSubcategoryId()
+                );
+                form.setExistingProductId(product.getId());
+                return new ModelAndView("redirect:/listing/new/details");
             }
         }
 
@@ -129,6 +122,36 @@ public class ListingController {
 
         populateModel(mav, form);
         return mav;
+    }
+
+    @GetMapping("/new/details")
+    public ModelAndView details(@ModelAttribute("listingForm") ListingForm form) {
+        if (form.getExistingProductId() == null) {
+            return new ModelAndView("redirect:/listing/new/choose-product");
+        }
+        return new ModelAndView("listing/new/details");
+    }
+
+    @PostMapping("/new/details")
+    public ModelAndView detailsPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
+        if (form.getTitle() == null || form.getTitle().isBlank()) {
+            bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
+        }
+        if (form.getPrice() == null) {
+            bindingResult.rejectValue("price", "NotNull.listingForm.price");
+        }
+
+        if (!bindingResult.hasErrors()) {
+            var newListing = listingService.create(new ListingCreationDto(
+                    form.getTitle(),
+                    new Price(form.getPrice()),
+                    getCurrentUserId(),
+                    form.getExistingProductId()
+            ));
+            return new ModelAndView("redirect:/listing/" + newListing.getId());
+        }
+
+        return new ModelAndView("listing/new/details");
     }
 
     private void populateModel(ModelAndView mav, ListingForm form) {

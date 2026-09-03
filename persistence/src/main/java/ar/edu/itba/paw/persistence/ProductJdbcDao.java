@@ -86,6 +86,14 @@ public class ProductJdbcDao implements ProductDao {
     }
 
     @Override
+    public Optional<Product> getByBrandModelYearSubcategory(String brand, String model, Integer year, Long subcategoryId) {
+        return jdbcTemplate
+            .query(Queries.GET_BY_BRAND_MODEL_YEAR_SUBCATEGORY, ROW_MAPPER, brand, model, year, subcategoryId)
+            .stream()
+            .findFirst();
+    }
+
+    @Override
     public Product create(
         String brand,
         String model,
@@ -249,5 +257,13 @@ public class ProductJdbcDao implements ProductDao {
             " AND " + ProductSchema.BRAND + " = ?" +
             " AND " + ProductSchema.MODEL + " = ?" +
             " ORDER BY " + ProductSchema.YEAR + " DESC";
+
+        private static final String GET_BY_BRAND_MODEL_YEAR_SUBCATEGORY =
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
+            BASE_FROM +
+            " WHERE " + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ?" +
+            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ?" +
+            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.YEAR + " = ?" +
+            " AND " + ProductSchema.TABLE_NAME + "." + ProductSchema.SUBCATEGORY_ID + " = ?";
     }
 }

@@ -69,6 +69,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    public Product findOrCreateByBrandModelYear(String brand, String model, Integer year, Long subcategoryId) {
+        Objects.requireNonNull(brand, "Brand cannot be null");
+        Objects.requireNonNull(model, "Model cannot be null");
+        Objects.requireNonNull(year, "Year cannot be null");
+        Objects.requireNonNull(subcategoryId, "SubcategoryId cannot be null");
+
+        return productDao.getByBrandModelYearSubcategory(brand, model, year, subcategoryId)
+            .orElseGet(() -> productDao.create(brand, model, year, subcategoryId));
+    }
+
+    @Override
+    @Transactional
     public Product create(ProductCreationDto dto) {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
         return productDao.create(dto.brand(), dto.model(), dto.year(), dto.subcategoryId());
