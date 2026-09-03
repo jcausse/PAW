@@ -68,7 +68,7 @@
 
                         <spring:message code="listing.new.newProduct.model" var="newProductModelLabel"/>
                         <spring:message code="listing.new.newProduct.model.select" var="modelPlaceholder"/>
-                        <paw:formSelect path="newProductModel" label="${newProductModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" />
+                        <paw:formSelect path="newProductModel" label="${newProductModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" />
 
                         <spring:message code="listing.new.newProduct.year" var="newProductYearLabel"/>
                         <spring:message code="listing.new.newProduct.year.select" var="yearPlaceholder"/>
@@ -118,7 +118,6 @@
             const subcategorySelect = document.getElementById('subcategoryId');
             const brandSelect = document.getElementById('newProductBrand');
             const modelSelect = document.getElementById('newProductModel');
-            const yearInput = document.getElementById('newProductYear');
 
             function submitForm() {
                 document.querySelector('form#listingForm').submit();
@@ -135,9 +134,6 @@
             }
             if (modelSelect) {
                 modelSelect.addEventListener('change', submitForm);
-            }
-            if (yearInput) {
-                yearInput.addEventListener('change', submitForm);
             }
         });
     </script>

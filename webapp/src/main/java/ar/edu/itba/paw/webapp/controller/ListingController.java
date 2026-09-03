@@ -6,6 +6,7 @@ import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingForm;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +39,11 @@ public class ListingController {
     @PostMapping("/new")
     public ModelAndView listingNewPost(@Valid @ModelAttribute("listingForm") ListingForm form, BindingResult bindingResult) {
         var mav = new ModelAndView("listing/new");
+
+        // Reset model if brand is "Any" (empty string)
+        if (form.getNewProductBrand() != null && form.getNewProductBrand().isBlank()) {
+            form.setNewProductModel(null);
+        }
 
         if (form.getStep() == 1) {
             if (form.getCategoryId() == null) {
@@ -129,12 +135,16 @@ public class ListingController {
 
         if (form.getSubcategoryId() != null) {
             mav.addObject("brands", productService.getBrandsBySubcategory(form.getSubcategoryId()));
-            if (form.getNewProductBrand() != null) {
-                mav.addObject("models", productService.getModelsBySubcategoryAndBrand(form.getSubcategoryId(), form.getNewProductBrand()));
+            List<String> models = List.of();
+            if (form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank()) {
+                models = productService.getModelsBySubcategoryAndBrand(form.getSubcategoryId(), form.getNewProductBrand());
             }
+            mav.addObject("models", models);
+            mav.addObject("modelsEmpty", models.isEmpty());
 
             var brand = form.getNewProductBrand();
             var model = form.getNewProductModel();
+            if (model == null) model = "";
             mav.addObject("products", productService.getBySubcategoryBrandModel(form.getSubcategoryId(), brand, model));
         }
     }
