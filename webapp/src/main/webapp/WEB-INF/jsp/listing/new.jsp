@@ -19,8 +19,6 @@
 
         <form:form id="listingForm" modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
-            <form:hidden path="existingProductId"/>
-            <form:hidden path="selectedProductId"/>
 
             <div class="mb-6">
                 <div class="flex gap-4 mb-4">
@@ -62,24 +60,23 @@
                     <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <spring:message code="listing.new.newProduct.brand" var="newProductBrandLabel"/>
-                        <spring:message code="listing.new.newProduct.brand.select" var="brandPlaceholder"/>
-                        <paw:formSelect path="newProductBrand" label="${newProductBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
+                        <spring:message code="listing.new.filter.brand" var="filterBrandLabel"/>
+                        <spring:message code="listing.new.filter.brand.select" var="brandPlaceholder"/>
+                        <paw:formSelect path="newProductBrand" label="${filterBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
 
-                        <spring:message code="listing.new.newProduct.model" var="newProductModelLabel"/>
-                        <spring:message code="listing.new.newProduct.model.select" var="modelPlaceholder"/>
-                        <paw:formSelect path="newProductModel" label="${newProductModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" />
+                        <spring:message code="listing.new.filter.model" var="filterModelLabel"/>
+                        <spring:message code="listing.new.filter.model.select" var="modelPlaceholder"/>
+                        <paw:formSelect path="newProductModel" label="${filterModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" />
 
-                        <spring:message code="listing.new.newProduct.year" var="newProductYearLabel"/>
-                        <spring:message code="listing.new.newProduct.year.select" var="yearPlaceholder"/>
-                        <paw:formInput path="newProductYear" label="${newProductYearLabel}" placeholder="${yearPlaceholder}" type="number" />
+                        <spring:message code="listing.new.filter.year" var="filterYearLabel"/>
+                        <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
+                        <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" />
                     </div>
 
                     <spring:message code="listing.new.product" var="productLabel"/>
                     <spring:message code="listing.new.product.select" var="productPlaceholder"/>
                     <paw:formSelect path="existingProductId" label="${productLabel}" placeholder="${productPlaceholder}" items="${products}" />
 
-                    <form:hidden path="newProductSubcategoryId" value="${listingForm.subcategoryId}"/>
                 </div>
             </c:if>
 
@@ -118,6 +115,8 @@
             const subcategorySelect = document.getElementById('subcategoryId');
             const brandSelect = document.getElementById('newProductBrand');
             const modelSelect = document.getElementById('newProductModel');
+            const yearInput = document.getElementById('newProductYear');
+            const productSelect = document.getElementById('existingProductId');
 
             function submitForm() {
                 document.querySelector('form#listingForm').submit();
@@ -134,6 +133,10 @@
             }
             if (modelSelect) {
                 modelSelect.addEventListener('change', submitForm);
+            }
+            // Year is just a filter, no submit on change
+            if (productSelect) {
+                productSelect.addEventListener('change', submitForm);
             }
         });
     </script>

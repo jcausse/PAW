@@ -62,46 +62,12 @@ public class ListingController {
                 form.setStep(3);
             }
         } else if (form.getStep() == 3) {
-            if (form.getProductSelectionMode() == null) {
-                bindingResult.rejectValue("productSelectionMode", "NotNull.listingForm.productSelectionMode");
-            } else if ("existing".equals(form.getProductSelectionMode())) {
-                if (form.getExistingProductId() == null) {
-                    bindingResult.rejectValue("existingProductId", "NotNull.listingForm.existingProductId");
-                }
-            } else if ("new".equals(form.getProductSelectionMode())) {
-                if (form.getNewProductName() == null || form.getNewProductName().isBlank()) {
-                    bindingResult.rejectValue("newProductName", "NotEmpty.listingForm.newProductName");
-                }
-                if (form.getNewProductBrand() == null || form.getNewProductBrand().isBlank()) {
-                    bindingResult.rejectValue("newProductBrand", "NotEmpty.listingForm.newProductBrand");
-                }
-                if (form.getNewProductModel() == null || form.getNewProductModel().isBlank()) {
-                    bindingResult.rejectValue("newProductModel", "NotEmpty.listingForm.newProductModel");
-                }
-                if (form.getNewProductYear() == null) {
-                    bindingResult.rejectValue("newProductYear", "NotNull.listingForm.newProductYear");
-                }
-                if (form.getNewProductSubcategoryId() == null) {
-                    bindingResult.rejectValue("newProductSubcategoryId", "NotNull.listingForm.newProductSubcategoryId");
-                }
+            if (form.getExistingProductId() == null) {
+                bindingResult.rejectValue("existingProductId", "NotNull.listingForm.existingProductId");
             }
 
             if (!bindingResult.hasErrors()) {
-                Long productId;
-                if ("existing".equals(form.getProductSelectionMode())) {
-                    productId = form.getExistingProductId();
-                } else {
-                    var product = productService.create(new ar.edu.itba.paw.service.dto.ProductCreationDto(
-                            form.getNewProductName(),
-                            form.getNewProductBrand(),
-                            form.getNewProductModel(),
-                            form.getNewProductYear(),
-                            form.getNewProductSubcategoryId()
-                    ));
-                    productId = product.getId();
-                }
                 form.setStep(4);
-                form.setSelectedProductId(productId);
             }
         } else if (form.getStep() == 4) {
             if (form.getTitle() == null || form.getTitle().isBlank()) {
@@ -116,7 +82,7 @@ public class ListingController {
                         form.getTitle(),
                         new Price(form.getPrice()),
                         getCurrentUserId(),
-                        form.getSelectedProductId()
+                        form.getExistingProductId()
                 ));
                 return new ModelAndView("redirect:/listing/" + newListing.getId());
             }
@@ -143,6 +109,7 @@ public class ListingController {
             mav.addObject("modelsEmpty", models.isEmpty());
 
             var brand = form.getNewProductBrand();
+            if (brand == null) brand = "";
             var model = form.getNewProductModel();
             if (model == null) model = "";
             mav.addObject("products", productService.getBySubcategoryBrandModel(form.getSubcategoryId(), brand, model));
