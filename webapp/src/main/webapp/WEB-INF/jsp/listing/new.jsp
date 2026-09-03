@@ -19,10 +19,6 @@
 
         <form:form id="listingForm" modelAttribute="listingForm" action="${newListingUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
             <form:hidden path="step"/>
-            <form:hidden path="newProductBrand"/>
-            <form:hidden path="newProductModel"/>
-            <form:hidden path="newProductYear"/>
-            <form:hidden path="newProductSubcategoryId"/>
             <form:hidden path="existingProductId"/>
             <form:hidden path="selectedProductId"/>
 

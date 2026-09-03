@@ -251,8 +251,8 @@ public class ProductJdbcDao implements ProductDao {
             "." +
             SubcategorySchema.ID +
             " = ?" +
-            " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ? OR ? IS NULL)" +
-            " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ? OR ? IS NULL)";
+            " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ? OR ? = '')" +
+            " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ? OR ? = '')";
 
         private static final String GET_BRANDS_BY_SUBCATEGORY =
             "SELECT DISTINCT " + ProductSchema.BRAND +
