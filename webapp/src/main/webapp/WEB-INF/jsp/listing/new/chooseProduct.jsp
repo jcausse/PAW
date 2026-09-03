@@ -31,7 +31,7 @@
             </div>
 
             <%-- Step 2: Subcategory Selection (visible when category selected) --%>
-            <c:if test="${listingForm.step ge 2}">
+            <c:if test="${chooseProductForm.step ge 2}">
                 <div class="mb-6">
                     <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
                     <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
@@ -40,7 +40,7 @@
             </c:if>
 
             <%-- Step 3: Product Selection (visible when subcategory selected) --%>
-            <c:if test="${listingForm.step ge 3}">
+            <c:if test="${chooseProductForm.step ge 3}">
                 <div class="mb-6">
                     <spring:message code="listing.new.step3.title" var="step3Title"/>
                     <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>

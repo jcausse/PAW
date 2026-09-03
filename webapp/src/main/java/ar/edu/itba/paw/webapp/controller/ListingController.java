@@ -62,8 +62,8 @@ public class ListingController {
             form.setStep(3);
         }
 
-        // Reset model if brand is "Any" (empty string)
-        if (form.getNewProductBrand() != null && form.getNewProductBrand().isBlank()) {
+        // Reset model if brand is empty (empty string)
+        if (form.getNewProductBrand() == null || form.getNewProductBrand().isBlank()) {
             form.setNewProductModel(null);
         }
 
