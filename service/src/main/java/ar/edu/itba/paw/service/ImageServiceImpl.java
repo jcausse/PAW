@@ -22,8 +22,8 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public Image create(String filename, String alt, byte[] data) {
-        return imageDao.create(filename, alt, data);
+    public Image create(String filename, String alt, String contentType, byte[] data) {
+        return imageDao.create(filename, alt, contentType, data);
     }
 
     @Override

@@ -31,10 +31,11 @@ public class ImageJdbcDao implements ImageDao {
     }
 
     @Override
-    public Image create(String filename, String alt, byte[] data) {
+    public Image create(String filename, String alt, String contentType, byte[] data) {
         final Map<String, Object> values = Map.ofEntries(
                 Map.entry(ImageSchema.FILENAME, filename),
                 Map.entry(ImageSchema.ALT, alt),
+                Map.entry(ImageSchema.CONTENT_TYPE, contentType),
                 Map.entry(ImageSchema.DATA, data)
         );
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
@@ -42,6 +43,7 @@ public class ImageJdbcDao implements ImageDao {
                 .id(key)
                 .filename(filename)
                 .alt(alt)
+                .contentType(contentType)
                 .data(data)
                 .build();
     }
@@ -56,6 +58,7 @@ public class ImageJdbcDao implements ImageDao {
             .id(rs.getLong(ImageSchema.ID))
             .filename(rs.getString(ImageSchema.FILENAME))
             .alt(rs.getString(ImageSchema.ALT))
+            .contentType(rs.getString(ImageSchema.CONTENT_TYPE))
             .data(rs.getBytes(ImageSchema.DATA))
             .build();
 
@@ -66,6 +69,7 @@ public class ImageJdbcDao implements ImageDao {
             ImageSchema.ID,
             ImageSchema.FILENAME,
             ImageSchema.ALT,
+            ImageSchema.CONTENT_TYPE,
             ImageSchema.DATA
         );
 
