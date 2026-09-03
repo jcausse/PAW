@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Optional<User> getById(Long id) {
@@ -41,7 +43,7 @@ public class UserServiceImpl implements UserService {
             dto.username().toLowerCase(),   // Unique
             dto.displayName(),
             dto.email().toLowerCase(),      // Unique
-            dto.password()
+            passwordEncoder.encode(dto.password())
         );
     }
 
