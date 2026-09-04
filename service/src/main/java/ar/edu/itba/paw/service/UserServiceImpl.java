@@ -56,8 +56,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateImage(User user, Image image) {
-        userDao.updateImage(user, image);
+    public Image updateImage(User user, Image image) {
+        return userDao.updateImage(user, image);
     }
 
     @Override
