@@ -24,7 +24,11 @@
 
                         <div class="flex flex-col">
                             <div class="text-black">${listing.product.brand} ${listing.product.model} (${listing.product.year})</div>
-                            <div class="text-sm text-black/60">${listing.product.subcategory.category.name}/${listing.product.subcategory.name}</div>
+                            <div class="text-sm text-black/60">
+                                <spring:message code="category.${listing.product.subcategory.category.name}"/>
+                                /
+                                <spring:message code="subcategory.${listing.product.subcategory.name}"/>
+                            </div>
                         </div>
 
                         <%-- TODO move this to a custom tag --%>

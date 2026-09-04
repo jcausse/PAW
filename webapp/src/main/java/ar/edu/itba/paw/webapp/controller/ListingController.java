@@ -7,10 +7,13 @@ import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
+import ar.edu.itba.paw.webapp.form.SelectOption;
 import java.time.Year;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -24,8 +27,9 @@ public class ListingController {
 
     private static final String OTHER_VALUE = "__OTHER__";
 
-	private final ListingService listingService;
+    private final ListingService listingService;
     private final ProductService productService;
+    private final MessageSource messageSource;
 
     @GetMapping("/{id}")
     public ModelAndView listing(@PathVariable Long id) {
@@ -35,9 +39,10 @@ public class ListingController {
 
     @GetMapping("/new/choose-product")
     public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form) {
+        var mav = new ModelAndView("listing/new/chooseProduct");
         form.setStep(1);
-        return new ModelAndView("listing/new/chooseProduct")
-                .addObject("categories", productService.getAllCategories());
+        populateModel(mav, form);
+        return mav;
     }
 
     @PostMapping("/new/choose-product")
@@ -206,10 +211,26 @@ public class ListingController {
     }
 
     private void populateModel(ModelAndView mav, ChooseProductForm form) {
-        mav.addObject("categories", productService.getAllCategories());
+        var categories = productService.getAllCategories();
+        mav.addObject("categories", categories);
+
+        // Create translated category options
+        var categoryOptions = new java.util.ArrayList<SelectOption>();
+        for (var cat : categories) {
+            categoryOptions.add(new SelectOption(cat.getId(), messageSource.getMessage("category." + cat.getName(), null, LocaleContextHolder.getLocale())));
+        }
+        mav.addObject("categoryOptions", categoryOptions);
 
         if (form.getCategoryId() != null) {
-            mav.addObject("subcategories", productService.getSubcategoriesByCategory(form.getCategoryId()));
+            var subcategories = productService.getSubcategoriesByCategory(form.getCategoryId());
+            mav.addObject("subcategories", subcategories);
+
+            // Create translated subcategory options
+            var subcategoryOptions = new java.util.ArrayList<SelectOption>();
+            for (var sub : subcategories) {
+                subcategoryOptions.add(new SelectOption(sub.getId(), messageSource.getMessage("subcategory." + sub.getName(), null, LocaleContextHolder.getLocale())));
+            }
+            mav.addObject("subcategoryOptions", subcategoryOptions);
         }
 
         if (form.getSubcategoryId() != null) {
