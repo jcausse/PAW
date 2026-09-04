@@ -7,6 +7,7 @@ import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
+import java.time.Year;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -139,10 +140,17 @@ public class ListingController {
 
             hasBrand = brand != null && !brand.isBlank();
             hasModel = model != null && !model.isBlank();
-            var hasYear = form.getNewProductYear() != null;
+            var year = form.getNewProductYear();
+            var hasYear = year != null;
 
-            if (!isAutoSubmit && !hasYear) {
-                bindingResult.rejectValue("newProductYear", "NotNull");
+            if (!isAutoSubmit) {
+                var currentYear = Year.now().getValue();
+                if (!hasYear) {
+                    bindingResult.rejectValue("newProductYear", "NotNull");
+                }
+                else if (year < 1900 || year > currentYear) {
+                    bindingResult.rejectValue("newProductYear", "Range", new Object[]{1900, currentYear}, "Year must be between 1900 and " + currentYear);
+                }
             }
 
             // Advance to details page if brand, model, and year are all selected
