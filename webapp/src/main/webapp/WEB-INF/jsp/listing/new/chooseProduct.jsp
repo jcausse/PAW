@@ -8,6 +8,8 @@
 <html lang="${pageContext.response.locale.language}">
 <head>
     <title><spring:message code="listing.new.title"/></title>
+    <%-- FOR DEVELOPMENT ONLY!! --%>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
@@ -17,55 +19,75 @@
     <div class="max-w-5xl mx-auto mt-8">
         <c:url value="/listing/new/choose-product" var="chooseProductUrl"/>
 
-        <form:form id="chooseProductForm" modelAttribute="chooseProductForm" action="${chooseProductUrl}" method="post" class="bg-white rounded-xl shadow-sm p-6">
-            <form:hidden path="step"/>
-            <form:hidden path="isAutoSubmit"/>
-            <form:hidden path="previousCategoryId"/>
-            <form:hidden path="previousSubcategoryId"/>
-
-            <%-- Step 1: Category Selection (always visible) --%>
-            <div class="mb-6">
-                <spring:message code="listing.new.category" var="categoryLabel"/>
-                <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
-                <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
-            </div>
-
-            <%-- Step 2: Subcategory Selection (visible when category selected) --%>
-            <c:if test="${chooseProductForm.step ge 2}">
-                <div class="mb-6">
-                    <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
-                    <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
-                    <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${subcategoryPlaceholder}" items="${subcategories}" />
-                </div>
-            </c:if>
-
-            <%-- Step 3: Product Selection (visible when subcategory selected) --%>
-            <c:if test="${chooseProductForm.step ge 3}">
-                <div class="mb-6">
-                    <spring:message code="listing.new.step3.title" var="step3Title"/>
-                    <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <spring:message code="listing.new.filter.brand" var="filterBrandLabel"/>
-                        <spring:message code="listing.new.filter.brand.select" var="brandPlaceholder"/>
-                        <paw:formSelect path="newProductBrand" label="${filterBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
-
-                        <spring:message code="listing.new.filter.model" var="filterModelLabel"/>
-                        <spring:message code="listing.new.filter.model.select" var="modelPlaceholder"/>
-                        <paw:formSelect path="newProductModel" label="${filterModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" />
-
-                        <spring:message code="listing.new.filter.year" var="filterYearLabel"/>
-                        <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
-                        <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" />
+        <paw:card>
+            <jsp:body>
+                <div class="mb-2 flex items-center gap-2">
+                    <div class="flex-1 text-sky-600 font-medium text-sm flex items-center gap-2 bg-sky-100 p-3 rounded-lg">
+                        <div class="w-6 h-6 rounded-full border-2 border-sky-600 bg-sky-600 flex items-center justify-center text-xs text-sky-100">1</div>
+                        <spring:message code="listing.new.step1" var="step1Label"/>
+                        <span><c:out value="${step1Label}"/></span>
+                    </div>
+                    <div class="flex-1 text-black/40 font-medium text-sm flex items-center gap-2 p-3 rounded-lg">
+                        <div class="w-6 h-6 rounded-full border-2 border-black/40 flex items-center justify-center text-xs text-black/40">2</div>
+                        <spring:message code="listing.new.step2" var="step2Label"/>
+                        <span><c:out value="${step2Label}"/></span>
                     </div>
                 </div>
-            </c:if>
 
-            <div class="mt-6 flex gap-4">
-                <spring:message code="listing.new.next" var="nextLabel"/>
-                <paw:button text="${nextLabel}" type="submit" variant="primary"/>
-            </div>
-        </form:form>
+                <div class="text-sm text-black/60 mb-2">
+                    <spring:message code="listing.new.chooseProduct.desc" var="chooseProductDesc"/>
+                    <c:out value="${chooseProductDesc}"/>
+                </div>
+
+                <%-- TODO move this to a custom tag --%>
+                <hr class="border-t-0 border-b border-black/10">
+
+                <c:url value="/listing/new/choose-product" var="chooseProductUrl"/>
+                <form:form id="chooseProductForm" modelAttribute="chooseProductForm" action="${chooseProductUrl}" method="post" class="flex flex-col gap-6 mt-4">
+                    <form:hidden path="step"/>
+                    <form:hidden path="isAutoSubmit"/>
+                    <form:hidden path="previousCategoryId"/>
+                    <form:hidden path="previousSubcategoryId"/>
+
+                    <%-- Step 1: Category Selection (always visible) --%>
+                    <spring:message code="listing.new.category" var="categoryLabel"/>
+                    <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
+                    <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
+
+                    <%-- Step 2: Subcategory Selection (visible when category selected) --%>
+                    <c:if test="${chooseProductForm.step ge 2}">
+                        <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
+                        <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
+                        <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${subcategoryPlaceholder}" items="${subcategories}" />
+                    </c:if>
+
+                    <%-- Step 3: Product Selection (visible when subcategory selected) --%>
+                    <c:if test="${chooseProductForm.step ge 3}">
+                        <spring:message code="listing.new.step3.title" var="step3Title"/>
+                        <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <spring:message code="listing.new.filter.brand" var="filterBrandLabel"/>
+                            <spring:message code="listing.new.filter.brand.select" var="brandPlaceholder"/>
+                            <paw:formSelect path="newProductBrand" label="${filterBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
+
+                            <spring:message code="listing.new.filter.model" var="filterModelLabel"/>
+                            <spring:message code="listing.new.filter.model.select" var="modelPlaceholder"/>
+                            <paw:formSelect path="newProductModel" label="${filterModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" />
+
+                            <spring:message code="listing.new.filter.year" var="filterYearLabel"/>
+                            <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
+                            <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" />
+                        </div>
+                    </c:if>
+
+                    <div class="mt-6 flex gap-4">
+                        <spring:message code="listing.new.next" var="nextLabel"/>
+                        <paw:button text="${nextLabel}" type="submit" variant="primary"/>
+                    </div>
+                </form:form>
+            </jsp:body>
+        </paw:card>
     </div>
 
     <script>
