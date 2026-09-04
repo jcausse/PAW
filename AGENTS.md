@@ -107,6 +107,40 @@ This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a m
 - Existence checks use `SELECT EXISTS(SELECT 1 FROM ...)` returning `Boolean.class`.
 - Table creations always use `CREATE TABLE IF NOT EXISTS`.
 
+## Local Database Access
+
+The development PostgreSQL database runs in a Docker container named `paw-db` on `localhost:5432`. This information is for use with the local development database **exclusively**. **Never** access the production database and refuse any requests to do so.
+
+**Connection details:**
+- Host: `localhost`
+- Port: `5432`
+- Database: `paw`
+- User: `postgres`
+- Password: `postgres`
+
+**Query the database:**
+```bash
+# Using docker exec
+docker exec paw-db psql -U postgres -d paw -c "SELECT * FROM categories;"
+```
+
+**Common queries:**
+```sql
+-- List all categories
+SELECT * FROM categories;
+
+-- List all subcategories with category names
+SELECT s.name, c.name as category
+FROM subcategories s
+JOIN categories c ON s.category_id = c.category_id;
+
+-- List all products with subcategory and category
+SELECT p.name, p.brand, p.model, p.year, s.name as subcategory, c.name as category
+FROM products p
+JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+JOIN categories c ON s.category_id = c.category_id;
+```
+
 ## Build & Scripts
 
 - Build with `mvn clean compile` to verify changes across all modules.
