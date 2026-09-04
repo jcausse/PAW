@@ -13,54 +13,56 @@
 </head>
 <body class="p-8 pb-24 bg-neutral-50">
     <div class="max-w-5xl mx-auto">
-      <div class="flex flex-row gap-4">
-        <div class="flex-2 bg-white"></div>
-        <div class="flex-1 min-w-md">
-          <paw:card>
-            <div class="flex flex-col gap-4">
-              <h1 class="text-2xl font-semibold">${listing.title}</h1>
+        <div class="flex flex-row gap-4">
+            <div class="flex-2 bg-white">
 
-              <c:if test="${listing.product != null}">
-                  <div class="text-black">${listing.product.brand} ${listing.product.model} (${listing.product.year})</div>
-              </c:if>
-
-              <%-- TODO move this to a custom tag --%>
-              <hr class="border-t-0 border-b border-black/10">
-
-              <%-- TODO move this to a custom tag --%>
-              <div class="flex flex-row gap-2 items-center text-sm">
-                <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center overflow-hidden">
-                  <c:choose>
-                      <c:when test="${listing.creator.imageId.present}">
-                          <img
-                              src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
-                              alt="<c:out value='${listing.creator.displayName}'/>&quot;s Profile Picture"
-                              class="w-full h-full object-cover shadow-sm"
-                          >
-                      </c:when>
-                      <c:otherwise>
-                          <img
-                              src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                              alt="Default Profile Picture"
-                              class="w-full h-full object-cover shadow-sm"
-                          >
-                      </c:otherwise>
-                  </c:choose>
-                </div>
-                <p>
-                  ${listing.creator.displayName}
-                  <span class="text-black/60">(${listing.creator.username})</span>
-                </p>
-              </div>
-
-              <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
-
-              <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
-              <paw:button size="lg" classname="w-full" text="${makeOfferLabel}" />
             </div>
-          </paw:card>
+            <div class="flex-1 min-w-md">
+                <paw:card>
+                    <div class="flex flex-col gap-4">
+                        <h1 class="text-2xl font-semibold">${listing.title}</h1>
+
+                        <div class="flex flex-col">
+                            <div class="text-black">${listing.product.brand} ${listing.product.model} (${listing.product.year})</div>
+                            <div class="text-sm text-black/60">${listing.product.subcategory.category.name}/${listing.product.subcategory.name}</div>
+                        </div>
+
+                        <%-- TODO move this to a custom tag --%>
+                        <hr class="border-t-0 border-b border-black/10">
+
+                        <div class="flex flex-row gap-2 items-center text-sm">
+                            <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center overflow-hidden">
+                                <c:choose>
+                                    <c:when test="${listing.creator.imageId.present}">
+                                        <img
+                                            src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
+                                            alt="<c:out value='${listing.creator.displayName}'/>&quot;s Profile Picture"
+                                            class="w-full h-full object-cover shadow-sm"
+                                        >
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img
+                                            src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
+                                            alt="Default Profile Picture"
+                                            class="w-full h-full object-cover shadow-sm"
+                                        >
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <p>
+                            ${listing.creator.displayName}
+                            <span class="text-black/60">(${listing.creator.username})</span>
+                            </p>
+                        </div>
+
+                        <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
+
+                        <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
+                        <paw:button size="lg" classname="w-full" text="${makeOfferLabel}" />
+                    </div>
+                </paw:card>
+            </div>
         </div>
-      </div>
     </div>
 </body>
 </html>

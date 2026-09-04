@@ -98,7 +98,7 @@ private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
                             .category(
                                 Category.builder()
                                     .id(rs.getLong(CategorySchema.ID))
-                                    .name(rs.getString(CategorySchema.NAME))
+                                    .name(rs.getString("category_name"))
                                     .build()
                             )
                             .build()
@@ -133,7 +133,7 @@ private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
             SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.NAME,
             SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID,
             CategorySchema.TABLE_NAME + "." + CategorySchema.ID,
-            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME
+            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME + " as category_name"
         );
 
         private static final String BASE_FROM =

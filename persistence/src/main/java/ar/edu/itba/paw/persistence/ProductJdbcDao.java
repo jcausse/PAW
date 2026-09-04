@@ -125,7 +125,7 @@ public class ProductJdbcDao implements ProductDao {
             .category(
                 Category.builder()
                     .id(rs.getLong(CategorySchema.ID))
-                    .name(rs.getString(CategorySchema.NAME))
+                    .name(rs.getString("category_name"))
                     .build()
             )
             .build();
@@ -155,80 +155,35 @@ public class ProductJdbcDao implements ProductDao {
             SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.NAME,
             SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID,
             CategorySchema.TABLE_NAME + "." + CategorySchema.ID,
-            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME
+            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME + " as category_name"
         );
 
         private static final String BASE_FROM =
-            " FROM " +
-            ProductSchema.TABLE_NAME +
-            " LEFT JOIN " +
-            SubcategorySchema.TABLE_NAME +
-            " ON " +
-            ProductSchema.TABLE_NAME +
-            "." +
-            ProductSchema.SUBCATEGORY_ID +
-            " = " +
-            SubcategorySchema.TABLE_NAME +
-            "." +
-            SubcategorySchema.ID +
-            " LEFT JOIN " +
-            CategorySchema.TABLE_NAME +
-            " ON " +
-            SubcategorySchema.TABLE_NAME +
-            "." +
-            SubcategorySchema.CATEGORY_ID +
-            " = " +
-            CategorySchema.TABLE_NAME +
-            "." +
-            CategorySchema.ID;
+            " FROM " + ProductSchema.TABLE_NAME +
+            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + ProductSchema.TABLE_NAME + "." + ProductSchema.SUBCATEGORY_ID +
+            " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID +
+            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID +
+            " = " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID;
 
         private static final String GET_BY_ID =
-            "SELECT " +
-            FIELDS +
-            ", " +
-            SUBCATEGORY_FIELDS +
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
             BASE_FROM +
-            " WHERE " +
-            ProductSchema.TABLE_NAME +
-            "." +
-            ProductSchema.ID +
-            " = ?";
+            " WHERE " + ProductSchema.TABLE_NAME + "." + ProductSchema.ID + " = ?";
 
         private static final String GET_BY_CATEGORY =
-            "SELECT " +
-            FIELDS +
-            ", " +
-            SUBCATEGORY_FIELDS +
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
             BASE_FROM +
-            " WHERE " +
-            CategorySchema.TABLE_NAME +
-            "." +
-            CategorySchema.ID +
-            " = ?";
+            " WHERE " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = ?";
 
         private static final String GET_BY_SUBCATEGORY =
-            "SELECT " +
-            FIELDS +
-            ", " +
-            SUBCATEGORY_FIELDS +
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
             BASE_FROM +
-            " WHERE " +
-            SubcategorySchema.TABLE_NAME +
-            "." +
-            SubcategorySchema.ID +
-            " = ?";
+            " WHERE " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = ?";
 
         private static final String GET_BY_SUBCATEGORY_BRAND_MODEL =
-            "SELECT " +
-            FIELDS +
-            ", " +
-            SUBCATEGORY_FIELDS +
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
             BASE_FROM +
-            " WHERE " +
-            SubcategorySchema.TABLE_NAME +
-            "." +
-            SubcategorySchema.ID +
-            " = ?" +
+            " WHERE " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = ?" +
             " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.BRAND + " = ? OR ? = '')" +
             " AND (" + ProductSchema.TABLE_NAME + "." + ProductSchema.MODEL + " = ? OR ? = '')";
 
