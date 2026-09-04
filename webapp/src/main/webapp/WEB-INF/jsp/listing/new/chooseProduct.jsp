@@ -68,16 +68,40 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
                             <spring:message code="listing.new.filter.brand" var="filterBrandLabel"/>
                             <spring:message code="listing.new.filter.brand.select" var="brandPlaceholder"/>
-                            <paw:formSelect path="newProductBrand" label="${filterBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
+                            <spring:message code="listing.new.filter.brand.other" var="brandOther"/>
+                            <paw:formSelect path="newProductBrand" label="${filterBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" includeOther="true" otherValue="__OTHER__" otherLabel="${brandOther}" />
 
                             <spring:message code="listing.new.filter.model" var="filterModelLabel"/>
                             <spring:message code="listing.new.filter.model.select" var="modelPlaceholder"/>
-                            <paw:formSelect path="newProductModel" label="${filterModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" />
+                            <spring:message code="listing.new.filter.model.other" var="modelOther"/>
+                            <paw:formSelect path="newProductModel" label="${filterModelLabel}" placeholder="${modelPlaceholder}" items="${models}" plainStrings="true" disabled="${modelsEmpty}" includeOther="true" otherValue="__OTHER__" otherLabel="${modelOther}" />
 
                             <spring:message code="listing.new.filter.year" var="filterYearLabel"/>
                             <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
                             <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" />
                         </div>
+
+                        <c:if test="${chooseProductForm.newProductBrand == '__OTHER__'}">
+                            <div class="mb-4">
+                                <spring:message code="listing.new.filter.brand.otherInput" var="otherBrandLabel"/>
+                                <paw:formInput path="otherBrand" label="${otherBrandLabel}" placeholder="Enter brand name" />
+                            </div>
+                        </c:if>
+
+                        <c:choose>
+                            <c:when test="${chooseProductForm.newProductModel == '__OTHER__'}">
+                                <div class="mb-4">
+                                    <spring:message code="listing.new.filter.model.otherInput" var="otherModelLabel"/>
+                                    <paw:formInput path="otherModel" label="${otherModelLabel}" placeholder="Enter model name" />
+                                </div>
+                            </c:when>
+                            <c:when test="${chooseProductForm.newProductBrand == '__OTHER__'}">
+                                <div class="mb-4">
+                                    <spring:message code="listing.new.filter.model.otherInput" var="otherModelLabel"/>
+                                    <paw:formInput path="otherModel" label="${otherModelLabel}" placeholder="Enter model name" />
+                                </div>
+                            </c:when>
+                        </c:choose>
                     </c:if>
 
                     <div class="mt-6 flex gap-4">
@@ -113,6 +137,9 @@
             }
             if (brandSelect) {
                 brandSelect.addEventListener('change', submitForm);
+            }
+            if (modelSelect) {
+                modelSelect.addEventListener('change', submitForm);
             }
         });
     </script>

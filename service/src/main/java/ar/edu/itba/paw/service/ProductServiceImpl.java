@@ -75,14 +75,19 @@ public class ProductServiceImpl implements ProductService {
         Objects.requireNonNull(year, "Year cannot be null");
         Objects.requireNonNull(subcategoryId, "SubcategoryId cannot be null");
 
+        var subcategory = subcategoryDao.getById(subcategoryId)
+            .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + subcategoryId));
+
         return productDao.getByBrandModelYearSubcategory(brand, model, year, subcategoryId)
-            .orElseGet(() -> productDao.create(brand, model, year, subcategoryId));
+            .orElseGet(() -> productDao.create(brand, model, year, subcategory));
     }
 
     @Override
     @Transactional
     public Product create(ProductCreationDto dto) {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
-        return productDao.create(dto.brand(), dto.model(), dto.year(), dto.subcategoryId());
+        var subcategory = subcategoryDao.getById(dto.subcategoryId())
+            .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + dto.subcategoryId()));
+        return productDao.create(dto.brand(), dto.model(), dto.year(), subcategory);
     }
 }

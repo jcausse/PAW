@@ -6,6 +6,9 @@
 <%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="includeOther" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="otherValue" required="false" type="java.lang.String" %>
+<%@ attribute name="otherLabel" required="false" type="java.lang.String" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
@@ -22,6 +25,9 @@
 }"/>
 
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
+<c:set var="isIncludeOther" value="${includeOther ne null ? includeOther : false}"/>
+<c:set var="otherVal" value="${not empty otherValue ? otherValue : '__OTHER__'}"/>
+<c:set var="otherLbl" value="${not empty otherLabel ? otherLabel : 'Other...'}"/>
 
 <%-- Define the markup in reverse order so we can use errors to conditionally style the input --%>
 <div class="flex flex-col-reverse gap-1">
@@ -44,6 +50,10 @@
         <form:options items="${items}" itemValue="id" itemLabel="name" />
       </c:otherwise>
     </c:choose>
+
+    <c:if test="${isIncludeOther}">
+      <form:option value="${otherVal}" label="${otherLbl}" />
+    </c:if>
   </form:select>
 
   <c:if test="${not empty label}">

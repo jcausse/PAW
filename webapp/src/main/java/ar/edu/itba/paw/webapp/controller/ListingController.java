@@ -90,8 +90,20 @@ public class ListingController {
                 form.setNewProductYear(null);
             }
         } else if (form.getStep() == 3) {
-            var hasBrand = form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank();
-            var hasModel = form.getNewProductModel() != null && !form.getNewProductModel().isBlank();
+            // Resolve brand and model - if "Other" is selected, use the text input value
+            var brand = form.getNewProductBrand();
+            var model = form.getNewProductModel();
+
+            if ("__OTHER__".equals(brand)) {
+                brand = form.getOtherBrand();
+                form.setNewProductModel("__OTHER__");
+            }
+            if ("__OTHER__".equals(model)) {
+                model = form.getOtherModel();
+            }
+
+            var hasBrand = brand != null && !brand.isBlank();
+            var hasModel = model != null && !model.isBlank();
             var hasYear = form.getNewProductYear() != null;
 
             if (!isAutoSubmit && !hasBrand) {
@@ -108,8 +120,8 @@ public class ListingController {
             if (!bindingResult.hasErrors() && hasBrand && hasModel && hasYear) {
                 // Find or create product by brand, model, year and subcategory
                 var product = productService.findOrCreateByBrandModelYear(
-                        form.getNewProductBrand(),
-                        form.getNewProductModel(),
+                        brand,
+                        model,
                         form.getNewProductYear(),
                         form.getSubcategoryId()
                 );
@@ -166,7 +178,8 @@ public class ListingController {
         if (form.getSubcategoryId() != null) {
             mav.addObject("brands", productService.getBrandsBySubcategory(form.getSubcategoryId()));
             List<String> models = List.of();
-            if (form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank()) {
+            // Only fetch models if brand is selected and not "Other"
+            if (form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank() && !"__OTHER__".equals(form.getNewProductBrand())) {
                 models = productService.getModelsBySubcategoryAndBrand(form.getSubcategoryId(), form.getNewProductBrand());
             }
             mav.addObject("models", models);

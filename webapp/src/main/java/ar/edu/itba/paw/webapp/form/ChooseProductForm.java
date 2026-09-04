@@ -18,6 +18,9 @@ public class ChooseProductForm {
     private String newProductModel;
     private Integer newProductYear;
 
+    private String otherBrand;
+    private String otherModel;
+
     private Boolean isAutoSubmit = false;
 
     private Long previousCategoryId;

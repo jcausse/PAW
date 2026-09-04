@@ -98,13 +98,13 @@ public class ProductJdbcDao implements ProductDao {
         String brand,
         String model,
         Integer year,
-        Long subcategoryId
+        Subcategory subcategory
     ) {
         final Map<String, Object> values = new HashMap<>();
         values.put(ProductSchema.BRAND, brand);
         values.put(ProductSchema.MODEL, model);
         values.put(ProductSchema.YEAR, year);
-        values.put(ProductSchema.SUBCATEGORY_ID, subcategoryId);
+        values.put(ProductSchema.SUBCATEGORY_ID, subcategory.getId());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
         return Product.builder()
@@ -112,19 +112,14 @@ public class ProductJdbcDao implements ProductDao {
             .brand(brand)
             .model(model)
             .year(year)
-            .subcategory(
-                subcategoryId != null
-                    ? Subcategory.builder().id(subcategoryId).build()
-                    : null
-            )
+            .subcategory(subcategory)
             .build();
     }
 
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Product> ROW_MAPPER = (rs, rowNum) -> {
-        Subcategory subcategory = null;
-        subcategory = Subcategory.builder()
+        var subcategory = Subcategory.builder()
             .id(rs.getLong(SubcategorySchema.ID))
             .name(rs.getString(SubcategorySchema.NAME))
             .category(
