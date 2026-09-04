@@ -60,7 +60,7 @@
 
   <c:if test="${not empty label}">
     <label for="${path}" class="text-xs text-black/70 font-medium">
-      ${label}
+        <c:out value="${label}" />
     </label>
   </c:if>
 </div>
