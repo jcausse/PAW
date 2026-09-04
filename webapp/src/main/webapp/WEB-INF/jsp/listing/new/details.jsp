@@ -54,7 +54,7 @@
                     <paw:formInput path="price" label="${priceLabel}" type="number" step="0.01" min="0" />
 
                     <div class="mt-2 flex justify-center gap-4">
-                        <spring:message code="listing.new.submit" var="submitLabel"/>
+                        <spring:message code="listing.new.submitListing" var="submitLabel"/>
                         <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
                     </div>
                 </form:form>
