@@ -21,7 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/listing")
 public class ListingController {
 
-    private final ListingService listingService;
+    private static final String OTHER_VALUE = "__OTHER__";
+
+	private final ListingService listingService;
     private final ProductService productService;
 
     @GetMapping("/{id}")
@@ -94,24 +96,51 @@ public class ListingController {
             var brand = form.getNewProductBrand();
             var model = form.getNewProductModel();
 
-            if ("__OTHER__".equals(brand)) {
-                brand = form.getOtherBrand();
-                form.setNewProductModel("__OTHER__");
-            }
-            if ("__OTHER__".equals(model)) {
-                model = form.getOtherModel();
-            }
-
+            // Validate brand: must not be empty
             var hasBrand = brand != null && !brand.isBlank();
             var hasModel = model != null && !model.isBlank();
-            var hasYear = form.getNewProductYear() != null;
 
             if (!isAutoSubmit && !hasBrand) {
                 bindingResult.rejectValue("newProductBrand", "NotNull");
             }
-            if (!isAutoSubmit && !hasModel) {
-                bindingResult.rejectValue("newProductModel", "NotNull");
+
+            if (hasBrand) {
+                // Set model to "Other" if brand is set to "Other"
+                // Validate model: must not be empty only if brand is set
+                if (OTHER_VALUE.equals(brand)) {
+                    form.setNewProductModel(OTHER_VALUE);
+                    model = OTHER_VALUE;
+                } else if (!isAutoSubmit && !hasModel) {
+                    bindingResult.rejectValue("newProductModel", "NotNull");
+                }
+            } else {
+                // Brand is not set, clear model fields
+                form.setNewProductModel(null);
+                form.setOtherModel(null);
+                model = null;
             }
+
+            var otherBrand = form.getOtherBrand();
+            var otherModel = form.getOtherModel();
+
+            // Validate otherBrand: must not be empty if brand is "__OTHER__"
+            if (OTHER_VALUE.equals(brand) && !isAutoSubmit && (otherBrand == null || otherBrand.isBlank())) {
+                    bindingResult.rejectValue("otherBrand", "NotNull");
+            }
+
+            // Validate otherModel: must not be empty if model is "__OTHER__"
+            if (OTHER_VALUE.equals(model) && !isAutoSubmit && (otherModel == null || otherModel.isBlank())) {
+                bindingResult.rejectValue("otherModel", "NotNull");
+            }
+
+            // Resolve final brand and model for product creation
+            brand = OTHER_VALUE.equals(brand) ? otherBrand : brand;
+            model = OTHER_VALUE.equals(model) ? otherModel : model;
+
+            hasBrand = brand != null && !brand.isBlank();
+            hasModel = model != null && !model.isBlank();
+            var hasYear = form.getNewProductYear() != null;
+
             if (!isAutoSubmit && !hasYear) {
                 bindingResult.rejectValue("newProductYear", "NotNull");
             }
@@ -179,7 +208,7 @@ public class ListingController {
             mav.addObject("brands", productService.getBrandsBySubcategory(form.getSubcategoryId()));
             List<String> models = List.of();
             // Only fetch models if brand is selected and not "Other"
-            if (form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank() && !"__OTHER__".equals(form.getNewProductBrand())) {
+            if (form.getNewProductBrand() != null && !form.getNewProductBrand().isBlank() && !OTHER_VALUE.equals(form.getNewProductBrand())) {
                 models = productService.getModelsBySubcategoryAndBrand(form.getSubcategoryId(), form.getNewProductBrand());
             }
             mav.addObject("models", models);
