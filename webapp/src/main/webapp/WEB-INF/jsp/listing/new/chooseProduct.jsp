@@ -49,24 +49,23 @@
                     <form:hidden path="previousCategoryId"/>
                     <form:hidden path="previousSubcategoryId"/>
 
-                    <%-- Step 1: Category Selection (always visible) --%>
-                    <spring:message code="listing.new.category" var="categoryLabel"/>
-                    <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
-                    <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
+                        <%-- Step 1: Category Selection (always visible) --%>
+                        <spring:message code="listing.new.category" var="categoryLabel"/>
+                        <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
+                        <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${categoryPlaceholder}" items="${categories}" />
 
-                    <%-- Step 2: Subcategory Selection (visible when category selected) --%>
-                    <c:if test="${chooseProductForm.step ge 2}">
-                        <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
-                        <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
-                        <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${subcategoryPlaceholder}" items="${subcategories}" />
-                    </c:if>
+                        <%-- Step 2: Subcategory Selection (visible when category selected) --%>
+                        <c:if test="${chooseProductForm.step ge 2}">
+                            <spring:message code="listing.new.subcategory" var="subcategoryLabel"/>
+                            <spring:message code="listing.new.subcategory.select" var="subcategoryPlaceholder"/>
+                            <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${subcategoryPlaceholder}" items="${subcategories}" />
+                        </c:if>
+                    </div>
 
                     <%-- Step 3: Product Selection (visible when subcategory selected) --%>
                     <c:if test="${chooseProductForm.step ge 3}">
-                        <spring:message code="listing.new.step3.title" var="step3Title"/>
-                        <h2 class="text-xl font-semibold mb-4"><c:out value="${step3Title}"/></h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
                             <spring:message code="listing.new.filter.brand" var="filterBrandLabel"/>
                             <spring:message code="listing.new.filter.brand.select" var="brandPlaceholder"/>
                             <paw:formSelect path="newProductBrand" label="${filterBrandLabel}" placeholder="${brandPlaceholder}" items="${brands}" plainStrings="true" />
