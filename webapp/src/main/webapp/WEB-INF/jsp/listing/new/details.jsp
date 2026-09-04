@@ -16,7 +16,7 @@
 <body class="px-8 pb-24 bg-neutral-50">
     <paw:navbar />
 
-    <div class="max-w-5xl mx-auto mt-8">
+    <div class="max-w-3xl mx-auto mt-8">
         <c:url value="/listing/new/details" var="detailsUrl"/>
 
         <paw:card>

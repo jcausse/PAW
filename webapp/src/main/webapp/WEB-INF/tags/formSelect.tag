@@ -9,10 +9,12 @@
 <%@ attribute name="includeOther" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="otherValue" required="false" type="java.lang.String" %>
 <%@ attribute name="otherLabel" required="false" type="java.lang.String" %>
+<%@ attribute name="classname" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <c:set var="inputVariant" value="${not empty variant ? variant : 'default'}"/>
+<c:set var="inputClass" value="${not empty classname ? classname : ''}"/>
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
@@ -30,7 +32,7 @@
 <c:set var="otherLbl" value="${not empty otherLabel ? otherLabel : 'Other...'}"/>
 
 <%-- Define the markup in reverse order so we can use errors to conditionally style the input --%>
-<div class="flex flex-col-reverse gap-1">
+<div class="flex flex-col-reverse gap-1 ${inputClass}">
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600 peer/errors errors"/>
 
   <form:select

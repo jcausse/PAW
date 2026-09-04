@@ -8,6 +8,7 @@
 <%@ attribute name="placeholder" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="classname" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
@@ -16,6 +17,7 @@
 <c:set var="inputMin" value="${not empty min ? min : ''}"/>
 <c:set var="inputMax" value="${not empty max ? max : ''}"/>
 <c:set var="inputStep" value="${not empty step ? step : ''}"/>
+<c:set var="inputClass" value="${not empty classname ? classname : ''}"/>
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
@@ -30,7 +32,7 @@
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
 
 <%-- Define the markup in reverse order so we can use errors to conditionally style the input --%>
-<div class="flex flex-col-reverse gap-1">
+<div class="flex flex-col-reverse gap-1 ${inputClass}">
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600 peer/errors errors"/>
 
   <form:input
