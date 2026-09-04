@@ -53,9 +53,9 @@
                     <spring:message code="listing.new.price" var="priceLabel"/>
                     <paw:formInput path="price" label="${priceLabel}" type="number" step="0.01" min="0" />
 
-                    <div class="mt-6 flex gap-4">
+                    <div class="mt-2 flex justify-center gap-4">
                         <spring:message code="listing.new.submit" var="submitLabel"/>
-                        <paw:button text="${submitLabel}" type="submit" variant="primary"/>
+                        <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
                     </div>
                 </form:form>
             </jsp:body>

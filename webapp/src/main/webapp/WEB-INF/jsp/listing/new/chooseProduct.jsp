@@ -49,7 +49,7 @@
                     <form:hidden path="previousCategoryId"/>
                     <form:hidden path="previousSubcategoryId"/>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4 items-start">
                         <%-- Step 1: Category Selection (always visible) --%>
                         <spring:message code="listing.new.category" var="categoryLabel"/>
                         <spring:message code="listing.new.category.select" var="categoryPlaceholder"/>
@@ -65,7 +65,7 @@
 
                     <%-- Step 3: Product Selection (visible when subcategory selected) --%>
                     <c:if test="${chooseProductForm.step ge 3}">
-                        <div class="flex flex-row gap-4">
+                        <div class="flex flex-row gap-4 items-start">
                             <spring:message code="listing.new.filter.brand" var="filterBrandLabel"/>
                             <spring:message code="listing.new.filter.brand.select" var="brandPlaceholder"/>
                             <spring:message code="listing.new.filter.brand.other" var="brandOther"/>
@@ -78,7 +78,7 @@
                             </c:if>
                         </div>
 
-                        <div class="flex flex-row gap-4">
+                        <div class="flex flex-row gap-4 items-start">
                             <spring:message code="listing.new.filter.model" var="filterModelLabel"/>
                             <spring:message code="listing.new.filter.model.select" var="modelPlaceholder"/>
                             <spring:message code="listing.new.filter.model.other" var="modelOther"/>
@@ -99,13 +99,13 @@
 
                             <spring:message code="listing.new.filter.year" var="filterYearLabel"/>
                             <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
-                            <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" classname="w-40" />
+                            <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" classname="w-32" />
                         </div>
                     </c:if>
 
-                    <div class="mt-6 flex gap-4">
+                    <div class="mt-2 flex justify-center gap-4">
                         <spring:message code="listing.new.next" var="nextLabel"/>
-                        <paw:button text="${nextLabel}" type="submit" variant="primary"/>
+                        <paw:button text="${nextLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
                     </div>
                 </form:form>
             </jsp:body>
