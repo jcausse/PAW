@@ -73,7 +73,8 @@
 
                             <c:if test="${chooseProductForm.newProductBrand == '__OTHER__'}">
                                 <spring:message code="listing.new.filter.brand.otherInput" var="otherBrandLabel"/>
-                                <paw:formInput path="otherBrand" label="${otherBrandLabel}" placeholder="Enter brand name" classname="flex-1 grow" />
+                                <spring:message code="listing.new.filter.brand.otherInput.placeholder" var="otherBrandPlaceholder"/>
+                                <paw:formInput path="otherBrand" label="${otherBrandLabel}" placeholder="${otherBrandPlaceholder}" classname="flex-1 grow" />
                             </c:if>
                         </div>
 
@@ -86,17 +87,19 @@
                             <c:choose>
                                 <c:when test="${chooseProductForm.newProductModel == '__OTHER__'}">
                                     <spring:message code="listing.new.filter.model.otherInput" var="otherModelLabel"/>
-                                    <paw:formInput path="otherModel" label="${otherModelLabel}" placeholder="Enter model name" classname="flex-1 grow" />
+                                    <spring:message code="listing.new.filter.model.otherInput.placeholder" var="otherModelPlaceholder"/>
+                                    <paw:formInput path="otherModel" label="${otherModelLabel}" placeholder="${otherModelPlaceholder}" classname="flex-1 grow" />
                                 </c:when>
                                 <c:when test="${chooseProductForm.newProductBrand == '__OTHER__'}">
                                     <spring:message code="listing.new.filter.model.otherInput" var="otherModelLabel"/>
-                                    <paw:formInput path="otherModel" label="${otherModelLabel}" placeholder="Enter model name" classname="flex-1 grow" />
+                                    <spring:message code="listing.new.filter.model.otherInput.placeholder" var="otherModelPlaceholder"/>
+                                    <paw:formInput path="otherModel" label="${otherModelLabel}" placeholder="${otherModelPlaceholder}" classname="flex-1 grow" />
                                 </c:when>
                             </c:choose>
 
                             <spring:message code="listing.new.filter.year" var="filterYearLabel"/>
                             <spring:message code="listing.new.filter.year.select" var="yearPlaceholder"/>
-                            <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" classname="w-32" />
+                            <paw:formInput path="newProductYear" label="${filterYearLabel}" placeholder="${yearPlaceholder}" type="number" classname="w-40" />
                         </div>
                     </c:if>
 
