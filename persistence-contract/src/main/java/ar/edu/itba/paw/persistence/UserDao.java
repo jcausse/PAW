@@ -23,7 +23,7 @@ public interface UserDao {
             Image image
     );
 
-    void updateImage(User user, Image image);
+    Image updateImage(User user, Image image);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
