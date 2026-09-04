@@ -80,8 +80,9 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void updateImage(User user, Image image) {
+    public Image updateImage(User user, Image image) {
         jdbcTemplate.update(Queries.UPDATE_IMAGE, image.getId(), user.getId());
+        return image;
     }
 
 
