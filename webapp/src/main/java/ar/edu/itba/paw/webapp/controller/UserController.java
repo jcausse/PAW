@@ -26,6 +26,8 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
 
+    /* PROFILE */
+
     @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id) {
         return new ModelAndView("profile")
@@ -40,40 +42,37 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ModelAndView register(
-        @Valid @ModelAttribute("userForm") UserForm form,
-        BindingResult errors
-    ) {
-        if (!form.getPassword().equals(form.getConfirmPassword())) {
-            errors.rejectValue("confirmPassword", "error.password.mismatch");
-        }
-
-        if (userService.isUsernameTaken(form.getUsername())) {
-            errors.rejectValue("username", "error.username.taken");
-        }
-        if (userService.isEmailTaken(form.getEmail())) {
-            errors.rejectValue("email", "error.email.taken");
-        }
-
+    public ModelAndView register(@Valid @ModelAttribute("userForm") UserForm form, BindingResult errors) {
         if (errors.hasErrors()) {
             return registerForm(form);
         }
 
-        var dto = new UserCreationDto(
+        // Extract image from form
+        byte[] imageBytes = null;
+        String imageFilename = null;
+        String imageContentType = null;
+        if (form.getProfilePicture() != null && !form.getProfilePicture().isEmpty()) {
+            try {
+                imageBytes = form.getProfilePicture().getBytes();
+                imageFilename = form.getProfilePicture().getOriginalFilename();
+                imageContentType = form.getProfilePicture().getContentType();
+            } catch (java.io.IOException e) {
+                errors.rejectValue("profilePicture", "error.image.upload");
+                return registerForm(form);
+            }
+        }
+
+        userService.create(new UserCreationDto(
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
-            passwordEncoder.encode(form.getPassword())
-        );
-        userService.create(dto);
-
-        /* Auto-Login */
-        SecurityContextHolder.getContext().setAuthentication(
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    form.getUsername(),
-                    form.getPassword()
-            )
+            passwordEncoder.encode(form.getPassword()),
+            imageBytes,
+            imageFilename,
+            imageContentType
         ));
+
+        loginAfterRegister(form.getUsername(), form.getPassword());
 
         return new ModelAndView("redirect:/");
     }
@@ -83,5 +82,11 @@ public class UserController {
     @GetMapping("/login")
     public ModelAndView loginForm() {
         return new ModelAndView("login");
+    }
+
+    private void loginAfterRegister(final String username, final String password) {
+        SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        ));
     }
 }

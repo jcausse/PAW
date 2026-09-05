@@ -36,7 +36,6 @@ public class ListingServiceImpl implements ListingService {
     public Listing create(ListingCreationDto dto) {
         Objects.requireNonNull(dto, "ListingCreationDto cannot be null");
 
-        System.out.println(dto);
         User creator = userService.getById(dto.creatorId())
                 .orElseThrow(() -> new BadParameterException("Invalid creatorId"));
 

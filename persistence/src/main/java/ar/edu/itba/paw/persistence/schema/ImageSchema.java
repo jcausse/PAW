@@ -7,5 +7,6 @@ public final class ImageSchema {
     public static final String ID = "image_id";
     public static final String FILENAME = "filename";
     public static final String ALT = "alt";
+    public static final String CONTENT_TYPE = "content_type";
     public static final String DATA = "data";
 }
