@@ -8,6 +8,7 @@ build.log
 # IntelliJ and VSCode
 .idea/
 .vscode/
+.zed/
 
 # Maven
 .mvn/
