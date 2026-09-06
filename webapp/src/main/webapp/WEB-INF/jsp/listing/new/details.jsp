@@ -44,7 +44,7 @@
 
                 <c:url value="/listing/new/details" var="detailsUrl"/>
 
-                <form:form id="detailsForm" modelAttribute="detailsForm" action="${detailsUrl}" method="post" class="flex flex-col gap-6">
+                <form:form id="detailsForm" modelAttribute="detailsForm" action="${detailsUrl}" method="post" class="flex flex-col gap-6" enctype="multipart/form-data">
                     <form:hidden path="productId"/>
 
                     <spring:message code="listing.new.titleLabel" var="titleLabel"/>
@@ -52,6 +52,9 @@
 
                     <spring:message code="listing.new.price" var="priceLabel"/>
                     <paw:formInput path="price" label="${priceLabel}" type="number" step="0.01" min="0" />
+
+                    <spring:message code="listing.new.imagesLabel" var="imagesLabel"/>
+                    <paw:formInput path="images" label="${imagesLabel}" type="file" multiple="true" accept="image/*" />
 
                     <div class="mt-2 flex justify-center gap-4">
                         <spring:message code="listing.new.submitListing" var="submitLabel"/>
