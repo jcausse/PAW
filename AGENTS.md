@@ -165,4 +165,4 @@ Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
 5. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
 6. Re-test
 
-**Important:** When explicitly asked to find errors in a page, **always ask for confirmation before making any changes** unless explicitly given permission to apply a fix right away.
+**Important:** When asked to debug an issue, **always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
