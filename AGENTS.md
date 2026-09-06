@@ -147,3 +147,22 @@ JOIN categories c ON s.category_id = c.category_id;
 - Dev server: `make dev` (starts DB container + Jetty).
 - Deploy: `make deploy` (runs `.script/deploy.py`) (see associated skill).
 - Scripts live in `.script/` directory.
+
+## Skills
+
+### test-route Skill
+
+Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
+
+- Debug a page that's erroring out (find the cause of the error and potentially fix it)
+- Verify non-trivial changes to JSP files or controllers don't produce errors
+
+**Workflow:**
+1. Run `make dev` and wait for "Started Jetty Server"
+2. Seed DB if needed: `docker exec paw-db psql ...`
+3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
+4. If error: inspect response + server logs
+5. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
+6. Re-test
+
+**Important:** When explicitly asked to find errors in a page, **always ask for confirmation before making any changes** unless explicitly given permission to apply a fix right away.
