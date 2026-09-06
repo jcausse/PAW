@@ -164,19 +164,19 @@ public class ListingJdbcDao implements ListingDao {
 
         private static final String BASE_FROM =
             " FROM " +
-            ListingSchema.TABLE_NAME +
-            " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = " + ListingSchema.CREATOR_ID +
-            " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = " + ListingSchema.TABLE_NAME + "." + ListingSchema.PRODUCT_ID +
+            ListingSchema.TABLE_NAME + " AS l" +
+            " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+            " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
             " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID;
 
         private static final String IMAGE_IDS_SUBQUERY =
             "COALESCE((SELECT STRING_AGG(li.image_id::text, ',' ORDER BY li.display_order) " +
-            " FROM listing_images li WHERE li.listing_id = l.listing_id), '')";
+            " FROM listing_images li WHERE li.listing_id = l." + ListingSchema.ID + "), '')";
 
         private static final String GET_BY_ID =
             "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
-            BASE_FROM.replace("l.", "l.") +
-            " WHERE " + ListingSchema.ID + " = ?";
+            BASE_FROM +
+            " WHERE l." + ListingSchema.ID + " = ?";
     }
 }
