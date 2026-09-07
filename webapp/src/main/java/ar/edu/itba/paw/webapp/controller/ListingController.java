@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
@@ -57,12 +58,18 @@ public class ListingController {
             )
             .acceptsTrade(Boolean.TRUE.equals(filterForm.getAcceptsTrade()) ? Boolean.TRUE : null)
             .query(filterForm.getQuery())
+            .sort(
+                filterForm.getSort() == null || filterForm.getSort().isBlank()
+                    ? null
+                    : ListingSort.fromString(filterForm.getSort()).orElse(null)
+            )
             .build();
 
         final var mav = new ModelAndView("listing/discovery");
         mav.addObject("listings", listingService.search(filter));
         mav.addObject("categories", productService.getAllCategories());
         mav.addObject("conditions", Condition.values());
+        mav.addObject("sortOptions", ListingSort.values());
         if (filterForm.getCategoryId() != null) {
             mav.addObject("subcategories", productService.getSubcategoriesByCategory(filterForm.getCategoryId()));
         }

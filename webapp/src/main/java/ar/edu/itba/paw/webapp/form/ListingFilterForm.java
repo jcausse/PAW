@@ -21,4 +21,5 @@ public class ListingFilterForm {
     private String condition;
     private Boolean acceptsTrade;
     private String query;
+    private String sort;
 }

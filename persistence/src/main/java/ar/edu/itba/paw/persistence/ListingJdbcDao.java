@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
@@ -92,9 +93,26 @@ public class ListingJdbcDao implements ListingDao {
         final String sql = "SELECT " + Queries.FIELDS + ", " + Queries.SUBCATEGORY_FIELDS
             + Queries.BASE_FROM
             + " WHERE " + String.join(" AND ", conditions)
-            + " ORDER BY " + ListingSchema.TABLE_NAME + "." + ListingSchema.ID + " DESC";
+            + " ORDER BY " + resolveOrderBy(filter.getSort());
 
         return jdbcTemplate.query(sql, ROW_MAPPER, params.toArray());
+    }
+
+    private static String resolveOrderBy(final ListingSort sort) {
+        final String priceCol = ListingSchema.TABLE_NAME + "." + ListingSchema.PRICE;
+        final String idCol = ListingSchema.TABLE_NAME + "." + ListingSchema.ID;
+        if (sort == null) {
+            return idCol + " DESC";
+        }
+        switch (sort) {
+            case PRICE_ASC:
+                return priceCol + " ASC, " + idCol + " DESC";
+            case PRICE_DESC:
+                return priceCol + " DESC, " + idCol + " DESC";
+            case RECENT:
+            default:
+                return idCol + " DESC";
+        }
     }
 
     @Override

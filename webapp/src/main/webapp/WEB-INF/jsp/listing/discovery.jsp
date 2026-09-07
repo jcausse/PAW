@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
@@ -15,32 +16,29 @@
 <c:url value="/listing" var="filterAction"/>
 <spring:message code="discovery.filter.query.placeholder" var="queryPlaceholder"/>
 
-<%-- Single form wraps search bar + sidebar so query and filters submit together --%>
 <form action="${filterAction}" method="get">
 <main class="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6">
 
-    <%-- Search bar: prominent, above the grid (out of the sidebar) --%>
     <div class="flex gap-2">
         <input type="text" name="query" value="<c:out value='${param.query}'/>"
                placeholder="${queryPlaceholder}"
-               class="flex-1 px-3 py-2 rounded-xl border border-black/20 text-sm focus:border-sky-600 outline-none"/>
+               class="flex-1 px-3 py-2 rounded-xl border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
         <spring:message code="discovery.filter.search" var="searchLabel"/>
         <paw:button text="${searchLabel}" type="submit"/>
     </div>
 
     <div class="flex flex-col md:flex-row gap-8">
 
-        <%-- Sidebar: refinement filters (no search bar here) --%>
-        <aside class="w-full md:w-64 shrink-0">
-            <div class="sticky top-24 flex flex-col gap-4 bg-white border border-black/10 rounded-2xl p-5">
+        <aside class="w-full md:w-56 shrink-0">
+            <div class="sticky top-24 flex flex-col gap-5">
 
-                <h2 class="text-sm font-semibold text-black/70 uppercase tracking-wide">
+                <h2 class="text-xs font-semibold text-black/50 uppercase tracking-wide">
                     <spring:message code="discovery.filters"/>
                 </h2>
 
                 <div class="flex flex-col gap-1">
                     <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.category"/></label>
-                    <select name="categoryId" class="px-2 py-1.5 rounded-lg border border-black/20 text-sm bg-white">
+                    <select name="categoryId" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
                         <option value=""><spring:message code="discovery.filter.all"/></option>
                         <c:forEach var="cat" items="${categories}">
                             <spring:message code="category.${cat.name}" var="catLabel"/>
@@ -51,11 +49,10 @@
                     </select>
                 </div>
 
-                <%-- Subcategory: only shown once a category is selected (populated server-side) --%>
                 <c:if test="${not empty subcategories}">
                     <div class="flex flex-col gap-1">
                         <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.subcategory"/></label>
-                        <select name="subcategoryId" class="px-2 py-1.5 rounded-lg border border-black/20 text-sm bg-white">
+                        <select name="subcategoryId" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
                             <option value=""><spring:message code="discovery.filter.all"/></option>
                             <c:forEach var="sub" items="${subcategories}">
                                 <spring:message code="subcategory.${sub.name}" var="subLabel"/>
@@ -67,9 +64,11 @@
                     </div>
                 </c:if>
 
+                <div class="border-t border-black/5"></div>
+
                 <div class="flex flex-col gap-1">
                     <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.condition"/></label>
-                    <select name="condition" class="px-2 py-1.5 rounded-lg border border-black/20 text-sm bg-white">
+                    <select name="condition" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
                         <option value=""><spring:message code="discovery.filter.all"/></option>
                         <c:forEach var="cond" items="${conditions}">
                             <spring:message code="condition.${cond}" var="condLabel"/>
@@ -84,12 +83,12 @@
                     <div class="flex flex-col gap-1 flex-1">
                         <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.minPrice"/></label>
                         <input type="number" step="0.01" name="minPrice" value="<c:out value='${param.minPrice}'/>"
-                               class="w-full px-2 py-1.5 rounded-lg border border-black/20 text-sm focus:border-sky-600 outline-none"/>
+                               class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
                     </div>
                     <div class="flex flex-col gap-1 flex-1">
                         <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.maxPrice"/></label>
                         <input type="number" step="0.01" name="maxPrice" value="<c:out value='${param.maxPrice}'/>"
-                               class="w-full px-2 py-1.5 rounded-lg border border-black/20 text-sm focus:border-sky-600 outline-none"/>
+                               class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
                     </div>
                 </div>
 
@@ -98,7 +97,9 @@
                     <spring:message code="discovery.filter.acceptsTrade"/>
                 </label>
 
-                <div class="flex flex-col gap-2 pt-2">
+                <div class="border-t border-black/5"></div>
+
+                <div class="flex flex-col gap-2">
                     <spring:message code="discovery.filter.apply" var="applyLabel"/>
                     <paw:button text="${applyLabel}" type="submit" classname="w-full"/>
                     <a href="${filterAction}" class="text-xs text-center text-black/50 hover:text-black/70 underline">
@@ -108,8 +109,26 @@
             </div>
         </aside>
 
-        <%-- Results --%>
         <section class="flex-1">
+
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <span class="text-sm text-black/60">
+                    <spring:message code="discovery.results.count" arguments="${fn:length(listings)}"/>
+                </span>
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-black/60 font-medium whitespace-nowrap"><spring:message code="discovery.sort.label"/></label>
+                    <select name="sort" onchange="this.form.submit()"
+                            class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
+                        <c:forEach var="opt" items="${sortOptions}">
+                            <spring:message code="discovery.sort.${opt.key}" var="sortLabel"/>
+                            <option value="${opt.key}" ${param.sort eq opt.key ? 'selected' : ''}>
+                                <c:out value="${sortLabel}"/>
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+            </div>
+
             <c:choose>
                 <c:when test="${empty listings}">
                     <div class="flex items-center justify-center h-64 text-black/50">
@@ -137,6 +156,7 @@
 
     </div>
 </main>
+
 </form>
 </body>
 </html>
