@@ -3,6 +3,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+<!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <head>
     <title><spring:message code="listing.detail.title"/></title>
@@ -11,8 +12,10 @@
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
-<body class="p-8 pb-24 bg-neutral-50">
-    <div class="max-w-5xl mx-auto">
+<body class="min-h-screen bg-neutral-50">
+    <paw:navbar />
+
+    <div class="max-w-5xl mx-auto p-8 pb-24">
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
                 <paw:card>
