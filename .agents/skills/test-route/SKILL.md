@@ -20,7 +20,22 @@ The `make dev` command:
 3. Runs `mvn install -DskipTests -Pdev` to build all modules
 4. Starts Jetty via `mvn -pl webapp jetty:run -Pdev` on port 8080
 
-**Note:** The server takes ~30-60 seconds to fully start. Wait for "Started Jetty Server" in logs.
+**Note:** The server takes ~15-20 seconds to fully start. Wait for "Started Jetty Server" in logs.
+
+### Alternative: Background Server (for testing/screenshots)
+
+For longer-running sessions (e.g., taking screenshots), run Jetty in background:
+
+```bash
+# Start DB first
+./.script/db-start.sh
+
+# Build and run Jetty in background
+mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+sleep 15  # Wait for "Started Jetty Server"
+```
+
+Then test with curl and take screenshots. The server runs until you kill it or the environment times out (~58s).
 
 ## Finding Route URLs
 

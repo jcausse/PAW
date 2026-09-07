@@ -144,7 +144,14 @@ JOIN categories c ON s.category_id = c.category_id;
 ## Build & Scripts
 
 - Build with `mvn clean compile` to verify changes across all modules.
-- Dev server: `make dev` (starts DB container + Jetty).
+- Dev server: `make dev` (starts DB container + Jetty). Wait ~15-20s for "Started Jetty Server".
+- **Alternative background server** (for testing/screenshots):
+  ```bash
+  ./.script/db-start.sh
+  mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+  sleep 15  # wait for "Started Jetty Server"
+  ```
+  Server runs in background until killed or environment timeout (~58s).
 - Deploy: `make deploy` (runs `.script/deploy.py`) (see associated skill).
 - Scripts live in `.script/` directory.
 

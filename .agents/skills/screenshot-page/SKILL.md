@@ -14,8 +14,13 @@ Take screenshots of web pages using headless Chromium and send them as attachmen
 
 1. **Start the dev server** (if not already running):
    ```bash
+   # Option 1: Full dev setup (database + server)
    make dev > /tmp/jetty.log 2>&1 &
-   sleep 10  # wait for Jetty to start
+   sleep 15  # wait for "Started Jetty Server"
+   
+   # Option 2: If DB already running, just start Jetty
+   mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+   sleep 15
    ```
 
 2. **Verify the route works** (combine with `test-route` skill):
