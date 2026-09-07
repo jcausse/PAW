@@ -8,6 +8,7 @@
 <html lang="${pageContext.response.locale.language}">
 <head>
     <title><spring:message code="checkout.title"/></title>
+    <%-- FOR DEVELOPMENT ONLY!! --%>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
@@ -27,32 +28,31 @@
 
                             <spring:message code="checkout.form.offerType" var="offerTypeLabel"/>
                             <div class="flex flex-col gap-3">
-                                <label class="text-sm font-medium text-black/70"><c:out value="${offerTypeLabel}"/></label>
-
                                 <div class="flex flex-col gap-2">
-                                    <label class="flex items-center gap-2 cursor-pointer">
+                                    <label class="flex items-center gap-2 min-h-8 cursor-pointer">
                                         <form:radiobutton path="offerType" value="full" class="w-4 h-4 text-sky-600 border-black/20 focus:ring-sky-500"/>
                                         <spring:message code="checkout.form.fullPrice" var="fullPriceLabel"/>
                                         <span class="text-sm text-black/90"><c:out value="${fullPriceLabel}"/> - $<c:out value="${listing.price.getAmount()}"/></span>
                                     </label>
 
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <form:radiobutton path="offerType" value="custom" class="w-4 h-4 text-sky-600 border-black/20 focus:ring-sky-500"/>
-                                        <spring:message code="checkout.form.customPrice" var="customPriceLabel"/>
-                                        <span class="text-sm text-black/90"><c:out value="${customPriceLabel}"/></span>
-                                    </label>
-                                </div>
-                            </div>
+                                    <div class="flex flex-row gap-2 items-center justify-between">
+                                        <label class="flex items-center gap-2 min-h-8 cursor-pointer">
+                                            <form:radiobutton path="offerType" value="custom" class="w-4 h-4 text-sky-600 border-black/20 focus:ring-sky-500"/>
+                                            <spring:message code="checkout.form.customPrice" var="customPriceLabel"/>
+                                            <span class="text-sm text-black/90"><c:out value="${customPriceLabel}"/></span>
+                                        </label>
 
-                            <spring:message code="checkout.form.customAmount" var="customAmountLabel"/>
-                            <spring:message code="checkout.form.customAmount.placeholder" var="customAmountPlaceholder"/>
-                            <div id="customAmountField" class="hidden">
-                                <paw:formInput path="customAmount" type="number" step="0.01" min="0.01" label="${customAmountLabel}" placeholder="${customAmountPlaceholder}" variant="outline"/>
+                                        <spring:message code="checkout.form.customAmount.placeholder" var="customAmountPlaceholder"/>
+                                        <div id="customAmountField" class="hidden w-1/2">
+                                            <paw:formInput path="customAmount" type="number" step="0.01" placeholder="${customAmountPlaceholder}" variant="outline"/>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <spring:message code="checkout.form.message" var="messageLabel"/>
                             <spring:message code="checkout.form.message.placeholder" var="messagePlaceholder"/>
-                            <paw:formInput path="message" type="textarea" label="${messageLabel}" placeholder="${messagePlaceholder}" variant="outline" classname="min-h-[100px] resize-y"/>
+                            <paw:formInput path="message" type="textarea" label="${messageLabel}" placeholder="${messagePlaceholder}" variant="outline" inputClassname="min-h-40 resize-none"/>
 
                             <spring:message code="checkout.form.submit" var="submitLabel"/>
                             <paw:button type="submit" size="lg" classname="w-full" text="${submitLabel}"/>
@@ -68,37 +68,38 @@
                         <c:set var="coverImageUrl" value="/image/${imageId}"/>
                     </c:if>
                 </c:forEach>
+
+                <spring:message code="category.${listing.product.subcategory.category.name}" var="productCategory" />
+                <spring:message code="subcategory.${listing.product.subcategory.name}" var="productSubcategory" />
                 <paw:card showImage="true"
                     title="${listing.title}"
-                    subtitle="${listing.product.brand} ${listing.product.model} (${listing.product.year})"
+                    subtitle="${listing.product.brand} ${listing.product.model} (${listing.product.year}) — ${productCategory} / ${productSubcategory}"
                     imageUrl="${coverImageUrl}"
                     imageAlt="${listing.title}"
-                    noImageLabel="<spring:message code='card.noImage'/>">
+                    noImageLabel="<spring:message code='card.noImage'/>"
+                >
                     <div class="flex flex-col gap-4 mt-auto">
-                        <div class="flex flex-col">
-                            <spring:message code="checkout.summary.seller" var="sellerLabel"/>
-                            <span class="text-sm text-black/60"><c:out value="${sellerLabel}"/></span>
-                            <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
-                            <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
-                                <div class="flex flex-row gap-2 items-center text-sm">
-                                    <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
-                                        <c:choose>
-                                            <c:when test="${listing.creator.imageId.present}">
-                                                <img src="<c:url value='/image/${listing.creator.imageId.get()}'/>" alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture" class="w-full h-full object-cover"/>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <p>
-                                        <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
-                                        <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
-                                    </p>
+                        <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
+                        <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
+                            <div class="flex flex-row gap-2 items-center text-sm">
+                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
+                                    <c:choose>
+                                        <c:when test="${listing.creator.imageId.present}">
+                                            <img src="<c:url value='/image/${listing.creator.imageId.get()}'/>" alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture" class="w-full h-full object-cover"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
-                            </paw:linkButton>
-                        </div>
+                                <p>
+                                    <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
+                                    <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
+                                </p>
+                            </div>
+                        </paw:linkButton>
 
+                        <%-- TODO move this to a custom tag --%>
                         <hr class="border-t-0 border-b border-black/10">
 
                         <div class="flex flex-col">
@@ -110,17 +111,9 @@
                         <spring:message code="checkout.summary.condition" var="conditionLabel"/>
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-black/60"><c:out value="${conditionLabel}"/></span>
-                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-neutral-100 text-black/70">
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-neutral-100 text-black/60">
                                 <spring:message code="condition.${listing.condition}"/>
                             </span>
-                        </div>
-
-                        <spring:message code="checkout.summary.category" var="categoryLabel"/>
-                        <div class="text-sm text-black/60">
-                            <c:out value="${categoryLabel}"/>:
-                            <spring:message code="category.${listing.product.subcategory.category.name}"/>
-                            /
-                            <spring:message code="subcategory.${listing.product.subcategory.name}"/>
                         </div>
                     </div>
                 </paw:card>
