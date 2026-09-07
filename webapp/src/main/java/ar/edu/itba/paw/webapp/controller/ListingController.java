@@ -13,6 +13,7 @@ import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.SelectOption;
+import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import java.io.IOException;
 import java.time.Year;
 import java.util.ArrayList;
@@ -229,7 +230,7 @@ public class ListingController {
         var mav = new ModelAndView("listing/new/details");
 
         mav.addObject("product", product);
-        mav.addObject("conditions", Condition.values());
+        mav.addObject("conditionOptions", buildConditionOptions());
         form.setProductId(product.getId());
         return mav;
     }
@@ -311,6 +312,17 @@ public class ListingController {
             mav.addObject("models", models);
             mav.addObject("modelsEmpty", models.isEmpty());
         }
+    }
+
+    private List<StringSelectOption> buildConditionOptions() {
+        var options = new java.util.ArrayList<StringSelectOption>();
+        for (var c : Condition.values()) {
+            options.add(new StringSelectOption(
+                c.name(),
+                messageSource.getMessage("condition." + c.name(), null, LocaleContextHolder.getLocale())
+            ));
+        }
+        return options;
     }
 
     private Long getCurrentUserId() {
