@@ -8,9 +8,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ListingForm {
+public class ListingDetailsForm {
 
-    private Long creatorId;
     private Long productId;
     private String title;
     private BigDecimal price;

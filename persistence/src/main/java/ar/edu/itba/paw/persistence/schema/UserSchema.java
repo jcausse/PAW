@@ -9,4 +9,5 @@ public final class UserSchema {
     public static final String DISPLAY_NAME = "display_name";
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    public static final String IMAGE_ID = "image_id";
 }

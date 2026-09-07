@@ -2,7 +2,7 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
 @Builder

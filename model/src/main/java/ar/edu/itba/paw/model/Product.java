@@ -2,7 +2,7 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
 @Builder
@@ -10,7 +10,8 @@ import lombok.*;
 public final class Product {
 
     private final @NonNull Long id;
-    private final @NonNull String name;
-
-    // TODO brand, model, year, etc
+    private final @NonNull String brand;
+    private final @NonNull String model;
+    private final @NonNull Integer year;
+    private final @NonNull Subcategory subcategory;
 }

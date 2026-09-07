@@ -15,7 +15,10 @@
   </context-param>
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>ar.edu.itba.paw.webapp.config.WebConfig</param-value>
+    <param-value>
+      ar.edu.itba.paw.webapp.config.WebConfig,
+      ar.edu.itba.paw.webapp.config.WebAuthConfig
+    </param-value>
   </context-param>
 
   <!-- Listener for application state changes and configuration changes -->
@@ -31,10 +34,6 @@
       <param-name>contextClass</param-name>
       <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
     </init-param>
-    <init-param>
-      <param-name>contextConfigLocation</param-name>
-      <param-value>ar.edu.itba.paw.webapp.config.WebConfig</param-value>
-    </init-param>
 
     <!-- Route 404 Not Found errors through the GlobalExceptionHandler ControllerAdvice -->
     <init-param>
@@ -43,6 +42,11 @@
     </init-param>
 
     <load-on-startup>1</load-on-startup>
+    <multipart-config>
+      <max-file-size>5242880</max-file-size> <!-- 5MB -->
+      <max-request-size>5242880</max-request-size> <!-- 5MB -->
+      <file-size-threshold>0</file-size-threshold>
+    </multipart-config>
   </servlet>
 
   <!-- Front Controller Servlet mapping (mapped to the whole application) -->
@@ -50,4 +54,16 @@
     <servlet-name>dispatcher</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+
+  <!-- Spring Security Filter -->
+  <filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  
+  <filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
 </web-app>

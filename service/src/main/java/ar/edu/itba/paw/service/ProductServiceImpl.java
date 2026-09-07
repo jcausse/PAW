@@ -1,19 +1,27 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Category;
 import ar.edu.itba.paw.model.Product;
+import ar.edu.itba.paw.model.Subcategory;
+import ar.edu.itba.paw.persistence.CategoryDao;
 import ar.edu.itba.paw.persistence.ProductDao;
+import ar.edu.itba.paw.persistence.SubcategoryDao;
 import ar.edu.itba.paw.service.dto.ProductCreationDto;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-// @Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductDao productDao;
+    private final CategoryDao categoryDao;
+    private final SubcategoryDao subcategoryDao;
 
     @Override
     public Product getById(Long id) {
@@ -25,18 +33,61 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getByName(String name) {
-        return productDao
-            .getByName(name)
-            .orElseThrow(() ->
-                NotFoundException.createFor("Product '" + name + "'")
-            );
+    public List<Product> getByCategory(Long categoryId) {
+        return productDao.getByCategory(categoryId);
     }
 
     @Override
-    // @Transactional
+    public List<Product> getBySubcategory(Long subcategoryId) {
+        return productDao.getBySubcategory(subcategoryId);
+    }
+
+    @Override
+    public List<Product> getBySubcategoryBrandModel(Long subcategoryId, String brand, String model) {
+        return productDao.getBySubcategoryBrandModel(subcategoryId, brand, model);
+    }
+
+    @Override
+    public List<Category> getAllCategories() {
+        return categoryDao.getAll();
+    }
+
+    @Override
+    public List<Subcategory> getSubcategoriesByCategory(Long categoryId) {
+        return subcategoryDao.getByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<String> getBrandsBySubcategory(Long subcategoryId) {
+        return productDao.getBrandsBySubcategory(subcategoryId);
+    }
+
+    @Override
+    public List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand) {
+        return productDao.getModelsBySubcategoryAndBrand(subcategoryId, brand);
+    }
+
+    @Override
+    @Transactional
+    public Product findOrCreateByBrandModelYear(String brand, String model, Integer year, Long subcategoryId) {
+        Objects.requireNonNull(brand, "Brand cannot be null");
+        Objects.requireNonNull(model, "Model cannot be null");
+        Objects.requireNonNull(year, "Year cannot be null");
+        Objects.requireNonNull(subcategoryId, "SubcategoryId cannot be null");
+
+        var subcategory = subcategoryDao.getById(subcategoryId)
+            .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + subcategoryId));
+
+        return productDao.getByBrandModelYearSubcategory(brand, model, year, subcategoryId)
+            .orElseGet(() -> productDao.create(brand, model, year, subcategory));
+    }
+
+    @Override
+    @Transactional
     public Product create(ProductCreationDto dto) {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
-        return productDao.create(dto.name());
+        var subcategory = subcategoryDao.getById(dto.subcategoryId())
+            .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + dto.subcategoryId()));
+        return productDao.create(dto.brand(), dto.model(), dto.year(), subcategory);
     }
 }

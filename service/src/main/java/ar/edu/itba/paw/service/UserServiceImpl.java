@@ -1,51 +1,63 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
-import ar.edu.itba.paw.service.exception.UserNotFoundException;
 import java.util.Objects;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-// @Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final ImageService imageService;
 
     @Override
-    public User getById(Long id) {
-        return userDao
-            .getById(id)
-            .orElseThrow(() -> UserNotFoundException.byId(id));
+    public Optional<User> getById(Long id) {
+        return userDao.getById(id);
     }
 
     @Override
-    public User getByUsername(String username) {
-        return userDao
-            .getByUsername(username.toLowerCase())
-            .orElseThrow(() -> UserNotFoundException.byUsername(username));
+    public Optional<User> getByUsername(String username) {
+        return userDao.getByUsername(username.toLowerCase());
     }
 
     @Override
-    public User getByEmail(String email) {
-        return userDao
-            .getByEmail(email.toLowerCase())
-            .orElseThrow(() -> UserNotFoundException.byEmail(email));
+    public Optional<User> getByEmail(String email) {
+        return userDao.getByEmail(email.toLowerCase());
     }
 
     @Override
-    // @Transactional
+    @Transactional
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
+        
+        Image image = null;
+        if (dto.imageBytes() != null && dto.imageBytes().length > 0) {
+            String alt = dto.username() + "'s profile picture";
+            image = imageService.create(dto.imageFilename(), alt, dto.imageContentType(), dto.imageBytes());
+        }
+
         return userDao.create(
-            dto.username().toLowerCase(), // Unique
+            dto.username().toLowerCase(),   // Unique
             dto.displayName(),
-            dto.email().toLowerCase(), // Unique
-            dto.password()
+            dto.email().toLowerCase(),      // Unique
+            dto.password(),
+            image
         );
+    }
+
+    @Override
+    @Transactional
+    public Image updateImage(User user, Image image) {
+        return userDao.updateImage(user, image);
     }
 
     @Override

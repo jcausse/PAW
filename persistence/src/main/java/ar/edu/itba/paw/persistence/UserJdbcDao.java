@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.util.HashMap;
@@ -51,27 +52,39 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public User create(
-        String username,
-        String displayName,
-        String email,
-        String password
-    ) {
+    public User create(String username, String displayName, String email, String password) {
+        return create(username, displayName, email, password, null);
+    }
+
+    @Override
+    public User create(String username, String displayName, String email, String password, Image image) {
+        final Long imageId = image != null ? image.getId() : null;
+
         final Map<String, Object> values = new HashMap<>();
         values.put(UserSchema.USERNAME, username);
         values.put(UserSchema.DISPLAY_NAME, displayName);
         values.put(UserSchema.EMAIL, email);
         values.put(UserSchema.PASSWORD, password);
+        values.put(UserSchema.IMAGE_ID, imageId);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
         return User.builder()
-            .id(key)
-            .username(username)
-            .displayName(displayName)
-            .email(email)
-            .build();
+                .id(key)
+                .username(username)
+                .displayName(displayName)
+                .email(email)
+                .password(password)
+                .imageId(imageId)
+                .build();
     }
+
+    @Override
+    public Image updateImage(User user, Image image) {
+        jdbcTemplate.update(Queries.UPDATE_IMAGE, image.getId(), user.getId());
+        return image;
+    }
+
 
     @Override
     public boolean isUsernameTaken(String username) {
@@ -93,63 +106,54 @@ public class UserJdbcDao implements UserDao {
 
     /* ---------------------------------------------------------------------------------------------- */
 
-    private static final RowMapper<User> ROW_MAPPER = (rs, rowNum) ->
-        User.builder()
+    private static final RowMapper<User> ROW_MAPPER = (rs, rowNum) -> User.builder()
             .id(rs.getLong(UserSchema.ID))
             .username(rs.getString(UserSchema.USERNAME))
             .displayName(rs.getString(UserSchema.DISPLAY_NAME))
             .email(rs.getString(UserSchema.EMAIL))
+            .password(rs.getString(UserSchema.PASSWORD))
+            .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+                    .map(Integer::longValue)
+                    .orElse(null))
             .build();
 
     private static final class Queries {
 
-        private static final String FIELDS = String.join(
-            ", ",
+        private static final String FIELDS = String.join(", ",
             UserSchema.ID,
             UserSchema.USERNAME,
             UserSchema.DISPLAY_NAME,
-            UserSchema.EMAIL
+            UserSchema.EMAIL,
+            UserSchema.PASSWORD,
+            UserSchema.IMAGE_ID
         );
 
         private static final String GET_BY_ID =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.ID +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.ID + " = ?";
 
         private static final String GET_BY_USERNAME =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.USERNAME +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.USERNAME + " = ?";
 
         private static final String GET_BY_EMAIL =
-            "SELECT " +
-            FIELDS +
-            " FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.EMAIL +
-            " = ?";
+            "SELECT " + FIELDS +
+            " FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.EMAIL + " = ?";
 
         private static final String IS_USERNAME_TAKEN =
-            "SELECT EXISTS(SELECT 1 FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.USERNAME +
-            " = ?)";
+            "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.USERNAME + " = ?)";
 
         private static final String IS_EMAIL_TAKEN =
-            "SELECT EXISTS(SELECT 1 FROM " +
-            UserSchema.TABLE_NAME +
-            " WHERE " +
-            UserSchema.EMAIL +
-            " = ?)";
+            "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.EMAIL + " = ?)";
+
+        private static final String UPDATE_IMAGE =
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + UserSchema.IMAGE_ID + " = ?" +
+            " WHERE " + UserSchema.ID + " = ?";
     }
 }
