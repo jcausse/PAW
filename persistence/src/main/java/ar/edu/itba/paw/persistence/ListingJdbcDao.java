@@ -4,6 +4,8 @@ import ar.edu.itba.paw.model.Category;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
@@ -45,6 +47,54 @@ public class ListingJdbcDao implements ListingDao {
             .query(Queries.GET_BY_ID, ROW_MAPPER, id)
             .stream()
             .findFirst();
+    }
+
+    @Override
+    public List<Listing> search(ListingFilter filter) {
+        final List<String> conditions = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
+
+        conditions.add(ListingSchema.TABLE_NAME + "." + ListingSchema.STATUS + " = ?");
+        params.add(ListingStatus.ACTIVE.getStatus());
+
+        if (filter.getCategoryId() != null) {
+            conditions.add(CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = ?");
+            params.add(filter.getCategoryId());
+        }
+        if (filter.getSubcategoryId() != null) {
+            conditions.add(SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = ?");
+            params.add(filter.getSubcategoryId());
+        }
+        if (filter.getMinPrice() != null) {
+            conditions.add(ListingSchema.TABLE_NAME + "." + ListingSchema.PRICE + " >= ?");
+            params.add(filter.getMinPrice());
+        }
+        if (filter.getMaxPrice() != null) {
+            conditions.add(ListingSchema.TABLE_NAME + "." + ListingSchema.PRICE + " <= ?");
+            params.add(filter.getMaxPrice());
+        }
+        if (filter.getCondition() != null) {
+            conditions.add(ListingSchema.TABLE_NAME + "." + ListingSchema.CONDITION + " = ?");
+            params.add(filter.getCondition().getCondition());
+        }
+        if (filter.getAcceptsTrade() != null) {
+            conditions.add(ListingSchema.TABLE_NAME + "." + ListingSchema.ACCEPTS_TRADE + " = ?");
+            params.add(filter.getAcceptsTrade());
+        }
+        if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
+            conditions.add("(LOWER(" + ListingSchema.TABLE_NAME + "." + ListingSchema.TITLE + ") LIKE ?"
+                + " OR LOWER(" + ListingSchema.TABLE_NAME + "." + ListingSchema.DESCRIPTION + ") LIKE ?)");
+            final String like = "%" + filter.getQuery().toLowerCase() + "%";
+            params.add(like);
+            params.add(like);
+        }
+
+        final String sql = "SELECT " + Queries.FIELDS + ", " + Queries.SUBCATEGORY_FIELDS
+            + Queries.BASE_FROM
+            + " WHERE " + String.join(" AND ", conditions)
+            + " ORDER BY " + ListingSchema.TABLE_NAME + "." + ListingSchema.ID + " DESC";
+
+        return jdbcTemplate.query(sql, ROW_MAPPER, params.toArray());
     }
 
     @Override

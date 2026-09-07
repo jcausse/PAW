@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
@@ -8,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ListingDao {
+
     Optional<Listing> getById(Long id);
 
     Listing create(String title, Price price, User creator, Product product, List<Long> imageIds);
+    List<Listing> search(ListingFilter filter);
 }

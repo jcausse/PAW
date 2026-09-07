@@ -2,6 +2,7 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
@@ -34,6 +35,12 @@ public class ListingServiceImpl implements ListingService {
             .orElseThrow(() ->
                 NotFoundException.createFor("Listing with ID " + id)
             );
+    }
+
+    @Override
+    public List<Listing> search(ListingFilter filter) {
+        Objects.requireNonNull(filter, "ListingFilter cannot be null");
+        return listingDao.search(filter);
     }
 
     @Override
