@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
@@ -48,14 +49,14 @@ public class UserController {
         }
 
         // Extract image from form
-        byte[] imageBytes = null;
-        String imageFilename = null;
-        String imageContentType = null;
+        ImageData imageData = null;
         if (form.getProfilePicture() != null && !form.getProfilePicture().isEmpty()) {
             try {
-                imageBytes = form.getProfilePicture().getBytes();
-                imageFilename = form.getProfilePicture().getOriginalFilename();
-                imageContentType = form.getProfilePicture().getContentType();
+                imageData = new ImageData(
+                    form.getProfilePicture().getBytes(),
+                    form.getProfilePicture().getOriginalFilename(),
+                    form.getProfilePicture().getContentType()
+                );
             } catch (java.io.IOException e) {
                 errors.rejectValue("profilePicture", "error.image.upload");
                 return registerForm(form);
@@ -67,9 +68,7 @@ public class UserController {
             form.getDisplayName(),
             form.getEmail(),
             passwordEncoder.encode(form.getPassword()),
-            imageBytes,
-            imageFilename,
-            imageContentType
+            imageData
         ));
 
         loginAfterRegister(form.getUsername(), form.getPassword());

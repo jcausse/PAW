@@ -3,12 +3,15 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
+import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.SelectOption;
+import java.io.IOException;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 @RequiredArgsConstructor
@@ -198,11 +202,30 @@ public class ListingController {
         }
 
         if (!bindingResult.hasErrors()) {
+            List<ImageData> imageDataList = new ArrayList<>();
+            if (form.getImages() != null) {
+                for (MultipartFile imageFile : form.getImages()) {
+                    if (imageFile != null && !imageFile.isEmpty()) {
+                        try {
+                            imageDataList.add(new ImageData(
+                                imageFile.getBytes(),
+                                imageFile.getOriginalFilename(),
+                                imageFile.getContentType()
+                            ));
+                        } catch (IOException e) {
+                            bindingResult.rejectValue("images", "error.image.upload");
+                            break;
+                        }
+                    }
+                }
+            }
+
             var newListing = listingService.create(new ListingCreationDto(
                     form.getTitle(),
                     new Price(form.getPrice()),
                     getCurrentUserId(),
-                    form.getProductId()
+                    form.getProductId(),
+                    imageDataList
             ));
             return new ModelAndView("redirect:/listing/" + newListing.getId());
         }

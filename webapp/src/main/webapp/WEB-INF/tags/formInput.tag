@@ -9,6 +9,8 @@
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="classname" required="false" %>
+<%@ attribute name="multiple" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="accept" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
@@ -18,6 +20,9 @@
 <c:set var="inputMax" value="${not empty max ? max : ''}"/>
 <c:set var="inputStep" value="${not empty step ? step : ''}"/>
 <c:set var="inputClass" value="${not empty classname ? classname : ''}"/>
+
+<c:set var="inputMultiple" value="${multiple ne null ? multiple : false}"/>
+<c:set var="inputAccept" value="${not empty accept ? accept : ''}"/>
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
@@ -44,6 +49,8 @@
     min="${inputMin}"
     max="${inputMax}"
     step="${inputStep}"
+    multiple="${inputMultiple}"
+    accept="${inputAccept}"
     cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
   />
 

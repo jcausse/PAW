@@ -144,6 +144,72 @@ JOIN categories c ON s.category_id = c.category_id;
 ## Build & Scripts
 
 - Build with `mvn clean compile` to verify changes across all modules.
-- Dev server: `make dev` (starts DB container + Jetty).
+- Dev server: `make dev` (starts DB container + Jetty). Wait ~15-20s for "Started Jetty Server".
+- **Alternative background server** (for testing/screenshots):
+  ```bash
+  ./.script/db-start.sh
+  mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+  sleep 15  # wait for "Started Jetty Server"
+  ```
+  Server runs in background until killed or environment timeout (~58s).
 - Deploy: `make deploy` (runs `.script/deploy.py`) (see associated skill).
 - Scripts live in `.script/` directory.
+
+## Attachment Output Format
+
+When asked to share an image (e.g., a screenshot you just captured), the **last part of your response must be only JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments.
+
+```json
+{
+  "attachments": [
+    {
+      "path": "/absolute/path/to/file.png",
+      "name": "filename.png",
+      "type": "image/png",
+      "dimensions": "1920x1080",
+      "size_bytes": 31516
+    }
+  ]
+}
+```
+
+- Include only this JSON block at the very end of your response
+- No additional text before or after the JSON block
+- The `path` must be absolute and accessible on the server filesystem
+
+## Skills
+
+### test-route Skill
+
+Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
+
+- Debug a page that's erroring out (find the cause of the error and potentially fix it)
+- Verify non-trivial changes to JSP files or controllers don't produce errors
+
+**Workflow:**
+1. Run `make dev` and wait for "Started Jetty Server"
+2. Seed DB if needed: `docker exec paw-db psql ...`
+3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
+4. If error: inspect response + server logs
+5. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
+6. Re-test
+
+**Important:** When asked to debug an issue, **always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
+
+### screenshot-page Skill
+
+Located at `.agents/skills/screenshot-page/SKILL.md`. Use this skill to:
+
+- Take screenshots of web pages to check how they look
+- Capture and share visual results after UI changes (each screenshot should have a unique filename)
+
+**Workflow:**
+1. Run `make dev` and wait for Jetty to start (can reuse server from `test-route` skill)
+2. Verify route works: `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
+3. Take screenshot: `chromium --headless --window-size=1920,1080 --screenshot="/home/nemo/screenshots/<filename>.png" "http://localhost:8080/<route>"`
+4. Send attachment by including the JSON block **inside a json-tagged code block** at the end of your response (see **Attachment Output Format**)
+
+**Integration with test-route:**
+- Use `test-route` to debug errors and verify routes work correctly
+- Once a route renders properly, use `screenshot-page` to capture and share the visual result
+- Run the dev server once, then both test the route AND take screenshots in the same session

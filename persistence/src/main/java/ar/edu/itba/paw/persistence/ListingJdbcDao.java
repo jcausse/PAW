@@ -11,7 +11,9 @@ import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
@@ -48,7 +50,8 @@ public class ListingJdbcDao implements ListingDao {
         String title,
         Price price,
         User creator,
-        Product product
+        Product product,
+        List<Long> imageIds
     ) {
         final Map<String, Object> values = new HashMap<>();
         values.put(ListingSchema.TITLE, title);
@@ -57,18 +60,28 @@ public class ListingJdbcDao implements ListingDao {
         values.put(ListingSchema.PRICE, price.getAmount());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
+
+        if (imageIds != null && !imageIds.isEmpty()) {
+            final String sql = "INSERT INTO listing_images (listing_id, image_id, display_order) VALUES (?, ?, ?)";
+            int order = 0;
+            for (Long imageId : imageIds) {
+                jdbcTemplate.update(sql, key, imageId, order++);
+            }
+        }
+
         return Listing.builder()
             .id(key)
             .title(title)
             .creator(creator)
             .product(product)
             .price(price)
+            .imageIds(imageIds != null ? imageIds : List.of())
             .build();
     }
 
     /* ---------------------------------------------------------------------------------------------- */
 
-private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
+    private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
         return Listing.builder()
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
@@ -105,8 +118,21 @@ private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
                     )
                     .build()
             )
+            .imageIds(parseImageIds(rs.getString("image_ids")))
             .build();
     };
+
+    private static List<Long> parseImageIds(String imageIdsStr) {
+        if (imageIdsStr == null || imageIdsStr.isEmpty()) {
+            return List.of();
+        }
+        String[] parts = imageIdsStr.split(",");
+        List<Long> ids = new ArrayList<>(parts.length);
+        for (String part : parts) {
+            ids.add(Long.parseLong(part.trim()));
+        }
+        return ids;
+    }
 
     private static final class Queries {
 
@@ -138,15 +164,19 @@ private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
 
         private static final String BASE_FROM =
             " FROM " +
-            ListingSchema.TABLE_NAME +
-            " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = " + ListingSchema.CREATOR_ID +
-            " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = " + ListingSchema.TABLE_NAME + "." + ListingSchema.PRODUCT_ID +
+            ListingSchema.TABLE_NAME + " AS l" +
+            " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+            " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
             " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID;
 
+        private static final String IMAGE_IDS_SUBQUERY =
+            "COALESCE((SELECT STRING_AGG(li.image_id::text, ',' ORDER BY li.display_order) " +
+            " FROM listing_images li WHERE li.listing_id = l." + ListingSchema.ID + "), '')";
+
         private static final String GET_BY_ID =
-            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
             BASE_FROM +
-            " WHERE " + ListingSchema.ID + " = ?";
+            " WHERE l." + ListingSchema.ID + " = ?";
     }
 }
