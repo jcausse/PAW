@@ -2,6 +2,8 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
@@ -15,4 +17,5 @@ public final class Listing {
     private final @NonNull Price price;
 
     private final Product product;
+    private final List<Long> imageIds;
 }

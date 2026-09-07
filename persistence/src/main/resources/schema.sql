@@ -43,3 +43,10 @@ CREATE TABLE IF NOT EXISTS listings (
     product_id    INTEGER REFERENCES products(product_id),
     price         DECIMAL(100, 2) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS listing_images (
+    listing_id    INTEGER NOT NULL REFERENCES listings(listing_id) ON DELETE CASCADE,
+    image_id      INTEGER NOT NULL REFERENCES images(image_id) ON DELETE CASCADE,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (listing_id, image_id)
+);
