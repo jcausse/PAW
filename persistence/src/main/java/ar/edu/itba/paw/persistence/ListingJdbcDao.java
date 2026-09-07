@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Condition;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
@@ -75,6 +77,9 @@ public class ListingJdbcDao implements ListingDao {
             .creator(creator)
             .product(product)
             .price(price)
+            .status(ListingStatus.ACTIVE)
+            .condition(Condition.GOOD)
+            .acceptsTrade(false)
             .imageIds(imageIds != null ? imageIds : List.of())
             .build();
     }
@@ -86,6 +91,10 @@ public class ListingJdbcDao implements ListingDao {
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
+            .description(rs.getString(ListingSchema.DESCRIPTION))
+            .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
+            .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
+            .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
             .creator(
                 User.builder()
                     .id(rs.getLong(UserSchema.ID))
@@ -140,7 +149,11 @@ public class ListingJdbcDao implements ListingDao {
             ", ",
             ListingSchema.ID,
             ListingSchema.TITLE,
+            ListingSchema.DESCRIPTION,
             ListingSchema.PRICE,
+            ListingSchema.STATUS,
+            ListingSchema.CONDITION,
+            ListingSchema.ACCEPTS_TRADE,
             "c." + UserSchema.ID,
             "c." + UserSchema.USERNAME,
             "c." + UserSchema.DISPLAY_NAME,
