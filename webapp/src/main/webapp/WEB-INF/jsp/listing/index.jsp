@@ -69,30 +69,33 @@
                         <%-- TODO move this to a custom tag --%>
                         <hr class="border-t-0 border-b border-black/10">
 
-                        <div class="flex flex-row gap-2 items-center text-sm">
-                            <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center overflow-hidden">
-                                <c:choose>
-                                    <c:when test="${listing.creator.imageId.present}">
-                                        <img
-                                            src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
-                                            alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture"
-                                            class="w-full h-full object-cover shadow-sm"
-                                        >
-                                    </c:when>
-                                    <c:otherwise>
-                                        <img
-                                            src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                                            alt="Default Profile Picture"
-                                            class="w-full h-full object-cover shadow-sm"
-                                        >
-                                    </c:otherwise>
-                                </c:choose>
+                        <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
+                        <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
+                            <div class="flex flex-row gap-2 items-center text-sm">
+                                <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
+                                    <c:choose>
+                                        <c:when test="${listing.creator.imageId.present}">
+                                            <img
+                                                src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
+                                                alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture"
+                                                class="w-full h-full object-cover shadow-sm"
+                                            >
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img
+                                                src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
+                                                alt="Default Profile Picture"
+                                                class="w-full h-full object-cover shadow-sm"
+                                            >
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <p>
+                                ${listing.creator.displayName}
+                                <span class="text-black/60">(${listing.creator.username})</span>
+                                </p>
                             </div>
-                            <p>
-                            ${listing.creator.displayName}
-                            <span class="text-black/60">(${listing.creator.username})</span>
-                            </p>
-                        </div>
+                        </paw:linkButton>
 
                         <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
 
