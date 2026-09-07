@@ -8,7 +8,7 @@
 <head>
     <title><spring:message code="listing.detail.title"/></title>
     <%-- FOR DEVELOPMENT ONLY!! --%>
-    <%-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> --%>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
 </head>
@@ -26,18 +26,18 @@
                                     <img
                                         src="<c:url value='/image/${imageId}'/>"
                                         alt="<c:out value='${listing.title}'/> - Image ${status.count}"
-                                        class="w-full h-auto object-cover rounded-xl"
+                                        class="w-full h-auto object-cover rounded-lg border border-black/10"
                                     >
                                 </c:if>
                             </c:forEach>
                             <c:if test="${listing.imageIds.size() > 1}">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
                                     <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
                                         <c:if test="${not status.first}">
                                             <img
                                                 src="<c:url value='/image/${imageId}'/>"
                                                 alt="<c:out value='${listing.title}'/> - Image ${status.count}"
-                                                class="w-full h-auto object-cover rounded-xl"
+                                                class="w-full h-auto object-cover rounded-lg border border-black/10"
                                             >
                                         </c:if>
                                     </c:forEach>
@@ -72,27 +72,27 @@
                         <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
                         <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
                             <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full bg-sky-200 text-sky-400 border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
+                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
                                     <c:choose>
                                         <c:when test="${listing.creator.imageId.present}">
                                             <img
                                                 src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
                                                 alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture"
-                                                class="w-full h-full object-cover shadow-sm"
+                                                class="w-full h-full object-cover"
                                             >
                                         </c:when>
                                         <c:otherwise>
                                             <img
                                                 src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
                                                 alt="Default Profile Picture"
-                                                class="w-full h-full object-cover shadow-sm"
+                                                class="w-full h-full object-cover"
                                             >
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
                                 <p>
-                                ${listing.creator.displayName}
-                                <span class="text-black/60">(${listing.creator.username})</span>
+                                    <span class="text-black font-normal">${listing.creator.displayName}</span>
+                                    <span class="text-black/60 font-normal">(${listing.creator.username})</span>
                                 </p>
                             </div>
                         </paw:linkButton>
