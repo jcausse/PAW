@@ -16,6 +16,7 @@
 <c:url value="/listing" var="filterAction"/>
 <spring:message code="discovery.filter.query.placeholder" var="queryPlaceholder"/>
 <spring:message code="card.noImage" var="noImageLabel"/>
+<spring:message code="discovery.filters" var="filtersTitle"/>
 
 <form action="${filterAction}" method="get">
 <main class="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6">
@@ -31,82 +32,78 @@
     <div class="flex flex-col md:flex-row gap-8">
 
         <aside class="w-full md:w-56 shrink-0">
-            <div class="sticky top-24 flex flex-col gap-5">
+            <div class="sticky top-24">
+                <paw:card title="${filtersTitle}">
+                    <div class="flex flex-col gap-4">
 
-                <h2 class="text-xs font-semibold text-black/50 uppercase tracking-wide">
-                    <spring:message code="discovery.filters"/>
-                </h2>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.category"/></label>
+                            <select name="categoryId" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
+                                <option value=""><spring:message code="discovery.filter.all"/></option>
+                                <c:forEach var="cat" items="${categories}">
+                                    <spring:message code="category.${cat.name}" var="catLabel"/>
+                                    <option value="${cat.id}" ${param.categoryId eq cat.id ? 'selected' : ''}>
+                                        <c:out value="${catLabel}"/>
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </div>
 
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.category"/></label>
-                    <select name="categoryId" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
-                        <option value=""><spring:message code="discovery.filter.all"/></option>
-                        <c:forEach var="cat" items="${categories}">
-                            <spring:message code="category.${cat.name}" var="catLabel"/>
-                            <option value="${cat.id}" ${param.categoryId eq cat.id ? 'selected' : ''}>
-                                <c:out value="${catLabel}"/>
-                            </option>
-                        </c:forEach>
-                    </select>
-                </div>
+                        <c:if test="${not empty subcategories}">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.subcategory"/></label>
+                                <select name="subcategoryId" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
+                                    <option value=""><spring:message code="discovery.filter.all"/></option>
+                                    <c:forEach var="sub" items="${subcategories}">
+                                        <spring:message code="subcategory.${sub.name}" var="subLabel"/>
+                                        <option value="${sub.id}" ${param.subcategoryId eq sub.id ? 'selected' : ''}>
+                                            <c:out value="${subLabel}"/>
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </c:if>
 
-                <c:if test="${not empty subcategories}">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.subcategory"/></label>
-                        <select name="subcategoryId" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
-                            <option value=""><spring:message code="discovery.filter.all"/></option>
-                            <c:forEach var="sub" items="${subcategories}">
-                                <spring:message code="subcategory.${sub.name}" var="subLabel"/>
-                                <option value="${sub.id}" ${param.subcategoryId eq sub.id ? 'selected' : ''}>
-                                    <c:out value="${subLabel}"/>
-                                </option>
-                            </c:forEach>
-                        </select>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.condition"/></label>
+                            <select name="condition" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
+                                <option value=""><spring:message code="discovery.filter.all"/></option>
+                                <c:forEach var="cond" items="${conditions}">
+                                    <spring:message code="condition.${cond}" var="condLabel"/>
+                                    <option value="${cond}" ${param.condition eq cond ? 'selected' : ''}>
+                                        <c:out value="${condLabel}"/>
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-row gap-2">
+                            <div class="flex flex-col gap-1 flex-1">
+                                <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.minPrice"/></label>
+                                <input type="number" step="0.01" name="minPrice" value="<c:out value='${param.minPrice}'/>"
+                                       class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
+                            </div>
+                            <div class="flex flex-col gap-1 flex-1">
+                                <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.maxPrice"/></label>
+                                <input type="number" step="0.01" name="maxPrice" value="<c:out value='${param.maxPrice}'/>"
+                                       class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
+                            </div>
+                        </div>
+
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="acceptsTrade" value="true" ${param.acceptsTrade eq 'true' ? 'checked' : ''}/>
+                            <spring:message code="discovery.filter.acceptsTrade"/>
+                        </label>
+
+                        <div class="flex flex-col gap-2 pt-1">
+                            <spring:message code="discovery.filter.apply" var="applyLabel"/>
+                            <paw:button text="${applyLabel}" type="submit" classname="w-full"/>
+                            <a href="${filterAction}" class="text-xs text-center text-black/50 hover:text-black/70 underline">
+                                <spring:message code="discovery.filter.clear"/>
+                            </a>
+                        </div>
                     </div>
-                </c:if>
-
-                <div class="border-t border-black/5"></div>
-
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.condition"/></label>
-                    <select name="condition" class="px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white">
-                        <option value=""><spring:message code="discovery.filter.all"/></option>
-                        <c:forEach var="cond" items="${conditions}">
-                            <spring:message code="condition.${cond}" var="condLabel"/>
-                            <option value="${cond}" ${param.condition eq cond ? 'selected' : ''}>
-                                <c:out value="${condLabel}"/>
-                            </option>
-                        </c:forEach>
-                    </select>
-                </div>
-
-                <div class="flex flex-row gap-2">
-                    <div class="flex flex-col gap-1 flex-1">
-                        <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.minPrice"/></label>
-                        <input type="number" step="0.01" name="minPrice" value="<c:out value='${param.minPrice}'/>"
-                               class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
-                    </div>
-                    <div class="flex flex-col gap-1 flex-1">
-                        <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.maxPrice"/></label>
-                        <input type="number" step="0.01" name="maxPrice" value="<c:out value='${param.maxPrice}'/>"
-                               class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
-                    </div>
-                </div>
-
-                <label class="flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="acceptsTrade" value="true" ${param.acceptsTrade eq 'true' ? 'checked' : ''}/>
-                    <spring:message code="discovery.filter.acceptsTrade"/>
-                </label>
-
-                <div class="border-t border-black/5"></div>
-
-                <div class="flex flex-col gap-2">
-                    <spring:message code="discovery.filter.apply" var="applyLabel"/>
-                    <paw:button text="${applyLabel}" type="submit" classname="w-full"/>
-                    <a href="${filterAction}" class="text-xs text-center text-black/50 hover:text-black/70 underline">
-                        <spring:message code="discovery.filter.clear"/>
-                    </a>
-                </div>
+                </paw:card>
             </div>
         </aside>
 
