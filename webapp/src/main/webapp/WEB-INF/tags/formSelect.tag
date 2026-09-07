@@ -1,28 +1,20 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="path" required="true" %>
-<%@ attribute name="type" required="false" %>
-<%@ attribute name="min" required="false" %>
-<%@ attribute name="max" required="false" %>
-<%@ attribute name="step" required="false" %>
+<%@ attribute name="items" required="true" type="java.lang.Object" %>
+<%@ attribute name="plainStrings" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="label" required="false" %>
-<%@ attribute name="placeholder" required="false" %>
+<%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="includeOther" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="otherValue" required="false" type="java.lang.String" %>
+<%@ attribute name="otherLabel" required="false" type="java.lang.String" %>
 <%@ attribute name="classname" required="false" %>
-<%@ attribute name="multiple" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="accept" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <c:set var="inputVariant" value="${not empty variant ? variant : 'default'}"/>
-<c:set var="inputType" value="${not empty type ? type : 'text'}"/>
-<c:set var="inputMin" value="${not empty min ? min : ''}"/>
-<c:set var="inputMax" value="${not empty max ? max : ''}"/>
-<c:set var="inputStep" value="${not empty step ? step : ''}"/>
 <c:set var="inputClass" value="${not empty classname ? classname : ''}"/>
-
-<c:set var="inputMultiple" value="${multiple ne null ? multiple : false}"/>
-<c:set var="inputAccept" value="${not empty accept ? accept : ''}"/>
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
@@ -35,28 +27,40 @@
 }"/>
 
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
+<c:set var="isIncludeOther" value="${includeOther ne null ? includeOther : false}"/>
+<c:set var="otherVal" value="${not empty otherValue ? otherValue : '__OTHER__'}"/>
+<c:set var="otherLbl" value="${not empty otherLabel ? otherLabel : 'Other...'}"/>
 
 <%-- Define the markup in reverse order so we can use errors to conditionally style the input --%>
 <div class="flex flex-col-reverse gap-1 ${inputClass}">
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600 peer/errors errors"/>
 
-  <form:input
+  <form:select
     path="${path}"
     id="${path}"
-    type="${inputType}"
     placeholder="${placeholder}"
     disabled="${isDisabled}"
-    min="${inputMin}"
-    max="${inputMax}"
-    step="${inputStep}"
-    multiple="${inputMultiple}"
-    accept="${inputAccept}"
     cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
-  />
+  >
+    <form:option value="" label="${placeholder}" />
+
+    <c:choose>
+      <c:when test="${not empty plainStrings}">
+        <form:options items="${items}" />
+      </c:when>
+      <c:otherwise>
+        <form:options items="${items}" itemValue="id" itemLabel="name" />
+      </c:otherwise>
+    </c:choose>
+
+    <c:if test="${isIncludeOther}">
+      <form:option value="${otherVal}" label="${otherLbl}" />
+    </c:if>
+  </form:select>
 
   <c:if test="${not empty label}">
     <label for="${path}" class="text-xs text-black/70 font-medium">
-      ${label}
+        <c:out value="${label}" />
     </label>
   </c:if>
 </div>

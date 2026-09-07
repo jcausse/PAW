@@ -29,11 +29,11 @@ CREATE TABLE IF NOT EXISTS subcategories (
 
 CREATE TABLE IF NOT EXISTS products (
     product_id      SERIAL PRIMARY KEY,
-    name            VARCHAR(255) NOT NULL UNIQUE,
-    brand           VARCHAR(100),
-    model           VARCHAR(100),
-    year            INTEGER,
-    subcategory_id  INTEGER REFERENCES subcategories(subcategory_id)
+    brand           VARCHAR(100) NOT NULL,
+    model           VARCHAR(100) NOT NULL,
+    year            INTEGER NOT NULL,
+    subcategory_id  INTEGER REFERENCES subcategories,
+    UNIQUE (brand, model, year)
 );
 
 CREATE TABLE IF NOT EXISTS listings (
@@ -42,4 +42,11 @@ CREATE TABLE IF NOT EXISTS listings (
     creator_id    INTEGER REFERENCES users(user_id),
     product_id    INTEGER REFERENCES products(product_id),
     price         DECIMAL(100, 2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS listing_images (
+    listing_id    INTEGER NOT NULL REFERENCES listings(listing_id) ON DELETE CASCADE,
+    image_id      INTEGER NOT NULL REFERENCES images(image_id) ON DELETE CASCADE,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (listing_id, image_id)
 );
