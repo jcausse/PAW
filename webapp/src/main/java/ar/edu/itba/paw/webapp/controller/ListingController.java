@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Condition;
+import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
@@ -8,6 +10,7 @@ import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
+import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.SelectOption;
 import java.io.IOException;
 import java.time.Year;
@@ -20,7 +23,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -34,6 +42,32 @@ public class ListingController {
     private final ListingService listingService;
     private final ProductService productService;
     private final MessageSource messageSource;
+
+    @GetMapping
+    public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
+        final var filter = ListingFilter.builder()
+            .categoryId(filterForm.getCategoryId())
+            .subcategoryId(filterForm.getSubcategoryId())
+            .minPrice(filterForm.getMinPrice())
+            .maxPrice(filterForm.getMaxPrice())
+            .condition(
+                filterForm.getCondition() == null || filterForm.getCondition().isBlank()
+                    ? null
+                    : Condition.fromString(filterForm.getCondition()).orElse(null)
+            )
+            .acceptsTrade(Boolean.TRUE.equals(filterForm.getAcceptsTrade()) ? Boolean.TRUE : null)
+            .query(filterForm.getQuery())
+            .build();
+
+        final var mav = new ModelAndView("listing/discovery");
+        mav.addObject("listings", listingService.search(filter));
+        mav.addObject("categories", productService.getAllCategories());
+        mav.addObject("conditions", Condition.values());
+        if (filterForm.getCategoryId() != null) {
+            mav.addObject("subcategories", productService.getSubcategoriesByCategory(filterForm.getCategoryId()));
+        }
+        return mav;
+    }
 
     @GetMapping("/{id}")
     public ModelAndView listing(@PathVariable Long id) {
