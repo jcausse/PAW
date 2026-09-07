@@ -122,13 +122,19 @@ public class ListingJdbcDao implements ListingDao {
         Price price,
         User creator,
         Product product,
+        Condition condition,
+        boolean acceptsTrade,
+        String description,
         List<Long> imageIds
     ) {
         final Map<String, Object> values = new HashMap<>();
         values.put(ListingSchema.TITLE, title);
+        values.put(ListingSchema.DESCRIPTION, description);
         values.put(ListingSchema.CREATOR_ID, creator.getId());
         values.put(ListingSchema.PRODUCT_ID, product.getId());
         values.put(ListingSchema.PRICE, price.getAmount());
+        values.put(ListingSchema.CONDITION, condition.getCondition());
+        values.put(ListingSchema.ACCEPTS_TRADE, acceptsTrade);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -143,12 +149,13 @@ public class ListingJdbcDao implements ListingDao {
         return Listing.builder()
             .id(key)
             .title(title)
+            .description(description)
             .creator(creator)
             .product(product)
             .price(price)
             .status(ListingStatus.ACTIVE)
-            .condition(Condition.GOOD)
-            .acceptsTrade(false)
+            .condition(condition)
+            .acceptsTrade(acceptsTrade)
             .imageIds(imageIds != null ? imageIds : List.of())
             .build();
     }

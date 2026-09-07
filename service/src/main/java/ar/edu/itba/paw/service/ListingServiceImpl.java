@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
@@ -70,6 +71,20 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        return listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
+        final Condition condition = dto.condition() == null || dto.condition().isBlank()
+            ? Condition.GOOD
+            : Condition.fromString(dto.condition())
+                .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+
+        return listingDao.create(
+            dto.title(),
+            dto.price(),
+            creator,
+            product,
+            condition,
+            dto.acceptsTrade(),
+            dto.description(),
+            imageIds
+        );
     }
 }

@@ -53,6 +53,27 @@
                     <spring:message code="listing.new.price" var="priceLabel"/>
                     <paw:formInput path="price" label="${priceLabel}" type="number" step="0.01" min="0" />
 
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs text-black/70 font-medium"><spring:message code="listing.new.conditionLabel"/></label>
+                        <form:select path="condition" cssClass="px-2 py-1.5 rounded-lg border border-black/20 text-sm bg-white">
+                            <c:forEach var="cond" items="${conditions}">
+                                <spring:message code="condition.${cond}" var="condLabel"/>
+                                <form:option value="${cond}" label="${condLabel}"/>
+                            </c:forEach>
+                        </form:select>
+                    </div>
+
+                    <label class="flex items-center gap-2 text-sm">
+                        <form:checkbox path="acceptsTrade"/>
+                        <spring:message code="listing.new.acceptsTradeLabel"/>
+                    </label>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs text-black/70 font-medium"><spring:message code="listing.new.descriptionLabel"/></label>
+                        <form:textarea path="description" rows="4"
+                                       cssClass="px-2 py-1.5 rounded-lg border border-black/20 text-sm bg-white resize-y"/>
+                    </div>
+
                     <spring:message code="listing.new.imagesLabel" var="imagesLabel"/>
                     <paw:formInput path="images" label="${imagesLabel}" type="file" multiple="true" accept="image/*" />
 

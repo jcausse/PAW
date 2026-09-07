@@ -229,6 +229,7 @@ public class ListingController {
         var mav = new ModelAndView("listing/new/details");
 
         mav.addObject("product", product);
+        mav.addObject("conditions", Condition.values());
         form.setProductId(product.getId());
         return mav;
     }
@@ -266,6 +267,9 @@ public class ListingController {
                     new Price(form.getPrice()),
                     getCurrentUserId(),
                     form.getProductId(),
+                    form.getCondition(),
+                    form.isAcceptsTrade(),
+                    form.getDescription(),
                     imageDataList
             ));
             return new ModelAndView("redirect:/listing/" + newListing.getId());
