@@ -11,30 +11,27 @@
 </head>
 
 <body class=" pb-24 bg-neutral-50">
-  <header class="flex items-center p-4 bg-sky-600">
-      <div class="border border-white text-white bg-sky-400 rounded-lg px-3 py-1 font-semibold">Logo</div>
-  </header>
+    <paw:navbar/>
 
-  <main class="flex flex-col items-center gap-6 py-16 px-4">
-      <h1 class="text-2xl font-bold text-sky-600">Tonkatsu</h1>
-      <p class="text-black/70">Comprá, intercambia o retirá artículos electrónicos</p>
+    <main class="flex flex-col items-center gap-6 py-16 px-4">
+        <h1 class="text-2xl font-bold text-sky-600">Tonkatsu</h1>
+        <p class="text-black/70">Comprá, intercambia o retirá artículos electrónicos</p>
 
-      <div class="flex items-center gap-12 mt-8">
-          <div class="flex flex-col items-center gap-3">
-              <span class="text-sm font-medium">Adquirí lo que buscás</span>
-              <a href="<c:url value="/home"/>">
-                <paw:button text="Buscar" size="lg"/>
-            </a>
-          </div>
+        <div class="flex items-center gap-12 mt-8">
+            <div class="flex flex-col items-center gap-3">
+                <span class="text-sm font-medium">Adquirí lo que buscás</span>
+                <a href="<c:url value="/home"/>">
+                    <paw:button text="Buscar" size="lg"/>
+                </a>
+            </div>
 
-          <div class="w-px h-16 bg-black/15"></div>
+            <div class="w-px h-16 bg-black/15"></div>
 
-          <div class="flex flex-col items-center gap-3">
-              <span class="text-sm font-medium">Vendé lo que ya no usás</span>
-              <paw:button text="Publicar" size="lg"/>
-          </div>
-      </div>
-  </main>
-
-  </body>
+            <div class="flex flex-col items-center gap-3">
+                <span class="text-sm font-medium">Vendé lo que ya no usás</span>
+                <paw:button text="Publicar" size="lg"/>
+            </div>
+        </div>
+    </main>
+</body>
 </html>
