@@ -19,21 +19,25 @@
         <p class="text-black/70"><spring:message code="landing.hero.description"/></p>
 
         <div class="flex items-center gap-12 mt-8">
-            <div class="flex flex-col items-center gap-3">
-                <span class="text-sm font-medium"><spring:message code="landing.buy.title"/></span>
-                <a href="<c:url value="/home"/>">
-                    <spring:message code="landing.buy.button" var="buyButton"/>
-                    <paw:button text="${buyButton}" size="lg"/>
-                </a>
-            </div>
+            <paw:linkButton href="<c:url value='/home'/>" size="lg">
+                <spring:message code="landing.buy.title" var="buyTitle"/>
+                <spring:message code="landing.buy.button" var="buyButton"/>
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-base font-medium"><c:out value="${buyTitle}"/></span>
+                    <span class="text-sm font-semibold"><c:out value="${buyButton}"/></span>
+                </div>
+            </paw:linkButton>
 
             <div class="w-px h-16 bg-black/15"></div>
 
-            <div class="flex flex-col items-center gap-3">
-                <span class="text-sm font-medium"><spring:message code="landing.sell.title"/></span>
+            <paw:linkButton href="<c:url value='/listing/new/choose-product'/>" size="lg" variant="outline">
+                <spring:message code="landing.sell.title" var="sellTitle"/>
                 <spring:message code="landing.sell.button" var="sellButton"/>
-                <paw:button text="${sellButton}" size="lg"/>
-            </div>
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-base font-medium"><c:out value="${sellTitle}"/></span>
+                    <span class="text-sm font-semibold"><c:out value="${sellButton}"/></span>
+                </div>
+            </paw:linkButton>
         </div>
     </main>
 </body>
