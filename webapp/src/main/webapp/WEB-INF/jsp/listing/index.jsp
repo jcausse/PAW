@@ -100,7 +100,8 @@
                         <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
 
                         <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
-                        <paw:button size="lg" classname="w-full" text="${makeOfferLabel}" />
+                        <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
+                        <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
                     </div>
                 </paw:card>
             </div>

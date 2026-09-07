@@ -40,19 +40,32 @@
 <div class="flex flex-col-reverse gap-1 ${inputClass}">
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600 peer/errors errors"/>
 
-  <form:input
-    path="${path}"
-    id="${path}"
-    type="${inputType}"
-    placeholder="${placeholder}"
-    disabled="${isDisabled}"
-    min="${inputMin}"
-    max="${inputMax}"
-    step="${inputStep}"
-    multiple="${inputMultiple}"
-    accept="${inputAccept}"
-    cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
-  />
+  <c:choose>
+    <c:when test="${inputType eq 'textarea'}">
+      <form:textarea
+        path="${path}"
+        id="${path}"
+        placeholder="${placeholder}"
+        disabled="${isDisabled}"
+        cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
+      />
+    </c:when>
+    <c:otherwise>
+      <form:input
+        path="${path}"
+        id="${path}"
+        type="${inputType}"
+        placeholder="${placeholder}"
+        disabled="${isDisabled}"
+        min="${inputMin}"
+        max="${inputMax}"
+        step="${inputStep}"
+        multiple="${inputMultiple}"
+        accept="${inputAccept}"
+        cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
+      />
+    </c:otherwise>
+  </c:choose>
 
   <c:if test="${not empty label}">
     <label for="${path}" class="text-xs text-black/70 font-medium">
