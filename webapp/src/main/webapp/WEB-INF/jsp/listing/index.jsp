@@ -77,7 +77,7 @@
                                         <c:when test="${listing.creator.imageId.present}">
                                             <img
                                                 src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
-                                                alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture"
+                                                alt="<c:out value='${listing.creator.displayName}'/>&quot;s Profile Picture"
                                                 class="w-full h-full object-cover"
                                             >
                                         </c:when>
