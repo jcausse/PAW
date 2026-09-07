@@ -91,7 +91,7 @@ public class ListingJdbcDao implements ListingDao {
         }
 
         final String sql = "SELECT " + Queries.FIELDS + ", " + Queries.SUBCATEGORY_FIELDS
-            + ", '' as image_ids"
+            + ", " + Queries.COVER_IMAGE_ID_SUBQUERY + " as image_ids"
             + Queries.BASE_FROM
             + " WHERE " + String.join(" AND ", conditions)
             + " ORDER BY " + resolveOrderBy(filter.getSort());
@@ -255,6 +255,10 @@ public class ListingJdbcDao implements ListingDao {
         private static final String IMAGE_IDS_SUBQUERY =
             "COALESCE((SELECT STRING_AGG(li.image_id::text, ',' ORDER BY li.display_order) " +
             " FROM listing_images li WHERE li.listing_id = l." + ListingSchema.ID + "), '')";
+
+        private static final String COVER_IMAGE_ID_SUBQUERY =
+            "COALESCE((SELECT li.image_id::text FROM listing_images li " +
+            " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '')";
 
         private static final String GET_BY_ID =
             "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
