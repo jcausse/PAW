@@ -6,7 +6,6 @@ import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
-import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
@@ -133,6 +132,7 @@ public class ListingJdbcDao implements ListingDao {
         values.put(ListingSchema.CREATOR_ID, creator.getId());
         values.put(ListingSchema.PRODUCT_ID, product.getId());
         values.put(ListingSchema.PRICE, price.getAmount());
+        values.put(ListingSchema.STATUS, ListingStatus.ACTIVE.getStatus());
         values.put(ListingSchema.CONDITION, condition.getCondition());
         values.put(ListingSchema.ACCEPTS_TRADE, acceptsTrade);
 
