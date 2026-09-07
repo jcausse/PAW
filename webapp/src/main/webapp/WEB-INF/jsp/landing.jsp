@@ -19,12 +19,12 @@
         <p class="text-black/70"><spring:message code="landing.hero.description"/></p>
 
         <div class="flex items-center gap-12 mt-8">
-            <paw:linkButton href="<c:url value='/home'/>" size="lg">
+            <paw:linkButton href="<c:url value='/home'/>" size="lg" variant="outline">
                 <spring:message code="landing.buy.title" var="buyTitle"/>
                 <spring:message code="landing.buy.button" var="buyButton"/>
                 <div class="flex flex-col items-center gap-1">
-                    <span class="text-base font-medium"><c:out value="${buyTitle}"/></span>
-                    <span class="text-sm font-semibold"><c:out value="${buyButton}"/></span>
+                    <span class="text-xl font-semibold"><c:out value="${buyButton}"/></span>
+                    <span class="text-base font-normal text-black/60"><c:out value="${buyTitle}"/></span>
                 </div>
             </paw:linkButton>
 
@@ -34,8 +34,8 @@
                 <spring:message code="landing.sell.title" var="sellTitle"/>
                 <spring:message code="landing.sell.button" var="sellButton"/>
                 <div class="flex flex-col items-center gap-1">
-                    <span class="text-base font-medium"><c:out value="${sellTitle}"/></span>
-                    <span class="text-sm font-semibold"><c:out value="${sellButton}"/></span>
+                    <span class="text-xl font-semibold"><c:out value="${sellButton}"/></span>
+                    <span class="text-base font-normal text-black/60"><c:out value="${sellTitle}"/></span>
                 </div>
             </paw:linkButton>
         </div>
