@@ -1,11 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.SelectOption;
@@ -13,11 +14,11 @@ import java.io.IOException;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -193,7 +194,7 @@ public class ListingController {
     }
 
     @PostMapping("/new/details")
-    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult) {
+    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult, @ModelAttribute("currentUser") Optional<User> currentUser) {
         if (form.getTitle() == null || form.getTitle().isBlank()) {
             bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
         }
@@ -223,7 +224,7 @@ public class ListingController {
             var newListing = listingService.create(new ListingCreationDto(
                     form.getTitle(),
                     new Price(form.getPrice()),
-                    getCurrentUserId(),
+                    currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
                     form.getProductId(),
                     imageDataList
             ));
@@ -268,11 +269,4 @@ public class ListingController {
         }
     }
 
-    private Long getCurrentUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof AuthUserDetails userDetails) {
-            return userDetails.getDomainUser().getId();
-        }
-        throw new IllegalStateException("No authenticated user");
-    }
 }
