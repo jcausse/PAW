@@ -30,14 +30,14 @@
                             <div class="flex flex-col gap-3">
                                 <div class="flex flex-col gap-2">
                                     <label class="flex items-center gap-2 min-h-8 cursor-pointer">
-                                        <form:radiobutton path="offerType" value="full" class="w-4 h-4 text-sky-600 border-black/20 focus:ring-sky-500"/>
+                                        <form:radiobutton path="offerType" value="full" class="w-4 h-4 text-lime-600 border-black/20 focus:ring-lime-500"/>
                                         <spring:message code="checkout.form.fullPrice" var="fullPriceLabel"/>
                                         <span class="text-sm text-black/90"><c:out value="${fullPriceLabel}"/> - $<c:out value="${listing.price.getAmount()}"/></span>
                                     </label>
 
                                     <div class="flex flex-row gap-2 items-center justify-between">
                                         <label class="flex items-center gap-2 min-h-8 cursor-pointer">
-                                            <form:radiobutton path="offerType" value="custom" class="w-4 h-4 text-sky-600 border-black/20 focus:ring-sky-500"/>
+                                            <form:radiobutton path="offerType" value="custom" class="w-4 h-4 text-lime-600 border-black/20 focus:ring-lime-500"/>
                                             <spring:message code="checkout.form.customPrice" var="customPriceLabel"/>
                                             <span class="text-sm text-black/90"><c:out value="${customPriceLabel}"/></span>
                                         </label>
