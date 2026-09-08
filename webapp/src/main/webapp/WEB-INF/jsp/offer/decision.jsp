@@ -18,11 +18,13 @@
         <paw:card classname="w-full">
             <div class="flex flex-col gap-4">
                 <div class="text-center">
-                    <spring:message code="offer.decision.title" var="title"/>
-                    <h1 class="text-2xl font-semibold"><c:out value="${title}"/></h1>
+                    <spring:message code="offer.decision.title"
+                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                    var="title"/>
+                    <h1 class="text-xl font-medium text-balance"><c:out value="${title}"/></h1>
 
                     <spring:message code="offer.decision.description" var="description"/>
-                    <p class="text-black/60 mt-2"><c:out value="${description}"/></p>
+                    <p class="text-black/60 mt-2 text-balance"><c:out value="${description}"/></p>
                 </div>
 
                 <hr class="border-t-0 border-b border-black/10">
@@ -96,7 +98,12 @@
                     </c:if>
                     <p class="text-3xl font-bold">
                         $<c:out value="${offer.amount}"/>
-                        <span class="text-red-600 text-xl"> -50%</span>
+                        <c:if test="${not offer.isFullPrice}">
+                            <c:set var="listingPrice" value="${offer.listing.price.getAmount()}"/>
+                            <c:set var="offerAmount" value="${offer.amount}"/>
+                            <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
+                            <span class="text-red-600 text-xl"> -${String.format("%.0f", discountPercent)}%</span>
+                        </c:if>
                     </p>
                 </div>
 
