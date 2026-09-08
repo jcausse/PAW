@@ -18,7 +18,9 @@
         <paw:card classname="w-full">
             <div class="flex flex-col gap-6">
                 <div class="text-center">
-                    <spring:message code="offer.decision.title" var="title"/>
+                    <spring:message code="offer.decision.title" 
+                                    arguments="${offer.buyer.displayName}, ${offer.amount}, ${offer.listing.product.brand}, ${offer.listing.product.model}, ${offer.listing.product.year}"
+                                    var="title"/>
                     <h1 class="text-2xl font-semibold"><c:out value="${title}"/></h1>
 
                     <spring:message code="offer.decision.description" var="description"/>
@@ -99,10 +101,13 @@
                 </div>
 
                 <c:if test="${not offer.isFullPrice}">
-                    <spring:message code="offer.decision.listingPrice" var="listingPriceLabel"/>
+                    <spring:message code="offer.decision.discount" var="discountLabel"/>
                     <div class="flex flex-col">
-                        <span class="text-sm text-black/60"><c:out value="${listingPriceLabel}"/></span>
-                        <p class="text-lg font-medium">$<c:out value="${offer.listing.price.getAmount()}"/></p>
+                        <span class="text-sm text-black/60"><c:out value="${discountLabel}"/></span>
+                        <c:set var="listingPrice" value="${offer.listing.price.getAmount()}"/>
+                        <c:set var="offerAmount" value="${offer.amount}"/>
+                        <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
+                        <p class="text-lg font-medium text-red-600">-${discountPercent}%</p>
                     </div>
                 </c:if>
 
