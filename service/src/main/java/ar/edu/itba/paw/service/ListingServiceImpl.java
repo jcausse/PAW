@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class ListingServiceImpl implements ListingService {
     private final UserService userService;
     private final ProductService productService;
     private final ImageService imageService;
+    private final MailingService mailingService;
 
     @Override
     public Listing getById(Long id) {
@@ -63,6 +65,10 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        return listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
+        var listing = listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
+
+        mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+
+        return listing;
     }
 }
