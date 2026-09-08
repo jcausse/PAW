@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fafafa;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" width="560" cellspacing="0" cellpadding="0"
+                       style="background-color: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); overflow: hidden;">
+                    <!-- Logo -->
+                    <tr>
+                        <td style="padding: 40px 40px 0; text-align: center;">
+                            <a th:href="${baseUrl + '/'}" target="_blank" style="text-decoration: none;">
+                                <img th:src="${baseUrl + '/static-image/logo.png'}" alt="Swappr Logo" height="48" style="display: block; margin: 0 auto; border: 0;" />
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 32px 40px 0; text-align: center;">
+                            <span th:text="#{email.listing.badge}" style="display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; background-color: #dcfce7; color: #16a34a;">Published</span>
+                        </td>
+                    </tr>
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 16px 40px 0; text-align: center;">
+                            <h1 th:text="#{email.listing.greeting}" style="margin: 0; font-size: 24px; font-weight: 800; color: #171717;">
+                                Your listing is live!
+                            </h1>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 16px 40px 0; text-align: center;">
+                            <p th:text="#{email.listing.body(${user.displayName}, ${listing.title})}" style="margin: 0; font-size: 15px; line-height: 1.6; color: #525252;">
+                                Hey User, your listing has been published successfully and is now visible to everyone.
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- CTA Button -->
+                    <tr>
+                        <td style="padding: 28px 40px; text-align: center;">
+                            <a th:href="${actionUrl}" th:text="#{email.listing.cta}" target="_blank"
+                               style="display: inline-block; padding: 12px 28px; font-size: 14px; font-weight: 600; color: #ffffff; background-color: #0284c7; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                View Listing
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px 32px; text-align: center; border-top: 1px solid rgba(0,0,0,0.06);">
+                            <p style="margin: 0; font-size: 12px; color: #a3a3a3;">
+                                <span th:text="#{email.listing.footer}">You received this email because you created a listing on</span> <a th:href="${baseUrl + '/'}" th:text="#{email.shared.paw}" style="color: #0284c7; text-decoration: none;">Swappr</a>.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
