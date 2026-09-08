@@ -44,7 +44,7 @@ public class MailingServiceImpl implements MailingService {
         var context = new Context(locale);
         context.setVariable("user", user);
         context.setVariable("baseUrl", baseUrl);
-        context.setVariable("actionUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/profile/" + user.getId());
 
         String subject = messageSource.getMessage("email.welcome.subject", null, locale);
         sendEmail(user.getEmail(), subject, "welcome", context);
