@@ -1,11 +1,23 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Condition;
+import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.Product;
+import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.persistence.schema.CategorySchema;
+import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
+import ar.edu.itba.paw.persistence.schema.ProductSchema;
+import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +74,7 @@ public class OfferJdbcDao implements OfferDao {
 
         return Offer.builder()
             .id(key)
-            .listingId(listingId)
+            .listing(Listing.builder().id(listingId).build())
             .buyer(buyer)
             .amount(amount)
             .isFullPrice(isFullPrice)
@@ -83,9 +95,57 @@ public class OfferJdbcDao implements OfferDao {
                             .orElse(null))
             .build();
 
+        // Build the Listing object with product, subcategory, category, and first image
+        String imageIdsStr = rs.getString("image_ids");
+        List<Long> imageIds = parseImageIds(imageIdsStr);
+        Long firstImageId = imageIds.isEmpty() ? null : imageIds.get(0);
+
+        Listing listing = Listing.builder()
+            .id(rs.getLong(ListingSchema.ID))
+            .title(rs.getString(ListingSchema.TITLE))
+            .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
+            .description(rs.getString(ListingSchema.DESCRIPTION))
+            .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
+            .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
+            .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
+            .creator(
+                User.builder()
+                    .id(rs.getLong("creator_id"))
+                    .username(rs.getString("creator_username"))
+                    .displayName(rs.getString("creator_display_name"))
+                    .email(rs.getString("creator_email"))
+                    .password("<redacted>")
+                    .imageId(Optional.ofNullable(rs.getObject("creator_image_id", Integer.class))
+                                    .map(Integer::longValue)
+                                    .orElse(null))
+                    .build()
+            )
+            .product(
+                Product.builder()
+                    .id(rs.getLong(ProductSchema.ID))
+                    .brand(rs.getString(ProductSchema.BRAND))
+                    .model(rs.getString(ProductSchema.MODEL))
+                    .year(rs.getInt(ProductSchema.YEAR))
+                    .subcategory(
+                        Subcategory.builder()
+                            .id(rs.getLong(SubcategorySchema.ID))
+                            .name(rs.getString(SubcategorySchema.NAME))
+                            .category(
+                                Category.builder()
+                                    .id(rs.getLong(CategorySchema.ID))
+                                    .name(rs.getString("category_name"))
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+            .imageIds(imageIds)
+            .build();
+
         return Offer.builder()
             .id(rs.getLong(OfferSchema.ID))
-            .listingId(rs.getLong(OfferSchema.LISTING_ID))
+            .listing(listing)
             .buyer(buyer)
             .amount(rs.getBigDecimal(OfferSchema.AMOUNT))
             .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
@@ -94,15 +154,44 @@ public class OfferJdbcDao implements OfferDao {
             .build();
     };
 
+    private static List<Long> parseImageIds(String imageIdsStr) {
+        if (imageIdsStr == null || imageIdsStr.isEmpty()) {
+            return List.of();
+        }
+        String[] parts = imageIdsStr.split(",");
+        List<Long> ids = new ArrayList<>(parts.length);
+        for (String part : parts) {
+            ids.add(Long.parseLong(part.trim()));
+        }
+        return ids;
+    }
+
     private static final class Queries {
         private static final String BASE_SELECT =
-            "SELECT " + OfferSchema.ID + ", " + OfferSchema.LISTING_ID + ", " + OfferSchema.BUYER_ID +
-            ", " + OfferSchema.AMOUNT + ", " + OfferSchema.IS_FULL_PRICE + ", " + OfferSchema.STATUS +
-            ", " + OfferSchema.MESSAGE +
+            "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
+            ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
+            ", o." + OfferSchema.MESSAGE +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID +
+            ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
+            ", l." + ListingSchema.PRICE + ", l." + ListingSchema.STATUS + ", l." + ListingSchema.CONDITION +
+            ", l." + ListingSchema.ACCEPTS_TRADE + ", l." + ListingSchema.CREATOR_ID + ", l." + ListingSchema.PRODUCT_ID +
+            ", c." + UserSchema.ID + " as creator_id, c." + UserSchema.USERNAME + " as creator_username" +
+            ", c." + UserSchema.DISPLAY_NAME + " as creator_display_name, c." + UserSchema.EMAIL + " as creator_email" +
+            ", c." + UserSchema.IMAGE_ID + " as creator_image_id" +
+            ", p." + ProductSchema.ID + ", p." + ProductSchema.BRAND + ", p." + ProductSchema.MODEL +
+            ", p." + ProductSchema.YEAR + ", p." + ProductSchema.SUBCATEGORY_ID +
+            ", s." + SubcategorySchema.ID + ", s." + SubcategorySchema.NAME +
+            ", cat." + CategorySchema.ID + ", cat." + CategorySchema.NAME + " as category_name" +
+            ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
+            " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
             " FROM " + OfferSchema.TABLE_NAME + " o" +
-            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID;
+            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
+            " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
+            " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+            " JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
+            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
+            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
 
         private static final String GET_BY_ID =
             BASE_SELECT +

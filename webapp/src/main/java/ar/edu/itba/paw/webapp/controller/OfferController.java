@@ -30,7 +30,7 @@ public class OfferController {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
 
-        final Listing listing = listingService.getById(offer.getListingId());
+        final Listing listing = offer.getListing();
         final Long currentUserId = getCurrentUserId();
 
         // Verify the current user is the seller (listing creator)
@@ -40,7 +40,6 @@ public class OfferController {
 
         var mav = new ModelAndView("offer/decision");
         mav.addObject("offer", offer);
-        mav.addObject("listing", listing);
         return mav;
     }
 
@@ -49,7 +48,7 @@ public class OfferController {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
 
-        final Listing listing = listingService.getById(offer.getListingId());
+        final Listing listing = offer.getListing();
         final Long currentUserId = getCurrentUserId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
@@ -70,7 +69,7 @@ public class OfferController {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
 
-        final Listing listing = listingService.getById(offer.getListingId());
+        final Listing listing = offer.getListing();
         final Long currentUserId = getCurrentUserId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {

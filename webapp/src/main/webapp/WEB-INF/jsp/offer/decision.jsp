@@ -27,6 +27,41 @@
 
                 <hr class="border-t-0 border-b border-black/10">
 
+                <!-- Listing info section -->
+                <div class="flex flex-row gap-4">
+                    <!-- Listing image (smaller, to the side) -->
+                    <c:set var="listingImageUrl" value=""/>
+                    <c:forEach items="${offer.listing.imageIds}" var="imageId" varStatus="status">
+                        <c:if test="${status.first}">
+                            <c:set var="listingImageUrl" value="/image/${imageId}"/>
+                        </c:if>
+                    </c:forEach>
+                    <div class="w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden border border-black/10 bg-neutral-200">
+                        <c:choose>
+                            <c:when test="${not empty listingImageUrl}">
+                                <img src="${listingImageUrl}" alt="<c:out value='${offer.listing.title}'/>" class="w-full h-full object-cover"/>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="w-full h-full grid place-items-center text-black/30 text-xs px-2 text-center">
+                                    <spring:message code="card.noImage"/>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+
+                    <!-- Listing title and product info -->
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <h2 class="text-xl font-semibold truncate"><c:out value="${offer.listing.title}"/></h2>
+                        <p class="text-sm text-black/60 mt-1 truncate">
+                            <c:out value="${offer.listing.product.brand}"/> 
+                            <c:out value="${offer.listing.product.model}"/> 
+                            (<c:out value="${offer.listing.product.year}"/>)
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="border-t-0 border-b border-black/10">
+
                 <div class="flex flex-col gap-4">
                     <spring:message code="offer.decision.buyer" var="buyerLabel"/>
                     <div class="flex flex-col">
@@ -67,7 +102,7 @@
                     <spring:message code="offer.decision.listingPrice" var="listingPriceLabel"/>
                     <div class="flex flex-col">
                         <span class="text-sm text-black/60"><c:out value="${listingPriceLabel}"/></span>
-                        <p class="text-lg font-medium">$<c:out value="${listing.price.getAmount()}"/></p>
+                        <p class="text-lg font-medium">$<c:out value="${offer.listing.price.getAmount()}"/></p>
                     </div>
                 </c:if>
 
