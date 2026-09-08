@@ -1,13 +1,13 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Condition;
-import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
@@ -46,24 +46,16 @@ public class ListingController {
 
     @GetMapping
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
-        final var filter = ListingFilter.builder()
-            .categoryId(filterForm.getCategoryId())
-            .subcategoryId(filterForm.getSubcategoryId())
-            .minPrice(filterForm.getMinPrice())
-            .maxPrice(filterForm.getMaxPrice())
-            .condition(
-                filterForm.getCondition() == null || filterForm.getCondition().isBlank()
-                    ? null
-                    : Condition.fromString(filterForm.getCondition()).orElse(null)
-            )
-            .acceptsTrade(Boolean.TRUE.equals(filterForm.getAcceptsTrade()) ? Boolean.TRUE : null)
-            .query(filterForm.getQuery())
-            .sort(
-                filterForm.getSort() == null || filterForm.getSort().isBlank()
-                    ? null
-                    : ListingSort.fromString(filterForm.getSort()).orElse(null)
-            )
-            .build();
+        final var filter = new ListingFilterDto(
+            filterForm.getCategoryId(),
+            filterForm.getSubcategoryId(),
+            filterForm.getMinPrice(),
+            filterForm.getMaxPrice(),
+            filterForm.getCondition(),
+            filterForm.getAcceptsTrade(),
+            filterForm.getQuery(),
+            filterForm.getSort()
+        );
 
         final var mav = new ModelAndView("listing/discovery");
         mav.addObject("listings", listingService.search(filter));
