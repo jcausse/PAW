@@ -16,7 +16,7 @@
 
     <div class="max-w-2xl mx-auto p-8 pb-24">
         <paw:card classname="w-full">
-            <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-4">
                 <div class="text-center">
                     <spring:message code="offer.decision.title" var="title"/>
                     <h1 class="text-2xl font-semibold"><c:out value="${title}"/></h1>
@@ -53,14 +53,12 @@
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                         <h2 class="text-xl font-semibold truncate"><c:out value="${offer.listing.title}"/></h2>
                         <p class="text-sm text-black/60 mt-1 truncate">
-                            <c:out value="${offer.listing.product.brand}"/> 
-                            <c:out value="${offer.listing.product.model}"/> 
+                            <c:out value="${offer.listing.product.brand}"/>
+                            <c:out value="${offer.listing.product.model}"/>
                             (<c:out value="${offer.listing.product.year}"/>)
                         </p>
                     </div>
                 </div>
-
-                <hr class="border-t-0 border-b border-black/10">
 
                 <div class="flex flex-col gap-4">
                     <spring:message code="offer.decision.buyer" var="buyerLabel"/>
@@ -88,23 +86,19 @@
                     </div>
                 </div>
 
-                <hr class="border-t-0 border-b border-black/10">
-
-                <div class="flex flex-col gap-4">
+                <div class="flex flex-col">
                     <spring:message code="offer.decision.amount" var="amountLabel"/>
-                    <div class="flex flex-col">
-                        <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
-                        <p class="text-3xl font-bold">$<c:out value="${offer.amount}"/></p>
-                    </div>
+                    <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
+                    <c:if test="${not offer.isFullPrice}">
+                        <p class="text-lg font-medium line-through text-black/60">
+                            $<c:out value="${offer.listing.price.getAmount()}"/>
+                        </p>
+                    </c:if>
+                    <p class="text-3xl font-bold">
+                        $<c:out value="${offer.amount}"/>
+                        <span class="text-red-600 text-xl"> -50%</span>
+                    </p>
                 </div>
-
-                <c:if test="${not offer.isFullPrice}">
-                    <spring:message code="offer.decision.listingPrice" var="listingPriceLabel"/>
-                    <div class="flex flex-col">
-                        <span class="text-sm text-black/60"><c:out value="${listingPriceLabel}"/></span>
-                        <p class="text-lg font-medium">$<c:out value="${offer.listing.price.getAmount()}"/></p>
-                    </div>
-                </c:if>
 
                 <c:if test="${not empty offer.message}">
                     <hr class="border-t-0 border-b border-black/10">
@@ -120,7 +114,7 @@
                 <div class="flex flex-row gap-4">
                     <spring:message code="offer.decision.accept" var="acceptLabel"/>
                     <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST" class="flex-1">
-                        <paw:button type="submit" variant="default" role="success" size="lg" classname="w-full" text="${acceptLabel}"/>
+                        <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${acceptLabel}"/>
                     </form>
 
                     <spring:message code="offer.decision.reject" var="rejectLabel"/>
