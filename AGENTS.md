@@ -4,6 +4,8 @@
 
 This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a multi-module Maven project using Spring WebMVC (not Spring Boot), JSP views, JSTL, and PostgreSQL via Spring JDBC (will later use JPA/Hibernate but not yet until this file changes).
 
+The project is called **Swappr** (it is the official name). That name should be used in emailing and other site-id related things. Read `README.md` on the project's root to know more about the project.
+
 ## Important
 
 **Never**, ever commit nor read `.script/deploy_secrets.properties` — it contains sensible secrets and is gitignored. You do not have read/write permission on that file under any circumstances.
@@ -98,6 +100,17 @@ This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a m
 - Prefer using `var` for type inference when possible.
 - DAOs (in `persistence` layer) can read on any table, but each DAO should only write to one and just one table.
 - DAOs must never call other DAOs, nor have them injected as dependencies. As stated by another rule, if DAO A needs to access table B, it can access it directly, but never make DAO A depend on DAO B.
+
+## Mailing and Email Templates
+
+- **Implementation**: The application uses `JavaMailSender` and `SpringTemplateEngine` from Thymeleaf to send HTML emails asynchronously. The service is `MailingService` with `MailingServiceImpl`.
+- **Async Sending**: All methods that send emails inside `MailingServiceImpl` **must** be annotated with `@Async`. The `MailConfig` must have `@EnableAsync`.
+- **Templates location**: Thymeleaf templates for emails are placed in `service/src/main/resources/mail/` and must have an `.html` extension.
+- **Styling**: Email HTML **cannot** use external CSS files or Tailwind utility classes directly because email clients strip them. Instead, use **inline styles** that match the Tailwind design system (e.g. `style="background-color: #0284c7; border-radius: 8px;"`).
+- **Call-to-Action (CTA)**: **Every email must include a call-to-action button** that links back to the website. Use the `base.url` (or `app.baseUrl`) property from `application.properties`/`app.properties` to construct absolute URLs (e.g. injected via `@Value("${app.baseUrl}")`).
+- **Context Variables**: Thymeleaf templates receive a `Context` object populated with variables like `user`, `baseUrl`, and `actionUrl`.
+- **App Logo**: Every email must include the app logo at the top of the email for brand identification. Clicking the logo in the email should also take the user to the website using the base URL, but it should take the user to the root (`/`).
+- **Internationalization (i18n)**: Every email **must** be internationalized using the user's preferred language, as if it were any other part of the app.
 
 ## Database Conventions
 

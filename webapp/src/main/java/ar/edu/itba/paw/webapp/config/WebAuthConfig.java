@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @ComponentScan("ar.edu.itba.paw.webapp.auth")
-
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired  // No other way to break the circular dependency of the PasswordEncoder
