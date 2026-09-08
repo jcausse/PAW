@@ -61,5 +61,6 @@ CREATE TABLE IF NOT EXISTS offers (
     buyer_id       INTEGER NOT NULL REFERENCES users(user_id),
     amount         DECIMAL(100, 2) NOT NULL,
     is_full_price  BOOLEAN NOT NULL DEFAULT FALSE,
-    status         VARCHAR(20) NOT NULL DEFAULT 'pending'
+    status         VARCHAR(20) NOT NULL DEFAULT 'pending',
+    message        TEXT
 );

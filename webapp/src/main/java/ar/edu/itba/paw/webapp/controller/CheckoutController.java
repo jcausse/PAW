@@ -8,6 +8,8 @@ import ar.edu.itba.paw.webapp.form.CheckoutForm;
 import java.math.BigDecimal;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -25,6 +27,7 @@ public class CheckoutController {
 
     private final ListingService listingService;
     private final OfferService offerService;
+    private final MessageSource messageSource;
 
     @GetMapping
     public ModelAndView checkout(@RequestParam("listingId") Long listingId, @ModelAttribute("checkoutForm") CheckoutForm form) {
@@ -66,11 +69,13 @@ public class CheckoutController {
             isFullPrice = false;
         }
 
-        offerService.create(listing.getId(), buyerId, amount, isFullPrice);
+        offerService.create(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
 
         // TODO: Send email notification to seller about the new offer
 
-        return new ModelAndView("redirect:/listing/" + listing.getId());
+        var locale = LocaleContextHolder.getLocale();
+        var successMessage = messageSource.getMessage("checkout.success", null, locale);
+        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
     }
 
     private Long getCurrentUserId() {

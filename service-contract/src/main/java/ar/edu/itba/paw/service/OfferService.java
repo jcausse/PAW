@@ -13,5 +13,9 @@ public interface OfferService {
 
     List<Offer> getByBuyerId(Long buyerId);
 
-    Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice);
+    Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, String message);
+
+    Offer accept(Long offerId);
+
+    Offer reject(Long offerId);
 }

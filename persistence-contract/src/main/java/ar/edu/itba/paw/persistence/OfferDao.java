@@ -13,5 +13,7 @@ public interface OfferDao {
 
     List<Offer> getByBuyerId(Long buyerId);
 
-    Offer create(Long listingId, Long buyerId, java.math.BigDecimal amount, Boolean isFullPrice, OfferStatus status);
+    Offer create(Long listingId, Long buyerId, java.math.BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message);
+
+    boolean updateStatus(Long offerId, OfferStatus status);
 }

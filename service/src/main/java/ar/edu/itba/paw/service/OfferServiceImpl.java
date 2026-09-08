@@ -35,7 +35,31 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     @Transactional
-    public Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice) {
-        return offerDao.create(listingId, buyerId, amount, isFullPrice, OfferStatus.PENDING);
+    public Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, String message) {
+        return offerDao.create(listingId, buyerId, amount, isFullPrice, OfferStatus.PENDING, message);
+    }
+
+    @Override
+    @Transactional
+    public Offer accept(Long offerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+        if (offer.getStatus() != OfferStatus.PENDING) {
+            throw new IllegalStateException("Offer is not pending");
+        }
+        offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
+        return offerDao.getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Offer reject(Long offerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+        if (offer.getStatus() != OfferStatus.PENDING) {
+            throw new IllegalStateException("Offer is not pending");
+        }
+        offerDao.updateStatus(offerId, OfferStatus.REJECTED);
+        return offerDao.getById(offerId).orElseThrow();
     }
 }

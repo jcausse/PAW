@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
+import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -47,13 +48,14 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, OfferStatus status) {
+    public Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
         values.put(OfferSchema.BUYER_ID, buyerId);
         values.put(OfferSchema.AMOUNT, amount);
         values.put(OfferSchema.IS_FULL_PRICE, isFullPrice);
         values.put(OfferSchema.STATUS, status.getStatus());
+        values.put(OfferSchema.MESSAGE, message);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -64,6 +66,7 @@ public class OfferJdbcDao implements OfferDao {
             .amount(amount)
             .isFullPrice(isFullPrice)
             .status(status)
+            .message(message)
             .build();
     }
 
@@ -74,27 +77,45 @@ public class OfferJdbcDao implements OfferDao {
         .amount(rs.getBigDecimal(OfferSchema.AMOUNT))
         .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
         .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)))
+        .buyerUsername(rs.getString(UserSchema.USERNAME))
+        .buyerDisplayName(rs.getString(UserSchema.DISPLAY_NAME))
+        .buyerImageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+                        .map(Integer::longValue)
+                        .orElse(null))
+        .message(rs.getString(OfferSchema.MESSAGE))
         .build();
 
     private static final class Queries {
-        private static final String GET_BY_ID =
+        private static final String BASE_SELECT =
             "SELECT " + OfferSchema.ID + ", " + OfferSchema.LISTING_ID + ", " + OfferSchema.BUYER_ID +
             ", " + OfferSchema.AMOUNT + ", " + OfferSchema.IS_FULL_PRICE + ", " + OfferSchema.STATUS +
-            " FROM " + OfferSchema.TABLE_NAME +
-            " WHERE " + OfferSchema.ID + " = ?";
+            ", " + OfferSchema.MESSAGE +
+            ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME + ", u." + UserSchema.IMAGE_ID +
+            " FROM " + OfferSchema.TABLE_NAME + " o" +
+            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID;
+
+        private static final String GET_BY_ID =
+            BASE_SELECT +
+            " WHERE o." + OfferSchema.ID + " = ?";
 
         private static final String GET_BY_LISTING_ID =
-            "SELECT " + OfferSchema.ID + ", " + OfferSchema.LISTING_ID + ", " + OfferSchema.BUYER_ID +
-            ", " + OfferSchema.AMOUNT + ", " + OfferSchema.IS_FULL_PRICE + ", " + OfferSchema.STATUS +
-            " FROM " + OfferSchema.TABLE_NAME +
-            " WHERE " + OfferSchema.LISTING_ID + " = ?" +
-            " ORDER BY " + OfferSchema.ID + " DESC";
+            BASE_SELECT +
+            " WHERE o." + OfferSchema.LISTING_ID + " = ?" +
+            " ORDER BY o." + OfferSchema.ID + " DESC";
 
         private static final String GET_BY_BUYER_ID =
-            "SELECT " + OfferSchema.ID + ", " + OfferSchema.LISTING_ID + ", " + OfferSchema.BUYER_ID +
-            ", " + OfferSchema.AMOUNT + ", " + OfferSchema.IS_FULL_PRICE + ", " + OfferSchema.STATUS +
-            " FROM " + OfferSchema.TABLE_NAME +
-            " WHERE " + OfferSchema.BUYER_ID + " = ?" +
-            " ORDER BY " + OfferSchema.ID + " DESC";
+            BASE_SELECT +
+            " WHERE o." + OfferSchema.BUYER_ID + " = ?" +
+            " ORDER BY o." + OfferSchema.ID + " DESC";
+
+        private static final String UPDATE_STATUS =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?";
+    }
+
+    @Override
+    public boolean updateStatus(Long offerId, OfferStatus status) {
+        return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
     }
 }
