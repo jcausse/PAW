@@ -72,15 +72,7 @@ public class OfferJdbcDao implements OfferDao {
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
-        return Offer.builder()
-            .id(key)
-            .listing(Listing.builder().id(listingId).build())
-            .buyer(buyer)
-            .amount(amount)
-            .isFullPrice(isFullPrice)
-            .status(status)
-            .message(message)
-            .build();
+        return getById(key).orElseThrow();
     }
 
     private static final RowMapper<Offer> ROW_MAPPER = (rs, rowNum) -> {
