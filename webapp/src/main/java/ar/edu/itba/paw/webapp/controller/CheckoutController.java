@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
+import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.CheckoutForm;
 import java.math.BigDecimal;
@@ -69,7 +70,8 @@ public class CheckoutController {
             isFullPrice = false;
         }
 
-        offerService.create(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
+        OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
+        offerService.create(offerDto);
 
         // TODO: Send email notification to seller about the new offer
 

@@ -31,13 +31,13 @@
                     <spring:message code="offer.decision.buyer" var="buyerLabel"/>
                     <div class="flex flex-col">
                         <span class="text-sm text-black/60"><c:out value="${buyerLabel}"/></span>
-                        <c:url value="/profile/${offer.buyerId}" var="buyerProfileUrl"/>
+                        <c:url value="/profile/${offer.buyer.id}" var="buyerProfileUrl"/>
                         <paw:linkButton href="${buyerProfileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
                             <div class="flex flex-row gap-2 items-center text-sm">
                                 <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
                                     <c:choose>
-                                        <c:when test="${offer.buyerImageId.present}">
-                                            <img src="<c:url value='/image/${offer.buyerImageId.get()}'/>" alt="<c:out value='${offer.buyerDisplayName}'/>"s Profile Picture" class="w-full h-full object-cover"/>
+                                        <c:when test="${offer.buyer.imageId.present}">
+                                            <img src="<c:url value='/image/${offer.buyer.imageId.get()}'/>" alt="<c:out value='${offer.buyer.displayName}'/>"s Profile Picture" class="w-full h-full object-cover"/>
                                         </c:when>
                                         <c:otherwise>
                                             <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
@@ -45,8 +45,8 @@
                                     </c:choose>
                                 </div>
                                 <p>
-                                    <span class="text-black font-normal"><c:out value="${offer.buyerDisplayName}"/></span>
-                                    <span class="text-black/60 font-normal">(<c:out value="${offer.buyerUsername}"/>)</span>
+                                    <span class="text-black font-normal"><c:out value="${offer.buyer.displayName}"/></span>
+                                    <span class="text-black/60 font-normal">(<c:out value="${offer.buyer.username}"/>)</span>
                                 </p>
                             </div>
                         </paw:linkButton>

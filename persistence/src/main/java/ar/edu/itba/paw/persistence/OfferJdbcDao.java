@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.math.BigDecimal;
@@ -48,10 +49,10 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
+    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
-        values.put(OfferSchema.BUYER_ID, buyerId);
+        values.put(OfferSchema.BUYER_ID, buyer.getId());
         values.put(OfferSchema.AMOUNT, amount);
         values.put(OfferSchema.IS_FULL_PRICE, isFullPrice);
         values.put(OfferSchema.STATUS, status.getStatus());
@@ -62,7 +63,7 @@ public class OfferJdbcDao implements OfferDao {
         return Offer.builder()
             .id(key)
             .listingId(listingId)
-            .buyerId(buyerId)
+            .buyer(buyer)
             .amount(amount)
             .isFullPrice(isFullPrice)
             .status(status)
@@ -70,27 +71,36 @@ public class OfferJdbcDao implements OfferDao {
             .build();
     }
 
-    private static final RowMapper<Offer> ROW_MAPPER = (rs, rowNum) -> Offer.builder()
-        .id(rs.getLong(OfferSchema.ID))
-        .listingId(rs.getLong(OfferSchema.LISTING_ID))
-        .buyerId(rs.getLong(OfferSchema.BUYER_ID))
-        .amount(rs.getBigDecimal(OfferSchema.AMOUNT))
-        .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
-        .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)))
-        .buyerUsername(rs.getString(UserSchema.USERNAME))
-        .buyerDisplayName(rs.getString(UserSchema.DISPLAY_NAME))
-        .buyerImageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
-                        .map(Integer::longValue)
-                        .orElse(null))
-        .message(rs.getString(OfferSchema.MESSAGE))
-        .build();
+    private static final RowMapper<Offer> ROW_MAPPER = (rs, rowNum) -> {
+        User buyer = User.builder()
+            .id(rs.getLong(UserSchema.ID))
+            .username(rs.getString(UserSchema.USERNAME))
+            .displayName(rs.getString(UserSchema.DISPLAY_NAME))
+            .email(rs.getString(UserSchema.EMAIL))
+            .password("<redacted>")
+            .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null))
+            .build();
+
+        return Offer.builder()
+            .id(rs.getLong(OfferSchema.ID))
+            .listingId(rs.getLong(OfferSchema.LISTING_ID))
+            .buyer(buyer)
+            .amount(rs.getBigDecimal(OfferSchema.AMOUNT))
+            .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
+            .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)))
+            .message(rs.getString(OfferSchema.MESSAGE))
+            .build();
+    };
 
     private static final class Queries {
         private static final String BASE_SELECT =
             "SELECT " + OfferSchema.ID + ", " + OfferSchema.LISTING_ID + ", " + OfferSchema.BUYER_ID +
             ", " + OfferSchema.AMOUNT + ", " + OfferSchema.IS_FULL_PRICE + ", " + OfferSchema.STATUS +
             ", " + OfferSchema.MESSAGE +
-            ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME + ", u." + UserSchema.IMAGE_ID +
+            ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
+            ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID +
             " FROM " + OfferSchema.TABLE_NAME + " o" +
             " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID;
 

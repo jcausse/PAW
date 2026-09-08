@@ -2,10 +2,13 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OfferDao;
+import ar.edu.itba.paw.service.dto.OfferCreationDto;
+import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OfferServiceImpl implements OfferService {
 
     private final OfferDao offerDao;
+    private final UserService userService;
 
     @Override
     public Optional<Offer> getById(Long id) {
@@ -35,8 +39,13 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     @Transactional
-    public Offer create(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, String message) {
-        return offerDao.create(listingId, buyerId, amount, isFullPrice, OfferStatus.PENDING, message);
+    public Offer create(OfferCreationDto dto) {
+        Objects.requireNonNull(dto, "OfferCreationDto cannot be null");
+
+        User buyer = userService.getById(dto.buyerId())
+                .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
+
+        return offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
     }
 
     @Override
