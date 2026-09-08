@@ -74,7 +74,9 @@
                     <div id="imagePreviews" class="flex flex-wrap gap-2 empty:hidden"></div>
 
                     <div class="mt-2 flex justify-center gap-4">
-                        <c:url value="/listing/new/choose-product" var="backUrl"/>
+                        <c:url value="/listing/new/choose-product" var="backUrl">
+                            <c:param name="productId" value="${detailsForm.productId}"/>
+                        </c:url>
                         <spring:message code="listing.new.back" var="backLabel"/>
                         <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
                         <spring:message code="listing.new.submitListing" var="submitLabel"/>

@@ -77,9 +77,24 @@ public class ListingController {
     }
 
     @GetMapping("/new/choose-product")
-    public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form) {
+    public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form,
+                                      @RequestParam(value = "productId", required = false) Long productId) {
         var mav = new ModelAndView("listing/new/chooseProduct");
-        form.setStep(1);
+        // Coming back from step 2: rehydrate the form from the already chosen product
+        // so the user sees and can change their selection instead of starting over.
+        if (productId != null) {
+            var product = productService.getById(productId);
+            var subcategory = product.getSubcategory();
+            form.setCategoryId(subcategory.getCategory().getId());
+            form.setSubcategoryId(subcategory.getId());
+            form.setNewProductBrand(product.getBrand());
+            form.setNewProductModel(product.getModel());
+            form.setNewProductYear(product.getYear());
+            form.setStep(3);
+            form.updatePreviousValues();
+        } else {
+            form.setStep(1);
+        }
         populateModel(mav, form);
         return mav;
     }
