@@ -209,14 +209,4 @@ public class OfferJdbcDao implements OfferDao {
     public boolean updateStatus(Long offerId, OfferStatus status) {
         return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
     }
-
-    @Override
-    public boolean hasPendingFullPriceOrAcceptedOffer(Long listingId) {
-        String sql = "SELECT EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME +
-                     " WHERE " + OfferSchema.LISTING_ID + " = ?" +
-                     " AND (" + OfferSchema.STATUS + " = 'accepted'" +
-                     " OR (" + OfferSchema.STATUS + " = 'pending' AND " + OfferSchema.IS_FULL_PRICE + " = true))" +
-                     ")";
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, listingId));
-    }
 }

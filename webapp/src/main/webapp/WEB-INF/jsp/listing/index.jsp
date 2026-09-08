@@ -104,7 +104,7 @@
                                 <spring:message code="listing.detail.cannotOfferOwn" var="cannotOfferLabel"/>
                                 <p class="text-center text-black/60 py-4"><c:out value="${cannotOfferLabel}"/></p>
                             </c:when>
-                            <c:when test="${hasPendingOrAcceptedOffer}">
+                            <c:when test="${isSold}">
                                 <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>
                                 <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
                             </c:when>

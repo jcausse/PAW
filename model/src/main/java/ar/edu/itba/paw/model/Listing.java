@@ -17,4 +17,5 @@ public final class Listing {
     private final @NonNull Condition condition;
     private final boolean acceptsTrade;
     private final List<Long> imageIds;
+    private final @NonNull OfferListingStatus offerListingStatus;
 }

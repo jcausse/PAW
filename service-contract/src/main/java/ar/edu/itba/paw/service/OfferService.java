@@ -18,6 +18,4 @@ public interface OfferService {
     Offer accept(Long offerId);
 
     Offer reject(Long offerId);
-
-    boolean hasPendingFullPriceOrAcceptedOffer(Long listingId);
 }

@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.OfferListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
@@ -27,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingDao listingDao;
-    private final OfferService offerService;
 
     private final UserService userService;
     private final ProductService productService;
@@ -60,9 +60,9 @@ public class ListingServiceImpl implements ListingService {
 
         List<Listing> listings = listingDao.search(filter);
 
-        // Filter out listings with pending full-price offers or accepted offers
+        // Filter out listings with SOLD offer status
         return listings.stream()
-            .filter(listing -> !offerService.hasPendingFullPriceOrAcceptedOffer(listing.getId()))
+            .filter(listing -> listing.getOfferListingStatus() == OfferListingStatus.AVAILABLE)
             .toList();
     }
 

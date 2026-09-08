@@ -2,17 +2,19 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
 import ar.edu.itba.paw.model.Condition;
-import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.OfferListingStatus;
+import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
+import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
@@ -92,6 +94,8 @@ public class ListingJdbcDao implements ListingDao {
 
         final String sql = "SELECT " + Queries.FIELDS + ", " + Queries.SUBCATEGORY_FIELDS
             + ", " + Queries.COVER_IMAGE_ID_SUBQUERY + " as image_ids"
+            + ", l." + ListingSchema.STATUS + " as listing_status"
+            + ", o.offer_status, o.is_full_price"
             + Queries.BASE_FROM
             + " WHERE " + String.join(" AND ", conditions)
             + " ORDER BY " + resolveOrderBy(filter.getSort());
@@ -150,18 +154,35 @@ public class ListingJdbcDao implements ListingDao {
             .condition(Condition.GOOD)
             .acceptsTrade(false)
             .imageIds(imageIds != null ? imageIds : List.of())
+            .offerListingStatus(OfferListingStatus.AVAILABLE)
             .build();
     }
 
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
+        // Determine offer-based status
+        String offerStatus = rs.getString("offer_status");
+        String offerIsFullPriceStr = rs.getString("is_full_price");
+        OfferListingStatus offerListingStatus;
+        if (offerStatus != null) {
+            if (OfferStatus.ACCEPTED.getStatus().equalsIgnoreCase(offerStatus) ||
+                (OfferStatus.PENDING.getStatus().equalsIgnoreCase(offerStatus) &&
+                 Boolean.TRUE.equals(Boolean.valueOf(offerIsFullPriceStr)))) {
+                offerListingStatus = OfferListingStatus.SOLD;
+            } else {
+                offerListingStatus = OfferListingStatus.AVAILABLE;
+            }
+        } else {
+            offerListingStatus = OfferListingStatus.AVAILABLE;
+        }
+
         return Listing.builder()
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
             .description(rs.getString(ListingSchema.DESCRIPTION))
-            .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
+            .status(ListingStatus.fromString(rs.getString("listing_status")).orElse(ListingStatus.ACTIVE))
             .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
             .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
             .creator(
@@ -197,6 +218,7 @@ public class ListingJdbcDao implements ListingDao {
                     .build()
             )
             .imageIds(parseImageIds(rs.getString("image_ids")))
+            .offerListingStatus(offerListingStatus)
             .build();
     };
 
@@ -250,7 +272,14 @@ public class ListingJdbcDao implements ListingDao {
             " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
             " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
-            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID;
+            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID +
+            " LEFT JOIN (" +
+                " SELECT DISTINCT ON (o.listing_id) o.listing_id as offer_listing_id, o.status as offer_status, o.is_full_price" +
+                " FROM " + OfferSchema.TABLE_NAME + " o" +
+                " ORDER BY o.listing_id, CASE WHEN o.status = 'accepted' THEN 0" +
+                                         " WHEN o.status = 'pending' AND o.is_full_price THEN 1" +
+                                         " ELSE 2 END" +
+            ") o ON o.offer_listing_id = l." + ListingSchema.ID;
 
         private static final String IMAGE_IDS_SUBQUERY =
             "COALESCE((SELECT STRING_AGG(li.image_id::text, ',' ORDER BY li.display_order) " +
@@ -262,6 +291,8 @@ public class ListingJdbcDao implements ListingDao {
 
         private static final String GET_BY_ID =
             "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
+            ", l." + ListingSchema.STATUS + " as listing_status" +
+            ", o.offer_status, o.is_full_price" +
             BASE_FROM +
             " WHERE l." + ListingSchema.ID + " = ?";
     }
