@@ -4,6 +4,8 @@
 
 This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a multi-module Maven project using Spring WebMVC (not Spring Boot), JSP views, JSTL, and PostgreSQL via Spring JDBC (will later use JPA/Hibernate but not yet until this file changes).
 
+The project is called **Swappr** (it is the official name). That name should be used in emailing and other site-id related things. Read `README.md` on the project's root to know more about the project.
+
 ## Important
 
 **Never**, ever commit nor read `.script/deploy_secrets.properties` — it contains sensible secrets and is gitignored. You do not have read/write permission on that file under any circumstances.
