@@ -42,6 +42,10 @@ public class OfferServiceImpl implements OfferService {
     public Offer create(OfferCreationDto dto) {
         Objects.requireNonNull(dto, "OfferCreationDto cannot be null");
 
+        if (dto.buyerId() == dto.listingId()) {
+            throw BadParameterException.create("buyerId", "User cannot buy their own listing");
+        }
+
         User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 

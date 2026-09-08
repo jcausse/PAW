@@ -87,10 +87,8 @@ public class OfferJdbcDao implements OfferDao {
                             .orElse(null))
             .build();
 
-        // Build the Listing object with product, subcategory, category, and first image
         String imageIdsStr = rs.getString("image_ids");
         List<Long> imageIds = parseImageIds(imageIdsStr);
-        Long firstImageId = imageIds.isEmpty() ? null : imageIds.get(0);
 
         Listing listing = Listing.builder()
             .id(rs.getLong(ListingSchema.ID))

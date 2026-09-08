@@ -2,8 +2,8 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
-import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
+import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -22,13 +22,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class OfferController {
 
     private final OfferService offerService;
-    private final ListingService listingService;
     private final MessageSource messageSource;
 
     @GetMapping("/{offerId}")
     public ModelAndView viewOffer(@PathVariable Long offerId) {
         final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
         final Long currentUserId = getCurrentUserId();
@@ -46,7 +45,7 @@ public class OfferController {
     @PostMapping("/{offerId}/accept")
     public ModelAndView acceptOffer(@PathVariable Long offerId) {
         final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
         final Long currentUserId = getCurrentUserId();
@@ -67,7 +66,7 @@ public class OfferController {
     @PostMapping("/{offerId}/reject")
     public ModelAndView rejectOffer(@PathVariable Long offerId) {
         final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
         final Long currentUserId = getCurrentUserId();
