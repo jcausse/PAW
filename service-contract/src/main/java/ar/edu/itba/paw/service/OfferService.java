@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Offer;
-import ar.edu.itba.paw.model.OfferStatus;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Listing;
-import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
@@ -9,8 +8,6 @@ import ar.edu.itba.paw.webapp.form.CheckoutForm;
 import java.math.BigDecimal;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -28,7 +25,6 @@ public class CheckoutController {
 
     private final ListingService listingService;
     private final OfferService offerService;
-    private final MessageSource messageSource;
 
     @GetMapping
     public ModelAndView checkout(@RequestParam("listingId") Long listingId, @ModelAttribute("checkoutForm") CheckoutForm form) {
@@ -74,9 +70,7 @@ public class CheckoutController {
 
         // TODO: Send email notification to seller about the new offer
 
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("checkout.success", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/listing/" + listing.getId());
     }
 
     private Long getCurrentUserId() {
