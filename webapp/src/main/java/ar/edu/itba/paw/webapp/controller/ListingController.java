@@ -5,10 +5,12 @@ import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
+import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
@@ -23,6 +25,8 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +47,7 @@ public class ListingController {
 
     private final ListingService listingService;
     private final ProductService productService;
+    private final OfferService offerService;
     private final MessageSource messageSource;
 
     @GetMapping
@@ -71,8 +76,16 @@ public class ListingController {
 
     @GetMapping("/{id}")
     public ModelAndView listing(@PathVariable Long id) {
+        var listing = listingService.getById(id);
+        var currentUser = getCurrentUser();
+        var hasPendingOrAcceptedOffer = offerService.hasPendingFullPriceOrAcceptedOffer(id);
+        var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
+        
         return new ModelAndView("listing/index")
-                .addObject("listing", listingService.getById(id));
+                .addObject("listing", listing)
+                .addObject("currentUser", Optional.ofNullable(currentUser))
+                .addObject("isCreator", isCreator)
+                .addObject("hasPendingOrAcceptedOffer", hasPendingOrAcceptedOffer);
     }
 
     @GetMapping("/new/choose-product")
@@ -300,6 +313,14 @@ public class ListingController {
             mav.addObject("models", models);
             mav.addObject("modelsEmpty", models.isEmpty());
         }
+    }
+
+    private User getCurrentUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof AuthUserDetails userDetails) {
+            return userDetails.getDomainUser();
+        }
+        return null;
     }
 
 }

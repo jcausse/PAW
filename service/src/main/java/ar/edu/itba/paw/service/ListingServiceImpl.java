@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingDao listingDao;
+    private final OfferService offerService;
 
     private final UserService userService;
     private final ProductService productService;
@@ -57,7 +58,12 @@ public class ListingServiceImpl implements ListingService {
             .sort(parseSort(dto.sort()))
             .build();
 
-        return listingDao.search(filter);
+        List<Listing> listings = listingDao.search(filter);
+
+        // Filter out listings with pending full-price offers or accepted offers
+        return listings.stream()
+            .filter(listing -> !offerService.hasPendingFullPriceOrAcceptedOffer(listing.getId()))
+            .toList();
     }
 
     private static Condition parseCondition(final String value) {

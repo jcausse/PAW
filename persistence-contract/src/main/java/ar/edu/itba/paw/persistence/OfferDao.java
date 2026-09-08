@@ -17,4 +17,6 @@ public interface OfferDao {
     Offer create(Long listingId, User buyer, java.math.BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message);
 
     boolean updateStatus(Long offerId, OfferStatus status);
+
+    boolean hasPendingFullPriceOrAcceptedOffer(Long listingId);
 }

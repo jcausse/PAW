@@ -71,4 +71,9 @@ public class OfferServiceImpl implements OfferService {
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
         return offerDao.getById(offerId).orElseThrow();
     }
+
+    @Override
+    public boolean hasPendingFullPriceOrAcceptedOffer(Long listingId) {
+        return offerDao.hasPendingFullPriceOrAcceptedOffer(listingId);
+    }
 }
