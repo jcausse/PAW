@@ -1,12 +1,16 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.ArrayList;
@@ -36,6 +40,36 @@ public class ListingServiceImpl implements ListingService {
             .orElseThrow(() ->
                 NotFoundException.createFor("Listing with ID " + id)
             );
+    }
+
+    @Override
+    public List<Listing> search(ListingFilterDto dto) {
+        Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
+
+        final ListingFilter filter = ListingFilter.builder()
+            .categoryId(dto.categoryId())
+            .subcategoryId(dto.subcategoryId())
+            .minPrice(dto.minPrice())
+            .maxPrice(dto.maxPrice())
+            .condition(parseCondition(dto.condition()))
+            .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
+            .query(dto.query())
+            .sort(parseSort(dto.sort()))
+            .build();
+
+        return listingDao.search(filter);
+    }
+
+    private static Condition parseCondition(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : Condition.fromString(value).orElse(null);
+    }
+
+    private static ListingSort parseSort(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : ListingSort.fromString(value).orElse(null);
     }
 
     @Override
