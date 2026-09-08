@@ -1,19 +1,23 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +31,7 @@ public class ListingServiceImpl implements ListingService {
     private final UserService userService;
     private final ProductService productService;
     private final ImageService imageService;
+    private final MailingService mailingService;
 
     @Override
     public Listing getById(Long id) {
@@ -38,9 +43,33 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public List<Listing> search(ListingFilter filter) {
-        Objects.requireNonNull(filter, "ListingFilter cannot be null");
+    public List<Listing> search(ListingFilterDto dto) {
+        Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
+
+        final ListingFilter filter = ListingFilter.builder()
+            .categoryId(dto.categoryId())
+            .subcategoryId(dto.subcategoryId())
+            .minPrice(dto.minPrice())
+            .maxPrice(dto.maxPrice())
+            .condition(parseCondition(dto.condition()))
+            .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
+            .query(dto.query())
+            .sort(parseSort(dto.sort()))
+            .build();
+
         return listingDao.search(filter);
+    }
+
+    private static Condition parseCondition(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : Condition.fromString(value).orElse(null);
+    }
+
+    private static ListingSort parseSort(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : ListingSort.fromString(value).orElse(null);
     }
 
     @Override
@@ -70,6 +99,10 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        return listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
+        var listing = listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
+
+        mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+
+        return listing;
     }
 }

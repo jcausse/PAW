@@ -3,8 +3,6 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%-- The logged-in username is read from the request principal (populated by Spring Security). --%>
-<c:set var="currentUser" value="${pageContext.request.userPrincipal.name}"/>
 
 <div class="sticky top-0 pt-3 z-50">
   <nav class="mx-auto max-w-6xl rounded-xl overflow-hidden relative z-10">
@@ -33,8 +31,8 @@
         </div>
 
         <c:choose>
-          <c:when test="${not empty currentUser}">
-            <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser}"/></span>
+          <c:when test="${currentUser.isPresent()}">
+            <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser.get().username}"/></span>
             <c:url value="/logout" var="logoutUrl"/>
             <form action="${logoutUrl}" method="post">
               <spring:message code="navbar.logout" var="logoutLabel"/>

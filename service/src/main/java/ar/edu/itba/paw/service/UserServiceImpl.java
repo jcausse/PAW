@@ -3,12 +3,13 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
-import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import java.util.Objects;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
     private final ImageService imageService;
+    private final MailingService mailingService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Optional<User> getById(Long id) {
@@ -46,13 +49,17 @@ public class UserServiceImpl implements UserService {
             image = imageService.create(dto.image().imageFilename(), alt, dto.image().imageContentType(), dto.image().imageBytes());
         }
 
-        return userDao.create(
+        var user = userDao.create(
             dto.username().toLowerCase(),
             dto.displayName(),
             dto.email().toLowerCase(),
-            dto.password(),
+            passwordEncoder.encode(dto.password()),
             image
         );
+
+        mailingService.sendWelcomeEmail(user, LocaleContextHolder.getLocale());
+
+        return user;
     }
 
     @Override
