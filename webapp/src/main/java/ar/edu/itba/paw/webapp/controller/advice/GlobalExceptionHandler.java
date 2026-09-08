@@ -38,4 +38,10 @@ public class GlobalExceptionHandler {
         return new ModelAndView("error/notFound")
             .addObject("messageCode", "userNotFound");
     }
+
+    @ExceptionHandler(ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ModelAndView handleUserNotAuthenticated() {
+        return new ModelAndView("error/unauthorized");
+    }
 }

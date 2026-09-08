@@ -1,14 +1,15 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Condition;
-import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
@@ -18,11 +19,11 @@ import java.io.IOException;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,24 +48,16 @@ public class ListingController {
 
     @GetMapping
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
-        final var filter = ListingFilter.builder()
-            .categoryId(filterForm.getCategoryId())
-            .subcategoryId(filterForm.getSubcategoryId())
-            .minPrice(filterForm.getMinPrice())
-            .maxPrice(filterForm.getMaxPrice())
-            .condition(
-                filterForm.getCondition() == null || filterForm.getCondition().isBlank()
-                    ? null
-                    : Condition.fromString(filterForm.getCondition()).orElse(null)
-            )
-            .acceptsTrade(Boolean.TRUE.equals(filterForm.getAcceptsTrade()) ? Boolean.TRUE : null)
-            .query(filterForm.getQuery())
-            .sort(
-                filterForm.getSort() == null || filterForm.getSort().isBlank()
-                    ? null
-                    : ListingSort.fromString(filterForm.getSort()).orElse(null)
-            )
-            .build();
+        final var filter = new ListingFilterDto(
+            filterForm.getCategoryId(),
+            filterForm.getSubcategoryId(),
+            filterForm.getMinPrice(),
+            filterForm.getMaxPrice(),
+            filterForm.getCondition(),
+            filterForm.getAcceptsTrade(),
+            filterForm.getQuery(),
+            filterForm.getSort()
+        );
 
         final var mav = new ModelAndView("listing/discovery");
         mav.addObject("listings", listingService.search(filter));
@@ -236,7 +229,7 @@ public class ListingController {
     }
 
     @PostMapping("/new/details")
-    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult) {
+    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult, @ModelAttribute("currentUser") Optional<User> currentUser) {
         if (form.getTitle() == null || form.getTitle().isBlank()) {
             bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
         }
@@ -266,7 +259,7 @@ public class ListingController {
             var newListing = listingService.create(new ListingCreationDto(
                     form.getTitle(),
                     new Price(form.getPrice()),
-                    getCurrentUserId(),
+                    currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
                     form.getProductId(),
                     form.getCondition(),
                     form.isAcceptsTrade(),
@@ -323,13 +316,5 @@ public class ListingController {
             ));
         }
         return options;
-    }
-
-    private Long getCurrentUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof AuthUserDetails userDetails) {
-            return userDetails.getDomainUser().getId();
-        }
-        throw new IllegalStateException("No authenticated user");
     }
 }
