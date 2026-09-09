@@ -3,11 +3,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <title>PAW TPE 0</title>
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
-    <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
-</head>
+<paw:head title="PAW TPE 0"/>
 <body class="pb-24 bg-neutral-50">
     <paw:navbar/>
     <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">

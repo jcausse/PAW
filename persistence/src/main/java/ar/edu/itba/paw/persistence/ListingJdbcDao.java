@@ -1,7 +1,11 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
@@ -46,18 +50,91 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
+    public List<Listing> search(ListingFilter filter) {
+        final List<String> conditions = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
+
+        conditions.add("l." + ListingSchema.STATUS + " = ?");
+        params.add(ListingStatus.ACTIVE.getStatus());
+
+        if (filter.getCategoryId() != null) {
+            conditions.add(CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = ?");
+            params.add(filter.getCategoryId());
+        }
+        if (filter.getSubcategoryId() != null) {
+            conditions.add(SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = ?");
+            params.add(filter.getSubcategoryId());
+        }
+        if (filter.getMinPrice() != null) {
+            conditions.add("l." + ListingSchema.PRICE + " >= ?");
+            params.add(filter.getMinPrice());
+        }
+        if (filter.getMaxPrice() != null) {
+            conditions.add("l." + ListingSchema.PRICE + " <= ?");
+            params.add(filter.getMaxPrice());
+        }
+        if (filter.getCondition() != null) {
+            conditions.add("l." + ListingSchema.CONDITION + " = ?");
+            params.add(filter.getCondition().getCondition());
+        }
+        if (filter.getAcceptsTrade() != null) {
+            conditions.add("l." + ListingSchema.ACCEPTS_TRADE + " = ?");
+            params.add(filter.getAcceptsTrade());
+        }
+        if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
+            conditions.add("(LOWER(" + "l." + ListingSchema.TITLE + ") LIKE ?"
+                + " OR LOWER(" + "l." + ListingSchema.DESCRIPTION + ") LIKE ?)");
+            final String like = "%" + filter.getQuery().toLowerCase() + "%";
+            params.add(like);
+            params.add(like);
+        }
+
+        final String sql = "SELECT " + Queries.FIELDS + ", " + Queries.SUBCATEGORY_FIELDS
+            + ", " + Queries.COVER_IMAGE_ID_SUBQUERY + " as image_ids"
+            + Queries.BASE_FROM
+            + " WHERE " + String.join(" AND ", conditions)
+            + " ORDER BY " + resolveOrderBy(filter.getSort());
+
+        return jdbcTemplate.query(sql, ROW_MAPPER, params.toArray());
+    }
+
+    private static String resolveOrderBy(final ListingSort sort) {
+        final String priceCol = "l." + ListingSchema.PRICE;
+        final String idCol = "l." + ListingSchema.ID;
+        if (sort == null) {
+            return idCol + " DESC";
+        }
+        switch (sort) {
+            case PRICE_ASC:
+                return priceCol + " ASC, " + idCol + " DESC";
+            case PRICE_DESC:
+                return priceCol + " DESC, " + idCol + " DESC";
+            case RECENT:
+            default:
+                return idCol + " DESC";
+        }
+    }
+
+    @Override
     public Listing create(
         String title,
         Price price,
         User creator,
         Product product,
+        Condition condition,
+        boolean acceptsTrade,
+        String description,
         List<Long> imageIds
     ) {
         final Map<String, Object> values = new HashMap<>();
         values.put(ListingSchema.TITLE, title);
+        values.put(ListingSchema.DESCRIPTION, description);
         values.put(ListingSchema.CREATOR_ID, creator.getId());
         values.put(ListingSchema.PRODUCT_ID, product.getId());
         values.put(ListingSchema.PRICE, price.getAmount());
+        values.put(ListingSchema.STATUS, ListingStatus.ACTIVE.getStatus());
+        values.put(ListingSchema.CONDITION, condition.getCondition());
+        values.put(ListingSchema.ACCEPTS_TRADE, acceptsTrade);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -72,11 +149,21 @@ public class ListingJdbcDao implements ListingDao {
         return Listing.builder()
             .id(key)
             .title(title)
+            .description(description)
             .creator(creator)
             .product(product)
             .price(price)
+            .status(ListingStatus.ACTIVE)
+            .condition(condition)
+            .acceptsTrade(acceptsTrade)
             .imageIds(imageIds != null ? imageIds : List.of())
             .build();
+    }
+
+    @Override
+    public ListingStatus purchase(Long id, Long buyerId) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.SOLD.getStatus(), id);
+        return ListingStatus.SOLD;
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -86,6 +173,10 @@ public class ListingJdbcDao implements ListingDao {
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
+            .description(rs.getString(ListingSchema.DESCRIPTION))
+            .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
+            .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
+            .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
             .creator(
                 User.builder()
                     .id(rs.getLong(UserSchema.ID))
@@ -140,7 +231,11 @@ public class ListingJdbcDao implements ListingDao {
             ", ",
             ListingSchema.ID,
             ListingSchema.TITLE,
+            ListingSchema.DESCRIPTION,
             ListingSchema.PRICE,
+            ListingSchema.STATUS,
+            ListingSchema.CONDITION,
+            ListingSchema.ACCEPTS_TRADE,
             "c." + UserSchema.ID,
             "c." + UserSchema.USERNAME,
             "c." + UserSchema.DISPLAY_NAME,
@@ -163,8 +258,7 @@ public class ListingJdbcDao implements ListingDao {
         );
 
         private static final String BASE_FROM =
-            " FROM " +
-            ListingSchema.TABLE_NAME + " AS l" +
+            " FROM " + ListingSchema.TABLE_NAME + " AS l" +
             " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
             " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
@@ -174,9 +268,17 @@ public class ListingJdbcDao implements ListingDao {
             "COALESCE((SELECT STRING_AGG(li.image_id::text, ',' ORDER BY li.display_order) " +
             " FROM listing_images li WHERE li.listing_id = l." + ListingSchema.ID + "), '')";
 
+        private static final String COVER_IMAGE_ID_SUBQUERY =
+            "COALESCE((SELECT li.image_id::text FROM listing_images li " +
+            " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '')";
+
         private static final String GET_BY_ID =
             "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
             BASE_FROM +
             " WHERE l." + ListingSchema.ID + " = ?";
+
+        private static final String UPDATE_STATUS_BY_ID =
+            "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? " +
+            "WHERE " + ListingSchema.ID + " = ?";
     }
 }

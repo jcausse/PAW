@@ -13,20 +13,20 @@
 | **ID**     | **Last Name** | **First Name** | **ITBA email**                                          |
 |------------|---------------|----------------|---------------------------------------------------------|
 | **XXXXX**  | Arcodaci      | Tiziano        | [tarcodaci@itba.edu.ar](mailto:tarcodaci@itba.edu.ar)   |
-| **XXXXX**  | Bridoux       | Juan Ignacio   | [jbridoux@itba.edu.ar](mailto:jbridoux@itba.edu.ar)     |
+| **64092**  | Bridoux       | Juan Ignacio   | [jbridoux@itba.edu.ar](mailto:jbridoux@itba.edu.ar)     |
 | **61105**  | Causse        | Juan Ignacio   | [jcausse@itba.edu.ar](mailto:jcausse@itba.edu.ar)       |
 | **XXXXX**  | Fumagalli     | Teo            | [tfumagalli@itba.edu.ar](mailto:tfumagalli@itba.edu.ar) |
 
 ## About This Project
 
-[TODO: PROJECT NAME GOES HERE] is a marketplace webapp aimed to buy, promote, sell and trade used electronic devices such 
+**Swappr** is a marketplace webapp aimed to buy, promote, sell and trade used electronic devices such 
 as (but not limited to) laptops, PC parts, gaming consoles, photography equipment or mobile phones.
 
 In Argentina, where this was developed, you have two main options where you can do this:
 - Mercado Libre: high selling commissions, aimed at brand-new products, does not allow trades
 - Facebook Marketplace: unsafe, highly coupled to the user's social profile, lacks advanced filters
 
-[TODO: PROJECT NAME GOES HERE] aims to solve this problem by:
+**Swappr** aims to solve this problem by:
 - allowing sellers and buyers to find each other and establish contact paying low commissions
 - providing support for trades (where both parties exchange their products) free of charge
 - making the buyer's search more efficient
@@ -42,6 +42,7 @@ This webapp project uses:
 - PostgreSQL (version XXXXX)
 - Docker (for local development database management)
 - Python 3 (for automated deployment to production)
+- Tailwind (version 4.3.3)
 
 ## Running Locally
 

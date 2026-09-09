@@ -3,10 +3,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <title><spring:message code="profile.title"/></title>
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
-</head>
+<paw:head titleKey="profile.title"/>
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar/>
     <main class="max-w-2xl mx-auto p-6">

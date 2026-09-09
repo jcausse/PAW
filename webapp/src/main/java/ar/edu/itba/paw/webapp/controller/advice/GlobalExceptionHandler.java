@@ -2,6 +2,8 @@ package ar.edu.itba.paw.webapp.controller.advice;
 
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import ar.edu.itba.paw.webapp.exception.ForbiddenException;
+import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -37,5 +39,17 @@ public class GlobalExceptionHandler {
     public ModelAndView handleUserNotFound() {
         return new ModelAndView("error/notFound")
             .addObject("messageCode", "userNotFound");
+    }
+
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ModelAndView handleUserNotAuthenticated() {
+        return new ModelAndView("error/unauthorized");
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ModelAndView handleForbidden() {
+        return new ModelAndView("error/forbidden");
     }
 }

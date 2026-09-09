@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.form.validation.ValidChooseProduct;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@ValidChooseProduct
 public class ChooseProductForm {
 
     private Integer step = 1;

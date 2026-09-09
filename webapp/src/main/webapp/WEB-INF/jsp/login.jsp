@@ -4,10 +4,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <title><spring:message code="login.title"/></title>
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
-</head>
+<paw:head titleKey="login.title"/>
 <body class="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-4">
     <h2 class="text-3xl font-bold mb-4"><spring:message code="login.title"/></h2>
 
@@ -32,7 +29,7 @@
                     id="rememberMe"
                     name="rememberMe"
                     checked
-                    class="rounded border-black/10 text-black focus:ring-black"
+                    class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"
                 >
                 <label for="rememberMe" class="text-sm font-medium select-none">
                     <spring:message code="field.rememberMe"/>
