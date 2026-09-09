@@ -15,6 +15,7 @@ import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -126,9 +127,14 @@ public class ListingServiceImpl implements ListingService {
             .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
 
         listingDao.purchase(id, buyerId);
-        // offerDao.create(...)
 
-        // TODO: Send email notification to seller about the new offer
+        final User buyer = userService.getById(buyerId)
+            .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
+        final User seller = listing.getCreator();
+        final Locale locale = LocaleContextHolder.getLocale();
+
+        mailingService.sendPurchaseSellerEmail(seller, buyer, listing, message, locale);
+        mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
 
         return listing;
     }
