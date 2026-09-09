@@ -26,7 +26,7 @@
 
             <div style="position:absolute; inset:0; pointer-events:none; font-family:'Montserrat',sans-serif;">
 
-                <!-- Título -->
+                 <%-- Title --%>
                 <div style="position:absolute; left:5.8%; top:35%; width:38%;">
                     <p style="margin:0; font-weight:800; line-height:1.15; color:#ffffff; font-size:2.7cqw;">
                         <spring:message code="landing.banner.title.line1"/>
@@ -41,10 +41,10 @@
                     </p>
                 </div>
 
-                <!-- Fila de íconos -->
+                <%-- Icons --%>
                 <div style="position:absolute; left:5.7%; top:72%; display:flex; align-items:center; gap:1.8cqw; font-size:1cqw;">
 
-                    <!-- Intercambio fácil -->
+                    <%-- Easy trade --%>
                     <div style="display:flex; align-items:center; gap:0.6em;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                             fill="none" stroke="#A6E61A" stroke-width="2"
@@ -63,7 +63,7 @@
 
                     <div style="width:1px; align-self:stretch; background:rgba(255,255,255,0.2);"></div>
 
-                    <!-- Retiro en persona -->
+                    <%-- In-person pickup --%>
                     <div style="display:flex; align-items:center; gap:0.6em;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                             fill="none" stroke="#A6E61A" stroke-width="2"
@@ -83,7 +83,11 @@
         </div>
 
         <div class="flex items-center gap-12 mt-8">
-            <paw:linkButton href="<c:url value='/home'/>" size="lg" variant="outline">
+
+            <c:url value='/listing' var="buyUrl" />
+            <c:url value='/listing/new/choose-product' var="sellUrl" />
+
+            <paw:linkButton href="${buyUrl}" size="lg" variant="outline">
                 <spring:message code="landing.buy.title" var="buyTitle"/>
                 <spring:message code="landing.buy.button" var="buyButton"/>
                 <div class="flex flex-col items-center gap-1">
@@ -94,7 +98,7 @@
 
             <div class="w-px h-16 bg-black/15"></div>
 
-            <paw:linkButton href="<c:url value='/listing/new/choose-product'/>" size="lg" variant="outline">
+            <paw:linkButton href="${sellUrl}" size="lg" variant="outline">
                 <spring:message code="landing.sell.title" var="sellTitle"/>
                 <spring:message code="landing.sell.button" var="sellButton"/>
                 <div class="flex flex-col items-center gap-1">
