@@ -97,7 +97,21 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        var listing = listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
+        final Condition condition = dto.condition() == null || dto.condition().isBlank()
+            ? Condition.GOOD
+            : Condition.fromString(dto.condition())
+                .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+
+        var listing = listingDao.create(
+            dto.title(),
+            dto.price(),
+            creator,
+            product,
+            condition,
+            dto.acceptsTrade(),
+            dto.description(),
+            imageIds
+        );
 
         mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
 
