@@ -11,4 +11,10 @@ public interface MailingService {
 
     /** Notify the seller that their listing has been published. */
     void sendListingPublishedEmail(User seller, Listing listing, Locale locale);
+
+    /** Notify the seller that their listing was purchased, including the buyer contact email and message. */
+    void sendPurchaseSellerEmail(User seller, User buyer, Listing listing, String message, Locale locale);
+
+    /** Confirm the purchase to the buyer, including the seller contact email. */
+    void sendPurchaseBuyerEmail(User buyer, User seller, Listing listing, Locale locale);
 }

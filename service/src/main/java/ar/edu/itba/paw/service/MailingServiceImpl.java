@@ -63,6 +63,33 @@ public class MailingServiceImpl implements MailingService {
         sendEmail(seller.getEmail(), subject, "listing-published", context);
     }
 
+    @Async
+    @Override
+    public void sendPurchaseSellerEmail(User seller, User buyer, Listing listing, String message, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("seller", seller);
+        context.setVariable("buyer", buyer);
+        context.setVariable("listing", listing);
+        context.setVariable("message", message);
+        context.setVariable("baseUrl", baseUrl);
+
+        String subject = messageSource.getMessage("email.purchase.seller.subject", null, locale);
+        sendEmail(seller.getEmail(), subject, "purchase-seller", context);
+    }
+
+    @Async
+    @Override
+    public void sendPurchaseBuyerEmail(User buyer, User seller, Listing listing, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("buyer", buyer);
+        context.setVariable("seller", seller);
+        context.setVariable("listing", listing);
+        context.setVariable("baseUrl", baseUrl);
+
+        String subject = messageSource.getMessage("email.purchase.buyer.subject", null, locale);
+        sendEmail(buyer.getEmail(), subject, "purchase-buyer", context);
+    }
+
     private void sendEmail(String to, String subject, String templateName, Context context) {
         try {
             var mimeMessage = mailSender.createMimeMessage();
