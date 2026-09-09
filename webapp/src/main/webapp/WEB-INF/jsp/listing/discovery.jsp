@@ -32,54 +32,39 @@
 
 <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
 <main class="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6">
-
     <div class="flex gap-2">
-        <paw:formInput path="query" placeholder="${queryPlaceholder}" classname="flex-1" />
-        <paw:button text="${searchLabel}" type="submit"/>
+        <paw:formInput variant="outline" path="query" placeholder="${queryPlaceholder}" classname="flex-1" inputClassname="min-h-8.5" />
+        <paw:button variant="outline" text="${searchLabel}" type="submit"/>
     </div>
 
     <div class="flex flex-col md:flex-row gap-8">
-
         <aside class="w-full md:w-56 shrink-0">
             <div class="sticky top-24">
                 <paw:card title="${filtersTitle}">
                     <div class="flex flex-col gap-4">
-
-                        <div class="flex flex-col gap-1">
-                            <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${allLabel}" items="${categoryOptions}" />
-                        </div>
-
+                        <paw:formSelect path="categoryId" label="${categoryLabel}" placeholder="${allLabel}" items="${categoryOptions}" />
                         <c:if test="${not empty subcategoryOptions}">
-                            <div class="flex flex-col gap-1">
-                                <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${allLabel}" items="${subcategoryOptions}" />
-                            </div>
+                            <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${allLabel}" items="${subcategoryOptions}" />
                         </c:if>
 
-                        <div class="flex flex-col gap-1">
-                            <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" stringOptions="true" />
-                        </div>
+                        <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" stringOptions="true" />
 
                         <div class="flex flex-row gap-2">
-                            <div class="flex flex-col gap-1 flex-1">
-                                <paw:formInput path="minPrice" type="number" step="0.01" label="${minPriceLabel}" classname="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1 flex-1">
-                                <paw:formInput path="maxPrice" type="number" step="0.01" label="${maxPriceLabel}" classname="w-full" />
-                            </div>
+                            <paw:formInput path="minPrice" type="number" step="0.01" label="${minPriceLabel}" classname="min-w-0" />
+                            <paw:formInput path="maxPrice" type="number" step="0.01" label="${maxPriceLabel}" classname="min-w-0" />
                         </div>
 
                         <div class="flex flex-col gap-1">
                             <label class="flex items-center gap-2 text-sm">
-                                <form:checkbox path="acceptsTrade" value="true" class="w-4 h-4 text-lime-600 border-black/20 focus:ring-lime-500"/>
+                                <form:checkbox path="acceptsTrade" value="true" class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"/>
                                 <c:out value="${acceptsTradeLabel}"/>
                             </label>
                         </div>
 
                         <div class="flex flex-col gap-2 pt-1">
                             <paw:button text="${applyLabel}" type="submit" classname="w-full"/>
-                            <a href="${filterAction}" class="text-xs text-center text-black/50 hover:text-black/70 underline">
-                                <spring:message code="discovery.filter.clear"/>
-                            </a>
+                            <spring:message code="discovery.filter.clear" var="clearLabel"/>
+                            <paw:linkButton href="${filterAction}" text="${clearLabel}" variant="ghost" size="sm" role="secondary" />
                         </div>
                     </div>
                 </paw:card>
@@ -87,7 +72,6 @@
         </aside>
 
         <section class="flex-1">
-
             <div class="flex items-center justify-between gap-4 mb-4">
                 <span class="text-sm text-black/60">
                     <spring:message code="discovery.results.count" arguments="${fn:length(listings)}"/>
@@ -134,10 +118,8 @@
                 </c:otherwise>
             </c:choose>
         </section>
-
     </div>
 </main>
-
 </form:form>
 
 <script>
