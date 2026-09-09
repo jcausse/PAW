@@ -15,6 +15,7 @@ import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.SelectOption;
+import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,9 +85,24 @@ public class ListingController {
     }
 
     @GetMapping("/new/choose-product")
-    public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form) {
+    public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form,
+                                      @RequestParam(value = "productId", required = false) Long productId) {
         var mav = new ModelAndView("listing/new/chooseProduct");
-        form.setStep(1);
+        // Coming back from step 2: rehydrate the form from the already chosen product
+        // so the user sees and can change their selection instead of starting over.
+        if (productId != null) {
+            var product = productService.getById(productId);
+            var subcategory = product.getSubcategory();
+            form.setCategoryId(subcategory.getCategory().getId());
+            form.setSubcategoryId(subcategory.getId());
+            form.setNewProductBrand(product.getBrand());
+            form.setNewProductModel(product.getModel());
+            form.setNewProductYear(product.getYear());
+            form.setStep(3);
+            form.updatePreviousValues();
+        } else {
+            form.setStep(1);
+        }
         populateModel(mav, form);
         return mav;
     }
@@ -178,6 +194,7 @@ public class ListingController {
         var mav = new ModelAndView("listing/new/details");
 
         mav.addObject("product", product);
+        mav.addObject("conditionOptions", buildConditionOptions());
         form.setProductId(product.getId());
         return mav;
     }
@@ -215,6 +232,9 @@ public class ListingController {
                 new Price(form.getPrice()),
                 currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
                 form.getProductId(),
+                form.getCondition(),
+                form.isAcceptsTrade(),
+                form.getDescription(),
                 imageDataList
         ));
         return new ModelAndView("redirect:/listing/" + newListing.getId());
@@ -253,5 +273,16 @@ public class ListingController {
             mav.addObject("models", models);
             mav.addObject("modelsEmpty", models.isEmpty());
         }
+    }
+
+    private List<StringSelectOption> buildConditionOptions() {
+        var options = new java.util.ArrayList<StringSelectOption>();
+        for (var c : Condition.values()) {
+            options.add(new StringSelectOption(
+                c.name(),
+                messageSource.getMessage("condition." + c.name(), null, LocaleContextHolder.getLocale())
+            ));
+        }
+        return options;
     }
 }

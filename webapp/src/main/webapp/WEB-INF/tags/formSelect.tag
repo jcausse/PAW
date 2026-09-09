@@ -2,6 +2,7 @@
 <%@ attribute name="path" required="true" %>
 <%@ attribute name="items" required="true" type="java.lang.Object" %>
 <%@ attribute name="plainStrings" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="stringOptions" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
@@ -47,6 +48,9 @@
     <c:choose>
       <c:when test="${not empty plainStrings}">
         <form:options items="${items}" />
+      </c:when>
+      <c:when test="${not empty stringOptions}">
+        <form:options items="${items}" itemValue="value" itemLabel="label" />
       </c:when>
       <c:otherwise>
         <form:options items="${items}" itemValue="id" itemLabel="name" />

@@ -32,4 +32,8 @@ public class ListingDetailsForm {
 
     @ValidImages
     private List<MultipartFile> images;
+
+    private String condition;
+    private boolean acceptsTrade;
+    private String description;
 }
