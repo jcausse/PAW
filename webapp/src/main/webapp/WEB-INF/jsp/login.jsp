@@ -29,7 +29,7 @@
                     id="rememberMe"
                     name="rememberMe"
                     checked
-                    class="rounded border-black/10 text-black focus:ring-black"
+                    class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"
                 >
                 <label for="rememberMe" class="text-sm font-medium select-none">
                     <spring:message code="field.rememberMe"/>
