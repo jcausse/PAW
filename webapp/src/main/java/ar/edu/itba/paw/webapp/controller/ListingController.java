@@ -46,7 +46,7 @@ public class ListingController {
     private final ProductService productService;
     private final MessageSource messageSource;
 
-    @GetMapping("/")
+    @GetMapping
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
         final var filter = new ListingFilterDto(
             filterForm.getCategoryId(),
