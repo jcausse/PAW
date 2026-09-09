@@ -59,7 +59,8 @@
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${conditionPlaceholder}"
                                         items="${conditionOptions}" stringOptions="true" />
 
-                        <div class="flex items-center h-full pt-5">
+                        <%-- TODO trades --%>
+                        <div class="flex items-center h-full pt-5 hidden">
                             <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
                             <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
                         </div>
@@ -136,7 +137,7 @@
 
             function updateFileInput() {
                 const dataTransfer = new DataTransfer();
-                const remainingPreviews = Array.from(previewsContainer.querySelectorAll('[data-index]')).sort((a, b) => 
+                const remainingPreviews = Array.from(previewsContainer.querySelectorAll('[data-index]')).sort((a, b) =>
                     parseInt(a.dataset.index) - parseInt(b.dataset.index)
                 );
                 const originalFiles = fileInput.files;
