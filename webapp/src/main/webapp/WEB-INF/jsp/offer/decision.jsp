@@ -32,7 +32,7 @@
                     <c:set var="listingImageUrl" value=""/>
                     <c:forEach items="${offer.listing.imageIds}" var="imageId" varStatus="status">
                         <c:if test="${status.first}">
-                            <c:set var="listingImageUrl" value="/image/${imageId}"/>
+                            <c:url value="/image/${imageId}" var="listingImageUrl"/>
                         </c:if>
                     </c:forEach>
                     <div class="w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden border border-black/10 bg-neutral-200">
@@ -69,7 +69,7 @@
                                 <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
                                     <c:choose>
                                         <c:when test="${offer.buyer.imageId.present}">
-                                            <img src="<c:url value='/image/${offer.buyer.imageId.get()}'/>" alt="<c:out value='${offer.buyer.displayName}'/>"s Profile Picture" class="w-full h-full object-cover"/>
+                                            <img src="<c:url value='/image/${offer.buyer.imageId.get()}'/>" alt="<c:out value='${offer.buyer.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
                                         </c:when>
                                         <c:otherwise>
                                             <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
@@ -79,7 +79,7 @@
                                 <p>
                                     <span class="text-black font-normal"><c:out value="${offer.buyer.displayName}"/></span>
                                     <span class="text-black/60 font-normal">(<c:out value="${offer.buyer.username}"/>)</span>
-                                </p>
+                                 </p>
                             </div>
                         </paw:linkButton>
                     </div>
@@ -99,7 +99,7 @@
                             <c:set var="listingPrice" value="${offer.listing.price.getAmount()}"/>
                             <c:set var="offerAmount" value="${offer.amount}"/>
                             <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                            <span class="text-red-600 text-xl"> -${String.format("%.0f", discountPercent)}%</span>
+                            <span class="text-red-600 text-xl"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
                         </c:if>
                     </p>
                 </div>

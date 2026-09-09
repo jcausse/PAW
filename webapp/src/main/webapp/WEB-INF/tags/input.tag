@@ -28,7 +28,7 @@
 <div class="flex flex-col gap-1">
   <c:if test="${not empty label}">
     <label for="${id}" class="text-xs text-black/70 font-medium">
-      ${label}
+      <c:out value="${label}"/>
     </label>
   </c:if>
 
@@ -48,7 +48,7 @@
 
   <c:if test="${not empty error}">
     <div class="text-xs text-red-600">
-      ${error}
+      <c:out value="${error}"/>
     </div>
   </c:if>
 </div>

@@ -52,10 +52,10 @@
             <div class="flex-1 min-w-md">
                 <paw:card>
                     <div class="flex flex-col gap-4">
-                        <h1 class="text-2xl font-semibold">${listing.title}</h1>
+                        <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
 
                         <div class="flex flex-col">
-                            <div class="text-black">${listing.product.brand} ${listing.product.model} (${listing.product.year})</div>
+                            <div class="text-black"><c:out value="${listing.product.brand}"/> <c:out value="${listing.product.model}"/> (<c:out value="${listing.product.year}"/>)</div>
                             <div class="text-sm text-black/60">
                                 <spring:message code="category.${listing.product.subcategory.category.name}"/>
                                 /
@@ -74,7 +74,7 @@
                                         <c:when test="${listing.creator.imageId.present}">
                                             <img
                                                 src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
-                                                alt="<c:out value='${listing.creator.displayName}'/>&quot;s Profile Picture"
+                                                alt="<c:out value='${listing.creator.displayName}'/> Profile Picture"
                                                 class="w-full h-full object-cover"
                                             >
                                         </c:when>
@@ -88,13 +88,13 @@
                                     </c:choose>
                                 </div>
                                 <p>
-                                    <span class="text-black font-normal">${listing.creator.displayName}</span>
-                                    <span class="text-black/60 font-normal">(${listing.creator.username})</span>
+                                    <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
+                                    <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
                                 </p>
                             </div>
                         </paw:linkButton>
 
-                        <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
+                        <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>
                             <c:when test="${isCreator}">

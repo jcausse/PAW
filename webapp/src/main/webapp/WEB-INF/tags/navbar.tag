@@ -12,7 +12,7 @@
             <c:url value='/listing/new/choose-product' var="sellUrl" />
 
             <paw:linkButton href="${homeUrl}" variant="ghost" size="sm">
-                <img src="/static-image/logo.svg" class="min-w-24" />
+                <img src="<c:url value='/static-image/logo.svg'/>" class="min-w-24" alt="Swappr Logo" />
             </paw:linkButton>
 
             <spring:message code="navbar.buy" var="linkBuy"/>
@@ -47,7 +47,7 @@
                                             <c:when test="${currentUser.get().imageId.present}">
                                                 <img
                                                     src="<c:url value='/image/${currentUser.get().imageId.get()}'/>"
-                                                    alt="<c:out value='${currentUser.get().displayName}'/>"s Profile Picture"
+                                                    alt="<c:out value='${currentUser.get().displayName}'/> Profile Picture"
                                                     class="w-full h-full object-cover"
                                                 >
                                             </c:when>
@@ -61,8 +61,8 @@
                                         </c:choose>
                                     </div>
                                     <div class="flex flex-col">
-                                        <p class="text-sm text-black font-normal">${currentUser.get().displayName}</p>
-                                        <p class="text-xs text-black/60 font-normal">${currentUser.get().username}</p>
+                                        <p class="text-sm text-black font-normal"><c:out value="${currentUser.get().displayName}"/></p>
+                                        <p class="text-xs text-black/60 font-normal"><c:out value="${currentUser.get().username}"/></p>
                                     </div>
                                 </div>
                             </paw:button>
