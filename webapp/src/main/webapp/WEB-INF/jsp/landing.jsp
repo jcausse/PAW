@@ -14,9 +14,12 @@
 <body class=" pb-24 bg-neutral-50">
     <paw:navbar/>
 
-    <main class="flex flex-col items-center gap-6 py-16 px-4">
-        <h1 class="text-2xl font-bold text-sky-600"><spring:message code="landing.hero.title"/></h1>
-        <p class="text-black/70"><spring:message code="landing.hero.description"/></p>
+    <main class="flex flex-col items-center gap-6 py-4 px-4">
+        <img
+            src="<c:url value="/static-image/banner.png"/>"
+            alt="Banner"
+            class="w-full max-w-6xl rounded-lg"
+        />
 
         <div class="flex items-center gap-12 mt-8">
             <paw:linkButton href="<c:url value='/home'/>" size="lg" variant="outline">
