@@ -5,7 +5,7 @@
 
 
 <div class="sticky top-0 pt-3 z-50">
-    <nav class="mx-auto max-w-6xl rounded-xl overflow-hidden relative z-10">
+    <nav class="mx-auto max-w-6xl rounded-xl relative z-10">
         <div class="rounded-xl w-full p-2 flex flex-row items-center gap-2 bg-white/80 backdrop-blur-sm border border-black/10">
             <c:url value='/' var="homeUrl" />
             <c:url value='/listing' var="buyUrl" />
@@ -67,16 +67,17 @@
                                 </div>
                             </paw:button>
 
-                            <div id="userPanel" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-black/10 z-50">
+                            <div id="userPanel" class="hidden absolute right-0 top-full w-48 bg-white rounded-lg border border-black/10 z-50 flex flex-col p-2">
                                 <c:url value="/profile/${currentUser.get().id}" var="profileUrl"/>
-                                <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-4 py-2 text-sm" role="secondary">
-                                    <spring:message code="navbar.profile"/>
-                                </paw:linkButton>
+                                <spring:message code="navbar.profile" var="profileLabel" />
+                                <paw:linkButton href="${profileUrl}" text="${profileLabel}" variant="ghost" role="secondary" />
+
                                 <hr class="border-t border-black/10 my-1">
+
                                 <c:url value="/logout" var="logoutUrl"/>
-                                <form action="${logoutUrl}" method="post">
+                                <form action="${logoutUrl}" method="post" class="flex flex-col">
                                     <spring:message code="navbar.logout" var="logoutLabel"/>
-                                    <paw:button text="${logoutLabel}" type="submit" variant="ghost" classname="w-full justify-start px-4 py-2 text-sm text-red-600" role="secondary"/>
+                                    <paw:button text="${logoutLabel}" type="submit" variant="ghost" role="danger" />
                                 </form>
                             </div>
                         </div>
