@@ -1,9 +1,10 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
-<%@ attribute name="text" required="true" %>
+<%@ attribute name="text" required="false" %>
 <%@ attribute name="type" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="size" required="false" %>
 <%@ attribute name="role" required="false" %>
+<%@ attribute name="id" required="false" %>
 <%@ attribute name="classname" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -44,20 +45,28 @@
 }"/>
 
 <button
-  type="${btnType}"
-  class="
-    font-semibold rounded-lg
-    flex flex-row items-center justify-center gap-2
-    cursor-pointer transition duration-150 data-[state=on]:text-lime-500
-    focus-visible:outline outline-offset-0 outline-lime-600
-    focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
-    disabled:text-black/40 disabled:cursor-default
-    ${variantClassnames}
-    ${sizeClassnames}
-    ${roleClassnames}
-    ${btnClass}
-  "
-  <c:if test="${isDisabled}">disabled</c:if>
+    type="${btnType}"
+    id="${id}"
+    class="
+        font-semibold rounded-lg
+        flex flex-row items-center justify-center gap-2
+        cursor-pointer transition duration-150 data-[state=on]:text-lime-500
+        focus-visible:outline outline-offset-0 outline-lime-600
+        focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
+        disabled:text-black/40 disabled:cursor-default
+        ${variantClassnames}
+        ${sizeClassnames}
+        ${roleClassnames}
+        ${btnClass}
+    "
+    <c:if test="${isDisabled}">disabled</c:if>
 >
-    <c:out value="${text}"/>
+    <c:choose>
+        <c:when test="${not empty text}">
+            <c:out value="${text}"/>
+        </c:when>
+        <c:otherwise>
+            <jsp:doBody/>
+        </c:otherwise>
+    </c:choose>
 </button>

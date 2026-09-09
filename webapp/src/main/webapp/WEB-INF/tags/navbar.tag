@@ -45,6 +45,32 @@
                             <spring:message code="navbar.logout" var="logoutLabel"/>
                             <paw:button text="${logoutLabel}" type="submit" variant="outline" size="sm" role="secondary"/>
                         </form>
+                        <paw:button id="userButton" variant="ghost" classname="justify-start text-start gap-3 h-14 min-w-40!">
+                            <div class="flex flex-row gap-2 items-center text-sm">
+                                <div class="rounded-full border border-black/10 w-8 h-8 grid place-items-center overflow-hidden flex-shrink-0">
+                                    <c:choose>
+                                        <c:when test="${currentUser.get().imageId.present}">
+                                            <img
+                                                src="<c:url value='/image/${currentUser.get().imageId.get()}'/>"
+                                                alt="<c:out value='${currentUser.get().displayName}'/>&quot;s Profile Picture"
+                                                class="w-full h-full object-cover"
+                                            >
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img
+                                                src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
+                                                alt="Default Profile Picture"
+                                                class="w-full h-full object-cover"
+                                            >
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="flex flex-col">
+                                    <p class="text-sm text-black font-normal">${currentUser.get().displayName}</p>
+                                    <p class="text-xs text-black/60 font-normal">${currentUser.get().username}</p>
+                                </div>
+                            </div>
+                        </paw:button>
                     </c:when>
                     <c:otherwise>
                         <a href="<c:url value='/login'/>">

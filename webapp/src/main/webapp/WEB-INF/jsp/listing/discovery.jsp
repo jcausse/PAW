@@ -8,6 +8,8 @@
 <html lang="${pageContext.response.locale.language}">
 <head>
     <meta charset="UTF-8">
+    <%-- FOR DEVELOPMENT ONLY!! --%>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title><spring:message code="discovery.title"/></title>
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
 </head>
