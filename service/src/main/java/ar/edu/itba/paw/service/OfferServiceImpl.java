@@ -63,7 +63,7 @@ public class OfferServiceImpl implements OfferService {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
         if (offer.getStatus() != OfferStatus.PENDING) {
-            throw new IllegalStateException("Offer is not pending");
+            throw new BadParameterException("Offer is not pending");
         }
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
         return offerDao.getById(offerId).orElseThrow();
@@ -76,7 +76,7 @@ public class OfferServiceImpl implements OfferService {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
         if (offer.getStatus() != OfferStatus.PENDING) {
-            throw new IllegalStateException("Offer is not pending");
+            throw new BadParameterException("Offer is not pending");
         }
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
         return offerDao.getById(offerId).orElseThrow();

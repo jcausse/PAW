@@ -30,11 +30,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getByUsername(String username) {
+        Objects.requireNonNull(username, "username cannot be null");
         return userDao.getByUsername(username.toLowerCase());
     }
 
     @Override
     public Optional<User> getByEmail(String email) {
+        Objects.requireNonNull(email, "email cannot be null");
         return userDao.getByEmail(email.toLowerCase());
     }
 
@@ -70,11 +72,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isUsernameTaken(String username) {
+        Objects.requireNonNull(username, "username cannot be null");
         return userDao.isUsernameTaken(username.toLowerCase());
     }
 
     @Override
     public boolean isEmailTaken(String email) {
+        Objects.requireNonNull(email, "email cannot be null");
         return userDao.isEmailTaken(email.toLowerCase());
     }
 }

@@ -49,7 +49,9 @@ public class CheckoutController {
         Listing listing = listingService.getById(form.getListingId());
 
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("checkout/index").addObject("listing", listing);
+            return new ModelAndView("checkout/index")
+                    .addObject("listing", listing)
+                    .addObject("currentUser", maybeCurrentUser);
         }
 
         Long buyerId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();

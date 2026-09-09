@@ -4,10 +4,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <title><spring:message code="login.title"/></title>
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
-</head>
+<paw:head titleKey="login.title"/>
 <body class="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-4">
     <h2 class="text-3xl font-bold mb-4"><spring:message code="login.title"/></h2>
 
