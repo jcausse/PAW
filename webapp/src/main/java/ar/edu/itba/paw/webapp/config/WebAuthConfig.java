@@ -70,15 +70,17 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
             /* Access Control */
             .and().authorizeRequests()
-                .antMatchers("/login", "/register").anonymous()
+                .antMatchers("/", "/register", "/language", "/image/**").permitAll()
+                .antMatchers("/listing/new/**").authenticated()
+                .antMatchers("/listing/**").permitAll()
                 .antMatchers("/logout").authenticated()
                 .antMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
-                .antMatchers("/listing/**").permitAll()
                 .anyRequest().authenticated()
 
             /* Login */
             .and().formLogin()
-                .loginPage("/login")
+                .loginPage("/register")
+                .loginProcessingUrl("/security_check")
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/", false)

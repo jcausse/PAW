@@ -83,7 +83,7 @@
                         </div>
                     </c:when>
                     <c:otherwise>
-                        <a href="<c:url value='/login'/>">
+                        <a href="<c:url value='/register'/>">
                             <spring:message code="navbar.signin" var="signinLabel"/>
                             <paw:button text="${signinLabel}" variant="outline" size="sm"/>
                         </a>
