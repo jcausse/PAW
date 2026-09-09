@@ -6,13 +6,7 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <title><spring:message code="listing.new.title"/></title>
-    <%-- FOR DEVELOPMENT ONLY!! --%>
-    <%-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> --%>
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
-    <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
-</head>
+<paw:head titleKey="listing.new.title"/>
 <body class="px-8 pb-24 bg-neutral-50">
     <paw:navbar />
 

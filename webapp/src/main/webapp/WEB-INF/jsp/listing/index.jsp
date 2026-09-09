@@ -5,13 +5,10 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <title><spring:message code="listing.detail.title"/></title>
+<paw:head titleKey="listing.detail.title">
     <%-- FOR DEVELOPMENT ONLY!! --%>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
-    <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
-</head>
+</paw:head>
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
