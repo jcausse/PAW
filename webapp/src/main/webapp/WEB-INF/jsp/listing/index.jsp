@@ -99,8 +99,21 @@
 
                         <p class="text-3xl font-bold">$${listing.price.getAmount()}</p>
 
-                        <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
-                        <paw:button size="lg" classname="w-full" text="${makeOfferLabel}" />
+                        <c:choose>
+                            <c:when test="${isCreator}">
+                                <spring:message code="listing.detail.cannotOfferOwn" var="cannotOfferLabel"/>
+                                <p class="text-center text-black/60 py-4"><c:out value="${cannotOfferLabel}"/></p>
+                            </c:when>
+                            <c:when test="${isSold}">
+                                <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>
+                                <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
+                            </c:when>
+                            <c:otherwise>
+                                <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
+                                <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
+                                <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </paw:card>
             </div>

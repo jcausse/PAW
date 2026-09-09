@@ -54,3 +54,13 @@ CREATE TABLE IF NOT EXISTS listing_images (
     display_order INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (listing_id, image_id)
 );
+
+CREATE TABLE IF NOT EXISTS offers (
+    offer_id       SERIAL PRIMARY KEY,
+    listing_id     INTEGER NOT NULL REFERENCES listings(listing_id),
+    buyer_id       INTEGER NOT NULL REFERENCES users(user_id),
+    amount         DECIMAL(100, 2) NOT NULL,
+    is_full_price  BOOLEAN NOT NULL DEFAULT FALSE,
+    status         VARCHAR(20) NOT NULL DEFAULT 'pending',
+    message        TEXT
+);

@@ -22,8 +22,8 @@
         <paw:card>
             <jsp:body>
                 <div class="mb-2 flex items-center gap-2">
-                    <div class="flex-1 text-sky-600 font-medium text-sm flex items-center gap-2 bg-sky-100 p-3 rounded-lg">
-                        <div class="w-6 h-6 rounded-full border-2 border-sky-600 bg-sky-600 flex items-center justify-center text-xs text-sky-100">1</div>
+                    <div class="flex-1 text-lime-600 font-medium text-sm flex items-center gap-2 bg-lime-100 p-3 rounded-lg">
+                        <div class="w-6 h-6 rounded-full border-2 border-lime-600 bg-lime-600 flex items-center justify-center text-xs text-lime-100">1</div>
                         <spring:message code="listing.new.step1" var="step1Label"/>
                         <span><c:out value="${step1Label}"/></span>
                     </div>
