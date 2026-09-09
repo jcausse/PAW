@@ -39,38 +39,47 @@
 
                 <c:choose>
                     <c:when test="${currentUser.isPresent()}">
-                        <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser.get().username}"/></span>
-                        <c:url value="/logout" var="logoutUrl"/>
-                        <form action="${logoutUrl}" method="post">
-                            <spring:message code="navbar.logout" var="logoutLabel"/>
-                            <paw:button text="${logoutLabel}" type="submit" variant="outline" size="sm" role="secondary"/>
-                        </form>
-                        <paw:button id="userButton" variant="ghost" classname="justify-start text-start gap-3 h-14 min-w-40!">
-                            <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full border border-black/10 w-8 h-8 grid place-items-center overflow-hidden flex-shrink-0">
-                                    <c:choose>
-                                        <c:when test="${currentUser.get().imageId.present}">
-                                            <img
-                                                src="<c:url value='/image/${currentUser.get().imageId.get()}'/>"
-                                                alt="<c:out value='${currentUser.get().displayName}'/>&quot;s Profile Picture"
-                                                class="w-full h-full object-cover"
-                                            >
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img
-                                                src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                                                alt="Default Profile Picture"
-                                                class="w-full h-full object-cover"
-                                            >
-                                        </c:otherwise>
-                                    </c:choose>
+                        <div class="relative" id="userMenu">
+                            <paw:button id="userButton" variant="ghost" classname="justify-start text-start gap-3 h-14 min-w-40!" type="button">
+                                <div class="flex flex-row gap-2 items-center text-sm">
+                                    <div class="rounded-full border border-black/10 w-8 h-8 grid place-items-center overflow-hidden flex-shrink-0">
+                                        <c:choose>
+                                            <c:when test="${currentUser.get().imageId.present}">
+                                                <img
+                                                    src="<c:url value='/image/${currentUser.get().imageId.get()}'/>"
+                                                    alt="<c:out value='${currentUser.get().displayName}'/>"s Profile Picture"
+                                                    class="w-full h-full object-cover"
+                                                >
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img
+                                                    src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
+                                                    alt="Default Profile Picture"
+                                                    class="w-full h-full object-cover"
+                                                >
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <p class="text-sm text-black font-normal">${currentUser.get().displayName}</p>
+                                        <p class="text-xs text-black/60 font-normal">${currentUser.get().username}</p>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col">
-                                    <p class="text-sm text-black font-normal">${currentUser.get().displayName}</p>
-                                    <p class="text-xs text-black/60 font-normal">${currentUser.get().username}</p>
-                                </div>
+                            </paw:button>
+
+                            <div id="userPanel" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-black/10 z-50">
+                                <c:url value="/profile/${currentUser.get().id}" var="profileUrl"/>
+                                <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-4 py-2 text-sm" role="secondary">
+                                    <spring:message code="navbar.profile"/>
+                                </paw:linkButton>
+                                <hr class="border-t border-black/10 my-1">
+                                <c:url value="/logout" var="logoutUrl"/>
+                                <form action="${logoutUrl}" method="post">
+                                    <spring:message code="navbar.logout" var="logoutLabel"/>
+                                    <paw:button text="${logoutLabel}" type="submit" variant="ghost" classname="w-full justify-start px-4 py-2 text-sm text-red-600" role="secondary"/>
+                                </form>
                             </div>
-                        </paw:button>
+                        </div>
                     </c:when>
                     <c:otherwise>
                         <a href="<c:url value='/login'/>">
@@ -83,3 +92,24 @@
         </div>
     </nav>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userButton = document.getElementById('userButton');
+        const userPanel = document.getElementById('userPanel');
+        const userMenu = document.getElementById('userMenu');
+
+        if (userButton && userPanel) {
+            userButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userPanel.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!userMenu.contains(e.target)) {
+                    userPanel.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
