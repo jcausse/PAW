@@ -6,10 +6,7 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="checkout.title">
-    <%-- FOR DEVELOPMENT ONLY!! --%>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</paw:head>
+<paw:head titleKey="checkout.title" />
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
@@ -24,7 +21,7 @@
                             <form:hidden path="listingId"/>
 
                             <spring:message code="checkout.form.offerType" var="offerTypeLabel"/>
-                            <div class="flex flex-col gap-3 hidden">
+                            <div class="flex flex-col gap-3">
                                 <div class="flex flex-col gap-2">
                                     <label class="flex items-center gap-2 min-h-8 cursor-pointer">
                                         <form:radiobutton path="offerType" value="full" class="w-4 h-4 text-lime-600 border-black/20 focus:ring-lime-500"/>

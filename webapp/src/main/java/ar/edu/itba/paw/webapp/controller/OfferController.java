@@ -17,8 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-// @Controller
-// @RequestMapping("/offer")
+@Controller
+@RequestMapping("/offer")
 public class OfferController {
 
     private final OfferService offerService;
