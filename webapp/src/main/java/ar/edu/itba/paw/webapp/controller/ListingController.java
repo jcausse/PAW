@@ -17,7 +17,6 @@ import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.SelectOption;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import java.io.IOException;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -114,18 +113,20 @@ public class ListingController {
 
         // Skip validation for auto-submits (triggered by field changes during form filling)
         var isAutoSubmit = Boolean.TRUE.equals(form.getIsAutoSubmit());
-        if (isAutoSubmit) form.setIsAutoSubmit(false); // Reset for next request
+        if (isAutoSubmit) {
+            form.setIsAutoSubmit(false); // Reset for next request
+        }
 
         // Reset downstream fields when user goes back and changes a previous field
         var step = form.getStep();
-        if (step > 1 && form.isCategoryChanged()) {
+        if (step != null && step > 1 && form.isCategoryChanged()) {
             // Category was changed - reset subcategory and product fields
             form.setSubcategoryId(null);
             form.setNewProductBrand(null);
             form.setNewProductModel(null);
             form.setNewProductYear(null);
             form.setStep(2);
-        } else if (step > 2 && form.isSubcategoryChanged()) {
+        } else if (step != null && step > 2 && form.isSubcategoryChanged()) {
             // Subcategory was changed - reset product fields
             form.setNewProductBrand(null);
             form.setNewProductModel(null);
@@ -138,100 +139,46 @@ public class ListingController {
             form.setNewProductModel(null);
         }
 
-        if (form.getStep() == 1) {
-            var hasCategory = form.getCategoryId() != null;
-            if (!isAutoSubmit && !hasCategory) {
-                bindingResult.rejectValue("categoryId", "NotNull.listingForm.categoryId");
-            }
+        if (bindingResult.hasErrors()) {
+            form.updatePreviousValues();
+            populateModel(mav, form);
+            return mav;
+        }
 
-            if (!bindingResult.hasErrors() && hasCategory) {
+        if (form.getStep() != null && form.getStep() == 1) {
+            if (form.getCategoryId() != null) {
                 form.setStep(2);
                 form.setSubcategoryId(null);
             }
-        } else if (form.getStep() == 2) {
-            var hasSubcategory = form.getSubcategoryId() != null;
-            if (!isAutoSubmit && !hasSubcategory) {
-                bindingResult.rejectValue("subcategoryId", "NotNull.listingForm.subcategoryId");
-            }
-
-            if (!bindingResult.hasErrors() && hasSubcategory) {
+        } else if (form.getStep() != null && form.getStep() == 2) {
+            if (form.getSubcategoryId() != null) {
                 form.setStep(3);
                 form.setNewProductBrand(null);
                 form.setNewProductModel(null);
                 form.setNewProductYear(null);
             }
-        } else if (form.getStep() == 3) {
-            // Resolve brand and model - if "Other" is selected, use the text input value
+        } else if (form.getStep() != null && form.getStep() == 3 && !isAutoSubmit) {
             var brand = form.getNewProductBrand();
             var model = form.getNewProductModel();
 
-            // Validate brand: must not be empty
-            var hasBrand = brand != null && !brand.isBlank();
-            var hasModel = model != null && !model.isBlank();
-
-            if (!isAutoSubmit && !hasBrand) {
-                bindingResult.rejectValue("newProductBrand", "NotNull");
-            }
-
-            if (hasBrand) {
-                // Set model to "Other" if brand is set to "Other"
-                // Validate model: must not be empty only if brand is set
-                if (OTHER_VALUE.equals(brand)) {
-                    form.setNewProductModel(OTHER_VALUE);
-                    model = OTHER_VALUE;
-                } else if (!isAutoSubmit && !hasModel) {
-                    bindingResult.rejectValue("newProductModel", "NotNull");
-                }
-            } else {
-                // Brand is not set, clear model fields
-                form.setNewProductModel(null);
-                form.setOtherModel(null);
-                model = null;
+            if (OTHER_VALUE.equals(brand)) {
+                form.setNewProductModel(OTHER_VALUE);
+                model = OTHER_VALUE;
             }
 
             var otherBrand = form.getOtherBrand();
             var otherModel = form.getOtherModel();
 
-            // Validate otherBrand: must not be empty if brand is "__OTHER__"
-            if (OTHER_VALUE.equals(brand) && !isAutoSubmit && (otherBrand == null || otherBrand.isBlank())) {
-                    bindingResult.rejectValue("otherBrand", "NotNull");
-            }
-
-            // Validate otherModel: must not be empty if model is "__OTHER__"
-            if (OTHER_VALUE.equals(model) && !isAutoSubmit && (otherModel == null || otherModel.isBlank())) {
-                bindingResult.rejectValue("otherModel", "NotNull");
-            }
-
-            // Resolve final brand and model for product creation
             brand = OTHER_VALUE.equals(brand) ? otherBrand : brand;
             model = OTHER_VALUE.equals(model) ? otherModel : model;
 
-            hasBrand = brand != null && !brand.isBlank();
-            hasModel = model != null && !model.isBlank();
-            var year = form.getNewProductYear();
-            var hasYear = year != null;
-
-            if (!isAutoSubmit) {
-                var currentYear = Year.now().getValue();
-                if (!hasYear) {
-                    bindingResult.rejectValue("newProductYear", "NotNull");
-                }
-                else if (year < 1900 || year > currentYear) {
-                    bindingResult.rejectValue("newProductYear", "Range", new Object[]{1900, currentYear}, "Year must be between 1900 and " + currentYear);
-                }
-            }
-
-            // Advance to details page if brand, model, and year are all selected
-            if (!bindingResult.hasErrors() && hasBrand && hasModel && hasYear) {
-                // Find or create product by brand, model, year and subcategory
-                var product = productService.findOrCreateByBrandModelYear(
-                        brand,
-                        model,
-                        form.getNewProductYear(),
-                        form.getSubcategoryId()
-                );
-                return new ModelAndView("redirect:/listing/new/details?productId=" + product.getId());
-            }
+            var product = productService.findOrCreateByBrandModelYear(
+                    brand,
+                    model,
+                    form.getNewProductYear(),
+                    form.getSubcategoryId()
+            );
+            return new ModelAndView("redirect:/listing/new/details?productId=" + product.getId());
         }
 
         // Update previous values for next request
@@ -258,46 +205,39 @@ public class ListingController {
             BindingResult bindingResult,
             @ModelAttribute("currentUser") Optional<User> currentUser
     ) {
-        if (form.getTitle() == null || form.getTitle().isBlank()) {
-            bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
-        }
-        if (form.getPrice() == null) {
-            bindingResult.rejectValue("price", "NotNull.listingForm.price");
+        if (bindingResult.hasErrors()) {
+            return new ModelAndView("listing/new/details");
         }
 
-        if (!bindingResult.hasErrors()) {
-            List<ImageData> imageDataList = new ArrayList<>();
-            if (form.getImages() != null) {
-                for (MultipartFile imageFile : form.getImages()) {
-                    if (imageFile != null && !imageFile.isEmpty()) {
-                        try {
-                            imageDataList.add(new ImageData(
-                                imageFile.getBytes(),
-                                imageFile.getOriginalFilename(),
-                                imageFile.getContentType()
-                            ));
-                        } catch (IOException e) {
-                            bindingResult.rejectValue("images", "error.image.upload");
-                            break;
-                        }
+        List<ImageData> imageDataList = new ArrayList<>();
+        if (form.getImages() != null) {
+            for (MultipartFile imageFile : form.getImages()) {
+                if (imageFile != null && !imageFile.isEmpty()) {
+                    try {
+                        imageDataList.add(new ImageData(
+                            imageFile.getBytes(),
+                            imageFile.getOriginalFilename(),
+                            imageFile.getContentType()
+                        ));
+                    } catch (IOException e) {
+                        bindingResult.rejectValue("images", "error.image.upload");
+                        return new ModelAndView("listing/new/details");
                     }
                 }
             }
-
-            var newListing = listingService.create(new ListingCreationDto(
-                    form.getTitle(),
-                    new Price(form.getPrice()),
-                    currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
-                    form.getProductId(),
-                    form.getCondition(),
-                    form.isAcceptsTrade(),
-                    form.getDescription(),
-                    imageDataList
-            ));
-            return new ModelAndView("redirect:/listing/" + newListing.getId());
         }
 
-        return new ModelAndView("listing/new/details");
+        var newListing = listingService.create(new ListingCreationDto(
+                form.getTitle(),
+                new Price(form.getPrice()),
+                currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
+                form.getProductId(),
+                form.getCondition(),
+                form.isAcceptsTrade(),
+                form.getDescription(),
+                imageDataList
+        ));
+        return new ModelAndView("redirect:/listing/" + newListing.getId());
     }
 
     private void populateModel(ModelAndView mav, ChooseProductForm form) {
