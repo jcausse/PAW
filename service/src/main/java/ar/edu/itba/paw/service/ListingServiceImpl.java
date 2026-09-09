@@ -5,7 +5,6 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
-import ar.edu.itba.paw.model.OfferListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
@@ -38,9 +37,7 @@ public class ListingServiceImpl implements ListingService {
     public Listing getById(Long id) {
         return listingDao
             .getById(id)
-            .orElseThrow(() ->
-                NotFoundException.createFor("Listing with ID " + id)
-            );
+            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
     }
 
     @Override
@@ -58,12 +55,7 @@ public class ListingServiceImpl implements ListingService {
             .sort(parseSort(dto.sort()))
             .build();
 
-        List<Listing> listings = listingDao.search(filter);
-
-        // Filter out listings with SOLD offer status
-        return listings.stream()
-            .filter(listing -> listing.getOfferListingStatus() == OfferListingStatus.AVAILABLE)
-            .toList();
+        return listingDao.search(filter);
     }
 
     private static Condition parseCondition(final String value) {
@@ -108,6 +100,21 @@ public class ListingServiceImpl implements ListingService {
         var listing = listingDao.create(dto.title(), dto.price(), creator, product, imageIds);
 
         mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+
+        return listing;
+    }
+
+    @Override
+    @Transactional
+    public Listing purchase(Long id, Long buyerId, String message) {
+        var listing = listingDao
+            .getById(id)
+            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
+
+        listingDao.purchase(id, buyerId);
+        // offerDao.create(...)
+
+        // TODO: Send email notification to seller about the new offer
 
         return listing;
     }

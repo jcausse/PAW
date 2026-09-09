@@ -157,6 +157,7 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     private static final class Queries {
+        // here be dragons
         private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +

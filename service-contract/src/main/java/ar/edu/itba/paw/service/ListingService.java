@@ -11,4 +11,6 @@ public interface ListingService {
     Listing create(ListingCreationDto dto);
 
     List<Listing> search(ListingFilterDto filter);
+
+    Listing purchase(Long id, Long buyerId, String message);
 }

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
@@ -14,4 +15,5 @@ public interface ListingDao {
 
     Listing create(String title, Price price, User creator, Product product, List<Long> imageIds);
     List<Listing> search(ListingFilter filter);
+    ListingStatus purchase(Long id, Long buyerId);
 }

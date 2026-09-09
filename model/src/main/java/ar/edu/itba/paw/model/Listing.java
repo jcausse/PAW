@@ -1,12 +1,14 @@
 package ar.edu.itba.paw.model;
 import lombok.*;
 import java.util.List;
+
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
 @Builder
 @ToString
 public final class Listing {
+
     private final @NonNull Long id;
     private final @NonNull String title;
     private final @NonNull User creator;
@@ -17,5 +19,4 @@ public final class Listing {
     private final @NonNull Condition condition;
     private final boolean acceptsTrade;
     private final List<Long> imageIds;
-    private final @NonNull OfferListingStatus offerListingStatus; // TODO: deduplicate with listing status
 }

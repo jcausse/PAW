@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
@@ -76,8 +77,8 @@ public class ListingController {
         var listing = listingService.getById(id);
         var currentUser = getCurrentUser();
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
-        var isSold = listing.getOfferListingStatus() == ar.edu.itba.paw.model.OfferListingStatus.SOLD;
-        
+        var isSold = listing.getStatus() == ListingStatus.SOLD;
+
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
                 .addObject("currentUser", Optional.ofNullable(currentUser))
