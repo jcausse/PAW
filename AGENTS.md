@@ -165,6 +165,10 @@ JOIN categories c ON s.category_id = c.category_id;
   sleep 15  # wait for "Started Jetty Server"
   ```
   Server runs in background until killed or environment timeout (~58s).
+- **Important**: The dev server requires the development `app.properties` (from `src/main/environments/dev/`) to be copied to `target/classes/`. The Maven build with `-Pdev` profile should do this automatically, but if the production `app.properties` was previously copied (e.g., by a default build), the dev server will fail with "password authentication failed for user". **Always ensure the dev `app.properties` is used before running the dev server** — copy it manually after build if necessary:
+  ```bash
+  cp webapp/src/main/environments/dev/app.properties webapp/target/classes/app.properties
+  ```
 - Deploy: `make deploy` (runs `.script/deploy.py`) (see associated skill).
 - Scripts live in `.script/` directory.
 

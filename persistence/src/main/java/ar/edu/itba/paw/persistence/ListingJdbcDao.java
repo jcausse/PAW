@@ -2,7 +2,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
 import ar.edu.itba.paw.model.Condition;
-import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
@@ -153,6 +152,12 @@ public class ListingJdbcDao implements ListingDao {
             .build();
     }
 
+    @Override
+    public ListingStatus purchase(Long id, Long buyerId) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.SOLD.toString(), id);
+        return ListingStatus.SOLD;
+    }
+
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
@@ -245,8 +250,7 @@ public class ListingJdbcDao implements ListingDao {
         );
 
         private static final String BASE_FROM =
-            " FROM " +
-            ListingSchema.TABLE_NAME + " AS l" +
+            " FROM " + ListingSchema.TABLE_NAME + " AS l" +
             " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
             " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
@@ -264,5 +268,9 @@ public class ListingJdbcDao implements ListingDao {
             "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
             BASE_FROM +
             " WHERE l." + ListingSchema.ID + " = ?";
+
+        private static final String UPDATE_STATUS_BY_ID =
+            "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? " +
+            "WHERE " + ListingSchema.ID + " = ?";
     }
 }
