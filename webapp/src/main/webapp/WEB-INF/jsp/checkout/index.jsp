@@ -62,18 +62,19 @@
                 <c:set var="coverImageUrl" value=""/>
                 <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
                     <c:if test="${status.first}">
-                        <c:set var="coverImageUrl" value="/image/${imageId}"/>
+                        <c:url value="/image/${imageId}" var="coverImageUrl"/>
                     </c:if>
                 </c:forEach>
 
                 <spring:message code="category.${listing.product.subcategory.category.name}" var="productCategory" />
                 <spring:message code="subcategory.${listing.product.subcategory.name}" var="productSubcategory" />
+                <spring:message code="card.noImage" var="noImageLabel"/>
                 <paw:card showImage="true"
                     title="${listing.title}"
                     subtitle="${listing.product.brand} ${listing.product.model} (${listing.product.year}) — ${productCategory} / ${productSubcategory}"
                     imageUrl="${coverImageUrl}"
                     imageAlt="${listing.title}"
-                    noImageLabel="<spring:message code='card.noImage'/>"
+                    noImageLabel="${noImageLabel}"
                 >
                     <div class="flex flex-col gap-4 mt-auto">
                         <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
@@ -82,7 +83,7 @@
                                 <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
                                     <c:choose>
                                         <c:when test="${listing.creator.imageId.present}">
-                                            <img src="<c:url value='/image/${listing.creator.imageId.get()}'/>" alt="<c:out value='${listing.creator.displayName}'/>"s Profile Picture" class="w-full h-full object-cover"/>
+                                            <img src="<c:url value='/image/${listing.creator.imageId.get()}'/>" alt="<c:out value='${listing.creator.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
                                         </c:when>
                                         <c:otherwise>
                                             <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>

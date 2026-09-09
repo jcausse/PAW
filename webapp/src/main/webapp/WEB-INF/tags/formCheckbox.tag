@@ -18,7 +18,7 @@
       cssClass="w-4 h-4 rounded border-black/20 accent-sky-600 outline-sky-600/30"
     />
     <c:if test="${not empty label}">
-      <span>${label}</span>
+      <span><c:out value="${label}"/></span>
     </c:if>
   </label>
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600"/>

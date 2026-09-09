@@ -1,5 +1,10 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="id" required="true" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<spring:message code="carousel.previous" var="prevLabel"/>
+<spring:message code="carousel.next" var="nextLabel"/>
 
 <div class="relative group">
     <button
@@ -9,7 +14,7 @@
                w-9 h-9 rounded-full bg-white shadow-md border border-black/10
                flex items-center justify-center cursor-pointer
                opacity-0 group-hover:opacity-100 transition"
-               aria-label="Anterior"
+               aria-label="<c:out value='${prevLabel}'/>"
     >‹</button>
 
     <div
@@ -26,6 +31,6 @@
                w-9 h-9 rounded-full bg-white shadow-md border border-black/10
                flex items-center justify-center cursor-pointer
                opacity-0 group-hover:opacity-100 transition"
-               aria-label="Siguiente"
+               aria-label="<c:out value='${nextLabel}'/>"
     >›</button>
 </div>
