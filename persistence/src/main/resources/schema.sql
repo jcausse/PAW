@@ -39,9 +39,13 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS listings (
     listing_id    SERIAL PRIMARY KEY,
     title         VARCHAR(255) NOT NULL,
+    description   TEXT,
     creator_id    INTEGER REFERENCES users(user_id),
     product_id    INTEGER REFERENCES products(product_id),
-    price         DECIMAL(100, 2) NOT NULL
+    price         DECIMAL(100, 2) NOT NULL,
+    status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    condition     VARCHAR(20) NOT NULL DEFAULT 'GOOD',
+    accepts_trade BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS listing_images (
@@ -49,4 +53,14 @@ CREATE TABLE IF NOT EXISTS listing_images (
     image_id      INTEGER NOT NULL REFERENCES images(image_id) ON DELETE CASCADE,
     display_order INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (listing_id, image_id)
+);
+
+CREATE TABLE IF NOT EXISTS offers (
+    offer_id       SERIAL PRIMARY KEY,
+    listing_id     INTEGER NOT NULL REFERENCES listings(listing_id),
+    buyer_id       INTEGER NOT NULL REFERENCES users(user_id),
+    amount         DECIMAL(100, 2) NOT NULL,
+    is_full_price  BOOLEAN NOT NULL DEFAULT FALSE,
+    status         VARCHAR(20) NOT NULL DEFAULT 'pending',
+    message        TEXT
 );

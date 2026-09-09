@@ -3,8 +3,6 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%-- The logged-in username is read from the request principal (populated by Spring Security). --%>
-<c:set var="currentUser" value="${pageContext.request.userPrincipal.name}"/>
 
 <div class="sticky top-0 pt-3 z-50">
   <nav class="mx-auto max-w-6xl rounded-xl overflow-hidden relative z-10">
@@ -22,19 +20,19 @@
         <c:url value="/language" var="langUrlEn"><c:param name="lang" value="en"/></c:url>
         <div class="flex flex-row items-center text-xs font-medium">
           <a href="${langUrlEs}"
-             class="px-1.5 py-0.5 rounded ${currentLang eq 'es' ? 'text-sky-600 font-bold' : 'text-black/40 hover:text-black/70'}">
+             class="px-1.5 py-0.5 rounded ${currentLang eq 'es' ? 'text-lime-600 font-bold' : 'text-black/40 hover:text-black/70'}">
             <spring:message code="navbar.lang.es"/>
           </a>
           <span class="text-black/20">|</span>
           <a href="${langUrlEn}"
-             class="px-1.5 py-0.5 rounded ${currentLang eq 'en' ? 'text-sky-600 font-bold' : 'text-black/40 hover:text-black/70'}">
+             class="px-1.5 py-0.5 rounded ${currentLang eq 'en' ? 'text-lime-600 font-bold' : 'text-black/40 hover:text-black/70'}">
             <spring:message code="navbar.lang.en"/>
           </a>
         </div>
 
         <c:choose>
-          <c:when test="${not empty currentUser}">
-            <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser}"/></span>
+          <c:when test="${currentUser.isPresent()}">
+            <span class="text-sm text-black/70"><spring:message code="navbar.greeting" arguments="${currentUser.get().username}"/></span>
             <c:url value="/logout" var="logoutUrl"/>
             <form action="${logoutUrl}" method="post">
               <spring:message code="navbar.logout" var="logoutLabel"/>

@@ -2,6 +2,7 @@
 <%@ attribute name="path" required="true" %>
 <%@ attribute name="items" required="true" type="java.lang.Object" %>
 <%@ attribute name="plainStrings" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="stringOptions" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
@@ -18,10 +19,10 @@
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
-    ? 'border border-black/20 focus-visible:border-sky-600 focus-visible:outline-2
+    ? 'border border-black/20 focus-visible:border-lime-600 focus-visible:outline-2
        invalid:border-red-600! peer-[.errors]/errors:border-red-600! invalid:outline-red-600/30 peer-[.errors]/errors:outline-red-600/30'
     : 'border-t border-b border-black/15 border-b-white/20 bg-gradient-to-b from-black/5 to-black/2 [background-position:-1px_-1px] [background-size:calc(100%+2px)_calc(100%+2px)]
-       focus-visible:outline outline-sky-600 focus-visible:shadow-[0_0_0_3px] shadow-sky-600/30
+       focus-visible:outline outline-lime-600 focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
        invalid:outline peer-[.errors]/errors:outline invalid:outline-red-600 peer-[.errors]/errors:outline-red-600 invalid:shadow-red-600/30 peer-[.errors]/errors:shadow-red-600/30
        invalid:from-red-600/5 invalid:to-red-600/2 peer-[.errors]/errors:from-red-600/5 peer-[.errors]/errors:to-red-600/2'
 }"/>
@@ -40,13 +41,16 @@
     id="${path}"
     placeholder="${placeholder}"
     disabled="${isDisabled}"
-    cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-sky-600/30 placeholder:text-black/40 ${variantClassnames}"
+    cssClass="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-lime-600/30 placeholder:text-black/40 ${variantClassnames}"
   >
     <form:option value="" label="${placeholder}" />
 
     <c:choose>
       <c:when test="${not empty plainStrings}">
         <form:options items="${items}" />
+      </c:when>
+      <c:when test="${not empty stringOptions}">
+        <form:options items="${items}" itemValue="value" itemLabel="label" />
       </c:when>
       <c:otherwise>
         <form:options items="${items}" itemValue="id" itemLabel="name" />

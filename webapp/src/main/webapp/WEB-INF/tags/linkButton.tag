@@ -39,7 +39,7 @@
     ? 'text-green-600'
     : btnRole eq 'secondary'
     ? 'text-black/60'
-    : 'text-sky-600'
+    : 'text-lime-600'
 }"/>
 
 <a
@@ -47,9 +47,9 @@
   class="
     font-semibold rounded-lg
     flex flex-row items-center justify-center gap-2
-    cursor-pointer transition duration-150 data-[state=on]:text-sky-500
-    focus-visible:outline outline-offset-0 outline-sky-600
-    focus-visible:shadow-[0_0_0_3px] shadow-sky-600/30
+    cursor-pointer transition duration-150 data-[state=on]:text-lime-500
+    focus-visible:outline outline-offset-0 outline-lime-600
+    focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
     disabled:text-black/40 disabled:cursor-default disabled:pointer-events-none
     ${variantClassnames}
     ${sizeClassnames}
