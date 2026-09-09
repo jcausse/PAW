@@ -35,6 +35,11 @@ mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
 sleep 15  # Wait for "Started Jetty Server"
 ```
 
+**Important**: The dev server requires the development `app.properties` (from `src/main/environments/dev/`) to be copied to `target/classes/`. The Maven build with `-Pdev` profile should do this automatically, but if the production `app.properties` was previously copied (e.g., by a default build), the dev server will fail with "password authentication failed for user". **Always ensure the dev `app.properties` is used before running the dev server** — copy it manually after build if necessary:
+```bash
+cp webapp/src/main/environments/dev/app.properties webapp/target/classes/app.properties
+```
+
 Then test with curl and take screenshots. The server runs until you kill it or the environment times out (~58s).
 
 ## Finding Route URLs

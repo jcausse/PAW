@@ -27,7 +27,7 @@
         </p>
 
         <a href="<c:url value="/"/>"
-           class="inline-flex items-center justify-center font-semibold rounded-lg p-2.5 px-5 text-sm text-white bg-sky-600 hover:bg-sky-700 transition duration-150 shadow-sm focus-visible:outline outline-offset-2 outline-sky-600">
+           class="inline-flex items-center justify-center font-semibold rounded-lg p-2.5 px-5 text-sm text-white bg-lime-600 hover:bg-lime-700 transition duration-150 shadow-sm focus-visible:outline outline-offset-2 outline-lime-600">
             <spring:message code="forbidden.home"/>
         </a>
     </div>

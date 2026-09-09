@@ -24,7 +24,7 @@
     <div class="flex gap-2">
         <input type="text" name="query" value="<c:out value='${param.query}'/>"
                placeholder="${queryPlaceholder}"
-               class="flex-1 px-3 py-2 rounded-xl border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
+               class="flex-1 px-3 py-2 rounded-xl border border-black/15 text-sm bg-white focus:border-lime-600 outline-none"/>
         <spring:message code="discovery.filter.search" var="searchLabel"/>
         <paw:button text="${searchLabel}" type="submit"/>
     </div>
@@ -81,12 +81,12 @@
                             <div class="flex flex-col gap-1 flex-1">
                                 <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.minPrice"/></label>
                                 <input type="number" step="0.01" name="minPrice" value="<c:out value='${param.minPrice}'/>"
-                                       class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
+                                       class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-lime-600 outline-none"/>
                             </div>
                             <div class="flex flex-col gap-1 flex-1">
                                 <label class="text-xs text-black/60 font-medium"><spring:message code="discovery.filter.maxPrice"/></label>
                                 <input type="number" step="0.01" name="maxPrice" value="<c:out value='${param.maxPrice}'/>"
-                                       class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-sky-600 outline-none"/>
+                                       class="w-full px-2 py-1.5 rounded-lg border border-black/15 text-sm bg-white focus:border-lime-600 outline-none"/>
                             </div>
                         </div>
 

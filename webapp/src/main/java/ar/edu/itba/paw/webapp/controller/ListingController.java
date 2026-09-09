@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
@@ -46,7 +47,7 @@ public class ListingController {
     private final ProductService productService;
     private final MessageSource messageSource;
 
-    @GetMapping
+    @GetMapping("/")
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
         final var filter = new ListingFilterDto(
             filterForm.getCategoryId(),
@@ -71,9 +72,17 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public ModelAndView listing(@PathVariable Long id) {
+    public ModelAndView listing(@PathVariable Long id, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
+        var listing = listingService.getById(id);
+        var currentUser = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new);
+        var isCreator = currentUser.getId().equals(listing.getCreator().getId());
+        var isSold = listing.getStatus() == ListingStatus.SOLD;
+
         return new ModelAndView("listing/index")
-                .addObject("listing", listingService.getById(id));
+                .addObject("listing", listing)
+                .addObject("currentUser", Optional.of(currentUser)) // TODO: ESTO CREO QUE PUEDE SACARSE
+                .addObject("isCreator", isCreator)
+                .addObject("isSold", isSold);
     }
 
     @GetMapping("/new/choose-product")
@@ -244,7 +253,11 @@ public class ListingController {
     }
 
     @PostMapping("/new/details")
-    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult, @ModelAttribute("currentUser") Optional<User> currentUser) {
+    public ModelAndView detailsPost(
+            @Valid @ModelAttribute("detailsForm") ListingDetailsForm form,
+            BindingResult bindingResult,
+            @ModelAttribute("currentUser") Optional<User> currentUser
+    ) {
         if (form.getTitle() == null || form.getTitle().isBlank()) {
             bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
         }

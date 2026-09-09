@@ -37,9 +37,7 @@ public class ListingServiceImpl implements ListingService {
     public Listing getById(Long id) {
         return listingDao
             .getById(id)
-            .orElseThrow(() ->
-                NotFoundException.createFor("Listing with ID " + id)
-            );
+            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
     }
 
     @Override
@@ -116,6 +114,21 @@ public class ListingServiceImpl implements ListingService {
         );
 
         mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+
+        return listing;
+    }
+
+    @Override
+    @Transactional
+    public Listing purchase(Long id, Long buyerId, String message) {
+        var listing = listingDao
+            .getById(id)
+            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
+
+        listingDao.purchase(id, buyerId);
+        // offerDao.create(...)
+
+        // TODO: Send email notification to seller about the new offer
 
         return listing;
     }
