@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -33,7 +34,7 @@ public class OfferController {
 
         // Verify the current user is the seller (listing creator)
         if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new SecurityException("Not authorized to view this offer");
+            throw new ForbiddenException("Not authorized to view this offer");
         }
 
         var mav = new ModelAndView("offer/decision");
@@ -50,7 +51,7 @@ public class OfferController {
         final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new SecurityException("Not authorized to accept this offer");
+            throw new ForbiddenException("Not authorized to accept this offer");
         }
 
         offerService.accept(offerId);
@@ -69,7 +70,7 @@ public class OfferController {
         final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new SecurityException("Not authorized to reject this offer");
+            throw new ForbiddenException("Not authorized to reject this offer");
         }
 
         offerService.reject(offerId);

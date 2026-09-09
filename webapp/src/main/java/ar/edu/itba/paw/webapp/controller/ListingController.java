@@ -206,7 +206,7 @@ public class ListingController {
             @ModelAttribute("currentUser") Optional<User> currentUser
     ) {
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("listing/new/details");
+            return detailsWithErrors(currentUser);
         }
 
         List<ImageData> imageDataList = new ArrayList<>();
@@ -221,7 +221,7 @@ public class ListingController {
                         ));
                     } catch (IOException e) {
                         bindingResult.rejectValue("images", "error.image.upload");
-                        return new ModelAndView("listing/new/details");
+                        return detailsWithErrors(currentUser);
                     }
                 }
             }
@@ -238,6 +238,13 @@ public class ListingController {
                 imageDataList
         ));
         return new ModelAndView("redirect:/listing/" + newListing.getId());
+    }
+
+    private ModelAndView detailsWithErrors(Optional<User> currentUser) {
+        var mav = new ModelAndView("listing/new/details");
+        mav.addObject("conditionOptions", buildConditionOptions());
+        mav.addObject("currentUser", currentUser);
+        return mav;
     }
 
     private void populateModel(ModelAndView mav, ChooseProductForm form) {
