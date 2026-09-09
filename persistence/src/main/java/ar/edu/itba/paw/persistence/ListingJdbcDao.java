@@ -162,7 +162,7 @@ public class ListingJdbcDao implements ListingDao {
 
     @Override
     public ListingStatus purchase(Long id, Long buyerId) {
-        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.SOLD.toString(), id);
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.SOLD.getStatus(), id);
         return ListingStatus.SOLD;
     }
 
