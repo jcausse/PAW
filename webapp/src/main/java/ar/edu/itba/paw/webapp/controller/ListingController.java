@@ -10,7 +10,6 @@ import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
@@ -25,7 +24,6 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +46,7 @@ public class ListingController {
     private final ProductService productService;
     private final MessageSource messageSource;
 
-    @GetMapping
+    @GetMapping("/")
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
         final var filter = new ListingFilterDto(
             filterForm.getCategoryId(),
@@ -73,15 +71,15 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public ModelAndView listing(@PathVariable Long id) {
+    public ModelAndView listing(@PathVariable Long id, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
         var listing = listingService.getById(id);
-        var currentUser = getCurrentUser();
-        var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
+        var currentUser = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new);
+        var isCreator = currentUser.getId().equals(listing.getCreator().getId());
         var isSold = listing.getStatus() == ListingStatus.SOLD;
 
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
-                .addObject("currentUser", Optional.ofNullable(currentUser))
+                .addObject("currentUser", Optional.of(currentUser)) // TODO: ESTO CREO QUE PUEDE SACARSE
                 .addObject("isCreator", isCreator)
                 .addObject("isSold", isSold);
     }
@@ -238,7 +236,11 @@ public class ListingController {
     }
 
     @PostMapping("/new/details")
-    public ModelAndView detailsPost(@Valid @ModelAttribute("detailsForm") ListingDetailsForm form, BindingResult bindingResult, @ModelAttribute("currentUser") Optional<User> currentUser) {
+    public ModelAndView detailsPost(
+            @Valid @ModelAttribute("detailsForm") ListingDetailsForm form,
+            BindingResult bindingResult,
+            @ModelAttribute("currentUser") Optional<User> currentUser
+    ) {
         if (form.getTitle() == null || form.getTitle().isBlank()) {
             bindingResult.rejectValue("title", "NotEmpty.listingForm.title");
         }
@@ -312,13 +314,4 @@ public class ListingController {
             mav.addObject("modelsEmpty", models.isEmpty());
         }
     }
-
-    private User getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof AuthUserDetails userDetails) {
-            return userDetails.getDomainUser();
-        }
-        return null;
-    }
-
 }

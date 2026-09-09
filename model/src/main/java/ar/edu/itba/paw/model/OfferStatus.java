@@ -1,26 +1,23 @@
 package ar.edu.itba.paw.model;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Optional;
+
+@RequiredArgsConstructor
 public enum OfferStatus {
     PENDING("pending"),
     ACCEPTED("accepted"),
     REJECTED("rejected");
 
+    @Getter
     private final String status;
 
-    OfferStatus(String status) {
-        this.status = status;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public static OfferStatus fromString(String status) {
-        for (OfferStatus s : values()) {
-            if (s.status.equalsIgnoreCase(status)) {
-                return s;
-            }
-        }
-        return null;
+    public static Optional<OfferStatus> fromString(final String status) {
+        return Arrays.stream(OfferStatus.values())
+                .filter(s -> s.status.equalsIgnoreCase(status))
+                .findFirst();
     }
 }

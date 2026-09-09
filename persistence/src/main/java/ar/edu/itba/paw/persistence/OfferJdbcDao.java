@@ -139,7 +139,7 @@ public class OfferJdbcDao implements OfferDao {
             .buyer(buyer)
             .amount(rs.getBigDecimal(OfferSchema.AMOUNT))
             .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
-            .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)))
+            .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)).orElse(OfferStatus.PENDING))
             .message(rs.getString(OfferSchema.MESSAGE))
             .build();
     };

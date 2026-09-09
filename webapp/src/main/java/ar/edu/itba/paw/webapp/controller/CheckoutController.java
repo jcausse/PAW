@@ -1,16 +1,17 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import ar.edu.itba.paw.webapp.form.CheckoutForm;
 import java.math.BigDecimal;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,17 +41,21 @@ public class CheckoutController {
     }
 
     @PostMapping
-    public ModelAndView checkoutPost(@Valid @ModelAttribute("checkoutForm") CheckoutForm form, BindingResult bindingResult) {
+    public ModelAndView checkoutPost(
+            @Valid @ModelAttribute("checkoutForm") CheckoutForm form,
+            BindingResult bindingResult,
+            @ModelAttribute("currentUser") Optional<User> maybeCurrentUser
+            ) {
+        Listing listing = listingService.getById(form.getListingId());
+
         if (bindingResult.hasErrors()) {
-            Listing listing = listingService.getById(form.getListingId());
             return new ModelAndView("checkout/index").addObject("listing", listing);
         }
 
-        // Listing listing = listingService.getById(form.getListingId());
-        Long buyerId = getCurrentUserId();
+        Long buyerId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
 
         // BigDecimal amount;
-        // Boolean isFullPrice;
+        // boolean isFullPrice;
 
         // if ("full".equals(form.getOfferType())) {
         //     amount = listing.getPrice().getAmount();
@@ -73,13 +78,5 @@ public class CheckoutController {
         listingService.purchase(form.getListingId(), buyerId, form.getMessage());
 
         return new ModelAndView("redirect:/listing/" + form.getListingId());
-    }
-
-    private Long getCurrentUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof AuthUserDetails userDetails) {
-            return userDetails.getDomainUser().getId();
-        }
-        throw new IllegalStateException("No authenticated user");
     }
 }

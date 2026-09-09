@@ -2,19 +2,18 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.exception.NotFoundException;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 // @Controller
@@ -25,12 +24,12 @@ public class OfferController {
     private final MessageSource messageSource;
 
     @GetMapping("/{offerId}")
-    public ModelAndView viewOffer(@PathVariable Long offerId) {
+    public ModelAndView viewOffer(@PathVariable Long offerId, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = getCurrentUserId();
+        final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
 
         // Verify the current user is the seller (listing creator)
         if (!listing.getCreator().getId().equals(currentUserId)) {
@@ -43,12 +42,12 @@ public class OfferController {
     }
 
     @PostMapping("/{offerId}/accept")
-    public ModelAndView acceptOffer(@PathVariable Long offerId) {
+    public ModelAndView acceptOffer(@PathVariable Long offerId, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = getCurrentUserId();
+        final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
             throw new SecurityException("Not authorized to accept this offer");
@@ -56,20 +55,18 @@ public class OfferController {
 
         offerService.accept(offerId);
 
-        // TODO: Send email notification to buyer about offer acceptance
-
         var locale = LocaleContextHolder.getLocale();
         var successMessage = messageSource.getMessage("offer.accepted", null, locale);
         return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
     }
 
     @PostMapping("/{offerId}/reject")
-    public ModelAndView rejectOffer(@PathVariable Long offerId) {
+    public ModelAndView rejectOffer(@PathVariable Long offerId, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = getCurrentUserId();
+        final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
             throw new SecurityException("Not authorized to reject this offer");
@@ -77,18 +74,8 @@ public class OfferController {
 
         offerService.reject(offerId);
 
-        // TODO: Send email notification to buyer about offer rejection
-
         var locale = LocaleContextHolder.getLocale();
         var successMessage = messageSource.getMessage("offer.rejected", null, locale);
         return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
-    }
-
-    private Long getCurrentUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof AuthUserDetails userDetails) {
-            return userDetails.getDomainUser().getId();
-        }
-        throw new IllegalStateException("No authenticated user");
     }
 }

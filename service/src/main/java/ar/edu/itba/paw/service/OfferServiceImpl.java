@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
@@ -21,6 +22,7 @@ public class OfferServiceImpl implements OfferService {
 
     private final OfferDao offerDao;
     private final UserService userService;
+    private final ListingService listingService;
 
     @Override
     public Optional<Offer> getById(Long id) {
@@ -40,13 +42,15 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer create(OfferCreationDto dto) {
+        // TODO: Send email notification to seller about the new offer
         Objects.requireNonNull(dto, "OfferCreationDto cannot be null");
 
-        if (dto.buyerId() == dto.listingId()) {
+        final Listing listing = listingService.getById(dto.listingId());
+        if (Objects.equals(dto.buyerId(), listing.getCreator().getId())) {
             throw BadParameterException.create("buyerId", "User cannot buy their own listing");
         }
 
-        User buyer = userService.getById(dto.buyerId())
+        final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
         return offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
@@ -55,6 +59,7 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer accept(Long offerId) {
+        // TODO: Send email notification to buyer about offer acceptance
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
         if (offer.getStatus() != OfferStatus.PENDING) {
@@ -67,6 +72,7 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer reject(Long offerId) {
+        // TODO: Send email notification to buyer about offer rejection
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
         if (offer.getStatus() != OfferStatus.PENDING) {
