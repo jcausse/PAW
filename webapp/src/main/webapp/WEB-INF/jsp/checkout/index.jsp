@@ -79,13 +79,13 @@
                             <div class="flex flex-row gap-2 items-center text-sm">
                                 <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
                                     <c:choose>
-                                        <c:when test="${listing.creator.imageId.present}">
-                                            <img src="<c:url value='/image/${listing.creator.imageId.get()}'/>" alt="<c:out value='${listing.creator.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <c:when test="${listing.creator.getImageId().isPresent()}">
+                                        <img src="<c:url value='/image/${listing.creator.getImageId().get()}'/>" alt="<c:out value='${listing.creator.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
+                                    </c:otherwise>
+                                </c:choose>
                                 </div>
                                 <p>
                                     <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>

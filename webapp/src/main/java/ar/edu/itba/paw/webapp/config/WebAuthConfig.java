@@ -74,6 +74,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/logout").authenticated()
                 .antMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
                 .antMatchers("/listing/**").permitAll()
+                .antMatchers("/account/**").authenticated()
                 .anyRequest().authenticated()
 
             /* Login */

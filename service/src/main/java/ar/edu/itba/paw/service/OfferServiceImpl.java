@@ -40,6 +40,11 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
+    public List<Offer> getIncomingOffersForUser(Long userId) {
+        return offerDao.getByCreatorId(userId);
+    }
+
+    @Override
     @Transactional
     public Offer create(OfferCreationDto dto) {
         // TODO: Send email notification to seller about the new offer

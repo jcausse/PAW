@@ -166,6 +166,11 @@ public class ListingJdbcDao implements ListingDao {
         return ListingStatus.SOLD;
     }
 
+    @Override
+    public List<Listing> getByCreatorId(Long creatorId) {
+        return jdbcTemplate.query(Queries.GET_BY_CREATOR_ID, ROW_MAPPER, creatorId);
+    }
+
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
@@ -280,5 +285,11 @@ public class ListingJdbcDao implements ListingDao {
         private static final String UPDATE_STATUS_BY_ID =
             "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? " +
             "WHERE " + ListingSchema.ID + " = ?";
+
+        private static final String GET_BY_CREATOR_ID =
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
+            BASE_FROM +
+            " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
+            " ORDER BY l." + ListingSchema.ID + " DESC";
     }
 }

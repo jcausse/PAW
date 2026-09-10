@@ -138,4 +138,9 @@ public class ListingServiceImpl implements ListingService {
 
         return listing;
     }
+
+    @Override
+    public List<Listing> getListingsForUser(Long userId) {
+        return listingDao.getByCreatorId(userId);
+    }
 }

@@ -13,6 +13,8 @@ public interface OfferService {
 
     List<Offer> getByBuyerId(Long buyerId);
 
+    List<Offer> getIncomingOffersForUser(Long userId);
+
     Offer create(OfferCreationDto dto);
 
     Offer accept(Long offerId);

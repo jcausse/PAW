@@ -61,6 +61,11 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
+    public List<Offer> getByCreatorId(Long creatorId) {
+        return jdbcTemplate.query(Queries.GET_BY_CREATOR_ID, ROW_MAPPER, creatorId);
+    }
+
+    @Override
     public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
@@ -196,6 +201,11 @@ public class OfferJdbcDao implements OfferDao {
         private static final String GET_BY_BUYER_ID =
             BASE_SELECT +
             " WHERE o." + OfferSchema.BUYER_ID + " = ?" +
+            " ORDER BY o." + OfferSchema.ID + " DESC";
+
+        private static final String GET_BY_CREATOR_ID =
+            BASE_SELECT +
+            " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
             " ORDER BY o." + OfferSchema.ID + " DESC";
 
         private static final String UPDATE_STATUS =

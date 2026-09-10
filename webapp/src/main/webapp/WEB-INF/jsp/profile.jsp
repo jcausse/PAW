@@ -9,9 +9,9 @@
     <main class="max-w-2xl mx-auto p-6">
         <div class="flex items-center space-x-4 mb-4">
             <c:choose>
-                <c:when test="${user.imageId.present}">
+                <c:when test="${user.getImageId().isPresent()}">
                     <img
-                        src="<c:url value='/image/${user.imageId.get()}'/>"
+                        src="<c:url value='/image/${user.getImageId().get()}'/>"
                         alt="<c:out value='${user.displayName}'/> Profile Picture"
                         class="w-24 h-24 rounded-full object-cover shadow-sm"
                     >

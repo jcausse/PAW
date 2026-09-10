@@ -66,8 +66,8 @@
                             <div class="flex flex-row gap-2 items-center text-sm">
                                 <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
                                     <c:choose>
-                                        <c:when test="${offer.buyer.imageId.present}">
-                                            <img src="<c:url value='/image/${offer.buyer.imageId.get()}'/>" alt="<c:out value='${offer.buyer.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
+                                        <c:when test="${offer.buyer.getImageId().isPresent()}">
+                                            <img src="<c:url value='/image/${offer.buyer.getImageId().get()}'/>" alt="<c:out value='${offer.buyer.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
                                         </c:when>
                                         <c:otherwise>
                                             <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>

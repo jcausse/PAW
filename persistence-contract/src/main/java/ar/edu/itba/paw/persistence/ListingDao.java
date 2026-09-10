@@ -18,4 +18,6 @@ public interface ListingDao {
                     Condition condition, boolean acceptsTrade, String description, List<Long> imageIds);
     List<Listing> search(ListingFilter filter);
     ListingStatus purchase(Long id, Long buyerId);
+
+    List<Listing> getByCreatorId(Long creatorId);
 }

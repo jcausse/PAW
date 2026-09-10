@@ -43,10 +43,10 @@
                             <paw:button id="userButton" variant="ghost" classname="justify-start text-start gap-3 h-14 min-w-40!" type="button">
                                 <div class="flex flex-row gap-2 items-center text-sm">
                                     <div class="rounded-full border border-black/10 w-8 h-8 grid place-items-center overflow-hidden flex-shrink-0">
-                                        <c:choose>
-                                            <c:when test="${currentUser.get().imageId.present}">
+<c:choose>
+                                            <c:when test="${currentUser.get().getImageId().isPresent()}">
                                                 <img
-                                                    src="<c:url value='/image/${currentUser.get().imageId.get()}'/>"
+                                                    src="<c:url value='/image/${currentUser.get().getImageId().get()}'/>"
                                                     alt="<c:out value='${currentUser.get().displayName}'/> Profile Picture"
                                                     class="w-full h-full object-cover"
                                                 >

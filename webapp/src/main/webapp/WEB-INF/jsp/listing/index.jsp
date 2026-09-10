@@ -69,11 +69,10 @@
                         <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
                         <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
                             <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
-                                    <c:choose>
-                                        <c:when test="${listing.creator.imageId.present}">
+                                <c:choose>
+                                        <c:when test="${listing.creator.getImageId().isPresent()}">
                                             <img
-                                                src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
+                                                src="<c:url value='/image/${listing.creator.getImageId().get()}'/>"
                                                 alt="<c:out value='${listing.creator.displayName}'/> Profile Picture"
                                                 class="w-full h-full object-cover"
                                             >
@@ -86,7 +85,6 @@
                                             >
                                         </c:otherwise>
                                     </c:choose>
-                                </div>
                                 <p>
                                     <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
                                     <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
