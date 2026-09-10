@@ -16,4 +16,5 @@ public final class ListingFilter {
     private final Boolean acceptsTrade;
     private final String query;
     private final ListingSort sort;
+    private final ListingStatus status;
 }

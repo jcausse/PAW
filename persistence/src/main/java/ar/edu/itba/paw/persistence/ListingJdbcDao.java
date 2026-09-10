@@ -54,8 +54,13 @@ public class ListingJdbcDao implements ListingDao {
         final List<String> conditions = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
-        conditions.add("l." + ListingSchema.STATUS + " = ?");
-        params.add(ListingStatus.ACTIVE.getStatus());
+        if (filter.getStatus() != null) {
+            conditions.add("l." + ListingSchema.STATUS + " = ?");
+            params.add(filter.getStatus().getStatus());
+        } else {
+            conditions.add("l." + ListingSchema.STATUS + " = ?");
+            params.add(ListingStatus.ACTIVE.getStatus());
+        }
 
         if (filter.getCategoryId() != null) {
             conditions.add(CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = ?");
@@ -100,6 +105,7 @@ public class ListingJdbcDao implements ListingDao {
 
     private static String resolveOrderBy(final ListingSort sort) {
         final String priceCol = "l." + ListingSchema.PRICE;
+        final String titleCol = "l." + ListingSchema.TITLE;
         final String idCol = "l." + ListingSchema.ID;
         if (sort == null) {
             return idCol + " DESC";
@@ -109,6 +115,10 @@ public class ListingJdbcDao implements ListingDao {
                 return priceCol + " ASC, " + idCol + " DESC";
             case PRICE_DESC:
                 return priceCol + " DESC, " + idCol + " DESC";
+            case NAME_ASC:
+                return titleCol + " ASC, " + idCol + " DESC";
+            case NAME_DESC:
+                return titleCol + " DESC, " + idCol + " DESC";
             case RECENT:
             default:
                 return idCol + " DESC";
