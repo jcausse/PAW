@@ -22,90 +22,70 @@
             </div>
         </c:when>
         <c:otherwise>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="border-b border-black/10">
-                            <th class="py-3 px-4 font-semibold text-black/70">
-                                <spring:message code="account.listings.table.image"/>
-                            </th>
-                            <th class="py-3 px-4 font-semibold text-black/70">
-                                <spring:message code="account.listings.table.title"/>
-                            </th>
-                            <th class="py-3 px-4 font-semibold text-black/70">
-                                <spring:message code="account.listings.table.product"/>
-                            </th>
-                            <th class="py-3 px-4 font-semibold text-black/70">
-                                <spring:message code="account.listings.table.price"/>
-                            </th>
-                            <th class="py-3 px-4 font-semibold text-black/70">
-                                <spring:message code="account.listings.table.status"/>
-                            </th>
-                            <th class="py-3 px-4 font-semibold text-black/70">
-                                <spring:message code="account.listings.table.actions"/>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="listing" items="${listings}">
-                            <tr class="border-b border-black/5 hover:bg-black/5">
-                                <td class="py-4 px-4">
-                                    <c:set var="coverUrl" value=""/>
-                                    <c:if test="${not empty listing.imageIds}">
-                                        <c:url value="/image/${listing.imageIds[0]}" var="coverUrl"/>
-                                    </c:if>
-                                    <c:choose>
-                                        <c:when test="${not empty coverUrl}">
-                                            <img src="${coverUrl}" alt="<c:out value='${listing.title}'/>" class="w-16 h-16 object-cover rounded-lg"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="w-16 h-16 rounded-lg bg-black/5 flex items-center justify-center">
-                                                <spring:message code="card.noImage" var="noImageLabel"/>
-                                                <span class="text-xs text-black/40"><c:out value="${noImageLabel}"/></span>
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <c:url value="/listing/${listing.id}" var="listingUrl"/>
-                                    <a href="${listingUrl}" class="font-medium hover:text-lime-600 transition"><c:out value="${listing.title}"/></a>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <c:out value="${listing.product.brand} ${listing.product.model} (${listing.product.year})"/>
-                                </td>
-                                <td class="py-4 px-4 font-medium">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <c:forEach var="listing" items="${listings}">
+                    <c:set var="coverUrl" value=""/>
+                    <c:if test="${not empty listing.imageIds}">
+                        <c:url value="/image/${listing.imageIds[0]}" var="coverUrl"/>
+                    </c:if>
+
+                    <c:choose>
+                        <c:when test="${listing.status.name() == 'ACTIVE'}">
+                            <c:set var="statusClass" value="bg-lime-100 text-lime-800"/>
+                            <spring:message code="listing.status.ACTIVE" var="statusLabel"/>
+                        </c:when>
+                        <c:when test="${listing.status.name() == 'SOLD'}">
+                            <c:set var="statusClass" value="bg-black/10 text-black/70"/>
+                            <spring:message code="listing.status.SOLD" var="statusLabel"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:set var="statusClass" value="bg-yellow-100 text-yellow-800"/>
+                            <c:set var="statusLabel" value="${listing.status.name()}"/>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <paw:card classname="flex flex-col h-full">
+                        <div class="flex items-start justify-between gap-2">
+                            <h3 class="text-base font-semibold flex-1 min-w-0 truncate">
+                                <c:url value="/listing/${listing.id}" var="listingUrl"/>
+                                <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
+                            </h3>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusClass} flex-shrink-0">
+                                <c:out value="${statusLabel}"/>
+                            </span>
+                        </div>
+
+                        <div class="flex gap-3 mt-2">
+                            <div class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-black/10 bg-neutral-200">
+                                <c:choose>
+                                    <c:when test="${not empty coverUrl}">
+                                        <img src="${coverUrl}" alt="<c:out value='${listing.title}'/>" class="w-full h-full object-cover"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="w-full h-full grid place-items-center text-black/30 text-xs px-2 text-center">
+                                            <spring:message code="card.noImage" var="noImageLabel"/>
+                                            <c:out value="${noImageLabel}"/>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+
+                            <div class="flex-1 min-w-0 flex flex-col justify-between">
+                                <div>
+                                    <div class="text-black truncate"><c:out value="${listing.product.brand}"/> <c:out value="${listing.product.model}"/> (<c:out value="${listing.product.year}"/>)</div>
+                                    <div class="text-sm text-black/60 mt-1 truncate">
+                                        <spring:message code="category.${listing.product.subcategory.category.name}"/>
+                                        /
+                                        <spring:message code="subcategory.${listing.product.subcategory.name}"/>
+                                    </div>
+                                </div>
+                                <div class="text-xl font-bold mt-2">
                                     $<c:out value="${listing.price.amount}"/>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <c:choose>
-                                        <c:when test="${listing.status.name() == 'ACTIVE'}">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-lime-100 text-lime-800">
-                                                <spring:message code="listing.status.ACTIVE" var="activeLabel"/>
-                                                <c:out value="${activeLabel}"/>
-                                            </span>
-                                        </c:when>
-                                        <c:when test="${listing.status.name() == 'SOLD'}">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-black/10 text-black/70">
-                                                <spring:message code="listing.status.SOLD" var="soldLabel"/>
-                                                <c:out value="${soldLabel}"/>
-                                            </span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                <c:out value="${listing.status.name()}"/>
-                                            </span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <c:url value="/listing/${listing.id}" var="listingUrl"/>
-                                    <spring:message code="account.listings.table.view" var="viewLabel"/>
-                                    <paw:linkButton href="${listingUrl}" text="${viewLabel}" variant="ghost" size="sm"/>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </paw:card>
+                </c:forEach>
             </div>
         </c:otherwise>
     </c:choose>
