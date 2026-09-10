@@ -5,6 +5,7 @@ import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
+import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserEditForm;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -93,13 +95,15 @@ public class UserController {
             }
         }
 
-        userService.update(new UserEditDto(
+        User updatedUser = userService.update(new UserEditDto(
             currentUser,
             form.getDisplayName(),
             form.getEmail(),
             form.getPassword(),
             imageData
         ));
+
+        updateAuthUserDetails(updatedUser);
 
         return new ModelAndView("redirect:/profile");
     }
@@ -156,5 +160,17 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         ));
+    }
+
+    private void updateAuthUserDetails(final User updatedUser) {
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth != null && currentAuth.getPrincipal() instanceof AuthUserDetails oldDetails) {
+            AuthUserDetails newDetails = new AuthUserDetails(updatedUser, oldDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                    newDetails,
+                    currentAuth.getCredentials(),
+                    newDetails.getAuthorities()
+            ));
+        }
     }
 }

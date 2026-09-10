@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.form.validation.EmptyOrSize;
 import ar.edu.itba.paw.webapp.form.validation.FieldMatch;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +23,10 @@ public class UserEditForm {
     @Size(max = 254)
     private String email;
 
-    @Size(min = 8)
+    @EmptyOrSize(min = 8)
     private String password;
 
-    @Size(min = 8)
+    @EmptyOrSize(min = 8)
     private String confirmPassword;
 
     private MultipartFile profilePicture;
