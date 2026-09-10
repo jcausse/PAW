@@ -80,13 +80,6 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Image updateImage(User user, Image image) {
-        jdbcTemplate.update(Queries.UPDATE_IMAGE, image.getId(), user.getId());
-        return image;
-    }
-
-
-    @Override
     public boolean isUsernameTaken(String username) {
         return jdbcTemplate.queryForObject(
             Queries.IS_USERNAME_TAKEN,
@@ -101,6 +94,49 @@ public class UserJdbcDao implements UserDao {
             Queries.IS_EMAIL_TAKEN,
             Boolean.class,
             email
+        );
+    }
+
+    @Override
+    public void update(Long userId, String displayName, String email, String password, Long imageId) {
+        var setClauses = new java.util.ArrayList<String>();
+        var params = new java.util.ArrayList<>();
+
+        if (displayName != null) {
+            setClauses.add(UserSchema.DISPLAY_NAME + " = ?");
+            params.add(displayName);
+        }
+        if (email != null) {
+            setClauses.add(UserSchema.EMAIL + " = ?");
+            params.add(email);
+        }
+        if (password != null) {
+            setClauses.add(UserSchema.PASSWORD + " = ?");
+            params.add(password);
+        }
+        if (imageId != null) {
+            setClauses.add(UserSchema.IMAGE_ID + " = ?");
+            params.add(imageId);
+        }
+
+        if (setClauses.isEmpty()) {
+            return;
+        }
+
+        var sql = "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + String.join(", ", setClauses) +
+            " WHERE " + UserSchema.ID + " = ?";
+        params.add(userId);
+
+        jdbcTemplate.update(sql, params.toArray());
+    }
+
+    @Override
+    public boolean isEmailTakenByAnother(String email, Long excludeUserId) {
+        return jdbcTemplate.queryForObject(
+            Queries.IS_EMAIL_TAKEN_BY_ANOTHER,
+            Boolean.class,
+            email, excludeUserId
         );
     }
 
@@ -151,9 +187,8 @@ public class UserJdbcDao implements UserDao {
             "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
             " WHERE " + UserSchema.EMAIL + " = ?)";
 
-        private static final String UPDATE_IMAGE =
-            "UPDATE " + UserSchema.TABLE_NAME +
-            " SET " + UserSchema.IMAGE_ID + " = ?" +
-            " WHERE " + UserSchema.ID + " = ?";
+        private static final String IS_EMAIL_TAKEN_BY_ANOTHER =
+            "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
+            " WHERE " + UserSchema.EMAIL + " = ? AND " + UserSchema.ID + " <> ?)";
     }
 }

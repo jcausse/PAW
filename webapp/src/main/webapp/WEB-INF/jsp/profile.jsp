@@ -28,6 +28,13 @@
         </div>
         <p><spring:message code="profile.username"/>: <c:out value="${user.username}"/></p>
         <p><spring:message code="profile.email"/>: <c:out value="${user.email}"/></p>
+        <c:if test="${allowEdit}">
+            <div class="mt-4">
+                <c:url value="/profile/edit" var="editUrl"/>
+                <spring:message code="profile.edit" var="editLabel"/>
+                <paw:linkButton href="${editUrl}" text="${editLabel}" variant="outline"/>
+            </div>
+        </c:if>
     </main>
 </body>
 </html>

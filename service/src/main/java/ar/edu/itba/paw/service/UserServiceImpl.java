@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -66,8 +67,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Image updateImage(User user, Image image) {
-        return userDao.updateImage(user, image);
+    public User update(UserEditDto dto) {
+        Objects.requireNonNull(dto, "UserEditDto cannot be null");
+        Objects.requireNonNull(dto.user(), "User cannot be null");
+
+        var user = dto.user();
+
+        String displayName = (dto.newDisplayName() != null && !dto.newDisplayName().isBlank())
+                ? dto.newDisplayName()
+                : null;
+        String email = (dto.newEmail() != null && !dto.newEmail().isBlank())
+                ? dto.newEmail().toLowerCase()
+                : null;
+        String encodedPassword = (dto.newPassword() != null && !dto.newPassword().isBlank())
+                ? passwordEncoder.encode(dto.newPassword())
+                : null;
+
+        Long imageId = null;
+        if (dto.newImageData() != null && dto.newImageData().imageBytes() != null && dto.newImageData().imageBytes().length > 0) {
+            String alt = user.getUsername() + "'s profile picture";
+            var image = imageService.create(
+                    dto.newImageData().imageFilename(),
+                    alt,
+                    dto.newImageData().imageContentType(),
+                    dto.newImageData().imageBytes()
+            );
+            imageId = image.getId();
+        }
+
+        userDao.update(user.getId(), displayName, email, encodedPassword, imageId);
+
+        return userDao.getById(user.getId()).orElseThrow();
     }
 
     @Override
@@ -80,5 +110,12 @@ public class UserServiceImpl implements UserService {
     public boolean isEmailTaken(String email) {
         Objects.requireNonNull(email, "email cannot be null");
         return userDao.isEmailTaken(email.toLowerCase());
+    }
+
+    @Override
+    public boolean isEmailTakenByAnother(String email, Long excludeUserId) {
+        Objects.requireNonNull(email, "email cannot be null");
+        Objects.requireNonNull(excludeUserId, "excludeUserId cannot be null");
+        return userDao.isEmailTakenByAnother(email.toLowerCase(), excludeUserId);
     }
 }

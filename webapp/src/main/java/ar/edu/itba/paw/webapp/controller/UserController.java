@@ -4,8 +4,10 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,61 @@ public class UserController {
         return new ModelAndView("profile")
                 .addObject("user", currentUser)
                 .addObject("allowEdit", true);
+    }
+
+    /* PROFILE EDIT */
+
+    @GetMapping("/profile/edit")
+    public ModelAndView editProfileForm(@CurrentUser User currentUser, @ModelAttribute("userEditForm") UserEditForm form) {
+        form.setDisplayName(currentUser.getDisplayName());
+        form.setEmail(currentUser.getEmail());
+        return new ModelAndView("profileEdit")
+                .addObject("user", currentUser);
+    }
+
+    @PostMapping("/profile/edit")
+    public ModelAndView editProfile(
+            @CurrentUser User currentUser,
+            @Valid @ModelAttribute("userEditForm") UserEditForm form,
+            BindingResult errors
+    ) {
+        // Check email uniqueness (excluding the current user's own email)
+        if (form.getEmail() != null && !form.getEmail().isBlank()
+                && !form.getEmail().equalsIgnoreCase(currentUser.getEmail())
+                && userService.isEmailTakenByAnother(form.getEmail(), currentUser.getId())) {
+            errors.rejectValue("email", "error.email.taken");
+        }
+
+        if (errors.hasErrors()) {
+            return new ModelAndView("profileEdit")
+                    .addObject("user", currentUser);
+        }
+
+        // Extract image from form
+        ImageData imageData = null;
+        if (form.getProfilePicture() != null && !form.getProfilePicture().isEmpty()) {
+            try {
+                imageData = new ImageData(
+                    form.getProfilePicture().getBytes(),
+                    form.getProfilePicture().getOriginalFilename(),
+                    form.getProfilePicture().getContentType()
+                );
+            } catch (java.io.IOException e) {
+                errors.rejectValue("profilePicture", "error.image.upload");
+                return new ModelAndView("profileEdit")
+                        .addObject("user", currentUser);
+            }
+        }
+
+        userService.update(new UserEditDto(
+            currentUser,
+            form.getDisplayName(),
+            form.getEmail(),
+            form.getPassword(),
+            imageData
+        ));
+
+        return new ModelAndView("redirect:/profile");
     }
 
     /* REGISTER */
