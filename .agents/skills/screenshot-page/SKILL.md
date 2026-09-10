@@ -18,6 +18,8 @@ Learn how to take screenshots of web pages using the Chrome DevTools MCP server 
 ### 1. ALWAYS Restart the Dev Server First
 **Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
 
+**Important**: ALWAYS run the dev server in background! Running it in foreground will only stall your commands for minutes and waste time; you can't do anything while running the server in foreground.
+
 ```bash
 # Kill existing Jetty server if running
 pkill -f jetty
@@ -86,6 +88,8 @@ Get dimensions and size with:
 file /tmp/chrome-devtools-mcp-*/screenshot.png
 stat -c%s /tmp/chrome-devtools-mcp-*/screenshot.png
 ```
+
+Send the attachment together with your usual text output. No need to send messages with only an image attachment.
 
 ## Important Considerations
 

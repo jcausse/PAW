@@ -11,7 +11,7 @@ Learn how to run the dev server, find route URLs, and check routes for errors in
 
 ```bash
 # Start database and Jetty server (runs on localhost:8080)
-make dev
+make dev &
 ```
 
 The `make dev` command:
@@ -22,18 +22,29 @@ The `make dev` command:
 
 **Note:** The server takes ~15-20 seconds to fully start. Wait for "Started Jetty Server" in logs.
 
-### Alternative: Background Server (for testing/screenshots)
+**Important**: ALWAYS Restart the Dev Server First. **Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
 
-For longer-running sessions (e.g., taking screenshots), run Jetty in background:
+**Important**: ALWAYS run the dev server in background! Running it in foreground will only stall your commands for minutes and waste time; you can't do anything while running the server in foreground.
+
+### Alternative: Background Server (for testing/screenshots)
+**Important**: ALWAYS Restart the Dev Server First. **Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
 
 ```bash
-# Start DB first
-./.script/db-start.sh
+# Kill existing Jetty server if running
+pkill -f jetty
 
-# Build and run Jetty in background
-mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
-sleep 15  # Wait for "Started Jetty Server"
+# Start the dev server in background
+nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+
+# Wait for server to start (~25 seconds)
+sleep 25
+
+# Verify it's up
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/login
+# Should return 200
 ```
+
+**Important**: Do NOT use commands with semicolons (;) — they will break. Execute each command separately.
 
 **Important**: The dev server requires the development `app.properties` (from `src/main/environments/dev/`) to be copied to `target/classes/`. The Maven build with `-Pdev` profile should do this automatically, but if the production `app.properties` was previously copied (e.g., by a default build), the dev server will fail with "password authentication failed for user". **Always ensure the dev `app.properties` is used before running the dev server** — copy it manually after build if necessary:
 ```bash

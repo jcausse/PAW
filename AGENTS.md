@@ -174,7 +174,7 @@ JOIN categories c ON s.category_id = c.category_id;
 
 ## Attachment Output Format
 
-When asked to share an image (e.g., a screenshot you just captured), **your response must include JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments.
+When asked to share an image (e.g., a screenshot you just captured), **your response must include JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments. Include this code block within your usual response; avoid messages containing only screenshots unless specifically requested.
 
 ```json
 {
@@ -202,7 +202,7 @@ Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
 - Verify non-trivial changes to JSP files or controllers don't produce errors
 
 **Workflow:**
-1. Run `make dev` and wait for "Started Jetty Server"
+1. Start dev server and wait for "Started Jetty Server"
 2. Seed DB if needed: `docker exec paw-db psql ...`
 3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
 4. If error: inspect response + server logs
@@ -233,7 +233,7 @@ Located at `.agents/skills/screenshot-page/SKILL.md`. Use this skill to:
    - `chrome-devtools_evaluate` — execute JS (fill forms, click, etc.)
    - `chrome-devtools_screenshot` — capture page (saves to `/tmp/chrome-devtools-mcp-*/screenshot.png`)
 
-3. **Send screenshot directly from `/tmp`** using the attachment format in `AGENTS.md` (no need to copy).
+3. **Send screenshot directly from `/tmp`** using the attachment format in `AGENTS.md` (no need to copy), together with your usual text response.
 
 **Important Rules:**
 - **Never use semicolons in bash commands** — execute each command separately
