@@ -98,10 +98,11 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        final Condition condition = dto.condition() == null || dto.condition().isBlank()
-            ? Condition.GOOD
-            : Condition.fromString(dto.condition())
-                .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+        if (dto.condition() == null || dto.condition().isBlank()) {
+            throw BadParameterException.create("condition", "Condition is required");
+        }
+        final Condition condition = Condition.fromString(dto.condition())
+            .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
 
         var listing = listingDao.create(
             dto.title(),
