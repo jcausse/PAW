@@ -52,6 +52,8 @@
 
                             <div id="userPanel" class="hidden absolute right-0 top-full w-48 bg-white rounded-lg border border-black/10 z-50 flex flex-col p-2">
                                 <c:url value="/profile/${currentUser.get().id}" var="profileUrl"/>
+                                <spring:message code="navbar.account" var="accountLabel" />
+                                <paw:linkButton href="/account" text="${accountLabel}" variant="ghost" role="secondary" />
                                 <spring:message code="navbar.profile" var="profileLabel" />
                                 <paw:linkButton href="${profileUrl}" text="${profileLabel}" variant="ghost" role="secondary" />
 

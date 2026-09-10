@@ -31,8 +31,8 @@
             <paw:linkButton variant="ghost" size="lg" href="${offersUrl}">
                 <div class="grow flex flex-col gap-2">
                     <h3 class="text-black font-semibold"><c:out value="${incomingOffersTitle}"/></h3>
-                    <spring:message code="account.incomingOffers.desc" var="offers"/>
-                    <p class="text-black/60 font-normal text-sm"><c:out value="${listingsDesc}"/></p>
+                    <spring:message code="account.incomingOffers.desc" var="offersDesc"/>
+                    <p class="text-black/60 font-normal text-sm"><c:out value="${offersDesc}"/></p>
                 </div>
             </paw:linkButton>
         </div>

@@ -7,11 +7,12 @@
 
 <spring:message code="account.listings.title" var="titleMsg"/>
 <spring:message code="account.listings.subtitle" var="subtitleMsg"/>
+<spring:message code="account.listings.newListing" var="actionText"/>
 
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="account.listings.title"/>
 
-<account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
+<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" actionHref="/listing/new/choose-product" actionText="${actionText}">
     <c:choose>
         <c:when test="${empty listings}">
             <div class="text-center py-12">
