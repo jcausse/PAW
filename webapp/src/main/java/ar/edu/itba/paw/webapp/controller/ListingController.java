@@ -57,21 +57,12 @@ public class ListingController {
             filterForm.getAcceptsTrade(),
             filterForm.getQuery(),
             filterForm.getSort(),
-            null
+            null,
+            ListingStatus.ACTIVE.getStatus()
         );
 
         final var mav = new ModelAndView("listing/discovery");
         mav.addObject("listings", listingService.search(filter));
-        
-        var categories = productService.getAllCategories();
-        mav.addObject("categories", categories);
-
-        // Create translated category options for paw:formSelect
-        var categoryOptions = new java.util.ArrayList<SelectOption>();
-        for (var cat : categories) {
-            categoryOptions.add(new SelectOption(cat.getId(), messageSource.getMessage("category." + cat.getName(), null, LocaleContextHolder.getLocale())));
-        }
-        mav.addObject("categoryOptions", categoryOptions);
 
         // Create translated condition options for paw:formSelect
         var conditionOptions = new java.util.ArrayList<StringSelectOption>();
@@ -93,11 +84,17 @@ public class ListingController {
         }
         mav.addObject("sortOptions", sortOptions);
 
-        if (filterForm.getCategoryId() != null) {
-            var subcategories = productService.getSubcategoriesByCategory(filterForm.getCategoryId());
-            mav.addObject("subcategories", subcategories);
+        // Create translated category options for paw:formSelect
+        var categories = productService.getAllCategories();
+        var categoryOptions = new java.util.ArrayList<SelectOption>();
+        for (var cat : categories) {
+            categoryOptions.add(new SelectOption(cat.getId(), messageSource.getMessage("category." + cat.getName(), null, LocaleContextHolder.getLocale())));
+        }
+        mav.addObject("categoryOptions", categoryOptions);
 
+        if (filterForm.getCategoryId() != null) {
             // Create translated subcategory options for paw:formSelect
+            var subcategories = productService.getSubcategoriesByCategory(filterForm.getCategoryId());
             var subcategoryOptions = new java.util.ArrayList<SelectOption>();
             for (var sub : subcategories) {
                 subcategoryOptions.add(new SelectOption(sub.getId(), messageSource.getMessage("subcategory." + sub.getName(), null, LocaleContextHolder.getLocale())));

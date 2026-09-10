@@ -56,21 +56,22 @@ public class AccountController {
     public ModelAndView listings(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
         final var currentUser = getCurrentUser();
         final User user = currentUser.orElseThrow();
-        
+
         final var filter = new ListingFilterDto(
             null, null, null, null, null, null,
             filterForm.getQuery(),
             filterForm.getSort(),
+            user.getId(),
             filterForm.getStatus()
         );
-        
+
         final List<Listing> listings = listingService.search(filter);
-        
+
         final var locale = LocaleContextHolder.getLocale();
         final var statusOptions = Arrays.stream(ListingStatus.values())
             .map(s -> new StringSelectOption(s.name(), messageSource.getMessage("listing.status." + s.name(), null, locale)))
             .collect(Collectors.toList());
-        
+
         final var sortOptions = Arrays.stream(ListingSort.values())
             .map(s -> {
                 String key;

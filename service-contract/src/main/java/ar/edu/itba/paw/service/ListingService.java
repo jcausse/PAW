@@ -13,6 +13,4 @@ public interface ListingService {
     List<Listing> search(ListingFilterDto filter);
 
     Listing purchase(Long id, Long buyerId, String message);
-
-    List<Listing> getListingsForUser(Long userId);
 }

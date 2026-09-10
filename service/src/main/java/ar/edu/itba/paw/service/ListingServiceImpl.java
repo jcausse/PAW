@@ -55,6 +55,7 @@ public class ListingServiceImpl implements ListingService {
             .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
             .query(dto.query())
             .sort(parseSort(dto.sort()))
+            .creatorId(dto.creatorId())
             .status(parseStatus(dto.status()))
             .build();
 
@@ -145,10 +146,5 @@ public class ListingServiceImpl implements ListingService {
         mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
 
         return listing;
-    }
-
-    @Override
-    public List<Listing> getListingsForUser(Long userId) {
-        return listingDao.getByCreatorId(userId);
     }
 }

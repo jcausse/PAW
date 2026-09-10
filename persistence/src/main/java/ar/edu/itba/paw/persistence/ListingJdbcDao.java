@@ -54,14 +54,6 @@ public class ListingJdbcDao implements ListingDao {
         final List<String> conditions = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
-        if (filter.getStatus() != null) {
-            conditions.add("l." + ListingSchema.STATUS + " = ?");
-            params.add(filter.getStatus().getStatus());
-        } else {
-            conditions.add("l." + ListingSchema.STATUS + " = ?");
-            params.add(ListingStatus.ACTIVE.getStatus());
-        }
-
         if (filter.getCategoryId() != null) {
             conditions.add(CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = ?");
             params.add(filter.getCategoryId());
@@ -85,6 +77,14 @@ public class ListingJdbcDao implements ListingDao {
         if (filter.getAcceptsTrade() != null) {
             conditions.add("l." + ListingSchema.ACCEPTS_TRADE + " = ?");
             params.add(filter.getAcceptsTrade());
+        }
+        if (filter.getStatus() != null) {
+            conditions.add("l." + ListingSchema.STATUS + " = ?");
+            params.add(filter.getStatus().getStatus());
+        }
+        if (filter.getCreatorId() != null) {
+            conditions.add("l." + ListingSchema.CREATOR_ID + " = ?");
+            params.add(filter.getCreatorId());
         }
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add("(LOWER(" + "l." + ListingSchema.TITLE + ") LIKE ?"
@@ -174,11 +174,6 @@ public class ListingJdbcDao implements ListingDao {
     public ListingStatus purchase(Long id, Long buyerId) {
         jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.SOLD.getStatus(), id);
         return ListingStatus.SOLD;
-    }
-
-    @Override
-    public List<Listing> getByCreatorId(Long creatorId) {
-        return jdbcTemplate.query(Queries.GET_BY_CREATOR_ID, ROW_MAPPER, creatorId);
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -295,11 +290,5 @@ public class ListingJdbcDao implements ListingDao {
         private static final String UPDATE_STATUS_BY_ID =
             "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? " +
             "WHERE " + ListingSchema.ID + " = ?";
-
-        private static final String GET_BY_CREATOR_ID =
-            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
-            BASE_FROM +
-            " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
-            " ORDER BY l." + ListingSchema.ID + " DESC";
     }
 }
