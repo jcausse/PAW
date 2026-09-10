@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Controller
 public class UserController {
@@ -28,9 +32,19 @@ public class UserController {
     /* PROFILE */
 
     @GetMapping("/profile/{id}")
-    public ModelAndView profile(@PathVariable Long id) {
+    public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
+        final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
+        final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
         return new ModelAndView("profile")
-                .addObject("user", userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id)));
+                .addObject("user", user)
+                .addObject("allowEdit", isSelfRequest);
+    }
+
+    @GetMapping("/profile")
+    public ModelAndView currentUserProfile(@CurrentUser User currentUser) {
+        return new ModelAndView("profile")
+                .addObject("user", currentUser)
+                .addObject("allowEdit", true);
     }
 
     /* REGISTER */

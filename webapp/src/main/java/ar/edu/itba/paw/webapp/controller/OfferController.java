@@ -5,8 +5,8 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.ForbiddenException;
-import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -14,23 +14,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
-// @Controller
-// @RequestMapping("/offer")
+@Controller
+@RequestMapping("/offer")
 public class OfferController {
 
     private final OfferService offerService;
     private final MessageSource messageSource;
 
     @GetMapping("/{offerId}")
-    public ModelAndView viewOffer(@PathVariable Long offerId, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
+    public ModelAndView viewOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
+        final Long currentUserId = currentUser.getId();
 
         // Verify the current user is the seller (listing creator)
         if (!listing.getCreator().getId().equals(currentUserId)) {
@@ -43,12 +41,12 @@ public class OfferController {
     }
 
     @PostMapping("/{offerId}/accept")
-    public ModelAndView acceptOffer(@PathVariable Long offerId, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
+    public ModelAndView acceptOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
+        final Long currentUserId = currentUser.getId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
             throw new ForbiddenException("Not authorized to accept this offer");
@@ -62,12 +60,12 @@ public class OfferController {
     }
 
     @PostMapping("/{offerId}/reject")
-    public ModelAndView rejectOffer(@PathVariable Long offerId, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
+    public ModelAndView rejectOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
+        final Long currentUserId = currentUser.getId();
 
         if (!listing.getCreator().getId().equals(currentUserId)) {
             throw new ForbiddenException("Not authorized to reject this offer");
