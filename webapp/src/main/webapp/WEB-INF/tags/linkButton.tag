@@ -1,6 +1,7 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="href" required="true" %>
 <%@ attribute name="text" required="false" %>
+<%@ attribute name="icon" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="size" required="false" %>
 <%@ attribute name="role" required="false" %>
@@ -24,13 +25,26 @@
        hover:from-current/5 hover:to-current/10 active:border-t-black/15 active:border-b-white/30 active:translate-y-px'
 }"/>
 
-<c:set var="sizeClassnames" value="${
+<c:set var="sizeClassnamesAll" value="${
   btnSize eq 'sm'
-    ? 'p-1 px-2 text-xs/3 min-w-16'
+    ? 'p-1 text-xs/3 min-w-16'
     : btnSize eq 'lg'
-    ? 'p-4 px-6 text-base/5 min-w-20'
-    : 'p-2 px-4 text-sm/4 min-w-20'
+    ? 'p-4 text-base/5 min-w-20'
+    : 'p-2 text-sm/4 min-w-20'
 }"/>
+
+<c:set var="sizeClassnamesNotIcon" value="${
+  btnSize eq 'sm'
+    ? 'px-2'
+    : btnSize eq 'lg'
+    ? 'px-6'
+    : 'px-4'
+}"/>
+
+<c:set var="sizeClassnames" value="${sizeClassnamesAll}" />
+<c:if test="${empty icon or not empty text}">
+    <c:set var="sizeClassnames" value="${sizeClassnames} ${sizeClassnamesNotIcon}" />
+</c:if>
 
 <c:set var="roleClassnames" value="${
   btnRole eq 'danger'
@@ -59,8 +73,13 @@
   <c:if test="${isDisabled}">aria-disabled="true"</c:if>
 >
     <c:choose>
-        <c:when test="${not empty text}">
-            <c:out value="${text}"/>
+        <c:when test="${not empty text or not empty icon}">
+            <c:if test="${not empty icon}">
+                <paw:icon name="${icon}" />
+            </c:if>
+            <c:if test="${not empty text}">
+                <c:out value="${text}"/>
+            </c:if>
         </c:when>
         <c:otherwise>
             <jsp:doBody/>

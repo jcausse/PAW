@@ -55,10 +55,7 @@
                                     <a href="${listingUrl}" class="font-medium hover:text-lime-600 transition"><c:out value="${offer.listing.title}"/></a>
                                 </td>
                                 <td class="py-4 px-4">
-                                    <c:url value="/profile/${offer.buyer.id}" var="buyerProfileUrl"/>
-                                    <a href="${buyerProfileUrl}" class="hover:text-lime-600 transition">
-                                        <c:out value="${offer.buyer.displayName}"/> (@<c:out value="${offer.buyer.username}"/>)
-                                    </a>
+                                    <paw:user user="${offer.buyer}" />
                                 </td>
                                 <td class="py-4 px-4 font-medium">
                                     $<c:out value="${offer.amount}"/>

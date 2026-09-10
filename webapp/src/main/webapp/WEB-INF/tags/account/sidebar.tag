@@ -24,8 +24,8 @@
         <spring:message code="account.sidebar.seller" var="sellerSubtitle"/>
         <h4 class="font-semibold text-sm mt-2"><c:out value="${sellerSubtitle}" /></h4>
         <div class="flex flex-col gap-1">
-            <account:link href="${listingsUrl}" text="${myListingsTitle}" />
-            <account:link href="${offersUrl}" text="${incomingOffersTitle}" />
+            <account:link href="${listingsUrl}" text="${myListingsTitle}" icon="store" />
+            <account:link href="${offersUrl}" text="${incomingOffersTitle}" icon="handshake" />
         </div>
     </div>
 </paw:card>

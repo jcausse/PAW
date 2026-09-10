@@ -26,6 +26,7 @@
                     <spring:message code="account.myListings.desc" var="listingsDesc"/>
                     <p class="text-black/60 font-normal text-sm"><c:out value="${listingsDesc}"/></p>
                 </div>
+                <paw:icon name="chevron-right" classname="text-xl" />
             </paw:linkButton>
 
             <paw:linkButton variant="ghost" size="lg" href="${offersUrl}">
@@ -34,6 +35,7 @@
                     <spring:message code="account.incomingOffers.desc" var="offersDesc"/>
                     <p class="text-black/60 font-normal text-sm"><c:out value="${offersDesc}"/></p>
                 </div>
+                <paw:icon name="chevron-right" classname="text-xl" />
             </paw:linkButton>
         </div>
     </paw:card>
