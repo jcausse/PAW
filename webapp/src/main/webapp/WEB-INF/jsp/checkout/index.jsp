@@ -76,8 +76,7 @@
                     <div class="flex flex-col gap-4 mt-auto">
                         <paw:user user="${listing.creator}" />
 
-                        <%-- TODO move this to a custom tag --%>
-                        <hr class="border-t-0 border-b border-black/10">
+                        <paw:divider />
 
                         <div class="flex flex-col">
                             <spring:message code="checkout.summary.price" var="priceLabel"/>

@@ -22,7 +22,7 @@
                     <p class="text-black/60 mt-2 text-balance"><c:out value="${description}"/></p>
                 </div>
 
-                <hr class="border-t-0 border-b border-black/10">
+                <paw:divider />
 
                 <!-- Listing info section -->
                 <div class="flex flex-row gap-4">
@@ -85,7 +85,7 @@
                 </div>
 
                 <c:if test="${not empty offer.message}">
-                    <hr class="border-t-0 border-b border-black/10">
+                    <paw:divider />
                     <spring:message code="offer.decision.message" var="messageLabel"/>
                     <div class="flex flex-col">
                         <span class="text-sm text-black/60"><c:out value="${messageLabel}"/></span>
@@ -93,7 +93,7 @@
                     </div>
                 </c:if>
 
-                <hr class="border-t-0 border-b border-black/10">
+                <paw:divider />
 
                 <div class="flex flex-row gap-4">
                     <spring:message code="offer.decision.accept" var="acceptLabel"/>

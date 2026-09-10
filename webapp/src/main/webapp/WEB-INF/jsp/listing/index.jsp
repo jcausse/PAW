@@ -61,8 +61,7 @@
                             </div>
                         </div>
 
-                        <%-- TODO move this to a custom tag --%>
-                        <hr class="border-t-0 border-b border-black/10">
+                        <paw:divider />
 
                         <paw:user user="${listing.creator}" />
 

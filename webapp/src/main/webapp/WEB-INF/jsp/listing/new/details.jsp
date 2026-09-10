@@ -33,8 +33,7 @@
                     <c:out value="${detailsDesc}"/>
                 </div>
 
-                <%-- TODO move this to a custom tag --%>
-                <hr class="border-t-0 border-b border-black/10">
+                <paw:divider />
 
                 <c:url value="/listing/new/details" var="detailsUrl"/>
 
