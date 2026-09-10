@@ -4,6 +4,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="account" tagdir="/WEB-INF/tags/account" %>
 
+
 <spring:message code="account.welcome" arguments="${user.displayName}" var="welcomeMsg"/>
 <spring:message code="account.subtitle" var="subtitleMsg"/>
 

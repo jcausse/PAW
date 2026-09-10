@@ -15,12 +15,12 @@
             <p class="text-black/60 mt-2"><c:out value="${subtitle}"/></p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-1">
+        <div class="grid grid-cols-1 md:grid-cols-10 gap-4">
+            <div class="md:col-span-3">
                 <account:sidebar user="${user}" />
             </div>
 
-            <div class="md:col-span-2">
+            <div class="md:col-span-7">
                 <jsp:doBody />
             </div>
         </div>

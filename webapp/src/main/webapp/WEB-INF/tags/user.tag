@@ -1,17 +1,21 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="variant" required="false" %>
+<%@ attribute name="href" required="false" %>
 <%@ attribute name="user" required="true" type="ar.edu.itba.paw.model.User" %>
 <%@ attribute name="classname" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
+
 <c:set var="userClass" value="${not empty classname ? classname : ''}"/>
 <c:set var="userVariant" value="${not empty variant ? variant : 'basic'}"/>
 <c:set var="avatarSize" value="${variant eq 'detailed' ? 'lg' : 'md'}"/>
 
+<c:set var="profileUrl" value="/profile/${user.id}" />
+<c:set var="hrefOrDefault" value="${not empty href ? href : profileUrl}"/>
+<c:url value="${hrefOrDefault}" var="hrefUrl"/>
 
-<c:url value="/profile/${user.id}" var="profileUrl"/>
-<paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3 ${userClass}">
+<paw:linkButton href="${hrefUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3 ${userClass}">
     <div class="flex flex-row gap-2 items-center text-sm">
         <paw:userAvatar user="${user}" size="${avatarSize}" />
         <c:if test="${userVariant eq 'basic'}">

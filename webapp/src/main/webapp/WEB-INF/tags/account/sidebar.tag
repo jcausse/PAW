@@ -14,12 +14,16 @@
 <spring:message code="account.title" var="accountTitle"/>
 <paw:card title="${accountTitle}">
     <div class="flex flex-col gap-2 mt-4">
-        <paw:user user="${user}" variant="detailed" />
+        <paw:user user="${user}" variant="detailed" href="/account" />
 
         <paw:divider />
 
-        <h4>sell</h4>
-        <div class="flex flex-col">
+        <spring:message code="account.sidebar.buyer" var="buyerSubtitle"/>
+        <%-- TODO --%>
+
+        <spring:message code="account.sidebar.seller" var="sellerSubtitle"/>
+        <h4 class="font-semibold text-sm mt-2"><c:out value="${sellerSubtitle}" /></h4>
+        <div class="flex flex-col gap-1">
             <account:link href="${listingsUrl}" text="${myListingsTitle}" />
             <account:link href="${offersUrl}" text="${incomingOffersTitle}" />
         </div>
