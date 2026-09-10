@@ -3,7 +3,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="profile.title"/>
+<paw:head title="${user.displayName}"/>
 <body class="min-h-screen bg-neutral-50 flex flex-col">
     <paw:navbar/>
     <main class="flex-grow flex items-start justify-center pt-3 px-6 pb-6">
