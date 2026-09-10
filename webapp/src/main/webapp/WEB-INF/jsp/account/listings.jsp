@@ -13,6 +13,7 @@
 <spring:message code="account.listings.filter.status" var="statusLabel"/>
 <spring:message code="account.listings.filter.all" var="allLabel"/>
 <spring:message code="account.listings.filter.sort" var="sortLabel"/>
+<spring:message code="account.listings.filter.default" var="defaultLabel"/>
 <spring:message code="listing.status.ACTIVE" var="statusActive"/>
 <spring:message code="listing.status.SOLD" var="statusSold"/>
 <spring:message code="discovery.sort.recent" var="sortRecent"/>
@@ -33,7 +34,7 @@
                 <paw:formSelect path="status" label="${statusLabel}" placeholder="${allLabel}" items="${statusOptions}" stringOptions="true" classname="w-auto" />
             </div>
             <div class="flex items-center gap-2">
-                <paw:formSelect path="sort" label="${sortLabel}" placeholder="${allLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
+                <paw:formSelect path="sort" label="${sortLabel}" placeholder="${defaultLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
             </div>
         </div>
 
@@ -115,4 +116,26 @@
         </c:choose>
     </form:form>
 </account:layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.getElementById('status');
+        const sortSelect = document.getElementById('sort');
+        const isAutoSubmitInput = document.getElementById('isAutoSubmit');
+
+        function submitForm() {
+            if (isAutoSubmitInput) {
+                isAutoSubmitInput.value = 'true';
+            }
+            document.querySelector('form#filterForm').submit();
+        }
+
+        if (statusSelect) {
+            statusSelect.addEventListener('change', submitForm);
+        }
+        if (sortSelect) {
+            sortSelect.addEventListener('change', submitForm);
+        }
+    });
+</script>
 </html>
