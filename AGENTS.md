@@ -210,3 +210,33 @@ Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
 6. Re-test
 
 **Important:** When asked to debug an issue, **always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
+
+### screenshot-page Skill
+
+Located at `.agents/skills/screenshot-page/SKILL.md`. Use this skill to:
+
+- Take screenshots of web pages using the Chrome DevTools MCP server
+- Document visual changes to JSP pages
+- Verify UI renders correctly after changes
+
+**Key Workflow:**
+
+1. **ALWAYS restart the dev server first** (never assume it's running):
+   ```bash
+   pkill -f jetty
+   nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+   sleep 25
+   ```
+
+2. **Navigate and interact** using MCP tools:
+   - `chrome-devtools_navigate` — load a URL
+   - `chrome-devtools_evaluate` — execute JS (fill forms, click, etc.)
+   - `chrome-devtools_screenshot` — capture page (saves to `/tmp/chrome-devtools-mcp-*/screenshot.png`)
+
+3. **Send screenshot directly from `/tmp`** using the attachment format in `AGENTS.md` (no need to copy).
+
+**Important Rules:**
+- **Never use semicolons in bash commands** — execute each command separately
+- **Always wait for page loads** after navigation/form submissions
+- **Login first** if the target page requires authentication
+- **Use this skill** to attach a screenshot with your change summary whenever you make visual changes to a JSP page
