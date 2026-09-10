@@ -1,33 +1,23 @@
 # Test Route Skill
 
 ## Purpose
-Learn how to run the dev server, find route URLs, and check routes for errors in the PAW project.
+Learn how to run the dev server, find route URLs, and check routes for errors in the PAW project using Chrome DevTools MCP.
 
 ## Prerequisites
 - Docker running with `paw-db` container (PostgreSQL on port 5432)
 - Maven and Java 21 available
+- Chrome DevTools MCP server configured in opencode.json (available as `chrome-devtools_*` tools)
+
+## Available Tools
+- `chrome-devtools_navigate` - Load a URL in the browser
+- `chrome-devtools_evaluate` - Execute JavaScript on the page (e.g., fill forms, click buttons)
+- `chrome-devtools_screenshot` - Take a screenshot of the current page (saves to `/tmp/chrome-devtools-mcp-*/screenshot.png`)
 
 ## Running the Dev Server
 
-```bash
-# Start database and Jetty server (runs on localhost:8080)
-make dev &
-```
+**ALWAYS Restart the Dev Server First. Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
 
-The `make dev` command:
-1. Runs `mvn clean`
-2. Starts the `paw-db` PostgreSQL container via `.script/db-start.sh`
-3. Runs `mvn install -DskipTests -Pdev` to build all modules
-4. Starts Jetty via `mvn -pl webapp jetty:run -Pdev` on port 8080
-
-**Note:** The server takes ~15-20 seconds to fully start. Wait for "Started Jetty Server" in logs.
-
-**Important**: ALWAYS Restart the Dev Server First. **Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
-
-**Important**: ALWAYS run the dev server in background! Running it in foreground will only stall your commands for minutes and waste time; you can't do anything while running the server in foreground.
-
-### Alternative: Background Server (for testing/screenshots)
-**Important**: ALWAYS Restart the Dev Server First. **Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
+**ALWAYS run the dev server in background!** Running it in foreground will only stall your commands for minutes and waste time; you can't do anything while running the server in foreground.
 
 ```bash
 # Kill existing Jetty server if running
@@ -51,7 +41,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/login
 cp webapp/src/main/environments/dev/app.properties webapp/target/classes/app.properties
 ```
 
-Then test with curl and take screenshots. The server runs until you kill it or the environment times out (~58s).
+The server runs until you kill it or the environment times out (~58s).
 
 ## Finding Route URLs
 
@@ -68,24 +58,45 @@ Views are resolved from `WEB-INF/jsp/<view-name>.jsp` where `<view-name>` matche
 new ModelAndView("listing/new/details")  // → WEB-INF/jsp/listing/new/details.jsp
 ```
 
-## Checking Routes for Errors
+## Checking Routes for Errors (Using Chrome DevTools MCP)
 
-### 1. Quick HTTP Status Check
+### 1. Navigate and Inspect with MCP Tools
+```javascript
+// Navigate to the route
+chrome-devtools_navigate({ url: "http://localhost:8080/listing/new/details?productId=1" })
+
+// Wait for page to load
+sleep(2)
+
+// Optionally take a screenshot for visual verification
+chrome-devtools_screenshot({})
+
+// Get page content for error inspection
+chrome-devtools_evaluate({
+  script: "document.documentElement.outerHTML"
+})
+```
+
+### 2. Quick HTTP Status Check (still valid for API endpoints)
 ```bash
 curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080/listing/new/details?productId=1"
 ```
 Returns: `200` (OK), `400` (Bad Request), `404` (Not Found), `500` (Server Error), `503` (Service Unavailable)
 
-### 2. Full Response Inspection
-```bash
-curl -s --max-time 10 "http://localhost:8080/listing/new/details?productId=1" | head -100
+### 3. Full Response Inspection via MCP
+```javascript
+// Get full HTML response
+chrome-devtools_evaluate({
+  script: "document.documentElement.outerHTML"
+})
 ```
 Look for:
 - HTML error pages (Jetty 500/404/503 pages)
 - JSP compilation errors in response body
 - Stack traces in HTML comments
+- Console errors (check browser console via evaluate)
 
-### 3. JSP Compilation Errors
+### 4. JSP Compilation Errors
 If you see `org.apache.jasper.JasperException` in response:
 - Check the line/column mentioned in error
 - Common causes:
@@ -93,7 +104,7 @@ If you see `org.apache.jasper.JasperException` in response:
   - Missing taglib imports
   - EL expression syntax errors
 
-### 4. Database Dependencies
+### 5. Database Dependencies
 Many routes require DB data. Seed test data:
 ```bash
 docker exec paw-db psql -U postgres -d paw -c "
@@ -105,11 +116,31 @@ INSERT INTO products (brand, model, year, subcategory_id) VALUES ('Apple', 'iPho
 
 Then test with `productId=1` (or whatever ID was generated).
 
-### 5. Server Logs
-Check `/tmp/dev.log` (or terminal running `make dev`) for:
+### 6. Server Logs
+Check `/tmp/jetty.log` for:
 - Spring startup errors
 - Hibernate/SQL errors
 - Controller exception stack traces
+
+### 7. Interactive Testing (forms, buttons, etc.)
+```javascript
+// Fill form and submit
+chrome-devtools_evaluate({
+  script: `
+    document.querySelector('input[name="title"]').value = 'Test Listing';
+    document.querySelector('input[name="price"]').value = '100';
+    document.querySelector('form').submit();
+  `
+})
+
+// Wait for redirect
+sleep(2)
+
+// Check result
+chrome-devtools_evaluate({
+  script: "document.documentElement.outerHTML"
+})
+```
 
 ## Common Issues & Fixes
 
@@ -120,15 +151,20 @@ Check `/tmp/dev.log` (or terminal running `make dev`) for:
 | `404 Not Found` | No data in DB (seed categories/products) or wrong URL |
 | `500 JasperException` | Invalid tag attribute in JSP; add to tag file |
 | `500 ServletException` | Check server logs for root cause (NPE, constraint violation, etc.) |
+| MCP navigate error | Dev server not running — restart it |
+| Screenshot is blank/white | Page didn't load fully — increase wait time |
+| "Unknown argument" for screenshot | Call `screenshot` with empty object `{}` not `{path: "..."}` |
 
 ## Workflow Summary
 
-1. `make dev` → wait for "Started Jetty Server"
+1. **Restart dev server in background** (pkill, nohup mvn, sleep 25, verify)
 2. Seed DB if needed: `docker exec paw-db psql ...`
-3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
-4. If error: inspect response + server logs
-5. Fix code → rebuild (Jetty hot-reloads JSPs; Java changes need restart)
-6. Re-test
+3. **Navigate with `chrome-devtools_navigate`** to the route
+4. **Inspect with `chrome-devtools_evaluate`** (get HTML, check console, etc.)
+5. Optionally **screenshot with `chrome-devtools_screenshot`** for visual verification
+6. If error: inspect response + server logs (`/tmp/jetty.log`)
+7. Fix code → rebuild (Jetty hot-reloads JSPs; Java changes need restart)
+8. Re-test
 
 ## Important
 

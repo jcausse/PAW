@@ -202,14 +202,25 @@ Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
 - Verify non-trivial changes to JSP files or controllers don't produce errors
 
 **Workflow:**
-1. Start dev server and wait for "Started Jetty Server"
+1. **Restart dev server in background** (never assume it's running):
+   ```bash
+   pkill -f jetty
+   nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+   sleep 25
+   ```
 2. Seed DB if needed: `docker exec paw-db psql ...`
-3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
-4. If error: inspect response + server logs
-5. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
-6. Re-test
+3. **Navigate with `chrome-devtools_navigate`** to the route
+4. **Inspect with `chrome-devtools_evaluate`** (get HTML, check console, etc.)
+5. Optionally **screenshot with `chrome-devtools_screenshot`** for visual verification
+6. If error: inspect response + server logs (`/tmp/jetty.log`)
+7. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
+8. Re-test
 
-**Important:** When asked to debug an issue, **always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
+**Important Rules:**
+- **Never use semicolons in bash commands** — execute each command separately
+- **Always wait for page loads** after navigation
+- **Use `curl` for quick API/status checks**, but prefer MCP tools for full page inspection
+- **When asked to debug an issue, always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
 
 ### screenshot-page Skill
 
