@@ -57,7 +57,7 @@ public class ListingController {
             filterForm.getAcceptsTrade(),
             filterForm.getQuery(),
             filterForm.getSort(),
-            filterForm.getStatus()
+            null
         );
 
         final var mav = new ModelAndView("listing/discovery");
@@ -92,16 +92,6 @@ public class ListingController {
             ));
         }
         mav.addObject("sortOptions", sortOptions);
-
-        // Create translated status options for paw:formSelect
-        var statusOptions = new java.util.ArrayList<StringSelectOption>();
-        for (var s : ListingStatus.values()) {
-            statusOptions.add(new StringSelectOption(
-                s.name(),
-                messageSource.getMessage("listing.status." + s.name(), null, LocaleContextHolder.getLocale())
-            ));
-        }
-        mav.addObject("statusOptions", statusOptions);
 
         if (filterForm.getCategoryId() != null) {
             var subcategories = productService.getSubcategoriesByCategory(filterForm.getCategoryId());

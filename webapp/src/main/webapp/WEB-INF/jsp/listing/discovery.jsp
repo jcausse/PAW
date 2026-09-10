@@ -25,7 +25,6 @@
 <spring:message code="discovery.filter.clear" var="clearLabel"/>
 <spring:message code="discovery.sort.label" var="sortLabel"/>
 <spring:message code="discovery.filter.all" var="allLabel"/>
-<spring:message code="discovery.filter.status" var="statusLabel"/>
 
 <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
 <main class="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6">
@@ -45,8 +44,6 @@
                         </c:if>
 
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" stringOptions="true" />
-
-                        <paw:formSelect path="status" label="${statusLabel}" placeholder="${allLabel}" items="${statusOptions}" stringOptions="true" />
 
                         <div class="flex flex-row gap-2">
                             <paw:formInput path="minPrice" type="number" step="0.01" label="${minPriceLabel}" classname="min-w-0" />
