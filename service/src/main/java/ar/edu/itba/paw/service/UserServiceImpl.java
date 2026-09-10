@@ -97,6 +97,11 @@ public class UserServiceImpl implements UserService {
 
         userDao.update(user.getId(), displayName, email, encodedPassword, imageId);
 
+        // Delete the old image to prevent orphans, if a new one was set and the user previously had one
+        if (imageId != null && user.getImageId().isPresent()) {
+            imageService.delete(user.getImageId().get());
+        }
+
         return userDao.getById(user.getId()).orElseThrow();
     }
 
