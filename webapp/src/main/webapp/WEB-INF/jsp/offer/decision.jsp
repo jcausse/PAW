@@ -5,9 +5,7 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="offer.decision.title">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</paw:head>
+<paw:head titleKey="offer.decision.title" />
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
