@@ -10,7 +10,7 @@ import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
-import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
@@ -19,7 +19,6 @@ import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -107,15 +106,13 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public ModelAndView listing(@PathVariable Long id, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
+    public ModelAndView listing(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
         var listing = listingService.getById(id);
-        var currentUser = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new);
-        var isCreator = currentUser.getId().equals(listing.getCreator().getId());
+        var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
         var isSold = listing.getStatus() == ListingStatus.SOLD;
 
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
-                .addObject("currentUser", Optional.of(currentUser)) // TODO: ESTO CREO QUE PUEDE SACARSE
                 .addObject("isCreator", isCreator)
                 .addObject("isSold", isSold);
     }
@@ -239,10 +236,10 @@ public class ListingController {
     public ModelAndView detailsPost(
             @Valid @ModelAttribute("detailsForm") ListingDetailsForm form,
             BindingResult bindingResult,
-            @ModelAttribute("currentUser") Optional<User> currentUser
+            @CurrentUser User currentUser
     ) {
         if (bindingResult.hasErrors()) {
-            return detailsWithErrors(currentUser);
+            return detailsWithErrors();
         }
 
         List<ImageData> imageDataList = new ArrayList<>();
@@ -257,7 +254,7 @@ public class ListingController {
                         ));
                     } catch (IOException e) {
                         bindingResult.rejectValue("images", "error.image.upload");
-                        return detailsWithErrors(currentUser);
+                        return detailsWithErrors();
                     }
                 }
             }
@@ -266,7 +263,7 @@ public class ListingController {
         var newListing = listingService.create(new ListingCreationDto(
                 form.getTitle(),
                 new Price(form.getPrice()),
-                currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
+                currentUser.getId(),
                 form.getProductId(),
                 form.getCondition(),
                 form.isAcceptsTrade(),
@@ -276,11 +273,9 @@ public class ListingController {
         return new ModelAndView("redirect:/listing/" + newListing.getId());
     }
 
-    private ModelAndView detailsWithErrors(Optional<User> currentUser) {
-        var mav = new ModelAndView("listing/new/details");
-        mav.addObject("conditionOptions", buildConditionOptions());
-        mav.addObject("currentUser", currentUser);
-        return mav;
+    private ModelAndView detailsWithErrors() {
+        return new ModelAndView("listing/new/details")
+                .addObject("conditionOptions", buildConditionOptions());
     }
 
     private void populateModel(ModelAndView mav, ChooseProductForm form) {

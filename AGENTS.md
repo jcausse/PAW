@@ -82,6 +82,7 @@ The project is called **Swappr** (it is the official name). That name should be 
 - All service methods of all services must be either marked as `@Transactional` if they perform read/write operations, or `@Transactional(readOnly = true)` if they perform read only operations.
   - A class shall be marked `@Transactional(readOnly = true)` instead of marking every method. This shall only be done with `readOnly = true`.
   - Write permissions are only given to those methods that explicitly need those permissions. Never give extra permissions in advance. Always give read permissions by default and then elevate those to write permissions if needed.
+- To obtain the logged-in user in a controller handler method, use `@CurrentUser User currentUser` (see **Current User Resolution**). Never receive `Optional<User>` or use `@ModelAttribute("currentUser")` as a controller method parameter.
 
 ## Spring Security
 
@@ -90,6 +91,14 @@ The project is called **Swappr** (it is the official name). That name should be 
 - Authentication is made using `username` and `password` and is handled by service `ar.edu.itba.paw.webapp.auth.AuthUserDetailsService`.
 - User details for Spring Security uses class `ar.edu.itba.paw.webapp.auth.AuthUserDetails`, which contains a domain user (`ar.edu.itba.paw.model.User`).
 - Passwords must be BCrypt-encoded.
+
+### Current User Resolution (`@CurrentUser`)
+
+- **In Controllers**: **Never** use `@ModelAttribute("currentUser") Optional<User>` as a controller method parameter (receiving `Optional` as a parameter is a code smell). Instead, inject the authenticated `User` via the `@CurrentUser` annotation (`ar.edu.itba.paw.webapp.auth.CurrentUser`):
+  - **Protected routes** (default): `@CurrentUser User currentUser` — resolved by `CurrentUserArgumentResolver`. If unauthenticated, it automatically throws `UserNotAuthenticatedException` (caught by `GlobalExceptionHandler` to return 401 Unauthorized). Controllers do not need manual `.orElseThrow(...)` boilerplate.
+  - **Public / Optional routes**: `@CurrentUser(required = false) User currentUser` — resolves to `null` if unauthenticated, allowing public endpoints (e.g., `/listing/{id}`, `/profile/{id}`) to safely inspect the current user without throwing.
+- **In JSPs & Views**: `CurrentUserControllerAdvice` exposes `${currentUser}` (as `Optional<User>`) globally to all views and custom tags (such as `navbar.tag`). **Never** re-add `"currentUser"` to `ModelAndView` in controllers — the controller advice already supplies it to the view.
+- **Why `@ModelAttribute` in `@ControllerAdvice` cannot enforce authentication**: `@ModelAttribute` methods in a `@ControllerAdvice` run globally for **every request** across the entire application before any controller handler method is selected. A `@ModelAttribute` method that throws an exception when unauthenticated would break all public routes (including `/login`, `/register`, etc.). Argument resolvers, by contrast, are lazy and run on-demand only for the specific parameters declared by a handler.
 
 ## Other Conventions
 
