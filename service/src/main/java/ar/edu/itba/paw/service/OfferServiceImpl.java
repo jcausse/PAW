@@ -55,7 +55,6 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer create(OfferCreationDto dto) {
-        // TODO: Send email notification to seller about the new offer
         Objects.requireNonNull(dto, "OfferCreationDto cannot be null");
 
         final Listing listing = listingService.getById(dto.listingId());
@@ -66,13 +65,14 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
+        // TODO: Send email notification to seller about the new offer
+
         return offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
     }
 
     @Override
     @Transactional
     public Offer accept(Long offerId) {
-        // TODO: Send email notification to buyer about offer acceptance
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
@@ -83,13 +83,16 @@ public class OfferServiceImpl implements OfferService {
         listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
         offerDao.rejectOtherOffers(offer.getListing().getId(), offerId);
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
+
+        // TODO: Send email notification to buyer about offer acceptance
+        // TODO: Send email notifications to buyers of other offers about offer rejection
+
         return offerDao.getById(offerId).orElseThrow();
     }
 
     @Override
     @Transactional
     public Offer reject(Long offerId) {
-        // TODO: Send email notification to buyer about offer rejection
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
@@ -98,6 +101,9 @@ public class OfferServiceImpl implements OfferService {
         }
 
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
+
+        // TODO: Send email notification to buyer about offer rejection
+
         return offerDao.getById(offerId).orElseThrow();
     }
 }
