@@ -27,12 +27,12 @@
                 <c:url value="/language" var="langUrlEn"><c:param name="lang" value="en"/></c:url>
                 <div class="flex flex-row items-center text-xs font-medium">
                     <a href="${langUrlEs}"
-                        class="px-1.5 py-0.5 rounded ${currentLang eq 'es' ? 'text-lime-600 font-bold' : 'text-black/40 hover:text-black/70'}">
+                        class="w-7 text-center py-0.5 rounded ${currentLang eq 'es' ? 'text-lime-600 font-bold' : 'text-black/40 hover:text-black/70'}">
                         <spring:message code="navbar.lang.es"/>
                     </a>
                     <span class="text-black/20">|</span>
                     <a href="${langUrlEn}"
-                        class="px-1.5 py-0.5 rounded ${currentLang eq 'en' ? 'text-lime-600 font-bold' : 'text-black/40 hover:text-black/70'}">
+                        class="w-7 text-center py-0.5 rounded ${currentLang eq 'en' ? 'text-lime-600 font-bold' : 'text-black/40 hover:text-black/70'}">
                         <spring:message code="navbar.lang.en"/>
                     </a>
                 </div>

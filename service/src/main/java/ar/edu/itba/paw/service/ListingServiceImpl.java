@@ -14,6 +14,7 @@ import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -49,8 +50,8 @@ public class ListingServiceImpl implements ListingService {
         final ListingFilter filter = ListingFilter.builder()
             .categoryId(dto.categoryId())
             .subcategoryId(dto.subcategoryId())
-            .minPrice(dto.minPrice())
-            .maxPrice(dto.maxPrice())
+            .minPrice(sanitizePrice(dto.minPrice()))
+            .maxPrice(sanitizePrice(dto.maxPrice()))
             .condition(parseCondition(dto.condition()))
             .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
             .query(dto.query())
@@ -80,6 +81,10 @@ public class ListingServiceImpl implements ListingService {
             : ListingSort.fromString(value).orElse(null);
     }
 
+    private static BigDecimal sanitizePrice(final BigDecimal value) {
+        return value != null && value.signum() >= 0 ? value : null;
+    }
+
     @Override
     @Transactional
     public Listing create(ListingCreationDto dto) {
@@ -107,10 +112,11 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        final Condition condition = dto.condition() == null || dto.condition().isBlank()
-            ? Condition.GOOD
-            : Condition.fromString(dto.condition())
-                .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+        if (dto.condition() == null || dto.condition().isBlank()) {
+            throw BadParameterException.create("condition", "Condition is required");
+        }
+        final Condition condition = Condition.fromString(dto.condition())
+            .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
 
         var listing = listingDao.create(
             dto.title(),

@@ -5,10 +5,9 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
-import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.CheckoutForm;
 import java.math.BigDecimal;
-import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -43,17 +42,16 @@ public class CheckoutController {
     public ModelAndView checkoutPost(
             @Valid @ModelAttribute("checkoutForm") CheckoutForm form,
             BindingResult bindingResult,
-            @ModelAttribute("currentUser") Optional<User> maybeCurrentUser
+            @CurrentUser User currentUser
             ) {
         Listing listing = listingService.getById(form.getListingId());
 
         if (bindingResult.hasErrors()) {
             return new ModelAndView("checkout/index")
-                    .addObject("listing", listing)
-                    .addObject("currentUser", maybeCurrentUser);
+                    .addObject("listing", listing);
         }
 
-        Long buyerId = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new).getId();
+        Long buyerId = currentUser.getId();
 
         BigDecimal amount;
         boolean isFullPrice;

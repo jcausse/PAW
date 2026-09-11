@@ -7,6 +7,7 @@
 - [Technologies Used](#technologies-used)
 - [Running Locally](#running-locally)
 - [Deploying To Production](#deploying-to-production)
+- [Application Info Endpoint](#application-info-endpoint)
 
 ## Team Members
 
@@ -39,7 +40,7 @@ This webapp project uses:
 - Spring (version 5.3.33)
 - Maven
 - Make
-- PostgreSQL (version XXXXX)
+- PostgreSQL
 - Docker (for local development database management)
 - Python 3 (for automated deployment to production)
 - Tailwind (version 4.3.3)
@@ -67,3 +68,12 @@ make deploy
 See `.script/deploy_secrets.properties.sample` for a configuration example.
 
 Production URL: `https://pawserver.it.itba.edu.ar/paw-2026b-08/`
+
+## Application Info Endpoint
+
+The endpoint `/appinfo` prints out information about the project build. This is useful to check production versions. 
+
+Information available:
+- GIT branch
+- GIT commit hash
+- Build time

@@ -22,6 +22,8 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import ar.edu.itba.paw.webapp.auth.CurrentUserArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -33,6 +35,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 
 @Configuration
@@ -170,5 +173,19 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public PlatformTransactionManager transactionManager(final DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
+    }
+
+    /* --------------------------------------------------------------- */
+    /* Current User HandlerMethodArgumentResolver (for @CurrentUser) */
+    /* --------------------------------------------------------------- */
+
+    @Bean
+    public CurrentUserArgumentResolver currentUserArgumentResolver() {
+        return new CurrentUserArgumentResolver();
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(currentUserArgumentResolver());
     }
 }

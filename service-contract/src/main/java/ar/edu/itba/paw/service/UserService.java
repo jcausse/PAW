@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
 
 import java.util.Optional;
 
@@ -12,9 +12,9 @@ public interface UserService {
     Optional<User> getByEmail(String email);
 
     User create(UserCreationDto dto);
-
-    Image updateImage(User user, Image image);
+    User update(UserEditDto dto);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
+    boolean isEmailTakenByAnother(String email, Long excludeUserId);
 }
