@@ -14,7 +14,7 @@
         <div class="mb-4">
             <c:url value="/account/incoming-offers" var="incomingOffersUrl"/>
             <spring:message code="offer.decision.backToOffers" var="backLabel"/>
-            <paw:linkButton href="${incomingOffersUrl}" text="${backLabel}" variant="ghost" icon="chevron-left" />
+            <paw:linkButton href="${incomingOffersUrl}" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
         </div>
 
         <paw:card classname="w-full">
