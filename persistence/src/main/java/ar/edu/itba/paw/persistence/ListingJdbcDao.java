@@ -12,6 +12,7 @@ import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
+import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
@@ -167,6 +168,7 @@ public class ListingJdbcDao implements ListingDao {
             .condition(condition)
             .acceptsTrade(acceptsTrade)
             .imageIds(imageIds != null ? imageIds : List.of())
+            .pendingOffersCount(0)
             .build();
     }
 
@@ -220,6 +222,7 @@ public class ListingJdbcDao implements ListingDao {
                     .build()
             )
             .imageIds(parseImageIds(rs.getString("image_ids")))
+            .pendingOffersCount(rs.getInt("pending_offers_count"))
             .build();
     };
 
@@ -255,7 +258,8 @@ public class ListingJdbcDao implements ListingDao {
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,
             "p." + ProductSchema.YEAR,
-            "p." + ProductSchema.SUBCATEGORY_ID
+            "p." + ProductSchema.SUBCATEGORY_ID,
+            "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = 'pending') as pending_offers_count"
         );
 
         private static final String SUBCATEGORY_FIELDS = String.join(
