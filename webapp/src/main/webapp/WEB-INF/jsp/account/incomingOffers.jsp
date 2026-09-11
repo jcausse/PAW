@@ -31,13 +31,6 @@
                             <c:url value="/image/${offer.listing.imageIds[0]}" var="coverUrl"/>
                         </c:if>
 
-                        <c:if test="${offer.hasOtherOffers}">
-                            <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 mb-3">
-                                <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
-                                <p class="text-sm text-amber-800"><c:out value="${warningMsg}"/></p>
-                            </div>
-                        </c:if>
-
                         <paw:card classname="flex flex-col h-full gap-2">
                             <div class="flex items-start justify-between gap-2">
                                 <h3 class="text-base font-semibold flex-1 min-w-0 truncate">
@@ -54,21 +47,26 @@
 
                                 <div class="flex-1 min-w-0 flex flex-col justify-between">
                                     <paw:product product="${offer.listing.product}" size="sm" />
-                                    <div class="mt-2">
-                                        <c:if test="${not offer.isFullPrice}">
-                                            <p class="text-base font-medium line-through text-black/60">
-                                                $<c:out value="${offer.listing.price.amount}"/>
-                                            </p>
-                                        </c:if>
-                                        <p class="text-2xl font-bold">
-                                            $<c:out value="${offer.amount}"/>
+                                    <div class="mt-2 flex flex-row gap-4 items-end justify-between">
+                                        <div>
                                             <c:if test="${not offer.isFullPrice}">
-                                                <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
-                                                <c:set var="offerAmount" value="${offer.amount}"/>
-                                                <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                                                <span class="text-red-600 text-lg"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
+                                                <p class="text-base font-medium line-through text-black/60">
+                                                    $<c:out value="${offer.listing.price.amount}"/>
+                                                </p>
                                             </c:if>
-                                        </p>
+                                            <p class="text-2xl font-bold">
+                                                $<c:out value="${offer.amount}"/>
+                                                <c:if test="${not offer.isFullPrice}">
+                                                    <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
+                                                    <c:set var="offerAmount" value="${offer.amount}"/>
+                                                    <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
+                                                    <span class="text-red-600 text-lg"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
+                                                </c:if>
+                                            </p>
+                                        </div>
+                                        <div class="max-w-48">
+                                            <paw:user user="${offer.buyer}" variant="compact" />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -83,6 +81,14 @@
                                     </form>
                                 </div>
                             </div>
+
+                            <c:if test="${offer.hasOtherOffers}">
+                                <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-2 flex flex-row gap-2 text-amber-800 items-center">
+                                    <paw:icon name="triangle-alert" />
+                                    <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
+                                    <p class="text-sm"><c:out value="${warningMsg}"/></p>
+                                </div>
+                            </c:if>
 
                             <c:if test="${not empty offer.message}">
                                 <paw:divider />

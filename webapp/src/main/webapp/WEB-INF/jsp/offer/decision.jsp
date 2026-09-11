@@ -23,9 +23,10 @@
                 </div>
 
                 <c:if test="${offer.hasOtherOffers}">
-                    <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-2 flex flex-row gap-2 text-amber-800 items-center">
+                        <paw:icon name="triangle-alert" />
                         <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
-                        <p class="text-sm text-amber-800"><c:out value="${warningMsg}"/></p>
+                        <p class="text-sm"><c:out value="${warningMsg}"/></p>
                     </div>
                 </c:if>
 
