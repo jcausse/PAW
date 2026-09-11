@@ -212,10 +212,28 @@ public class OfferJdbcDao implements OfferDao {
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
+
+        private static final String REJECT_OTHER_OFFERS =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.LISTING_ID + " = ?" +
+            " AND " + OfferSchema.ID + " != ?" +
+            " AND " + OfferSchema.STATUS + " = ?";
     }
 
     @Override
     public boolean updateStatus(Long offerId, OfferStatus status) {
         return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
+    }
+
+    @Override
+    public void rejectOtherOffers(Long listingId, Long exceptOfferId) {
+        jdbcTemplate.update(
+            Queries.REJECT_OTHER_OFFERS,
+            OfferStatus.REJECTED.getStatus(),
+            listingId,
+            exceptOfferId,
+            OfferStatus.PENDING.getStatus()
+        );
     }
 }

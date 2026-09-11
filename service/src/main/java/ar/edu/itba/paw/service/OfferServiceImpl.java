@@ -81,6 +81,7 @@ public class OfferServiceImpl implements OfferService {
         }
 
         listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
+        offerDao.rejectOtherOffers(offer.getListing().getId(), offerId);
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
         return offerDao.getById(offerId).orElseThrow();
     }

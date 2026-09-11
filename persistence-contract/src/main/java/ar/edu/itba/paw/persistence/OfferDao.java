@@ -21,4 +21,6 @@ public interface OfferDao {
     Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message);
 
     boolean updateStatus(Long offerId, OfferStatus status);
+
+    void rejectOtherOffers(Long listingId, Long exceptOfferId);
 }
