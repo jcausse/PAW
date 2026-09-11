@@ -37,7 +37,7 @@ public class OfferController {
 
         var mav = new ModelAndView("offer/decision");
         mav.addObject("offer", offer);
-        mav.addObject("currentUser", maybeCurrentUser);
+        mav.addObject("currentUser", currentUser);
         return mav;
     }
 
