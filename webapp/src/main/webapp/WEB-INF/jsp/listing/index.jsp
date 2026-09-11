@@ -68,6 +68,10 @@
                                 <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
                             </c:when>
                             <c:otherwise>
+                                <c:if test="${listing.pendingOffersCount > 0}">
+                                    <spring:message code="listing.detail.hotItem" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                    <p class="text-center text-red-600 font-semibold py-2 bg-red-50 rounded-lg"><c:out value="${hotItemMsg}"/></p>
+                                </c:if>
                                 <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
                                 <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
                                 <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
