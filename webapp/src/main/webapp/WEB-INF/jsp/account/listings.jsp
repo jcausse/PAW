@@ -28,29 +28,29 @@
 <paw:head titleKey="account.listings.title"/>
 
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}" actionHref="/listing/new/choose-product" actionText="${newListingLabel}">
-    <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
-        <div class="flex items-center justify-between gap-4 mb-6">
-            <div class="flex gap-2">
-                <paw:formSelect path="status" label="${statusLabel}" placeholder="${allLabel}" items="${statusOptions}" stringOptions="true" classname="w-auto" />
+    <paw:card>
+        <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <div class="flex gap-2">
+                    <paw:formSelect path="status" label="${statusLabel}" placeholder="${allLabel}" items="${statusOptions}" stringOptions="true" classname="w-auto" />
+                </div>
+                <div class="flex items-center gap-2">
+                    <paw:formSelect path="sort" label="${sortLabel}" placeholder="${defaultLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <paw:formSelect path="sort" label="${sortLabel}" placeholder="${defaultLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
-            </div>
-        </div>
 
-        <c:choose>
-            <c:when test="${empty listings}">
-                <paw:card>
+            <paw:divider />
+
+            <c:choose>
+                <c:when test="${empty listings}">
                     <div class="mt-12 mb-12 flex flex-col items-center">
                         <spring:message code="account.listings.empty" var="emptyMsg"/>
                         <p class="text-black/60 text-lg mb-4"><c:out value="${emptyMsg}"/></p>
                         <paw:linkButton text="${newListingLabel}" size="lg" href="${newListingUrl}"/>
                     </div>
-                </paw:card>
-            </c:when>
-            <c:otherwise>
-                <div class="grid grid-cols-1 gap-4">
-                    <c:forEach var="listing" items="${listings}">
+                </c:when>
+                <c:otherwise>
+                    <c:forEach var="listing" items="${listings}" varStatus="loop">
                         <c:set var="coverUrl" value=""/>
                         <c:if test="${not empty listing.imageIds}">
                             <c:url value="/image/${listing.imageIds[0]}" var="coverUrl"/>
@@ -71,17 +71,17 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <paw:card classname="flex flex-col h-full">
-                            <div class="flex items-start justify-between gap-2">
-                                <h3 class="text-base font-semibold flex-1 min-w-0 truncate">
+                        <div class="py-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base font-semibold truncate">
                                     <c:url value="/listing/${listing.id}" var="listingUrl"/>
                                     <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
                                 </h3>
-                                <paw:badge text="${statusLabel}" classname="${statusClass}" />
                             </div>
+                            <paw:badge text="${statusLabel}" classname="${statusClass}" />
 
-                            <div class="flex gap-3 mt-2">
-                                <div class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-black/10 bg-neutral-200">
+                            <div class="flex gap-3 w-full sm:w-auto">
+                                <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-black/10 bg-neutral-200">
                                     <c:choose>
                                         <c:when test="${not empty coverUrl}">
                                             <img src="${coverUrl}" alt="<c:out value='${listing.title}'/>" class="w-full h-full object-cover"/>
@@ -104,17 +104,21 @@
                                             <spring:message code="subcategory.${listing.product.subcategory.name}"/>
                                         </div>
                                     </div>
-                                    <div class="text-xl font-bold mt-2">
+                                    <div class="text-xl font-bold mt-2 sm:mt-0">
                                         $<c:out value="${listing.price.amount}"/>
                                     </div>
                                 </div>
                             </div>
-                        </paw:card>
+                        </div>
+
+                        <c:if test="${!loop.last}">
+                            <paw:divider />
+                        </c:if>
                     </c:forEach>
-                </div>
-            </c:otherwise>
-        </c:choose>
-    </form:form>
+                </c:otherwise>
+            </c:choose>
+        </form:form>
+    </paw:card>
 </account:layout>
 
 <script>
