@@ -67,9 +67,12 @@ public class OfferServiceImpl implements OfferService {
         // TODO: Send email notification to buyer about offer acceptance
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
         if (offer.getStatus() != OfferStatus.PENDING) {
             throw new BadParameterException("Offer is not pending");
         }
+
+        listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
         return offerDao.getById(offerId).orElseThrow();
     }
@@ -80,9 +83,11 @@ public class OfferServiceImpl implements OfferService {
         // TODO: Send email notification to buyer about offer rejection
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
         if (offer.getStatus() != OfferStatus.PENDING) {
             throw new BadParameterException("Offer is not pending");
         }
+
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
         return offerDao.getById(offerId).orElseThrow();
     }

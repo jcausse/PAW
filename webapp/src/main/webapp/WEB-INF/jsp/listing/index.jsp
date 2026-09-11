@@ -51,20 +51,11 @@
                 <paw:card>
                     <div class="flex flex-col gap-4">
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
-
-                        <div class="flex flex-col">
-                            <div class="text-black"><c:out value="${listing.product.brand}"/> <c:out value="${listing.product.model}"/> (<c:out value="${listing.product.year}"/>)</div>
-                            <div class="text-sm text-black/60">
-                                <spring:message code="category.${listing.product.subcategory.category.name}"/>
-                                /
-                                <spring:message code="subcategory.${listing.product.subcategory.name}"/>
-                            </div>
-                        </div>
+                        <paw:product product="${listing.product}" />
 
                         <paw:divider />
 
                         <paw:user user="${listing.creator}" />
-
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>

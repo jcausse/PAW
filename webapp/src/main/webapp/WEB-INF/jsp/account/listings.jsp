@@ -49,15 +49,12 @@
                         <paw:linkButton text="${newListingLabel}" size="lg" href="${newListingUrl}"/>
                     </div>
                 </c:when>
+
                 <c:otherwise>
                     <div class="flex flex-col gap-4 mt-4">
                         <c:forEach var="listing" items="${listings}" varStatus="loop">
+                            <c:url value="/listing/${listing.id}" var="listingUrl"/>
                             <div class="flex flex-col gap-2">
-                                <c:set var="coverUrl" value=""/>
-                                <c:if test="${not empty listing.imageIds}">
-                                    <c:url value="/image/${listing.imageIds[0]}" var="coverUrl"/>
-                                </c:if>
-
                                 <c:choose>
                                     <c:when test="${listing.status.name() == 'ACTIVE'}">
                                         <c:set var="statusClass" value="text-green-600"/>
@@ -76,40 +73,24 @@
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                                     <div class="min-w-0">
                                         <h3 class="text-base font-semibold truncate">
-                                            <c:url value="/listing/${listing.id}" var="listingUrl"/>
                                             <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
                                         </h3>
                                     </div>
                                     <paw:badge text="${statusLabel}" classname="ml-auto ${statusClass}" />
                                 </div>
 
-                                <div class="flex gap-3 w-full sm:w-auto">
-                                    <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-black/10 bg-neutral-200">
-                                        <c:choose>
-                                            <c:when test="${not empty coverUrl}">
-                                                <img src="${coverUrl}" alt="<c:out value='${listing.title}'/>" class="w-full h-full object-cover"/>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="w-full h-full grid place-items-center text-black/30 text-xs px-2 text-center">
-                                                    <spring:message code="card.noImage" var="noImageLabel"/>
-                                                    <c:out value="${noImageLabel}"/>
-                                                </div>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
+                                <div class="flex flex-row gap-3 w-full sm:w-auto">
+                                    <paw:listingImage listing="${listing}" />
 
                                     <div class="flex-1 min-w-0 flex flex-col justify-between">
-                                        <div>
-                                            <div class="text-black truncate"><c:out value="${listing.product.brand}"/> <c:out value="${listing.product.model}"/> (<c:out value="${listing.product.year}"/>)</div>
-                                            <div class="text-sm text-black/60 mt-1 truncate">
-                                                <spring:message code="category.${listing.product.subcategory.category.name}"/>
-                                                /
-                                                <spring:message code="subcategory.${listing.product.subcategory.name}"/>
-                                            </div>
-                                        </div>
+                                        <paw:product product="${listing.product}" size="sm" />
                                         <div class="text-xl font-bold mt-2 sm:mt-0">
                                             $<c:out value="${listing.price.amount}"/>
                                         </div>
+                                    </div>
+
+                                    <div class="flex flex-row gap-2 self-end">
+                                        <paw:linkButton variant="outline" href="${listingUrl}" icon="eye" />
                                     </div>
                                 </div>
                             </div>

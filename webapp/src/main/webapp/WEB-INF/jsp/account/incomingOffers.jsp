@@ -29,19 +29,19 @@
 
                     <c:choose>
                         <c:when test="${offer.status.name() == 'PENDING'}">
-                            <c:set var="statusClass" value="bg-yellow-100 text-yellow-800"/>
+                            <c:set var="statusClass" value="text-yellow-600"/>
                             <spring:message code="offer.status.PENDING" var="statusLabel"/>
                         </c:when>
                         <c:when test="${offer.status.name() == 'ACCEPTED'}">
-                            <c:set var="statusClass" value="bg-lime-100 text-lime-800"/>
+                            <c:set var="statusClass" value="text-green-600"/>
                             <spring:message code="offer.status.ACCEPTED" var="statusLabel"/>
                         </c:when>
                         <c:when test="${offer.status.name() == 'REJECTED'}">
-                            <c:set var="statusClass" value="bg-red-100 text-red-800"/>
+                            <c:set var="statusClass" value="text-red-600"/>
                             <spring:message code="offer.status.REJECTED" var="statusLabel"/>
                         </c:when>
                         <c:otherwise>
-                            <c:set var="statusClass" value="bg-black/10 text-black/70"/>
+                            <c:set var="statusClass" value="text-neutral-600"/>
                             <c:set var="statusLabel" value="${offer.status.name()}"/>
                         </c:otherwise>
                     </c:choose>
@@ -52,9 +52,7 @@
                                 <c:url value="/listing/${offer.listing.id}" var="listingUrl"/>
                                 <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${offer.listing.title}"/></a>
                             </h3>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusClass} flex-shrink-0">
-                                <c:out value="${statusLabel}"/>
-                            </span>
+                            <paw:badge text="${statusLabel}" classname="ml-auto ${statusClass}" />
                         </div>
 
                         <div class="flex gap-3 mt-2">
@@ -83,7 +81,7 @@
                                 </div>
                                 <div class="text-xl font-bold mt-2">
                                     <c:if test="${not offer.isFullPrice}">
-                                        <p class="text-lg font-medium line-through text-black/60">
+                                        <p class="text-base font-medium line-through text-black/60">
                                             $<c:out value="${offer.listing.price.amount}"/>
                                         </p>
                                     </c:if>
@@ -108,7 +106,7 @@
                                     <c:out value="${messageLabel}"/>
                                     <span class="text-black/30 ml-auto">▼</span>
                                 </summary>
-                                <div class="mt-2 p-3 bg-neutral-50 rounded-lg text-black/90 whitespace-pre-wrap text-sm">
+                                <div class="mt-2 p-3 bg-neutral-50 rounded-lg text-black/90 text-sm">
                                     <c:out value="${offer.message}"/>
                                 </div>
                             </details>

@@ -12,7 +12,7 @@
 <spring:message code="account.incomingOffers" var="incomingOffersTitle"/>
 
 <spring:message code="account.title" var="accountTitle"/>
-<paw:card title="${accountTitle}">
+<paw:card title="${accountTitle}" classname="sticky top-24">
     <div class="flex flex-col gap-2 mt-4">
         <paw:user user="${user}" variant="detailed" href="/account" />
 

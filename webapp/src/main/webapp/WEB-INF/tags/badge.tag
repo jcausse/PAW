@@ -17,7 +17,7 @@
     : 'px-2 text-sm/5 min-w-12'
 }"/>
 
-<div class="font-medium rounded-full text-center border border-current/60 bg-current/20 flex-shrink-0 ${sizeClassnames} ${badgeClass}">
+<div class="font-semibold rounded-full text-center border border-current/20 bg-current/10 flex-shrink-0 ${sizeClassnames} ${badgeClass}">
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />
     </c:if>
