@@ -146,6 +146,8 @@ public class OfferJdbcDao implements OfferDao {
             .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
             .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)).orElse(OfferStatus.PENDING))
             .message(rs.getString(OfferSchema.MESSAGE))
+            .hasOtherOffers(rs.getBoolean("has_other_offers"))
+            .hasBetterOffers(rs.getBoolean("has_better_offers"))
             .build();
     };
 
@@ -181,6 +183,13 @@ public class OfferJdbcDao implements OfferDao {
             ", cat." + CategorySchema.ID + ", cat." + CategorySchema.NAME + " as category_name" +
             ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
             " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
+            ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o2 " +
+            " WHERE o2." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
+            " AND o2." + OfferSchema.ID + " != o." + OfferSchema.ID + ") as has_other_offers" +
+            ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o3 " +
+            " WHERE o3." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
+            " AND o3." + OfferSchema.ID + " != o." + OfferSchema.ID +
+            " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT + ") as has_better_offers" +
             " FROM " + OfferSchema.TABLE_NAME + " o" +
             " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
             " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +

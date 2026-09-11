@@ -22,6 +22,13 @@
                     <p class="text-black/60 mt-2 text-balance"><c:out value="${description}"/></p>
                 </div>
 
+                <c:if test="${offer.hasOtherOffers}">
+                    <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                        <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
+                        <p class="text-sm text-amber-800"><c:out value="${warningMsg}"/></p>
+                    </div>
+                </c:if>
+
                 <paw:divider />
 
                 <!-- Listing info section -->
