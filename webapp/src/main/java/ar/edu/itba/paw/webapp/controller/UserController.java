@@ -4,13 +4,17 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
+import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -45,6 +49,63 @@ public class UserController {
         return new ModelAndView("profile")
                 .addObject("user", currentUser)
                 .addObject("allowEdit", true);
+    }
+
+    /* PROFILE EDIT */
+
+    @GetMapping("/profile/edit")
+    public ModelAndView editProfileForm(@CurrentUser User currentUser, @ModelAttribute("userEditForm") UserEditForm form) {
+        form.setDisplayName(currentUser.getDisplayName());
+        form.setEmail(currentUser.getEmail());
+        return new ModelAndView("profileEdit")
+                .addObject("user", currentUser);
+    }
+
+    @PostMapping("/profile/edit")
+    public ModelAndView editProfile(
+            @CurrentUser User currentUser,
+            @Valid @ModelAttribute("userEditForm") UserEditForm form,
+            BindingResult errors
+    ) {
+        // Check email uniqueness (excluding the current user's own email)
+        if (form.getEmail() != null && !form.getEmail().isBlank()
+                && !form.getEmail().equalsIgnoreCase(currentUser.getEmail())
+                && userService.isEmailTakenByAnother(form.getEmail(), currentUser.getId())) {
+            errors.rejectValue("email", "error.email.taken");
+        }
+
+        if (errors.hasErrors()) {
+            return new ModelAndView("profileEdit")
+                    .addObject("user", currentUser);
+        }
+
+        // Extract image from form
+        ImageData imageData = null;
+        if (form.getProfilePicture() != null && !form.getProfilePicture().isEmpty()) {
+            try {
+                imageData = new ImageData(
+                    form.getProfilePicture().getBytes(),
+                    form.getProfilePicture().getOriginalFilename(),
+                    form.getProfilePicture().getContentType()
+                );
+            } catch (java.io.IOException e) {
+                errors.rejectValue("profilePicture", "error.image.upload");
+                return new ModelAndView("profileEdit")
+                        .addObject("user", currentUser);
+            }
+        }
+
+        User updatedUser = userService.update(new UserEditDto(
+            currentUser,
+            form.getDisplayName(),
+            form.getEmail(),
+            form.getPassword(),
+            imageData
+        ));
+
+        updateAuthUserDetails(updatedUser);
+
+        return new ModelAndView("redirect:/profile");
     }
 
     /* REGISTER */
@@ -99,5 +160,17 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         ));
+    }
+
+    private void updateAuthUserDetails(final User updatedUser) {
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth != null && currentAuth.getPrincipal() instanceof AuthUserDetails oldDetails) {
+            AuthUserDetails newDetails = new AuthUserDetails(updatedUser, oldDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                    newDetails,
+                    currentAuth.getCredentials(),
+                    newDetails.getAuthorities()
+            ));
+        }
     }
 }

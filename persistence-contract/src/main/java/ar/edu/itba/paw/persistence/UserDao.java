@@ -23,8 +23,9 @@ public interface UserDao {
             Image image
     );
 
-    Image updateImage(User user, Image image);
+    void update(Long userId, String displayName, String email, String password, Long imageId);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
+    boolean isEmailTakenByAnother(String email, Long excludeUserId);
 }
