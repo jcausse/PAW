@@ -34,7 +34,7 @@
         <c:if test="${userVariant eq 'detailed'}">
             <div class="flex flex-col">
                 <p>
-                    <span class="text-black font-medium text-base"><c:out value="${user.displayName}"/></span>
+                    <span class="text-black font-medium"><c:out value="${user.displayName}"/></span>
                     <span class="text-black/60 font-normal">(<c:out value="${user.username}"/>)</span>
                 </p>
                 <p class="text-black/60 font-normal"><c:out value="${user.email}"/></p>

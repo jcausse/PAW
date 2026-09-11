@@ -23,11 +23,12 @@
 <spring:message code="account.listings.sort.name_desc" var="sortNameDesc"/>
 
 <c:url value="/account/listings" var="filterAction"/>
+<c:url value="/listing/new/choose-product" var="newListingUrl"/>
 
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="account.listings.title"/>
 
-<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" actionHref="/listing/new/choose-product" actionText="${newListingLabel}">
+<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" actionHref="${newListingUrl}" actionText="${newListingLabel}">
     <paw:card>
         <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
             <div class="flex items-center justify-between gap-4 mb-4">
