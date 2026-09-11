@@ -6,6 +6,7 @@ import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
@@ -50,7 +51,7 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
-    public List<Listing> search(ListingFilter filter) {
+    public Page<Listing> search(ListingFilter filter) {
         final List<String> conditions = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
@@ -89,13 +90,42 @@ public class ListingJdbcDao implements ListingDao {
             params.add(like);
         }
 
+        final String whereClause = " WHERE " + String.join(" AND ", conditions);
+        final String orderBy = resolveOrderBy(filter.getSort());
+
+        final long totalCount = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*)" + Queries.BASE_FROM + whereClause,
+            Long.class,
+            params.toArray()
+        );
+
+        final int page = filter.getPage();
+        final int pageSize = filter.getPageSize();
+        final int offset = (page - 1) * pageSize;
+
+        final List<Object> idParams = new ArrayList<>(params);
+        idParams.add(pageSize);
+        idParams.add(offset);
+        final List<Long> ids = jdbcTemplate.queryForList(
+            "SELECT l." + ListingSchema.ID + Queries.BASE_FROM + whereClause
+                + " ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
+            Long.class,
+            idParams.toArray()
+        );
+
+        if (ids.isEmpty()) {
+            return new Page<>(List.of(), page, pageSize, totalCount);
+        }
+
+        final String inPlaceholders = String.join(", ", ids.stream().map(id -> "?").toArray(String[]::new));
         final String sql = "SELECT " + Queries.FIELDS + ", " + Queries.SUBCATEGORY_FIELDS
             + ", " + Queries.COVER_IMAGE_ID_SUBQUERY + " as image_ids"
             + Queries.BASE_FROM
-            + " WHERE " + String.join(" AND ", conditions)
-            + " ORDER BY " + resolveOrderBy(filter.getSort());
+            + " WHERE l." + ListingSchema.ID + " IN (" + inPlaceholders + ")"
+            + " ORDER BY " + orderBy;
 
-        return jdbcTemplate.query(sql, ROW_MAPPER, params.toArray());
+        final List<Listing> content = jdbcTemplate.query(sql, ROW_MAPPER, ids.toArray());
+        return new Page<>(content, page, pageSize, totalCount);
     }
 
     private static String resolveOrderBy(final ListingSort sort) {

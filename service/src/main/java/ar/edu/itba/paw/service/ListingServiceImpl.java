@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
@@ -28,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ListingServiceImpl implements ListingService {
 
+    private static final int PAGE_SIZE = 12;
+
     private final ListingDao listingDao;
 
     private final UserService userService;
@@ -43,7 +46,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public List<Listing> search(ListingFilterDto dto) {
+    public Page<Listing> search(ListingFilterDto dto) {
         Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
 
         final ListingFilter filter = ListingFilter.builder()
@@ -55,9 +58,15 @@ public class ListingServiceImpl implements ListingService {
             .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
             .query(dto.query())
             .sort(parseSort(dto.sort()))
+            .page(sanitizePage(dto.page()))
+            .pageSize(PAGE_SIZE)
             .build();
 
         return listingDao.search(filter);
+    }
+
+    private static int sanitizePage(final Integer page) {
+        return page == null || page < 1 ? 1 : page;
     }
 
     private static Condition parseCondition(final String value) {

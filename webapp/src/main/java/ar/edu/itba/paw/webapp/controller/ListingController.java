@@ -55,11 +55,15 @@ public class ListingController {
             filterForm.getCondition(),
             filterForm.getAcceptsTrade(),
             filterForm.getQuery(),
-            filterForm.getSort()
+            filterForm.getSort(),
+            filterForm.getPage()
         );
 
+        final var listingPage = listingService.search(filter);
+
         final var mav = new ModelAndView("listing/discovery");
-        mav.addObject("listings", listingService.search(filter));
+        mav.addObject("listingPage", listingPage);
+        mav.addObject("listings", listingPage.getContent());
         
         var categories = productService.getAllCategories();
         mav.addObject("categories", categories);

@@ -9,5 +9,6 @@ public record ListingFilterDto(
     String condition,
     Boolean acceptsTrade,
     String query,
-    String sort
+    String sort,
+    Integer page
 ) {}
