@@ -58,15 +58,15 @@
 
                         <c:choose>
                             <c:when test="${listing.status.name() == 'ACTIVE'}">
-                                <c:set var="statusClass" value="bg-lime-100 text-lime-800"/>
+                                <c:set var="statusClass" value="text-green-600"/>
                                 <spring:message code="listing.status.ACTIVE" var="statusLabel"/>
                             </c:when>
                             <c:when test="${listing.status.name() == 'SOLD'}">
-                                <c:set var="statusClass" value="bg-black/10 text-black/70"/>
+                                <c:set var="statusClass" value="text-neutral-600"/>
                                 <spring:message code="listing.status.SOLD" var="statusLabel"/>
                             </c:when>
                             <c:otherwise>
-                                <c:set var="statusClass" value="bg-yellow-100 text-yellow-800"/>
+                                <c:set var="statusClass" value="text-yellow-800"/>
                                 <c:set var="statusLabel" value="${listing.status.name()}"/>
                             </c:otherwise>
                         </c:choose>
@@ -77,9 +77,7 @@
                                     <c:url value="/listing/${listing.id}" var="listingUrl"/>
                                     <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
                                 </h3>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusClass} flex-shrink-0">
-                                    <c:out value="${statusLabel}"/>
-                                </span>
+                                <paw:badge text="${statusLabel}" classname="${statusClass}" />
                             </div>
 
                             <div class="flex gap-3 mt-2">
