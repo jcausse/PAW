@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OfferDao;
+import ar.edu.itba.paw.service.dto.IncomingOffersDto;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
@@ -40,8 +41,15 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public List<Offer> getIncomingOffersForUser(Long userId) {
-        return offerDao.getByCreatorId(userId);
+    public IncomingOffersDto getIncomingOffersForUser(Long userId) {
+        final List<Offer> allOffers = offerDao.getByCreatorId(userId);
+        final List<Offer> pending = allOffers.stream()
+                .filter(o -> o.getStatus() == OfferStatus.PENDING)
+                .toList();
+        final List<Offer> resolved = allOffers.stream()
+                .filter(o -> o.getStatus() != OfferStatus.PENDING)
+                .toList();
+        return new IncomingOffersDto(pending, resolved);
     }
 
     @Override
