@@ -47,6 +47,7 @@
 <button
     type="${btnType}"
     id="${id}"
+    <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     class="
         font-semibold rounded-lg
         flex flex-row items-center justify-center gap-2
@@ -70,3 +71,19 @@
         </c:otherwise>
     </c:choose>
 </button>
+
+<c:if test="${btnType eq 'submit'}">
+    <script>
+        if (!window.__submitGuardInstalled) {
+            window.__submitGuardInstalled = true;
+            document.addEventListener('submit', function (e) {
+                var form = e.target;
+                var button = form.querySelector('button[type="submit"][data-submit-guard]');
+                if (button) {
+                    // Disable after the current submit is dispatched, so the form still sends.
+                    setTimeout(function () { button.disabled = true; }, 0);
+                }
+            }, true);
+        }
+    </script>
+</c:if>

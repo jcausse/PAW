@@ -87,6 +87,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/listing/**").permitAll()
 
                 /* Other */
+                .antMatchers("/appinfo").permitAll()
                 .anyRequest().authenticated()
 
             /* Login */

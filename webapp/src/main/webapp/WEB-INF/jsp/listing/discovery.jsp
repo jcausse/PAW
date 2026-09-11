@@ -46,8 +46,8 @@
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" stringOptions="true" />
 
                         <div class="flex flex-row gap-2">
-                            <paw:formInput path="minPrice" type="number" step="0.01" label="${minPriceLabel}" classname="min-w-0" />
-                            <paw:formInput path="maxPrice" type="number" step="0.01" label="${maxPriceLabel}" classname="min-w-0" />
+                            <paw:formInput path="minPrice" type="number" step="0.01" min="0" label="${minPriceLabel}" classname="min-w-0" />
+                            <paw:formInput path="maxPrice" type="number" step="0.01" min="0" label="${maxPriceLabel}" classname="min-w-0" />
                         </div>
 
                         <div class="flex flex-col gap-1">
