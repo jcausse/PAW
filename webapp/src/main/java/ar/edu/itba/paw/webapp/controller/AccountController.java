@@ -47,18 +47,18 @@ public class AccountController {
     @GetMapping
     public ModelAndView index() {
         final var currentUser = getCurrentUser();
-        final User user = currentUser.orElseThrow();
-        final int pendingOffersCount = offerService.getIncomingOffersForUser(user.getId()).pending().size();
+        final var user = currentUser.orElseThrow();
+
         return new ModelAndView("account/index")
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", pendingOffersCount);
+                .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
     @GetMapping("/listings")
     public ModelAndView listings(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
         final var currentUser = getCurrentUser();
-        final User user = currentUser.orElseThrow();
+        final var user = currentUser.orElseThrow();
 
         final var filter = new ListingFilterDto(
             null, null, null, null, null, null,
@@ -68,7 +68,7 @@ public class AccountController {
             filterForm.getStatus()
         );
 
-        final List<Listing> listings = listingService.search(filter);
+        final var listings = listingService.search(filter);
 
         final var locale = LocaleContextHolder.getLocale();
         final var statusOptions = Arrays.stream(ListingStatus.values())
@@ -93,18 +93,25 @@ public class AccountController {
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
                 .addObject("statusOptions", statusOptions)
-                .addObject("sortOptions", sortOptions);
+                .addObject("sortOptions", sortOptions)
+                .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
     @GetMapping("/incoming-offers")
     public ModelAndView incomingOffers() {
         final var currentUser = getCurrentUser();
-        final User user = currentUser.orElseThrow();
-        final IncomingOffersDto offers = offerService.getIncomingOffersForUser(user.getId());
+        final var user = currentUser.orElseThrow();
+        final var offers = offerService.getIncomingOffersForUser(user.getId());
+
         return new ModelAndView("account/incomingOffers")
                 .addObject("pendingOffers", offers.pending())
                 .addObject("resolvedOffers", offers.resolved())
                 .addObject("user", user)
-                .addObject("currentUser", currentUser);
+                .addObject("currentUser", currentUser)
+                .addObject("pendingOffersCount", offers.pending().size());
     }
+
+	private int getPendingOffersCount(final User user) {
+		return offerService.getIncomingOffersForUser(user.getId()).pending().size();
+	}
 }

@@ -87,17 +87,11 @@
     "
     <c:if test="${isDisabled}">disabled</c:if>
 >
-    <c:choose>
-        <c:when test="${not empty text or not empty icon}">
-            <c:if test="${not empty icon}">
-                <paw:icon name="${icon}" />
-            </c:if>
-            <c:if test="${not empty text}">
-                <c:out value="${text}"/>
-            </c:if>
-        </c:when>
-        <c:otherwise>
-            <jsp:doBody/>
-        </c:otherwise>
-    </c:choose>
+    <c:if test="${not empty icon}">
+        <paw:icon name="${icon}" />
+    </c:if>
+    <c:if test="${not empty text}">
+        <c:out value="${text}"/>
+    </c:if>
+    <jsp:doBody/>
 </button>

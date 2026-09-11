@@ -10,4 +10,6 @@
   currentUrl eq href ? 'bg-current/10' : ''
 }" />
 
-<paw:linkButton variant="ghost" href="${href}" text="${text}" icon="${icon}" classname="justify-start text-start ${buttonClass}" />
+<paw:linkButton variant="ghost" href="${href}" text="${text}" icon="${icon}" classname="justify-start text-start ${buttonClass}">
+    <jsp:doBody />
+</paw:linkButton>

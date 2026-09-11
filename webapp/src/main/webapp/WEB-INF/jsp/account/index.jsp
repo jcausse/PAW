@@ -31,12 +31,14 @@
 
             <paw:linkButton variant="ghost" size="lg" href="${offersUrl}">
                 <div class="grow flex flex-col gap-2">
-                    <h3 class="text-black font-semibold flex items-center gap-2">
-                        <c:out value="${incomingOffersTitle}"/>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-black font-semibold">
+                            <c:out value="${incomingOffersTitle}"/>
+                        </h3>
                         <c:if test="${pendingOffersCount > 0}">
-                            <paw:badge text="${pendingOffersCount}" classname="text-red-600" size="sm" />
+                            <paw:badge text="${pendingOffersCount}" classname="text-red-600 min-w-5! p-0.25!" size="sm" />
                         </c:if>
-                    </h3>
+                    </div>
                     <spring:message code="account.incomingOffers.desc" var="offersDesc"/>
                     <p class="text-black/60 font-normal text-sm"><c:out value="${offersDesc}"/></p>
                 </div>

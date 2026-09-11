@@ -25,7 +25,11 @@
         <h4 class="font-semibold text-sm mt-2"><c:out value="${sellerSubtitle}" /></h4>
         <div class="flex flex-col gap-1">
             <account:link href="${listingsUrl}" text="${myListingsTitle}" icon="store" />
-            <account:link href="${offersUrl}" text="${incomingOffersTitle}" icon="handshake" />
+            <account:link href="${offersUrl}" text="${incomingOffersTitle}" icon="handshake">
+                <c:if test="${pendingOffersCount > 0}">
+                    <paw:badge text="${pendingOffersCount}" classname="text-red-600 min-w-5! p-0.25!" size="sm" />
+                </c:if>
+            </account:link>
         </div>
     </div>
 </paw:card>

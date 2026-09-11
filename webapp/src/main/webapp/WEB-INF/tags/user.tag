@@ -16,7 +16,7 @@
 <c:set var="hrefOrDefault" value="${not empty href ? href : profileUrl}"/>
 <c:url value="${hrefOrDefault}" var="hrefUrl"/>
 
-<paw:linkButton href="${hrefUrl}" variant="ghost" size="${buttonSize}" classname="w-full justify-start px-0 gap-3 ${userClass}">
+<paw:linkButton href="${hrefUrl}" variant="ghost" size="${buttonSize}" classname="w-full justify-start ${userClass}">
     <div class="flex flex-row gap-2 items-center text-sm">
         <paw:userAvatar user="${user}" size="${avatarSize}" />
         <c:if test="${userVariant eq 'compact'}">
