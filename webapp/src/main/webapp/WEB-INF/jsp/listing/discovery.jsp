@@ -114,67 +114,9 @@
                 </c:otherwise>
             </c:choose>
 
-    <c:if test="${listingPage.totalPages > 1}">
-            <nav class="flex items-center justify-center gap-1 mt-8">
-                <c:url value="/listing" var="prevUrl">
-                    <c:if test="${not empty param.query}"><c:param name="query" value="${param.query}"/></c:if>
+            <paw:pagination page="${listingPage}" baseUrl="/listing"/>
         </section>
     </div>
-
-
-                    <c:if test="${not empty param.categoryId}"><c:param name="categoryId" value="${param.categoryId}"/></c:if>
-                    <c:if test="${not empty param.subcategoryId}"><c:param name="subcategoryId" value="${param.subcategoryId}"/></c:if>
-                    <c:if test="${not empty param.condition}"><c:param name="condition" value="${param.condition}"/></c:if>
-                    <c:if test="${not empty param.minPrice}"><c:param name="minPrice" value="${param.minPrice}"/></c:if>
-                    <c:if test="${not empty param.maxPrice}"><c:param name="maxPrice" value="${param.maxPrice}"/></c:if>
-                    <c:if test="${not empty param.acceptsTrade}"><c:param name="acceptsTrade" value="${param.acceptsTrade}"/></c:if>
-                    <c:if test="${not empty param.sort}"><c:param name="sort" value="${param.sort}"/></c:if>
-                    <c:param name="page" value="${listingPage.page - 1}"/>
-                </c:url>
-
-                <c:choose>
-                    <c:when test="${listingPage.hasPrevious}">
-                        <a href="${prevUrl}" class="px-3 py-1.5 rounded-lg border border-black/15 text-sm hover:bg-black/5">
-                            <spring:message code="discovery.pagination.previous"/>
-                        </a>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="px-3 py-1.5 rounded-lg border border-black/10 text-sm text-black/30">
-                            <spring:message code="discovery.pagination.previous"/>
-                        </span>
-                    </c:otherwise>
-                </c:choose>
-
-                <span class="px-3 py-1.5 text-sm text-black/60">
-                    <spring:message code="discovery.pagination.current" arguments="${listingPage.page},${listingPage.totalPages}"/>
-                </span>
-
-                <c:url value="/listing" var="nextUrl">
-                    <c:if test="${not empty param.query}"><c:param name="query" value="${param.query}"/></c:if>
-                    <c:if test="${not empty param.categoryId}"><c:param name="categoryId" value="${param.categoryId}"/></c:if>
-                    <c:if test="${not empty param.subcategoryId}"><c:param name="subcategoryId" value="${param.subcategoryId}"/></c:if>
-                    <c:if test="${not empty param.condition}"><c:param name="condition" value="${param.condition}"/></c:if>
-                    <c:if test="${not empty param.minPrice}"><c:param name="minPrice" value="${param.minPrice}"/></c:if>
-                    <c:if test="${not empty param.maxPrice}"><c:param name="maxPrice" value="${param.maxPrice}"/></c:if>
-                    <c:if test="${not empty param.acceptsTrade}"><c:param name="acceptsTrade" value="${param.acceptsTrade}"/></c:if>
-                    <c:if test="${not empty param.sort}"><c:param name="sort" value="${param.sort}"/></c:if>
-                    <c:param name="page" value="${listingPage.page + 1}"/>
-                </c:url>
-
-                <c:choose>
-                    <c:when test="${listingPage.hasNext}">
-                        <a href="${nextUrl}" class="px-3 py-1.5 rounded-lg border border-black/15 text-sm hover:bg-black/5">
-                            <spring:message code="discovery.pagination.next"/>
-                        </a>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="px-3 py-1.5 rounded-lg border border-black/10 text-sm text-black/30">
-                            <spring:message code="discovery.pagination.next"/>
-                        </span>
-                    </c:otherwise>
-                </c:choose>
-        </nav>
-    </c:if>
 </main>
 </form:form>
 
