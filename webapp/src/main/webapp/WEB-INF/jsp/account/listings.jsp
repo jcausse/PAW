@@ -9,7 +9,7 @@
 
 <spring:message code="account.listings.title" var="titleMsg"/>
 <spring:message code="account.listings.subtitle" var="subtitleMsg"/>
-<spring:message code="account.listings.newListing" var="actionText"/>
+<spring:message code="account.listings.newListing" var="newListingLabel"/>
 <spring:message code="account.listings.filter.status" var="statusLabel"/>
 <spring:message code="account.listings.filter.all" var="allLabel"/>
 <spring:message code="account.listings.filter.sort" var="sortLabel"/>
@@ -27,7 +27,7 @@
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="account.listings.title"/>
 
-<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" actionHref="/listing/new/choose-product" actionText="${actionText}">
+<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" actionHref="/listing/new/choose-product" actionText="${newListingLabel}">
     <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
         <div class="flex items-center justify-between gap-4 mb-6">
             <div class="flex gap-2">
@@ -40,11 +40,13 @@
 
         <c:choose>
             <c:when test="${empty listings}">
-                <div class="text-center py-12">
-                    <spring:message code="account.listings.empty" var="emptyMsg"/>
-                    <p class="text-black/50 text-lg mb-4"><c:out value="${emptyMsg}"/></p>
-                    <paw:linkButton text="${newListingLabel}" variant="primary" href="${newListingUrl}"/>
-                </div>
+                <paw:card>
+                    <div class="mt-12 mb-12 flex flex-col items-center">
+                        <spring:message code="account.listings.empty" var="emptyMsg"/>
+                        <p class="text-black/60 text-lg mb-4"><c:out value="${emptyMsg}"/></p>
+                        <paw:linkButton text="${newListingLabel}" size="lg" href="${newListingUrl}"/>
+                    </div>
+                </paw:card>
             </c:when>
             <c:otherwise>
                 <div class="grid grid-cols-1 gap-4">

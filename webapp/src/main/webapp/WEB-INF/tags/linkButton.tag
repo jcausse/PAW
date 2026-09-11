@@ -8,6 +8,7 @@
 <%@ attribute name="classname" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <c:set var="btnVariant" value="${not empty variant ? variant : 'default'}"/>
 <c:set var="btnSize" value="${not empty size ? size : 'md'}"/>
