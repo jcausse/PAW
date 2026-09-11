@@ -48,9 +48,11 @@ public class AccountController {
     public ModelAndView index() {
         final var currentUser = getCurrentUser();
         final User user = currentUser.orElseThrow();
+        final int pendingOffersCount = offerService.getIncomingOffersForUser(user.getId()).pending().size();
         return new ModelAndView("account/index")
                 .addObject("user", user)
-                .addObject("currentUser", currentUser);
+                .addObject("currentUser", currentUser)
+                .addObject("pendingOffersCount", pendingOffersCount);
     }
 
     @GetMapping("/listings")
