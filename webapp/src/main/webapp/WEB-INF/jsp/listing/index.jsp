@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
@@ -13,37 +14,14 @@
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
                 <paw:card>
-                    <c:choose>
-                        <c:when test="${not empty listing.imageIds}">
-                            <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
-                                <c:if test="${status.first}">
-                                    <img
-                                        src="<c:url value='/image/${imageId}'/>"
-                                        alt="<c:out value='${listing.title}'/> - Image ${status.count}"
-                                        class="w-full h-auto object-cover rounded-lg border border-black/10"
-                                    >
-                                </c:if>
-                            </c:forEach>
-                            <c:if test="${listing.imageIds.size() > 1}">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                                    <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
-                                        <c:if test="${not status.first}">
-                                            <img
-                                                src="<c:url value='/image/${imageId}'/>"
-                                                alt="<c:out value='${listing.title}'/> - Image ${status.count}"
-                                                class="w-full h-auto object-cover rounded-lg border border-black/10"
-                                            >
-                                        </c:if>
-                                    </c:forEach>
-                                </div>
-                            </c:if>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="w-full aspect-video bg-neutral-200 rounded-xl flex items-center justify-center">
-                                <span class="text-neutral-500 text-center px-4"><spring:message code="listing.detail.noImages"/></span>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
+                    <c:set var="imageUrlsList">
+                        <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
+                            <c:url value="/image/${imageId}" var="imageUrl"/>
+                            <c:out value="${imageUrl}"/>
+                            <c:if test="${not status.last}">,</c:if>
+                        </c:forEach>
+                    </c:set>
+                    <paw:imageGallery id="listing-gallery" images="${fn:split(imageUrlsList, ',')}" alt="${listing.title}"/>
                 </paw:card>
             </div>
 
