@@ -76,8 +76,8 @@
                                             <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
                                         </h3>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <paw:badge text="${statusLabel}" classname="ml-auto ${statusClass}" />
+                                    <div class="flex items-center gap-2 ml-auto">
+                                        <paw:badge text="${statusLabel}" classname="${statusClass}" />
                                         <c:if test="${listing.pendingOffersCount > 0}">
                                             <paw:badge text="${listing.pendingOffersCount} offers" classname="text-amber-600" />
                                         </c:if>

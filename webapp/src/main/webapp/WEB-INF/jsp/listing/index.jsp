@@ -47,7 +47,7 @@
                 </paw:card>
             </div>
 
-            <div class="flex-1 min-w-md">
+            <div class="flex-1 min-w-sm">
                 <paw:card>
                     <div class="flex flex-col gap-4">
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
