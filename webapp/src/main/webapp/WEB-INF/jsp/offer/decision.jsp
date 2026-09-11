@@ -10,6 +10,13 @@
     <paw:navbar />
 
     <div class="max-w-2xl mx-auto p-8 pb-24">
+        <!-- Back link -->
+        <div class="mb-4">
+            <c:url value="/account/incoming-offers" var="incomingOffersUrl"/>
+            <spring:message code="offer.decision.backToOffers" var="backLabel"/>
+            <paw:linkButton href="${incomingOffersUrl}" text="${backLabel}" variant="ghost" icon="chevron-left" />
+        </div>
+
         <paw:card classname="w-full">
             <div class="flex flex-col gap-4">
                 <div class="text-center">
@@ -22,7 +29,7 @@
                     <p class="text-black/60 mt-2 text-balance"><c:out value="${description}"/></p>
                 </div>
 
-                <c:if test="${offer.hasOtherOffers}">
+                <c:if test="${offer.hasOtherOffers and offer.status.name() == 'PENDING'}">
                     <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
                         <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
                         <p class="text-sm text-amber-800"><c:out value="${warningMsg}"/></p>
@@ -102,17 +109,29 @@
 
                 <paw:divider />
 
-                <div class="flex flex-row gap-4">
-                    <spring:message code="offer.decision.accept" var="acceptLabel"/>
-                    <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST" class="flex-1">
-                        <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${acceptLabel}"/>
-                    </form>
+                <c:choose>
+                    <c:when test="${offer.status.name() == 'ACCEPTED'}">
+                        <spring:message code="offer.decision.accepted" var="acceptedMsg"/>
+                        <p class="text-center text-lg font-medium text-lime-700"><c:out value="${acceptedMsg}"/></p>
+                    </c:when>
+                    <c:when test="${offer.status.name() == 'REJECTED'}">
+                        <spring:message code="offer.decision.rejected" var="rejectedMsg"/>
+                        <p class="text-center text-lg font-medium text-red-700"><c:out value="${rejectedMsg}"/></p>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="flex flex-row gap-4">
+                            <spring:message code="offer.decision.accept" var="acceptLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST" class="flex-1">
+                                <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${acceptLabel}"/>
+                            </form>
 
-                    <spring:message code="offer.decision.reject" var="rejectLabel"/>
-                    <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST" class="flex-1">
-                        <paw:button type="submit" variant="default" role="danger" size="lg" classname="w-full" text="${rejectLabel}"/>
-                    </form>
-                </div>
+                            <spring:message code="offer.decision.reject" var="rejectLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST" class="flex-1">
+                                <paw:button type="submit" variant="default" role="danger" size="lg" classname="w-full" text="${rejectLabel}"/>
+                            </form>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </paw:card>
     </div>
