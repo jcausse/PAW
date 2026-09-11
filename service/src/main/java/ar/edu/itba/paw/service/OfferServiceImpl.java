@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class OfferServiceImpl implements OfferService {
     private final OfferDao offerDao;
     private final UserService userService;
     private final ListingService listingService;
+    private final MailingService mailingService;
 
     @Override
     public Optional<Offer> getById(Long id) {
@@ -65,9 +67,12 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
-        // TODO: Send email notification to seller about the new offer
+        final Offer offer = offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
 
-        return offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
+        // Send email notification to seller about the new offer
+        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
+
+        return offer;
     }
 
     @Override
@@ -84,8 +89,16 @@ public class OfferServiceImpl implements OfferService {
         offerDao.rejectOtherOffers(offer.getListing().getId(), offerId);
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
 
-        // TODO: Send email notification to buyer about offer acceptance
-        // TODO: Send email notifications to buyers of other offers about offer rejection
+        // Send email notification to buyer about offer acceptance
+        mailingService.sendOfferAcceptedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        // Send email notifications to buyers of other offers about offer rejection
+        final List<Offer> otherOffers = offerDao.getByListingId(offer.getListing().getId());
+        for (Offer otherOffer : otherOffers) {
+            if (!Objects.equals(otherOffer.getId(), offerId) && otherOffer.getStatus() == OfferStatus.REJECTED) {
+                mailingService.sendOfferRejectedEmail(otherOffer.getBuyer(), offer.getListing(), otherOffer, LocaleContextHolder.getLocale());
+            }
+        }
 
         return offerDao.getById(offerId).orElseThrow();
     }
@@ -102,7 +115,8 @@ public class OfferServiceImpl implements OfferService {
 
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
 
-        // TODO: Send email notification to buyer about offer rejection
+        // Send email notification to buyer about offer rejection
+        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
         return offerDao.getById(offerId).orElseThrow();
     }

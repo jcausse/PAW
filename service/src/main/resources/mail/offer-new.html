@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fafafa;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" width="560" cellspacing="0" cellpadding="0"
+                       style="background-color: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); overflow: hidden;">
+                    <!-- Logo -->
+                    <tr>
+                        <td style="padding: 40px 40px 0; text-align: center;">
+                            <a th:href="${baseUrl + '/'}" target="_blank" style="text-decoration: none;">
+                                <img th:src="${baseUrl + '/static-image/logo.png'}" alt="Swappr Logo" height="48" style="display: block; margin: 0 auto; border: 0;" />
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 32px 40px 0; text-align: center;">
+                            <span th:text="#{email.offer.new.badge}" style="display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; background-color: #fef3c7; color: #b45309;">New Offer</span>
+                        </td>
+                    </tr>
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 16px 40px 0; text-align: center;">
+                            <h1 th:text="#{email.offer.new.greeting}" style="margin: 0; font-size: 24px; font-weight: 800; color: #171717;">
+                                You have a new offer on your listing
+                            </h1>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 16px 40px 0; text-align: center;">
+                            <p th:text="#{email.offer.new.body(${buyer.displayName}, ${offer.amount}, ${listing.product.brand}, ${listing.product.model}, ${listing.product.year})}" style="margin: 0; font-size: 15px; line-height: 1.6; color: #525252;">
+                                Buyer offered $100 for your Brand Model (2023)
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Listing Image -->
+                    <tr>
+                        <td style="padding: 20px 40px 0; text-align: center;">
+                            <a th:href="${actionUrl}" target="_blank" style="text-decoration: none;">
+                                <img th:if="${listing.imageIds != null and !listing.imageIds.isEmpty()}"
+                                     th:src="${baseUrl + '/image/' + listing.imageIds[0]}"
+                                     alt="Listing image"
+                                     style="display: block; margin: 0 auto; max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);"
+                                     width="280"/>
+                                <div th:unless="${listing.imageIds != null and !listing.imageIds.isEmpty()}"
+                                     style="display: block; margin: 0 auto; width: 280px; height: 200px; background-color: #f5f5f5; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: #a3a3a3; font-size: 14px;">
+                                    No image available
+                                </div>
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Listing Details -->
+                    <tr>
+                        <td style="padding: 20px 40px 0;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fafafa; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                                <tr>
+                                    <td style="padding: 16px 20px;">
+                                        <p style="margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #171717;" th:text="${listing.title}">Listing Title</p>
+                                        <p style="margin: 0 0 8px; font-size: 13px; color: #737373;">
+                                            <span th:text="${listing.product.brand + ' ' + listing.product.model + ' (' + listing.product.year + ')'}">Brand Model (Year)</span>
+                                        </p>
+                                        <p style="margin: 0; font-size: 14px; font-weight: 700; color: #0284c7;">
+                                            <span th:text="'$' + ${offer.amount}">$100</span>
+                                            <span th:if="${!offer.isFullPrice}" style="font-size: 12px; font-weight: 400; color: #dc2626; margin-left: 8px;">
+                                                <span th:text="'-' + ${#numbers.formatDecimal((listing.price.amount - offer.amount) / listing.price.amount * 100, 0, 'COMMA')} + '%'">-20%</span>
+                                            </span>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- CTA Buttons -->
+                    <tr>
+                        <td style="padding: 28px 40px 0; text-align: center;">
+                            <a th:href="${actionUrl}" th:text="#{email.offer.new.cta}" target="_blank"
+                               style="display: inline-block; padding: 12px 28px; font-size: 14px; font-weight: 600; color: #ffffff; background-color: #0284c7; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-right: 12px;">
+                                Review Offer
+                            </a>
+                            <a th:href="${baseUrl + '/account/incoming-offers'}" th:text="#{email.offer.new.secondaryCta}" target="_blank"
+                               style="display: inline-block; padding: 12px 28px; font-size: 14px; font-weight: 600; color: #0284c7; background-color: transparent; border: 1px solid #0284c7; border-radius: 8px; text-decoration: none;">
+                                View All Offers
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px 32px; text-align: center; border-top: 1px solid rgba(0,0,0,0.06);">
+                            <p style="margin: 0; font-size: 12px; color: #a3a3a3;">
+                                <span th:text="#{email.offer.new.footer}">You received this email because you have a listing on</span> <a th:href="${baseUrl + '/'}" th:text="#{email.shared.paw}" style="color: #0284c7; text-decoration: none;">Swappr</a>.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
