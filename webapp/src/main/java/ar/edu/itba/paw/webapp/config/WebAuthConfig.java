@@ -70,10 +70,23 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
             /* Access Control */
             .and().authorizeRequests()
+
+                /* Administrator Back-office */
+                .antMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
+
+                /* Login, Register and Logout */
                 .antMatchers("/login", "/register").anonymous()
                 .antMatchers("/logout").authenticated()
-                .antMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
+
+                /* Profiles */
+                .antMatchers("/profile").authenticated()            // Current user's profile
+                .antMatchers("/profile/edit").authenticated()       // Profile editing
+                .antMatchers("/profile/**").permitAll()             // Profiles of users other than the current user
+
+                /* Listings */
                 .antMatchers("/listing/**").permitAll()
+
+                /* Other */
                 .antMatchers("/appinfo").permitAll()
                 .anyRequest().authenticated()
 
