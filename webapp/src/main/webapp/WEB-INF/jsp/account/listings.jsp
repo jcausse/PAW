@@ -89,7 +89,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="flex flex-row gap-2 self-end">
+                                    <div class="flex flex-row gap-1 self-end">
                                         <paw:linkButton variant="outline" href="${listingUrl}" icon="eye" />
                                     </div>
                                 </div>

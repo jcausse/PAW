@@ -9,15 +9,22 @@
 
 <c:set var="userClass" value="${not empty classname ? classname : ''}"/>
 <c:set var="userVariant" value="${not empty variant ? variant : 'basic'}"/>
-<c:set var="avatarSize" value="${variant eq 'detailed' ? 'lg' : 'md'}"/>
+<c:set var="avatarSize" value="${variant eq 'detailed' ? 'lg' : variant eq 'compact' ? 'sm' : 'md'}" />
+<c:set var="buttonSize" value="${variant eq 'compact' ? 'sm' : 'md'}" />
 
 <c:set var="profileUrl" value="/profile/${user.id}" />
 <c:set var="hrefOrDefault" value="${not empty href ? href : profileUrl}"/>
 <c:url value="${hrefOrDefault}" var="hrefUrl"/>
 
-<paw:linkButton href="${hrefUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3 ${userClass}">
+<paw:linkButton href="${hrefUrl}" variant="ghost" size="${buttonSize}" classname="w-full justify-start px-0 gap-3 ${userClass}">
     <div class="flex flex-row gap-2 items-center text-sm">
         <paw:userAvatar user="${user}" size="${avatarSize}" />
+        <c:if test="${userVariant eq 'compact'}">
+            <div class="text-xs">
+                <p class="text-black font-normal"><c:out value="${user.displayName}"/></p>
+                <p class="text-black/60 font-normal"><c:out value="${user.username}"/></p>
+            </div>
+        </c:if>
         <c:if test="${userVariant eq 'basic'}">
             <p>
                 <span class="text-black font-normal"><c:out value="${user.displayName}"/></span>

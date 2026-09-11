@@ -11,7 +11,7 @@
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar/>
 
-    <main class="max-w-6xl mx-auto px-6 py-8">
+    <main class="max-w-6xl mx-auto px-6 pt-8 pb-16">
         <div class="mb-8 flex flex-row items-center">
             <div>
                 <h1 class="text-3xl font-bold"><c:out value="${title}"/></h1>

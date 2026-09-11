@@ -44,9 +44,20 @@
     : 'px-4 min-w-20'
 }"/>
 
+<c:set var="sizeClassnamesIcon" value="${
+  btnSize eq 'sm'
+    ? 'min-w-5.5'
+    : btnSize eq 'lg'
+    ? 'min-w-13.5'
+    : 'min-w-8.5'
+}"/>
+
 <c:set var="sizeClassnames" value="${sizeClassnamesAll}" />
 <c:if test="${empty icon or not empty text}">
     <c:set var="sizeClassnames" value="${sizeClassnames} ${sizeClassnamesNotIcon}" />
+</c:if>
+<c:if test="${not empty icon and empty text}">
+    <c:set var="sizeClassnames" value="${sizeClassnames} ${sizeClassnamesIcon}" />
 </c:if>
 
 <c:set var="roleClassnames" value="${
