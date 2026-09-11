@@ -7,8 +7,8 @@
 <paw:head title="${user.displayName}"/>
 <body class="min-h-screen bg-neutral-50 flex flex-col">
     <paw:navbar/>
-    <main class="flex-grow flex items-start justify-center pt-3 px-6 pb-6">
-        <div class="w-full max-w-6xl bg-white border border-black/10 rounded-3xl p-8 shadow-sm flex flex-col gap-8">
+    <main class="max-w-6xl w-full mx-auto px-6 pt-8 pb-16">
+        <paw:card classname="w-full flex flex-col gap-8">
             <div class="flex items-center gap-6">
                 <paw:userAvatar user="${user}" size="xl" />
                 <div class="flex flex-col">
@@ -34,7 +34,7 @@
                     <paw:linkButton href="mailto:${user.email}" text="${sendEmailLabel}" size="sm" variant="outline"/>
                 </div>
             </div>
-        </div>
+        </paw:card>
     </main>
 </body>
 </html>
