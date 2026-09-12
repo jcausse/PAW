@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ListingServiceImpl implements ListingService {
 
-    private static final int PAGE_SIZE = 3;
+    private static final int PAGE_SIZE = 12;
 
     private final ListingDao listingDao;
 
