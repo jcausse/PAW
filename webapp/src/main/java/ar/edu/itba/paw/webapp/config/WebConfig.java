@@ -149,6 +149,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean(initMethod = "migrate")
     public Flyway flyway(DataSource dataSource) {
         return Flyway.configure()
+                .baselineOnMigrate(true)
                 .dataSource(dataSource)
                 .locations("classpath:/db/migration")
                 .load();
