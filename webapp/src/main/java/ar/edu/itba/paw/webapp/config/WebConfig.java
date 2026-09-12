@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.webapp.config;
 
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -9,11 +9,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.MultipartResolver;
@@ -136,11 +133,8 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     /* --------------------------------------------------------------- */
-    /* DATABASE (schemas, data sources, initializers and populators) */
+    /* DATABASE (DataSource, Flyway) */
     /* --------------------------------------------------------------- */
-
-    @Value("classpath:schema.sql")
-    private Resource schema;
 
     @Bean
     public DataSource dataSource() {
@@ -152,18 +146,12 @@ public class WebConfig implements WebMvcConfigurer {
         return dataSource;
     }
 
-    @Bean
-    public DataSourceInitializer dataSourceInitializer(final DataSource ds) {
-        final var initializer = new DataSourceInitializer();
-        initializer.setDataSource(ds);
-        initializer.setDatabasePopulator(databasePopulator());
-        return initializer;
-    }
-
-    private ResourceDatabasePopulator databasePopulator() {
-        final var populator = new ResourceDatabasePopulator();
-        populator.addScript(schema);
-        return populator;
+    @Bean(initMethod = "migrate")
+    public Flyway flyway(DataSource dataSource) {
+        return Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:/db/migration")
+                .load();
     }
 
     /* --------------------------------------------------------------- */
