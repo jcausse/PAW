@@ -41,7 +41,7 @@
                         type="button"
                         class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-black/10 transition-all duration-200
                                outline-transparent outline-2 focus-visible:outline-lime-600/30 outline-offset-0 focus-visible:border-lime-600
-                               active:scale-[0.98] cursor-pointer group data-[state=on]:border-lime-600 relative"
+                               active:scale-[0.98] cursor-pointer group data-[state=on]:border-lime-600 data-[state=on]:outline-lime-600/30 relative"
                         aria-label="${empty xmlSafeAlt ? 'Image' : xmlSafeAlt} ${status.count}"
                         data-state="${status.first ? 'on' : 'off'}"
                         role="listitem"
