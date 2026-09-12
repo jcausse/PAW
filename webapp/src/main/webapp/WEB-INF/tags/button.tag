@@ -73,7 +73,6 @@
 <button
     type="${btnType}"
     id="${id}"
-    <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     class="
         font-semibold rounded-lg
         flex flex-row flex-shrink-0 items-center justify-center gap-2
@@ -86,6 +85,7 @@
         ${roleClassnames}
         ${btnClass}
     "
+    <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     <c:if test="${isDisabled}">disabled</c:if>
 >
     <c:if test="${not empty icon}">

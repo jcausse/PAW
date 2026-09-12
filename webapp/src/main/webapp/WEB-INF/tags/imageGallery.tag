@@ -5,6 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <spring:message code="imageGallery.noImages" var="noImagesLabel"/>
 
@@ -13,18 +14,24 @@
 <div class="w-full">
     <c:choose>
         <c:when test="${not empty images}">
-            <div class="relative aspect-video w-full rounded-lg overflow-hidden border border-black/10 bg-neutral-200 mb-3">
+            <div class="relative aspect-square w-full rounded-lg overflow-hidden border border-black/10 bg-neutral-200">
                 <img
-                    id="${id}-main"
+                    id="${id}_main_bg"
+                    src="${images[0]}"
+                    alt=""
+                    class="object-cover absolute inset-0 w-full h-full blur-2xl opacity-30"
+                />
+                <img
+                    id="${id}_main"
                     src="${images[0]}"
                     alt="${empty xmlSafeAlt ? '' : xmlSafeAlt} - Image 1"
-                    class="w-full h-full object-cover transition-opacity duration-200"
+                    class="w-full h-full object-contain relative"
                 />
             </div>
 
             <div
-                id="${id}-thumbnails"
-                class="flex gap-2 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none]"
+                id="${id}_thumbnails"
+                class="flex gap-2 overflow-x-auto scroll-smooth p-2 -mx-2 [scrollbar-width:none]"
                 role="list"
                 aria-label="Image thumbnails"
             >
@@ -32,25 +39,41 @@
                     <c:set var="cleanImageUrl" value="${fn:trim(imageUrl)}"/>
                     <button
                         type="button"
-                        class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200
-                               ${status.first ? 'border-lime-600' : 'border-transparent hover:border-black/10'}
-                               focus-visible:outline focus-visible:outline-lime-600 focus-visible:outline-offset-0
-                               active:scale-[0.98]"
-                        onclick="document.getElementById('${id}-main').src = '${cleanImageUrl}';
-                               var thumbs = document.getElementById('${id}-thumbnails').querySelectorAll('button');
-                               thumbs.forEach(function(btn) { btn.classList.remove('border-lime-600'); btn.classList.add('border-transparent'); });
-                               this.classList.remove('border-transparent'); this.classList.add('border-lime-600');"
+                        class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-black/10 transition-all duration-200
+                               outline-transparent outline-2 focus-visible:outline-lime-600/30 outline-offset-0 focus-visible:border-lime-600
+                               active:scale-[0.98] cursor-pointer group data-[state=on]:border-lime-600 relative"
                         aria-label="${empty xmlSafeAlt ? 'Image' : xmlSafeAlt} ${status.count}"
+                        data-state="${status.first ? 'on' : 'off'}"
                         role="listitem"
                     >
                         <img
                             src="${cleanImageUrl}"
                             alt=""
-                            class="w-full h-full object-cover"
+                            class="w-full h-full object-cover group-hover:scale-[1.05] transition"
                         />
+                        <div class="absolute inset-0 bg-black/30 backdrop-blur-xs transition grid place-items-center text-2xl text-white opacity-0 group-hover:opacity-100">
+                            <paw:icon name="zoom-in" />
+                        </div>
                     </button>
                 </c:forEach>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const main = document.getElementById('${id}_main');
+                  const mainBg = document.getElementById('${id}_main_bg');
+                  const thumbnails = document.getElementById('${id}_thumbnails').querySelectorAll('button');
+
+                  thumbnails.forEach((thumb) => {
+                    thumb.addEventListener('click', () => {
+                      thumbImage = thumb.querySelector('img');
+                      main.src = thumbImage.src;
+                      mainBg.src = thumbImage.src;
+                      thumbnails.forEach((otherThumb) => otherThumb.dataset.state = (otherThumb === thumb ? "on" : "off"));
+                    })
+                  })
+                });
+            </script>
         </c:when>
         <c:otherwise>
             <div class="w-full aspect-video bg-neutral-200 rounded-xl flex items-center justify-center">
