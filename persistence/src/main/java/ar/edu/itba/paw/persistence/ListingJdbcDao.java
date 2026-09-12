@@ -6,6 +6,7 @@ import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
@@ -259,7 +260,7 @@ public class ListingJdbcDao implements ListingDao {
             "p." + ProductSchema.MODEL,
             "p." + ProductSchema.YEAR,
             "p." + ProductSchema.SUBCATEGORY_ID,
-            "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = 'pending') as pending_offers_count"
+            "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') as pending_offers_count"
         );
 
         private static final String SUBCATEGORY_FIELDS = String.join(
