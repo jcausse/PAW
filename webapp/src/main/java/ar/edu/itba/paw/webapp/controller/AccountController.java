@@ -65,10 +65,12 @@ public class AccountController {
             filterForm.getQuery(),
             filterForm.getSort(),
             user.getId(),
-            filterForm.getStatus()
+            filterForm.getStatus(),
+            filterForm.getPage()
         );
 
-        final var listings = listingService.search(filter);
+        final var listingPage = listingService.search(filter);
+        final var listings = listingPage.getContent();
 
         final var locale = LocaleContextHolder.getLocale();
         final var statusOptions = Arrays.stream(ListingStatus.values())
@@ -89,6 +91,7 @@ public class AccountController {
             .collect(Collectors.toList());
 
         return new ModelAndView("account/listings")
+                .addObject("listingPage", listingPage)
                 .addObject("listings", listings)
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)

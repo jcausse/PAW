@@ -4,6 +4,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+
+
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="discovery.title"/>
