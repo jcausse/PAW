@@ -13,7 +13,7 @@
     <div class="max-w-5xl mx-auto p-8 pb-24">
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
-                <paw:card>
+                <paw:card classname="relative">
                     <c:set var="imageUrlsList">
                         <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
                             <c:url value="/image/${imageId}" var="imageUrl"/>
@@ -21,9 +21,8 @@
                             <c:if test="${not status.last}">,</c:if>
                         </c:forEach>
                     </c:set>
-                    <paw:imageGallery id="listing-gallery" images="${fn:split(imageUrlsList, ',')}" alt="${listing.title}"
-                                      badgeText="${listing.pendingOffersCount > 0 ? 'Hot' : ''}"
-                                      badgeColor="text-red-600 bg-red-600/10 border-red-600/20" />
+                    <paw:imageGallery id="listing-gallery" images="${fn:split(imageUrlsList, ',')}" alt="${listing.title}" />
+                    <paw:listingHotBadge listing="${listing}" />
                 </paw:card>
             </div>
 
@@ -58,7 +57,14 @@
                             <c:otherwise>
                                 <div class="flex flex-col gap-2">
                                     <c:if test="${listing.pendingOffersCount > 0}">
-                                        <spring:message code="listing.detail.hotItem" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                        <c:choose>
+                                            <c:when test="${listing.pendingOffersCount > 1}">
+                                                <spring:message code="listing.detail.hotItem" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <spring:message code="listing.detail.hotItem1" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                            </c:otherwise>
+                                        </c:choose>
                                         <p class="text-red-600 text-sm"><c:out value="${hotItemMsg}"/></p>
                                     </c:if>
                                     <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>

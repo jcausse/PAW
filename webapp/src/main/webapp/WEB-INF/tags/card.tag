@@ -6,8 +6,6 @@
 <%@ attribute name="noImageLabel" required="false" %>
 <%@ attribute name="showImage" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="classname" required="false" %>
-<%@ attribute name="badgeText" required="false" %>
-<%@ attribute name="badgeColor" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
@@ -25,11 +23,6 @@
           </div>
         </c:otherwise>
       </c:choose>
-      <c:if test="${not empty badgeText}">
-        <div class="absolute top-2 left-2 z-10">
-          <paw:badge text="${badgeText}" color="${badgeColor}" size="sm" classname="text-red-600 bg-red-600/10 border-red-600/20"/>
-        </div>
-      </c:if>
     </div>
   </c:if>
   <c:if test="${not empty title}">

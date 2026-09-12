@@ -99,9 +99,8 @@
                                 <paw:card title="${listing.title}" subtitle="${subLabel}"
                                           showImage="true" imageUrl="${coverUrl}"
                                           imageAlt="${listing.title}" noImageLabel="${noImageLabel}"
-                                          classname="h-full"
-                                          badgeText="${listing.pendingOffersCount > 0 ? 'Hot' : ''}"
-                                          badgeColor="text-red-600 bg-red-600/10 border-red-600/20" >
+                                          classname="h-full relative">
+                                    <paw:listingHotBadge listing="${listing}" />
                                     <div class="flex items-center gap-2 flex-wrap mt-auto">
                                         <p class="text-xl font-bold">$<c:out value="${listing.price.amount}"/></p>
                                         <c:if test="${listing.acceptsTrade}">
