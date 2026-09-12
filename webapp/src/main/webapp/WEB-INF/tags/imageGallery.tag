@@ -2,6 +2,8 @@
 <%@ attribute name="id" required="true" %>
 <%@ attribute name="images" required="true" type="java.lang.String[]" %>
 <%@ attribute name="alt" required="false" %>
+<%@ attribute name="badgeText" required="false" %>
+<%@ attribute name="badgeColor" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -27,6 +29,11 @@
                     alt="${empty xmlSafeAlt ? '' : xmlSafeAlt} - Image 1"
                     class="w-full h-full object-contain relative"
                 />
+                <c:if test="${not empty badgeText}">
+                    <div class="absolute top-2 left-2 z-10">
+                        <paw:badge text="${badgeText}" color="${badgeColor}" size="sm" classname="text-red-600 bg-red-600/10 border-red-600/20"/>
+                    </div>
+                </c:if>
             </div>
 
             <div

@@ -259,7 +259,7 @@ public class ListingJdbcDao implements ListingDao {
             "p." + ProductSchema.MODEL,
             "p." + ProductSchema.YEAR,
             "p." + ProductSchema.SUBCATEGORY_ID,
-            "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = 'pending') as pending_offers_count"
+            "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = 'PENDING') as pending_offers_count"
         );
 
         private static final String SUBCATEGORY_FIELDS = String.join(

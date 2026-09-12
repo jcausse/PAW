@@ -21,7 +21,9 @@
                             <c:if test="${not status.last}">,</c:if>
                         </c:forEach>
                     </c:set>
-                    <paw:imageGallery id="listing-gallery" images="${fn:split(imageUrlsList, ',')}" alt="${listing.title}"/>
+                    <paw:imageGallery id="listing-gallery" images="${fn:split(imageUrlsList, ',')}" alt="${listing.title}"
+                                      badgeText="${listing.pendingOffersCount > 0 ? 'Hot' : ''}"
+                                      badgeColor="text-red-600 bg-red-600/10 border-red-600/20" />
                 </paw:card>
             </div>
 
