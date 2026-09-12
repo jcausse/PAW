@@ -33,6 +33,14 @@
 
                         <paw:divider />
 
+                        <spring:message code="condition.${listing.condition}" var="conditionLabel"/>
+                        <spring:message code="condition.description.${listing.condition}" var="conditionDescription"/>
+                        <paw:collapsible title="Condition: ${conditionLabel}" classname="w-full">
+                            <p class="text-sm text-black/70"><c:out value="${conditionDescription}"/></p>
+                        </paw:collapsible>
+
+                        <paw:divider />
+
                         <paw:user user="${listing.creator}" />
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
