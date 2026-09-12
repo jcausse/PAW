@@ -5,10 +5,7 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="listing.detail.title">
-    <%-- FOR DEVELOPMENT ONLY!! --%>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</paw:head>
+<paw:head titleKey="listing.detail.title" />
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
@@ -49,51 +46,16 @@
                     </c:choose>
                 </paw:card>
             </div>
-            <div class="flex-1 min-w-md">
+
+            <div class="flex-1 min-w-sm">
                 <paw:card>
                     <div class="flex flex-col gap-4">
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
+                        <paw:product product="${listing.product}" />
 
-                        <div class="flex flex-col">
-                            <div class="text-black"><c:out value="${listing.product.brand}"/> <c:out value="${listing.product.model}"/> (<c:out value="${listing.product.year}"/>)</div>
-                            <div class="text-sm text-black/60">
-                                <spring:message code="category.${listing.product.subcategory.category.name}"/>
-                                /
-                                <spring:message code="subcategory.${listing.product.subcategory.name}"/>
-                            </div>
-                        </div>
+                        <paw:divider />
 
-                        <%-- TODO move this to a custom tag --%>
-                        <hr class="border-t-0 border-b border-black/10">
-
-                        <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
-                        <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
-                            <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
-                                    <c:choose>
-                                        <c:when test="${listing.creator.imageId.present}">
-                                            <img
-                                                src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
-                                                alt="<c:out value='${listing.creator.displayName}'/> Profile Picture"
-                                                class="w-full h-full object-cover"
-                                            >
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img
-                                                src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                                                alt="Default Profile Picture"
-                                                class="w-full h-full object-cover"
-                                            >
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <p>
-                                    <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
-                                    <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
-                                </p>
-                            </div>
-                        </paw:linkButton>
-
+                        <paw:user user="${listing.creator}" />
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>
@@ -106,9 +68,15 @@
                                 <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
                             </c:when>
                             <c:otherwise>
-                                <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
-                                <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
-                                <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
+                                <div class="flex flex-col gap-2">
+                                    <c:if test="${listing.pendingOffersCount > 0}">
+                                        <spring:message code="listing.detail.hotItem" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                        <p class="text-red-600 text-sm"><c:out value="${hotItemMsg}"/></p>
+                                    </c:if>
+                                    <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
+                                    <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
+                                    <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
+                                </div>
                             </c:otherwise>
                         </c:choose>
                     </div>

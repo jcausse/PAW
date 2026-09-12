@@ -42,24 +42,7 @@
                         <div class="relative" id="userMenu">
                             <paw:button id="userButton" variant="ghost" classname="justify-start text-start gap-3 h-14 min-w-40!" type="button">
                                 <div class="flex flex-row gap-2 items-center text-sm">
-                                    <div class="rounded-full border border-black/10 w-8 h-8 grid place-items-center overflow-hidden flex-shrink-0">
-                                        <c:choose>
-                                            <c:when test="${currentUser.get().imageId.present}">
-                                                <img
-                                                    src="<c:url value='/image/${currentUser.get().imageId.get()}'/>"
-                                                    alt="<c:out value='${currentUser.get().displayName}'/> Profile Picture"
-                                                    class="w-full h-full object-cover"
-                                                >
-                                            </c:when>
-                                            <c:otherwise>
-                                                <img
-                                                    src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                                                    alt="Default Profile Picture"
-                                                    class="w-full h-full object-cover"
-                                                >
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
+                                    <paw:userAvatar user="${currentUser.get()}" size="8" />
                                     <div class="flex flex-col">
                                         <p class="text-sm text-black font-normal"><c:out value="${currentUser.get().displayName}"/></p>
                                         <p class="text-xs text-black/60 font-normal"><c:out value="${currentUser.get().username}"/></p>
@@ -69,6 +52,8 @@
 
                             <div id="userPanel" class="hidden absolute right-0 top-full w-48 bg-white rounded-lg border border-black/10 z-50 flex flex-col p-2">
                                 <c:url value="/profile/${currentUser.get().id}" var="profileUrl"/>
+                                <spring:message code="navbar.account" var="accountLabel" />
+                                <paw:linkButton href="/account" text="${accountLabel}" variant="ghost" role="secondary" />
                                 <spring:message code="navbar.profile" var="profileLabel" />
                                 <paw:linkButton href="${profileUrl}" text="${profileLabel}" variant="ghost" role="secondary" />
 

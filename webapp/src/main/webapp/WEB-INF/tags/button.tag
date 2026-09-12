@@ -1,5 +1,6 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="text" required="false" %>
+<%@ attribute name="icon" required="false" %>
 <%@ attribute name="type" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="size" required="false" %>
@@ -8,6 +9,7 @@
 <%@ attribute name="classname" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <c:set var="btnType" value="${not empty type ? type : 'button'}"/>
 <c:set var="btnVariant" value="${not empty variant ? variant : 'default'}"/>
@@ -26,13 +28,37 @@
        hover:from-current/5 hover:to-current/10 active:border-t-black/15 active:border-b-white/30 active:translate-y-px'
 }"/>
 
-<c:set var="sizeClassnames" value="${
+<c:set var="sizeClassnamesAll" value="${
   btnSize eq 'sm'
-    ? 'p-1 px-2 text-xs/3 min-w-16'
+    ? 'p-1 text-xs/3'
     : btnSize eq 'lg'
-    ? 'p-4 px-6 text-base/5 min-w-20'
-    : 'p-2 px-4 text-sm/4 min-w-20'
+    ? 'p-4 text-base/5'
+    : 'p-2 text-sm/4'
 }"/>
+
+<c:set var="sizeClassnamesNotIcon" value="${
+  btnSize eq 'sm'
+    ? 'px-2 min-w-16'
+    : btnSize eq 'lg'
+    ? 'px-6 min-w-20'
+    : 'px-4 min-w-20'
+}"/>
+
+<c:set var="sizeClassnamesIcon" value="${
+  btnSize eq 'sm'
+    ? 'min-w-5.5'
+    : btnSize eq 'lg'
+    ? 'min-w-13.5'
+    : 'min-w-8.5'
+}"/>
+
+<c:set var="sizeClassnames" value="${sizeClassnamesAll}" />
+<c:if test="${empty icon or not empty text}">
+    <c:set var="sizeClassnames" value="${sizeClassnames} ${sizeClassnamesNotIcon}" />
+</c:if>
+<c:if test="${not empty icon and empty text}">
+    <c:set var="sizeClassnames" value="${sizeClassnames} ${sizeClassnamesIcon}" />
+</c:if>
 
 <c:set var="roleClassnames" value="${
   btnRole eq 'danger'
@@ -50,7 +76,7 @@
     <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     class="
         font-semibold rounded-lg
-        flex flex-row items-center justify-center gap-2
+        flex flex-row flex-shrink-0 items-center justify-center gap-2
         cursor-pointer transition duration-150 data-[state=on]:text-lime-500
         focus-visible:outline outline-offset-0 outline-lime-600
         focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
@@ -62,14 +88,13 @@
     "
     <c:if test="${isDisabled}">disabled</c:if>
 >
-    <c:choose>
-        <c:when test="${not empty text}">
-            <c:out value="${text}"/>
-        </c:when>
-        <c:otherwise>
-            <jsp:doBody/>
-        </c:otherwise>
-    </c:choose>
+    <c:if test="${not empty icon}">
+        <paw:icon name="${icon}" />
+    </c:if>
+    <c:if test="${not empty text}">
+        <c:out value="${text}"/>
+    </c:if>
+    <jsp:doBody/>
 </button>
 
 <c:if test="${btnType eq 'submit'}">

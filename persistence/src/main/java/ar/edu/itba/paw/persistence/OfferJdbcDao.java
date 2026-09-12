@@ -61,6 +61,11 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
+    public List<Offer> getByCreatorId(Long creatorId) {
+        return jdbcTemplate.query(Queries.GET_BY_CREATOR_ID, ROW_MAPPER, creatorId);
+    }
+
+    @Override
     public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
@@ -141,6 +146,8 @@ public class OfferJdbcDao implements OfferDao {
             .isFullPrice(rs.getBoolean(OfferSchema.IS_FULL_PRICE))
             .status(OfferStatus.fromString(rs.getString(OfferSchema.STATUS)).orElse(OfferStatus.PENDING))
             .message(rs.getString(OfferSchema.MESSAGE))
+            .hasOtherOffers(rs.getBoolean("has_other_offers"))
+            .hasBetterOffers(rs.getBoolean("has_better_offers"))
             .build();
     };
 
@@ -176,6 +183,13 @@ public class OfferJdbcDao implements OfferDao {
             ", cat." + CategorySchema.ID + ", cat." + CategorySchema.NAME + " as category_name" +
             ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
             " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
+            ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o2 " +
+            " WHERE o2." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
+            " AND o2." + OfferSchema.ID + " != o." + OfferSchema.ID + ") as has_other_offers" +
+            ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o3 " +
+            " WHERE o3." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
+            " AND o3." + OfferSchema.ID + " != o." + OfferSchema.ID +
+            " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT + ") as has_better_offers" +
             " FROM " + OfferSchema.TABLE_NAME + " o" +
             " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
             " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
@@ -198,14 +212,37 @@ public class OfferJdbcDao implements OfferDao {
             " WHERE o." + OfferSchema.BUYER_ID + " = ?" +
             " ORDER BY o." + OfferSchema.ID + " DESC";
 
+        private static final String GET_BY_CREATOR_ID =
+            BASE_SELECT +
+            " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
+            " ORDER BY o." + OfferSchema.ID + " DESC";
+
         private static final String UPDATE_STATUS =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
+
+        private static final String REJECT_OTHER_OFFERS =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.LISTING_ID + " = ?" +
+            " AND " + OfferSchema.ID + " != ?" +
+            " AND " + OfferSchema.STATUS + " = ?";
     }
 
     @Override
     public boolean updateStatus(Long offerId, OfferStatus status) {
         return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
+    }
+
+    @Override
+    public void rejectOtherOffers(Long listingId, Long exceptOfferId) {
+        jdbcTemplate.update(
+            Queries.REJECT_OTHER_OFFERS,
+            OfferStatus.REJECTED.getStatus(),
+            listingId,
+            exceptOfferId,
+            OfferStatus.PENDING.getStatus()
+        );
     }
 }

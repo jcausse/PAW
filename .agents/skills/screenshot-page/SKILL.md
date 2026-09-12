@@ -1,91 +1,115 @@
-# screenshot-page Skill
+# Screenshot Page Skill
 
 ## Purpose
+Learn how to take screenshots of web pages using the Chrome DevTools MCP server in the PAW project.
 
-Take screenshots of web pages using headless Chromium and send them as attachments via the Discord bot.
+## Prerequisites
+- Chrome DevTools MCP server configured in opencode.json (available as `chrome-devtools_*` tools)
+- Maven and Java 21 available
+- Docker running with `paw-db` container (PostgreSQL on port 5432)
 
-## When to Use
-
-- When asked to screenshot a page to check how it looks
-- Whenever you finish working on UI changes on a page, take a screenshot of the modified pages and send them
-- Ensure each screenshot has a different filename (e.g., include page name, timestamp, or iteration number)
+## Available Tools
+- `chrome-devtools_navigate` - Load a URL in the browser
+- `chrome-devtools_evaluate` - Execute JavaScript on the page (e.g., fill forms, click buttons)
+- `chrome-devtools_screenshot` - Take a screenshot of the current page (saves to `/tmp/chrome-devtools-mcp-*/screenshot.png`)
 
 ## Workflow
 
-1. **Start the dev server** (if not already running):
-   ```bash
-   # Option 1: Full dev setup (database + server)
-   make dev > /tmp/jetty.log 2>&1 &
-   sleep 15  # wait for "Started Jetty Server"
-   
-   # Option 2: If DB already running, just start Jetty
-   mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
-   sleep 15
-   ```
+### 1. ALWAYS Restart the Dev Server First
+**Never rely on the dev server being online** — it wastes a huge amount of time if it's not and the tools error out.
 
-   **Important**: The dev server requires the development `app.properties` (from `src/main/environments/dev/`) to be copied to `target/classes/`. The Maven build with `-Pdev` profile should do this automatically, but if the production `app.properties` was previously copied (e.g., by a default build), the dev server will fail with "password authentication failed for user". **Always ensure the dev `app.properties` is used before running the dev server** — copy it manually after build if necessary:
-   ```bash
-   cp webapp/src/main/environments/dev/app.properties webapp/target/classes/app.properties
-   ```
-
-2. **Verify the route works** (combine with `test-route` skill):
-   ```bash
-   curl -s --max-time 10 "http://localhost:8080/<route>" | head -50
-   ```
-
-3. **Take the screenshot** with headless Chromium:
-   ```bash
-   chromium --headless --window-size=1920,1080 --screenshot="/home/nemo/screenshots/<filename>.png" "http://localhost:8080/<route>"
-   ```
-
-4. **Verify the screenshot was created**:
-   ```bash
-   file /home/nemo/screenshots/<filename>.png
-   ```
-
-5. **Send the attachment** by including this JSON at the **very end** of your response inside a **json-tagged code block** (no text after it):
-    ```json
-    {
-      "attachments": [
-        {
-          "path": "/home/nemo/screenshots/<filename>.png",
-          "name": "<filename>.png",
-          "type": "image/png",
-          "dimensions": "1920x1080",
-          "size_bytes": <file_size>
-        }
-      ]
-    }
-    ```
-
-## Example
+**Important**: ALWAYS run the dev server in background! Running it in foreground will only stall your commands for minutes and waste time; you can't do anything while running the server in foreground.
 
 ```bash
-# Start server
-make dev > /tmp/jetty.log 2>&1 &
-sleep 10
+# Kill existing Jetty server if running
+pkill -f jetty
 
-# Test route first
-curl -s --max-time 10 "http://localhost:8080/listing/1" | grep -c "Test Listing"
+# Start the dev server in background
+nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
 
-# Take screenshot
-chromium --headless --window-size=1920,1080 --screenshot="/home/nemo/screenshots/listing-1.png" "http://localhost:8080/listing/1"
+# Wait for server to start (~25 seconds)
+sleep 25
 
-# Check file
-ls -la /home/nemo/screenshots/listing-1.png
+# Verify it's up
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/login
+# Should return 200
 ```
 
-## Integration with test-route Skill
+**Important**: Do NOT use commands with semicolons (;) — they will break. Execute each command separately.
 
-This skill complements the `test-route` skill:
-- Use `test-route` to debug errors and verify routes work
-- Once a route renders properly, use `screenshot-page` to capture and share the visual result
-- Run the dev server once, then both test the route AND take screenshots in the same session
+### 2. Navigate to the Target Page
+```javascript
+// Navigate to login page
+chrome-devtools_navigate({ url: "http://localhost:8080/login" })
 
-## Notes
+// Fill login form and submit
+chrome-devtools_evaluate({
+  script: `
+    document.querySelector('input[name="username"]').value = 'seller1';
+    document.querySelector('input[name="password"]').value = 'sellerpass';
+    document.querySelector('form').submit();
+  `
+})
 
-- The dev server must be running on `localhost:8080`
-- Screenshots are saved to `/home/nemo/screenshots/` directory
-- Use `--window-size=1920,1080` for full HD screenshots
-- Chromium may output DBus errors to stderr (normal in headless environments)
-- File size can be obtained with `stat -c%s /path/to/file.png` or `ls -la`
+// Wait for redirect
+sleep(3)
+
+// Navigate to target page
+chrome-devtools_navigate({ url: "http://localhost:8080/account/listings" })
+```
+
+### 3. Take Screenshot
+```javascript
+// Take screenshot - saved to /tmp/chrome-devtools-mcp-*/screenshot.png
+chrome-devtools_screenshot({})
+```
+
+The screenshot is automatically saved to a temp directory like `/tmp/chrome-devtools-mcp-XXXXXX/screenshot.png`. **No need to copy it** — you can send it directly from there using the attachment format.
+
+### 4. Send as Attachment
+Use the attachment format defined in `AGENTS.md`:
+
+```json
+{
+  "attachments": [
+    {
+      "path": "/tmp/chrome-devtools-mcp-XXXXXX/screenshot.png",
+      "name": "descriptive-name.png",
+      "type": "image/png",
+      "dimensions": "1905x2053",
+      "size_bytes": 127161
+    }
+  ]
+}
+```
+
+Get dimensions and size with:
+```bash
+file /tmp/chrome-devtools-mcp-*/screenshot.png
+stat -c%s /tmp/chrome-devtools-mcp-*/screenshot.png
+```
+
+Send the attachment together with your usual text output. No need to send messages with only an image attachment.
+
+## Important Considerations
+
+1. **ALWAYS restart the dev server** before taking screenshots — don't assume it's running
+2. **Execute commands separately** — no semicolons in bash commands
+3. **Use `/tmp` path directly** — no need to copy screenshots to a permanent location
+4. **Wait for page loads** — add appropriate delays after navigation and form submissions
+5. **Login first** if the target page requires authentication
+
+## When to Use
+- After making visual changes to JSP files
+- When asked to verify a page renders correctly
+- For documenting UI changes in PRs or discussions
+- When debugging layout/CSS issues
+
+## Common Issues
+
+| Issue | Fix |
+|-------|-----|
+| `MCP tool returned an error` on navigate | Dev server not running — restart it |
+| Screenshot is blank/white | Page didn't load fully — increase wait time |
+| Login fails | Check credentials; verify form field names |
+| "Unknown argument" for screenshot | Call `screenshot` with empty object `{}` not `{path: "..."}` |

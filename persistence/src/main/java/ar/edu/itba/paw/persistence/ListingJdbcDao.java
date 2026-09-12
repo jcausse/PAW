@@ -12,6 +12,7 @@ import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
+import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
@@ -54,9 +55,6 @@ public class ListingJdbcDao implements ListingDao {
         final List<String> conditions = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
-        conditions.add("l." + ListingSchema.STATUS + " = ?");
-        params.add(ListingStatus.ACTIVE.getStatus());
-
         if (filter.getCategoryId() != null) {
             conditions.add(CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = ?");
             params.add(filter.getCategoryId());
@@ -81,6 +79,14 @@ public class ListingJdbcDao implements ListingDao {
             conditions.add("l." + ListingSchema.ACCEPTS_TRADE + " = ?");
             params.add(filter.getAcceptsTrade());
         }
+        if (filter.getStatus() != null) {
+            conditions.add("l." + ListingSchema.STATUS + " = ?");
+            params.add(filter.getStatus().getStatus());
+        }
+        if (filter.getCreatorId() != null) {
+            conditions.add("l." + ListingSchema.CREATOR_ID + " = ?");
+            params.add(filter.getCreatorId());
+        }
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add("(LOWER(" + "l." + ListingSchema.TITLE + ") LIKE ?"
                 + " OR LOWER(" + "l." + ListingSchema.DESCRIPTION + ") LIKE ?)");
@@ -100,6 +106,7 @@ public class ListingJdbcDao implements ListingDao {
 
     private static String resolveOrderBy(final ListingSort sort) {
         final String priceCol = "l." + ListingSchema.PRICE;
+        final String titleCol = "l." + ListingSchema.TITLE;
         final String idCol = "l." + ListingSchema.ID;
         if (sort == null) {
             return idCol + " DESC";
@@ -109,6 +116,10 @@ public class ListingJdbcDao implements ListingDao {
                 return priceCol + " ASC, " + idCol + " DESC";
             case PRICE_DESC:
                 return priceCol + " DESC, " + idCol + " DESC";
+            case NAME_ASC:
+                return titleCol + " ASC, " + idCol + " DESC";
+            case NAME_DESC:
+                return titleCol + " DESC, " + idCol + " DESC";
             case RECENT:
             default:
                 return idCol + " DESC";
@@ -157,6 +168,7 @@ public class ListingJdbcDao implements ListingDao {
             .condition(condition)
             .acceptsTrade(acceptsTrade)
             .imageIds(imageIds != null ? imageIds : List.of())
+            .pendingOffersCount(0)
             .build();
     }
 
@@ -210,6 +222,7 @@ public class ListingJdbcDao implements ListingDao {
                     .build()
             )
             .imageIds(parseImageIds(rs.getString("image_ids")))
+            .pendingOffersCount(rs.getInt("pending_offers_count"))
             .build();
     };
 
@@ -245,7 +258,8 @@ public class ListingJdbcDao implements ListingDao {
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,
             "p." + ProductSchema.YEAR,
-            "p." + ProductSchema.SUBCATEGORY_ID
+            "p." + ProductSchema.SUBCATEGORY_ID,
+            "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = 'pending') as pending_offers_count"
         );
 
         private static final String SUBCATEGORY_FIELDS = String.join(

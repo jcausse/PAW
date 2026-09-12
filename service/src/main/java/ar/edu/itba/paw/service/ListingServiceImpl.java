@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
@@ -55,9 +56,17 @@ public class ListingServiceImpl implements ListingService {
             .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
             .query(dto.query())
             .sort(parseSort(dto.sort()))
+            .creatorId(dto.creatorId())
+            .status(parseStatus(dto.status()))
             .build();
 
         return listingDao.search(filter);
+    }
+
+    private static ListingStatus parseStatus(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : ListingStatus.fromString(value).orElse(null);
     }
 
     private static Condition parseCondition(final String value) {

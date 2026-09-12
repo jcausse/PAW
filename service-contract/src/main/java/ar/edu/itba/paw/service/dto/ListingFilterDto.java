@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.service.dto;
 import java.math.BigDecimal;
 
+import ar.edu.itba.paw.model.ListingStatus;
+
 public record ListingFilterDto(
     Long categoryId,
     Long subcategoryId,
@@ -9,5 +11,7 @@ public record ListingFilterDto(
     String condition,
     Boolean acceptsTrade,
     String query,
-    String sort
+    String sort,
+    Long creatorId,
+    String status
 ) {}
