@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,6 +89,48 @@ public class MailingServiceImpl implements MailingService {
 
         String subject = messageSource.getMessage("email.purchase.buyer.subject", null, locale);
         sendEmail(buyer.getEmail(), subject, "purchase-buyer", context);
+    }
+
+    @Async
+    @Override
+    public void sendNewOfferEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("buyer", buyer);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
+
+        String subject = messageSource.getMessage("email.offer.new.subject", null, locale);
+        sendEmail(seller.getEmail(), subject, "offer-new", context);
+    }
+
+    @Async
+    @Override
+    public void sendOfferAcceptedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("buyer", buyer);
+        context.setVariable("seller", seller);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
+
+        String subject = messageSource.getMessage("email.offer.accepted.subject", null, locale);
+        sendEmail(buyer.getEmail(), subject, "offer-accepted", context);
+    }
+
+    @Async
+    @Override
+    public void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("buyer", buyer);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+
+        String subject = messageSource.getMessage("email.offer.rejected.subject", null, locale);
+        sendEmail(buyer.getEmail(), subject, "offer-rejected", context);
     }
 
     private void sendEmail(String to, String subject, String templateName, Context context) {

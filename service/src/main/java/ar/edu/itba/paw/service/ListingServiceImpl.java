@@ -6,6 +6,7 @@ import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Page;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
@@ -60,6 +61,8 @@ public class ListingServiceImpl implements ListingService {
             .sort(parseSort(dto.sort()))
             .page(sanitizePage(dto.page()))
             .pageSize(PAGE_SIZE)
+            .creatorId(dto.creatorId())
+            .status(parseStatus(dto.status()))
             .build();
 
         return listingDao.search(filter);
@@ -67,6 +70,12 @@ public class ListingServiceImpl implements ListingService {
 
     private static int sanitizePage(final Integer page) {
         return page == null || page < 1 ? 1 : page;
+    }
+
+    private static ListingStatus parseStatus(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : ListingStatus.fromString(value).orElse(null);
     }
 
     private static Condition parseCondition(final String value) {

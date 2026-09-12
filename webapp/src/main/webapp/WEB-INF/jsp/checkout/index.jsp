@@ -6,10 +6,7 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="checkout.title">
-    <%-- FOR DEVELOPMENT ONLY!! --%>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</paw:head>
+<paw:head titleKey="checkout.title" />
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
@@ -24,7 +21,7 @@
                             <form:hidden path="listingId"/>
 
                             <spring:message code="checkout.form.offerType" var="offerTypeLabel"/>
-                            <div class="flex flex-col gap-3 hidden">
+                            <div class="flex flex-col gap-3">
                                 <div class="flex flex-col gap-2">
                                     <label class="flex items-center gap-2 min-h-8 cursor-pointer">
                                         <form:radiobutton path="offerType" value="full" class="w-4 h-4 text-lime-600 border-black/20 focus:ring-lime-500"/>
@@ -77,28 +74,9 @@
                     noImageLabel="${noImageLabel}"
                 >
                     <div class="flex flex-col gap-4 mt-auto">
-                        <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
-                        <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
-                            <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
-                                    <c:choose>
-                                        <c:when test="${listing.creator.imageId.present}">
-                                            <img src="<c:url value='/image/${listing.creator.imageId.get()}'/>" alt="<c:out value='${listing.creator.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <p>
-                                    <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
-                                    <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
-                                </p>
-                            </div>
-                        </paw:linkButton>
+                        <paw:user user="${listing.creator}" />
 
-                        <%-- TODO move this to a custom tag --%>
-                        <hr class="border-t-0 border-b border-black/10">
+                        <paw:divider />
 
                         <div class="flex flex-col">
                             <spring:message code="checkout.summary.price" var="priceLabel"/>

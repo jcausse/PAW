@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
 import java.util.Locale;
 
@@ -17,4 +18,13 @@ public interface MailingService {
 
     /** Confirm the purchase to the buyer, including the seller contact email. */
     void sendPurchaseBuyerEmail(User buyer, User seller, Listing listing, Locale locale);
+
+    /** Notify the seller that they received a new offer on their listing. */
+    void sendNewOfferEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
+
+    /** Notify the buyer that their offer was accepted. */
+    void sendOfferAcceptedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale);
+
+    /** Notify the buyer that their offer was rejected. */
+    void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale);
 }

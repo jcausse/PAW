@@ -7,9 +7,12 @@
 <%@ attribute name="showImage" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="classname" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+
+
 <div class="rounded-2xl border border-black/10 bg-border bg-gradient-to-b from-neutral-50 to-white to-40% p-4 flex flex-col gap-1 ${classname}">
   <c:if test="${showImage}">
-    <div class="w-full aspect-square rounded-lg overflow-hidden border border-black/10 mb-3 bg-neutral-200">
+    <div class="w-full aspect-square rounded-lg overflow-hidden border border-black/10 mb-3 bg-neutral-200 relative">
       <c:choose>
         <c:when test="${not empty imageUrl}">
           <img src="${imageUrl}" alt="<c:out value='${imageAlt}'/>" class="w-full h-full object-cover"/>

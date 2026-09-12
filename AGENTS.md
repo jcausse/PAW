@@ -167,7 +167,7 @@ JOIN categories c ON s.category_id = c.category_id;
 
 - Build with `mvn clean compile` to verify changes across all modules.
 - Dev server: `make dev` (starts DB container + Jetty). Wait ~15-20s for "Started Jetty Server".
-- **Alternative background server** (for testing/screenshots):
+- **Alternative background server** (for testing):
   ```bash
   ./.script/db-start.sh
   mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
@@ -183,7 +183,7 @@ JOIN categories c ON s.category_id = c.category_id;
 
 ## Attachment Output Format
 
-When asked to share an image (e.g., a screenshot you just captured), the **last part of your response must be only JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments.
+When asked to share an image (e.g., a screenshot you just captured), **your response must include JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments. Include this code block within your usual response; avoid messages containing only screenshots unless specifically requested.
 
 ```json
 {
@@ -199,8 +199,6 @@ When asked to share an image (e.g., a screenshot you just captured), the **last 
 }
 ```
 
-- Include only this JSON block at the very end of your response
-- No additional text before or after the JSON block
 - The `path` must be absolute and accessible on the server filesystem
 
 ## Skills
@@ -213,29 +211,52 @@ Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
 - Verify non-trivial changes to JSP files or controllers don't produce errors
 
 **Workflow:**
-1. Run `make dev` and wait for "Started Jetty Server"
+1. **Restart dev server in background** (never assume it's running):
+   ```bash
+   pkill -f jetty
+   nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+   sleep 25
+   ```
 2. Seed DB if needed: `docker exec paw-db psql ...`
-3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
-4. If error: inspect response + server logs
-5. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
-6. Re-test
+3. **Navigate with `chrome-devtools_navigate`** to the route
+4. **Inspect with `chrome-devtools_evaluate`** (get HTML, check console, etc.)
+5. Optionally **screenshot with `chrome-devtools_screenshot`** for visual verification
+6. If error: inspect response + server logs (`/tmp/jetty.log`)
+7. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
+8. Re-test
 
-**Important:** When asked to debug an issue, **always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
+**Important Rules:**
+- **Never use semicolons in bash commands** — execute each command separately
+- **Always wait for page loads** after navigation
+- **Use `curl` for quick API/status checks**, but prefer MCP tools for full page inspection
+- **When asked to debug an issue, always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
 
 ### screenshot-page Skill
 
 Located at `.agents/skills/screenshot-page/SKILL.md`. Use this skill to:
 
-- Take screenshots of web pages to check how they look
-- Capture and share visual results after UI changes (each screenshot should have a unique filename)
+- Take screenshots of web pages using the Chrome DevTools MCP server
+- Document visual changes to JSP pages
+- Verify UI renders correctly after changes
 
-**Workflow:**
-1. Run `make dev` and wait for Jetty to start (can reuse server from `test-route` skill)
-2. Verify route works: `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
-3. Take screenshot: `chromium --headless --window-size=1920,1080 --screenshot="/home/nemo/screenshots/<filename>.png" "http://localhost:8080/<route>"`
-4. Send attachment by including the JSON block **inside a json-tagged code block** at the end of your response (see **Attachment Output Format**)
+**Key Workflow:**
 
-**Integration with test-route:**
-- Use `test-route` to debug errors and verify routes work correctly
-- Once a route renders properly, use `screenshot-page` to capture and share the visual result
-- Run the dev server once, then both test the route AND take screenshots in the same session
+1. **ALWAYS restart the dev server first** (never assume it's running):
+   ```bash
+   pkill -f jetty
+   nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
+   sleep 25
+   ```
+
+2. **Navigate and interact** using MCP tools:
+   - `chrome-devtools_navigate` — load a URL
+   - `chrome-devtools_evaluate` — execute JS (fill forms, click, etc.)
+   - `chrome-devtools_screenshot` — capture page (saves to `/tmp/chrome-devtools-mcp-*/screenshot.png`)
+
+3. **Send screenshot directly from `/tmp`** using the attachment format in `AGENTS.md` (no need to copy), together with your usual text response.
+
+**Important Rules:**
+- **Never use semicolons in bash commands** — execute each command separately
+- **Always wait for page loads** after navigation/form submissions
+- **Login first** if the target page requires authentication
+- **Use this skill** to attach a screenshot with your change summary whenever you make visual changes to a JSP page

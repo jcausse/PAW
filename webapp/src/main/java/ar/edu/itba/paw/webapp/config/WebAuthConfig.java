@@ -82,6 +82,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/profile").authenticated()            // Current user's profile
                 .antMatchers("/profile/edit").authenticated()       // Profile editing
                 .antMatchers("/profile/**").permitAll()             // Profiles of users other than the current user
+                .antMatchers("/account/**").authenticated()         // Current user account details and settings
 
                 /* Listings */
                 .antMatchers("/listing/**").permitAll()

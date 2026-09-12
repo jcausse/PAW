@@ -57,24 +57,23 @@ public class CheckoutController {
         boolean isFullPrice;
 
         if ("full".equals(form.getOfferType())) {
-         amount = listing.getPrice().getAmount();
-         isFullPrice = true;
+            amount = listing.getPrice().getAmount();
+            isFullPrice = true;
         } else {
-         if (form.getCustomAmount() == null || form.getCustomAmount().compareTo(BigDecimal.ZERO) <= 0) {
-             bindingResult.rejectValue("customAmount", "NotNull.checkoutForm.customAmount");
-             return new ModelAndView("checkout/index").addObject("listing", listing);
-         }
-         if (form.getCustomAmount().compareTo(listing.getPrice().getAmount()) > 0) {
-             bindingResult.rejectValue("customAmount", "Max.checkoutForm.customAmount", new Object[]{listing.getPrice().getAmount()}, "Offer amount cannot exceed listing price");
-             return new ModelAndView("checkout/index").addObject("listing", listing);
-         }
-         amount = form.getCustomAmount();
-         isFullPrice = false;
+            if (form.getCustomAmount() == null || form.getCustomAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                bindingResult.rejectValue("customAmount", "NotNull.checkoutForm.customAmount");
+                return new ModelAndView("checkout/index").addObject("listing", listing);
+            }
+            if (form.getCustomAmount().compareTo(listing.getPrice().getAmount()) > 0) {
+                bindingResult.rejectValue("customAmount", "Max.checkoutForm.customAmount", new Object[]{listing.getPrice().getAmount()}, "Offer amount cannot exceed listing price");
+                return new ModelAndView("checkout/index").addObject("listing", listing);
+            }
+            amount = form.getCustomAmount();
+            isFullPrice = false;
         }
 
         OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
         offerService.create(offerDto);
-        listingService.purchase(form.getListingId(), buyerId, form.getMessage());
 
         return new ModelAndView("redirect:/listing/" + form.getListingId());
     }

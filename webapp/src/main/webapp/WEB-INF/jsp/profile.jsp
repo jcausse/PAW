@@ -2,29 +2,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <html lang="${pageContext.response.locale.language}">
 <paw:head title="${user.displayName}"/>
 <body class="min-h-screen bg-neutral-50 flex flex-col">
     <paw:navbar/>
-    <main class="flex-grow flex items-start justify-center pt-3 px-6 pb-6">
-        <div class="w-full max-w-6xl bg-white border border-black/10 rounded-3xl p-8 shadow-sm flex flex-col gap-8">
+    <main class="max-w-6xl w-full mx-auto px-6 pt-8 pb-16">
+        <paw:card classname="w-full flex flex-col gap-8">
             <div class="flex items-center gap-6">
-                <c:choose>
-                    <c:when test="${user.imageId.present}">
-                        <img
-                            src="<c:url value='/image/${user.imageId.get()}'/>"
-                            alt="<c:out value='${user.displayName}'/> Profile Picture"
-                            class="w-28 h-28 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-black/5"
-                        >
-                    </c:when>
-                    <c:otherwise>
-                        <img
-                            src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                            alt="Default Profile Picture"
-                            class="w-28 h-28 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-black/5"
-                        >
-                    </c:otherwise>
-                </c:choose>
+                <paw:userAvatar user="${user}" size="xl" />
                 <div class="flex flex-col">
                     <h1 class="text-3xl font-bold tracking-tight text-neutral-900"><c:out value="${user.displayName}"/></h1>
                     <span class="text-lg text-neutral-500 font-medium">@<c:out value="${user.username}"/></span>
@@ -48,7 +34,7 @@
                     <paw:linkButton href="mailto:${user.email}" text="${sendEmailLabel}" size="sm" variant="outline"/>
                 </div>
             </div>
-        </div>
+        </paw:card>
     </main>
 </body>
 </html>

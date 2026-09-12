@@ -17,4 +17,6 @@ public final class Offer {
     private final @NonNull Boolean isFullPrice;
     private final @NonNull OfferStatus status;
     private final String message;
+    private final boolean hasOtherOffers;
+    private final boolean hasBetterOffers;
 }

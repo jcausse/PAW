@@ -1,99 +1,48 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="listing.detail.title">
-    <%-- FOR DEVELOPMENT ONLY!! --%>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</paw:head>
+<paw:head titleKey="listing.detail.title" />
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
     <div class="max-w-5xl mx-auto p-8 pb-24">
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
-                <paw:card>
-                    <c:choose>
-                        <c:when test="${not empty listing.imageIds}">
-                            <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
-                                <c:if test="${status.first}">
-                                    <img
-                                        src="<c:url value='/image/${imageId}'/>"
-                                        alt="<c:out value='${listing.title}'/> - Image ${status.count}"
-                                        class="w-full h-auto object-cover rounded-lg border border-black/10"
-                                    >
-                                </c:if>
-                            </c:forEach>
-                            <c:if test="${listing.imageIds.size() > 1}">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                                    <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
-                                        <c:if test="${not status.first}">
-                                            <img
-                                                src="<c:url value='/image/${imageId}'/>"
-                                                alt="<c:out value='${listing.title}'/> - Image ${status.count}"
-                                                class="w-full h-auto object-cover rounded-lg border border-black/10"
-                                            >
-                                        </c:if>
-                                    </c:forEach>
-                                </div>
-                            </c:if>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="w-full aspect-video bg-neutral-200 rounded-xl flex items-center justify-center">
-                                <span class="text-neutral-500 text-center px-4"><spring:message code="listing.detail.noImages"/></span>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
+                <paw:card classname="relative">
+                    <c:set var="imageUrlsList">
+                        <c:forEach items="${listing.imageIds}" var="imageId" varStatus="status">
+                            <c:url value="/image/${imageId}" var="imageUrl"/>
+                            <c:out value="${imageUrl}"/>
+                            <c:if test="${not status.last}">,</c:if>
+                        </c:forEach>
+                    </c:set>
+                    <paw:imageGallery id="listing-gallery" images="${fn:split(imageUrlsList, ',')}" alt="${listing.title}" />
+                    <paw:listingHotBadge listing="${listing}" />
                 </paw:card>
             </div>
-            <div class="flex-1 min-w-md">
+
+            <div class="flex-1 min-w-sm">
                 <paw:card>
                     <div class="flex flex-col gap-4">
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
+                        <paw:product product="${listing.product}" />
 
-                        <div class="flex flex-col">
-                            <div class="text-black"><c:out value="${listing.product.brand}"/> <c:out value="${listing.product.model}"/> (<c:out value="${listing.product.year}"/>)</div>
-                            <div class="text-sm text-black/60">
-                                <spring:message code="category.${listing.product.subcategory.category.name}"/>
-                                /
-                                <spring:message code="subcategory.${listing.product.subcategory.name}"/>
-                            </div>
-                        </div>
+                        <paw:divider />
 
-                        <%-- TODO move this to a custom tag --%>
-                        <hr class="border-t-0 border-b border-black/10">
+                        <spring:message code="condition.${listing.condition}" var="conditionLabel"/>
+                        <spring:message code="condition.description.${listing.condition}" var="conditionDescription"/>
+                        <paw:collapsible title="Condition: ${conditionLabel}" classname="w-full">
+                            <p class="text-sm text-black/70"><c:out value="${conditionDescription}"/></p>
+                        </paw:collapsible>
 
-                        <c:url value="/profile/${listing.creator.id}" var="profileUrl"/>
-                        <paw:linkButton href="${profileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
-                            <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
-                                    <c:choose>
-                                        <c:when test="${listing.creator.imageId.present}">
-                                            <img
-                                                src="<c:url value='/image/${listing.creator.imageId.get()}'/>"
-                                                alt="<c:out value='${listing.creator.displayName}'/> Profile Picture"
-                                                class="w-full h-full object-cover"
-                                            >
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img
-                                                src="<c:url value='/static-image/defaultProfilePicture.svg'/>"
-                                                alt="Default Profile Picture"
-                                                class="w-full h-full object-cover"
-                                            >
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <p>
-                                    <span class="text-black font-normal"><c:out value="${listing.creator.displayName}"/></span>
-                                    <span class="text-black/60 font-normal">(<c:out value="${listing.creator.username}"/>)</span>
-                                </p>
-                            </div>
-                        </paw:linkButton>
+                        <paw:divider />
 
+                        <paw:user user="${listing.creator}" />
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>
@@ -106,9 +55,22 @@
                                 <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
                             </c:when>
                             <c:otherwise>
-                                <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
-                                <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
-                                <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
+                                <div class="flex flex-col gap-2">
+                                    <c:if test="${listing.pendingOffersCount > 0}">
+                                        <c:choose>
+                                            <c:when test="${listing.pendingOffersCount > 1}">
+                                                <spring:message code="listing.detail.hotItem" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <spring:message code="listing.detail.hotItem1" arguments="${listing.pendingOffersCount}" var="hotItemMsg"/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <p class="text-red-600 text-sm"><c:out value="${hotItemMsg}"/></p>
+                                    </c:if>
+                                    <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
+                                    <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
+                                    <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>
+                                </div>
                             </c:otherwise>
                         </c:choose>
                     </div>
