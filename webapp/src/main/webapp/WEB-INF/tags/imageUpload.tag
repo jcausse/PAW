@@ -9,6 +9,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <spring:message code="imageUpload.clearLabel" var="clearLabel"/>
+<spring:message code="imageUpload.changeLabel" var="changeLabel"/>
 <spring:message code="imageUpload.removeLabel" var="removeLabel"/>
 
 <c:set var="inputDisabled" value="${disabled ne null ? disabled : false}"/>
@@ -32,12 +33,17 @@
     <div id="${path}-previews" class="grid ${inputMultiple ? 'grid-cols-5' : 'grid-cols-2 max-w-66 w-full'} gap-2">
         <div id="${path}-preview-template" class="relative group aspect-square rounded-lg border border-black/10 overflow-hidden hidden">
             <img class="w-full h-full object-cover" />
-            <div class="absolute top-1 right-1 bg-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="absolute top-1 right-1 bg-white rounded-lg">
                 <paw:button size="sm" variant="outline" icon="x" type="button" role="danger" />
             </div>
+            <c:if test="${not inputMultiple}">
+                <div class="absolute bottom-1 left-1 right-1 bg-white rounded-lg">
+                    <paw:button size="sm" variant="outline" text="${changeLabel}" type="button" classname="w-full" onclick="changeImage('${path}')" />
+                </div>
+            </c:if>
         </div>
 
-        <label for="${path}-file" class="aspect-square rounded-lg border-2 border-dashed border-black/20 bg-neutral-50 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-lime-600 hover:bg-lime-50 transition-all order-999">
+        <label id="${path}-add" for="${path}-file" class="aspect-square rounded-lg border-2 border-dashed border-black/20 bg-neutral-50 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-lime-600 hover:bg-lime-50 transition-all order-999">
             <c:choose>
                 <c:when test="${inputMultiple}">
                     <spring:message code="imageUpload.uploadLabelMultiple" var="uploadLabel"/>
@@ -63,10 +69,16 @@
     // Store original file input reference and object URLs
     let imageUploadState = new Map();
 
+    function changeImage(fieldId) {
+      const addBtn = document.getElementById(fieldId + '-add');
+      if (addBtn) addBtn.click();
+    }
+
     function handleImageUpload(fileInput, fieldId) {
         const previewsContainer = document.getElementById(fieldId + '-previews');
         const clearBtn = document.getElementById(fieldId + '-clear');
-        const isMultiple = fileInput.multiple == "true";
+        const addBtn = document.getElementById(fieldId + '-add');
+        const isMultiple = fileInput.multiple;
 
         if (!imageUploadState.has(fieldId)) {
             imageUploadState.set(fieldId, {
@@ -78,7 +90,6 @@
         const state = imageUploadState.get(fieldId);
         const files = Array.from(fileInput.files);
 
-        console.log(state, files, isMultiple);
         if (!isMultiple) {
             // Single file mode: clear existing previews
             const previews = previewsContainer.querySelectorAll('[data-index]');
@@ -86,6 +97,8 @@
             state.objectUrls.forEach(url => URL.revokeObjectURL(url));
             state.objectUrls.clear();
             state.originalFiles = [];
+
+            addBtn.classList.add('hidden');
         }
 
         files.forEach((file, index) => {
@@ -145,8 +158,10 @@
         updateFileInput(fileInput, fieldId, state);
 
         const clearBtn = document.getElementById(fieldId + '-clear');
-        if (clearBtn && state.originalFiles.filter(f => f !== null).length === 0) {
-            clearBtn.classList.add('hidden');
+        const addBtn = document.getElementById(fieldId + '-add');
+        if (state.originalFiles.filter(f => f !== null).length === 0) {
+            if (clearBtn) clearBtn.classList.add('hidden');
+            if (addBtn) addBtn.classList.remove('hidden');
         }
     }
 
@@ -167,9 +182,9 @@
         fileInput.value = '';
 
         const clearBtn = document.getElementById(fieldId + '-clear');
-        if (clearBtn) {
-            clearBtn.classList.add('hidden');
-        }
+        const addBtn = document.getElementById(fieldId + '-add');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        if (addBtn) addBtn.classList.remove('hidden');
     }
 
     function updateFileInput(fileInput, fieldId, state) {
