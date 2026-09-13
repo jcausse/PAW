@@ -39,6 +39,8 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/listing")
 public class ListingController {
 
+    private static final int DISCOVERY_PAGE_SIZE = 12;
+
     private static final String OTHER_VALUE = "__OTHER__";
 
     private final ListingService listingService;
@@ -58,7 +60,8 @@ public class ListingController {
             filterForm.getSort(),
             null,
             ListingStatus.ACTIVE.getStatus(),
-            filterForm.getPage()
+            filterForm.getPage(),
+            DISCOVERY_PAGE_SIZE
         );
 
         final var listingPage = listingService.search(filter);

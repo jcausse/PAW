@@ -12,5 +12,6 @@ public record ListingFilterDto(
     String sort,
     Long creatorId,
     String status,
-    Integer page
+    Integer page,
+    Integer pageSize
 ) {}

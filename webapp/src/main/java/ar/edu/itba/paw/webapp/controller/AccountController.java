@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/account")
 public class AccountController {
 
+    private static final int ACCOUNT_LISTINGS_PAGE_SIZE = 5;
+
     private final ListingService listingService;
     private final OfferService offerService;
     private final MessageSource messageSource;
@@ -66,7 +68,8 @@ public class AccountController {
             filterForm.getSort(),
             user.getId(),
             filterForm.getStatus(),
-            filterForm.getPage()
+            filterForm.getPage(),
+            ACCOUNT_LISTINGS_PAGE_SIZE
         );
 
         final var listingPage = listingService.search(filter);
