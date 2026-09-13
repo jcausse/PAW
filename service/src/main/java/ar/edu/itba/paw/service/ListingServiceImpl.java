@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
@@ -44,7 +45,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public List<Listing> search(ListingFilterDto dto) {
+    public Page<Listing> search(ListingFilterDto dto) {
         Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
 
         final ListingFilter filter = ListingFilter.builder()
@@ -56,11 +57,17 @@ public class ListingServiceImpl implements ListingService {
             .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
             .query(dto.query())
             .sort(parseSort(dto.sort()))
+            .page(sanitizePage(dto.page()))
+            .pageSize(dto.pageSize())
             .creatorId(dto.creatorId())
             .status(parseStatus(dto.status()))
             .build();
 
         return listingDao.search(filter);
+    }
+
+    private static int sanitizePage(final Integer page) {
+        return page == null || page < 1 ? 1 : page;
     }
 
     private static ListingStatus parseStatus(final String value) {

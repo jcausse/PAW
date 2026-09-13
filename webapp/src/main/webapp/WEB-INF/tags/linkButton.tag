@@ -77,13 +77,14 @@
         cursor-pointer transition duration-150 data-[state=on]:text-lime-500
         focus-visible:outline outline-offset-0 outline-lime-600
         focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
-        disabled:text-black/40 disabled:cursor-default disabled:pointer-events-none
+        inert:text-black/40 inert:cursor-default inert:pointer-events-none
         ${variantClassnames}
         ${sizeClassnames}
         ${roleClassnames}
         ${btnClass}
     "
     <c:if test="${isDisabled}">aria-disabled="true"</c:if>
+    <c:if test="${isDisabled}">inert</c:if>
 >
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />

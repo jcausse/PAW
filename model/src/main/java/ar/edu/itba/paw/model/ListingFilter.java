@@ -18,4 +18,6 @@ public final class ListingFilter {
     private final ListingSort sort;
     private final Long creatorId;
     private final ListingStatus status;
+    private final int page;
+    private final int pageSize;
 }

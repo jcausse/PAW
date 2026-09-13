@@ -39,6 +39,8 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/listing")
 public class ListingController {
 
+    private static final int DISCOVERY_PAGE_SIZE = 12;
+
     private static final String OTHER_VALUE = "__OTHER__";
 
     private final ListingService listingService;
@@ -57,11 +59,16 @@ public class ListingController {
             filterForm.getQuery(),
             filterForm.getSort(),
             null,
-            ListingStatus.ACTIVE.getStatus()
+            ListingStatus.ACTIVE.getStatus(),
+            filterForm.getPage(),
+            DISCOVERY_PAGE_SIZE
         );
 
+        final var listingPage = listingService.search(filter);
+
         final var mav = new ModelAndView("listing/discovery");
-        mav.addObject("listings", listingService.search(filter));
+        mav.addObject("listingPage", listingPage);
+        mav.addObject("listings", listingPage.getContent());
 
         // Create translated condition options for paw:formSelect
         var conditionOptions = new java.util.ArrayList<StringSelectOption>();
