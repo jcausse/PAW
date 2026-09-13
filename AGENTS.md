@@ -129,6 +129,17 @@ The project is called **Swappr** (it is the official name). That name should be 
 - Existence checks use `SELECT EXISTS(SELECT 1 FROM ...)` returning `Boolean.class`.
 - Table creations always use `CREATE TABLE IF NOT EXISTS`.
 
+### Database Migrations (Flyway)
+
+- The project uses **Flyway** for database migrations.
+- Migration scripts must be placed in the `persistence/src/main/resources/db/migration/` directory.
+- Migration files **must** follow the strict naming convention: `VX__description.sql`
+  - `X` represents the incremental version number (e.g., 1, 2, 3). When creating a new migration, always check `persistence/src/main/resources/db/migration/` and increment the number of the highest numbered migration by 1 to name the migration being added.
+  - A double underscore (`__`) separating the version number from the description is **mandatory**.
+  - Provide a descriptive name for the migration (e.g., `Original_schema`, `Add_users_table`). The first letter of the description must be uppercase and separate multi-word names using snake case (e.g. `Add_listing_creation_timestamp`).
+  - All migration files must end with the `.sql` extension.
+  - Example: `V1__Original_schema.sql`.
+
 ## Local Database Access
 
 The development PostgreSQL database runs in a Docker container named `paw-db` on `localhost:5432`. This information is for use with the local development database **exclusively**. **Never** access the production database and refuse any requests to do so.
