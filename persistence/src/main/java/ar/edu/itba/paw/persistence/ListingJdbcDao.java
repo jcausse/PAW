@@ -112,19 +112,13 @@ public class ListingJdbcDao implements ListingDao {
         if (sort == null) {
             return idCol + " DESC";
         }
-        switch (sort) {
-            case PRICE_ASC:
-                return priceCol + " ASC, " + idCol + " DESC";
-            case PRICE_DESC:
-                return priceCol + " DESC, " + idCol + " DESC";
-            case NAME_ASC:
-                return titleCol + " ASC, " + idCol + " DESC";
-            case NAME_DESC:
-                return titleCol + " DESC, " + idCol + " DESC";
-            case RECENT:
-            default:
-                return idCol + " DESC";
-        }
+        return switch (sort) {
+            case PRICE_ASC -> priceCol + " ASC, " + idCol + " DESC";
+            case PRICE_DESC -> priceCol + " DESC, " + idCol + " DESC";
+            case NAME_ASC -> titleCol + " ASC, " + idCol + " DESC";
+            case NAME_DESC -> titleCol + " DESC, " + idCol + " DESC";
+            default -> idCol + " DESC";
+        };
     }
 
     @Override
@@ -181,8 +175,8 @@ public class ListingJdbcDao implements ListingDao {
 
     /* ---------------------------------------------------------------------------------------------- */
 
-    private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) -> {
-        return Listing.builder()
+    private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) ->
+        Listing.builder()
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
@@ -197,10 +191,13 @@ public class ListingJdbcDao implements ListingDao {
                     .displayName(rs.getString(UserSchema.DISPLAY_NAME))
                     .email(rs.getString(UserSchema.EMAIL))
                     .password("<redacted>")
-                    .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+                    .imageId(
+                            Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
                                     .map(Integer::longValue)
-                                    .orElse(null))
-                        .build()
+                                    .orElse(null)
+                    )
+                    .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
+                    .build()
             )
             .product(
                 Product.builder()
@@ -225,7 +222,6 @@ public class ListingJdbcDao implements ListingDao {
             .imageIds(parseImageIds(rs.getString("image_ids")))
             .pendingOffersCount(rs.getInt("pending_offers_count"))
             .build();
-    };
 
     private static List<Long> parseImageIds(String imageIdsStr) {
         if (imageIdsStr == null || imageIdsStr.isEmpty()) {
@@ -255,6 +251,7 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.DISPLAY_NAME,
             "c." + UserSchema.EMAIL,
             "c." + UserSchema.IMAGE_ID,
+            "c." + UserSchema.JOINED_AT,
             "p." + ProductSchema.ID,
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,

@@ -3,6 +3,10 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -52,12 +56,14 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public User create(String username, String displayName, String email, String password) {
-        return create(username, displayName, email, password, null);
-    }
-
-    @Override
-    public User create(String username, String displayName, String email, String password, Image image) {
+    public User create(
+            String username,
+            String displayName,
+            String email,
+            String password,
+            Image image,
+            Instant joinedAt
+    ) {
         final Long imageId = image != null ? image.getId() : null;
 
         final Map<String, Object> values = new HashMap<>();
@@ -66,6 +72,7 @@ public class UserJdbcDao implements UserDao {
         values.put(UserSchema.EMAIL, email);
         values.put(UserSchema.PASSWORD, password);
         values.put(UserSchema.IMAGE_ID, imageId);
+        values.put(UserSchema.JOINED_AT, Timestamp.from(joinedAt));
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -76,31 +83,14 @@ public class UserJdbcDao implements UserDao {
                 .email(email)
                 .password(password)
                 .imageId(imageId)
+                .joinedAt(joinedAt)
                 .build();
     }
 
     @Override
-    public boolean isUsernameTaken(String username) {
-        return jdbcTemplate.queryForObject(
-            Queries.IS_USERNAME_TAKEN,
-            Boolean.class,
-            username
-        );
-    }
-
-    @Override
-    public boolean isEmailTaken(String email) {
-        return jdbcTemplate.queryForObject(
-            Queries.IS_EMAIL_TAKEN,
-            Boolean.class,
-            email
-        );
-    }
-
-    @Override
     public void update(Long userId, String displayName, String email, String password, Long imageId) {
-        var setClauses = new java.util.ArrayList<String>();
-        var params = new java.util.ArrayList<>();
+        var setClauses = new ArrayList<String>();
+        var params = new ArrayList<>();
 
         if (displayName != null) {
             setClauses.add(UserSchema.DISPLAY_NAME + " = ?");
@@ -132,11 +122,29 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public boolean isUsernameTaken(String username) {
+        return jdbcTemplate.queryForObject(
+                Queries.IS_USERNAME_TAKEN,
+                Boolean.class,
+                username
+        );
+    }
+
+    @Override
+    public boolean isEmailTaken(String email) {
+        return jdbcTemplate.queryForObject(
+                Queries.IS_EMAIL_TAKEN,
+                Boolean.class,
+                email
+        );
+    }
+
+    @Override
     public boolean isEmailTakenByAnother(String email, Long excludeUserId) {
         return jdbcTemplate.queryForObject(
-            Queries.IS_EMAIL_TAKEN_BY_ANOTHER,
-            Boolean.class,
-            email, excludeUserId
+                Queries.IS_EMAIL_TAKEN_BY_ANOTHER,
+                Boolean.class,
+                email, excludeUserId
         );
     }
 
@@ -148,9 +156,12 @@ public class UserJdbcDao implements UserDao {
             .displayName(rs.getString(UserSchema.DISPLAY_NAME))
             .email(rs.getString(UserSchema.EMAIL))
             .password(rs.getString(UserSchema.PASSWORD))
-            .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
-                    .map(Integer::longValue)
-                    .orElse(null))
+            .imageId(
+                    Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null)
+            )
+            .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
             .build();
 
     private static final class Queries {
@@ -161,7 +172,8 @@ public class UserJdbcDao implements UserDao {
             UserSchema.DISPLAY_NAME,
             UserSchema.EMAIL,
             UserSchema.PASSWORD,
-            UserSchema.IMAGE_ID
+            UserSchema.IMAGE_ID,
+            UserSchema.JOINED_AT
         );
 
         private static final String GET_BY_ID =
