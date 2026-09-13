@@ -10,6 +10,8 @@ import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.ListingUpdateDto;
+import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
@@ -108,16 +110,19 @@ public class ListingController {
         var listing = listingService.getById(id);
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
         var isSold = listing.getStatus() == ListingStatus.SOLD;
+        var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
 
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
                 .addObject("isCreator", isCreator)
-                .addObject("isSold", isSold);
+                .addObject("isSold", isSold)
+                .addObject("isCanceled", isCanceled);
     }
 
     @GetMapping("/new/choose-product")
     public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form,
-                                      @RequestParam(value = "productId", required = false) Long productId) {
+                                      @RequestParam(value = "productId", required = false) Long productId,
+                                      @RequestParam(value = "editListingId", required = false) Long editListingId) {
         var mav = new ModelAndView("listing/new/chooseProduct");
         // Coming back from step 2: rehydrate the form from the already chosen product
         // so the user sees and can change their selection instead of starting over.
@@ -130,6 +135,7 @@ public class ListingController {
             form.setNewProductModel(product.getModel());
             form.setNewProductYear(product.getYear());
             form.setStep(3);
+            form.setEditListingId(editListingId);
             form.updatePreviousValues();
         } else {
             form.setStep(1);
@@ -209,7 +215,11 @@ public class ListingController {
                     form.getNewProductYear(),
                     form.getSubcategoryId()
             );
-            return new ModelAndView("redirect:/listing/new/details?productId=" + product.getId());
+            var redirectUrl = "redirect:/listing/new/details?productId=" + product.getId();
+            if (form.getEditListingId() != null) {
+                redirectUrl += "&editListingId=" + form.getEditListingId();
+            }
+            return new ModelAndView(redirectUrl);
         }
 
         // Update previous values for next request
@@ -220,13 +230,29 @@ public class ListingController {
     }
 
     @GetMapping("/new/details")
-    public ModelAndView details(@RequestParam("productId") Long productId, @ModelAttribute("detailsForm") ListingDetailsForm form) {
+    public ModelAndView details(@RequestParam("productId") Long productId,
+                                @RequestParam(value = "editListingId", required = false) Long editListingId,
+                                @ModelAttribute("detailsForm") ListingDetailsForm form,
+                                @CurrentUser User currentUser) {
         var product = productService.getById(productId);
         var mav = new ModelAndView("listing/new/details");
 
         mav.addObject("product", product);
         mav.addObject("conditionOptions", buildConditionOptions());
         form.setProductId(product.getId());
+        form.setEditListingId(editListingId);
+
+        if (editListingId != null) {
+            var listing = listingService.getById(editListingId);
+            if (!listing.getCreator().getId().equals(currentUser.getId())) {
+                throw new ForbiddenException("Not authorized to edit this listing");
+            }
+            form.setTitle(listing.getTitle());
+            form.setPrice(listing.getPrice().getAmount());
+            form.setCondition(listing.getCondition().name());
+            form.setAcceptsTrade(listing.isAcceptsTrade());
+            form.setDescription(listing.getDescription());
+        }
         return mav;
     }
 
@@ -256,6 +282,23 @@ public class ListingController {
                     }
                 }
             }
+        }
+
+        if (form.getEditListingId() != null) {
+            var listing = listingService.getById(form.getEditListingId());
+            if (!listing.getCreator().getId().equals(currentUser.getId())) {
+                throw new ForbiddenException("Not authorized to edit this listing");
+            }
+            var updated = listingService.update(new ListingUpdateDto(
+                form.getEditListingId(),
+                form.getTitle(),
+                new Price(form.getPrice()),
+                form.getProductId(),
+                form.getCondition(),
+                form.isAcceptsTrade(),
+                form.getDescription()
+            ));
+            return new ModelAndView("redirect:/listing/" + updated.getId());
         }
 
         var newListing = listingService.create(new ListingCreationDto(
@@ -309,6 +352,26 @@ public class ListingController {
             mav.addObject("models", models);
             mav.addObject("modelsEmpty", models.isEmpty());
         }
+    }
+
+    @GetMapping("/{id}/edit")
+    public ModelAndView editListing(@PathVariable Long id, @CurrentUser User currentUser) {
+        var listing = listingService.getById(id);
+        if (!listing.getCreator().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to edit this listing");
+        }
+        return new ModelAndView("redirect:/listing/new/choose-product?productId="
+            + listing.getProduct().getId() + "&editListingId=" + id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ModelAndView cancelListing(@PathVariable Long id, @CurrentUser User currentUser) {
+        var listing = listingService.getById(id);
+        if (!listing.getCreator().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to cancel this listing");
+        }
+        listingService.cancel(id);
+        return new ModelAndView("redirect:/account/listings");
     }
 
     private List<StringSelectOption> buildConditionOptions() {

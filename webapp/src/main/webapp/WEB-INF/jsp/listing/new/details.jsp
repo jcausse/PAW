@@ -39,6 +39,7 @@
 
                 <form:form id="detailsForm" modelAttribute="detailsForm" action="${detailsUrl}" method="post" class="flex flex-col gap-6 mt-4" enctype="multipart/form-data">
                     <form:hidden path="productId"/>
+                    <form:hidden path="editListingId"/>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4 items-start">
                         <spring:message code="listing.new.titleLabel" var="titleLabel"/>
@@ -73,8 +74,15 @@
                         </c:url>
                         <spring:message code="listing.new.back" var="backLabel"/>
                         <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
-                        <spring:message code="listing.new.submitListing" var="submitLabel"/>
-                        <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
+                        <c:choose>
+                            <c:when test="${not empty detailsForm.editListingId}">
+                                <spring:message code="listing.new.updateListing" var="submitLabel"/>
+                            </c:when>
+                            <c:otherwise>
+                                <spring:message code="listing.new.submitListing" var="submitLabel"/>
+                            </c:otherwise>
+                        </c:choose>
+                        <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>   
                     </div>
                 </form:form>
             </jsp:body>

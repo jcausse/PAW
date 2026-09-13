@@ -7,6 +7,15 @@
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="listing.detail.title" />
+<spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
+<spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
+<spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
+<spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
+<c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
+<paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
+                    cancelText="${cancelCancel}" formAction="${cancelUrl}">
+    <c:out value="${cancelMessage}"/>
+</paw:confirmDialog>
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
@@ -47,8 +56,28 @@
 
                         <c:choose>
                             <c:when test="${isCreator}">
-                                <spring:message code="listing.detail.cannotOfferOwn" var="cannotOfferLabel"/>
-                                <p class="text-center text-black/60 py-4"><c:out value="${cannotOfferLabel}"/></p>
+                                <c:choose>
+                                    <c:when test="${isCanceled}">
+                                        <spring:message code="listing.detail.canceled" var="canceledLabel"/>
+                                        <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <spring:message code="listing.detail.edit" var="editLabel"/>
+                                        <c:url value="/listing/${listing.id}/edit" var="editUrl"/>
+                                        <paw:linkButton href="${editUrl}" size="lg" classname="w-full" variant="outline" text="${editLabel}"/>
+
+                                        <spring:message code="listing.detail.cancel" var="cancelLabel"/>
+                                        <button type="button"
+                                                onclick="document.getElementById('cancelListingDialog').showModal()"
+                                                class="w-full text-center text-sm text-red-600 hover:underline mt-2">
+                                            <c:out value="${cancelLabel}"/>
+                                        </button>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:when>
+                            <c:when test="${isCanceled}">
+                                <spring:message code="listing.detail.canceled" var="canceledLabel"/>
+                                <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
                             </c:when>
                             <c:when test="${isSold}">
                                 <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>

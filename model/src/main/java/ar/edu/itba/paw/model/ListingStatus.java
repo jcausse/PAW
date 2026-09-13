@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ListingStatus {
     ACTIVE("ACTIVE"),
-    SOLD("SOLD");
+    SOLD("SOLD"),
+    CANCELED("CANCELED");
 
     @Getter private final String status;
 

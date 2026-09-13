@@ -8,10 +8,14 @@ import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.ListingUpdateDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.math.BigDecimal;
@@ -30,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingDao listingDao;
+    private final OfferDao offerDao;
 
     private final UserService userService;
     private final ProductService productService;
@@ -152,5 +157,52 @@ public class ListingServiceImpl implements ListingService {
         mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
 
         return listing;
+    }
+
+    @Override
+    @Transactional
+    public Listing update(ListingUpdateDto dto) {
+        Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
+
+        var existing = getById(dto.listingId());
+
+        Product product;
+        try {
+            product = productService.getById(dto.productId());
+        } catch (NotFoundException e) {
+            throw BadParameterException.create("productId", e.getMessage());
+        }
+
+        if (dto.condition() == null || dto.condition().isBlank()) {
+            throw BadParameterException.create("condition", "Condition is required");
+        }
+        final Condition condition = Condition.fromString(dto.condition())
+            .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+
+        return listingDao.update(
+            existing.getId(),
+            dto.title(),
+            dto.price(),
+            product,
+            condition,
+            dto.acceptsTrade(),
+            dto.description()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void cancel(Long id) {
+        var listing = getById(id);
+
+        final Locale locale = LocaleContextHolder.getLocale();
+        for (Offer offer : offerDao.getByListingId(id)) {
+            if (offer.getStatus() == OfferStatus.PENDING) {
+                offerDao.updateStatus(offer.getId(), OfferStatus.REJECTED);
+                mailingService.sendOfferRejectedEmail(offer.getBuyer(), listing, offer, locale);
+            }
+        }
+
+        listingDao.cancel(id);
     }
 }

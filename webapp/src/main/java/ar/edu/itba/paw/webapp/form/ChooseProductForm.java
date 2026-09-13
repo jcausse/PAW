@@ -28,6 +28,8 @@ public class ChooseProductForm {
     private Long previousCategoryId;
     private Long previousSubcategoryId;
 
+    private Long editListingId;
+
     public boolean isCategoryChanged() {
         return categoryId != null && !categoryId.equals(previousCategoryId);
     }

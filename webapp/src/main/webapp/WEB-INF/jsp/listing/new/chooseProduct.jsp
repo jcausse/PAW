@@ -41,6 +41,7 @@
                     <form:hidden path="isAutoSubmit"/>
                     <form:hidden path="previousCategoryId"/>
                     <form:hidden path="previousSubcategoryId"/>
+                    <form:hidden path="editListingId"/>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4 items-start">
                         <%-- Step 1: Category Selection (always visible) --%>
