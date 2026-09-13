@@ -30,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ListingServiceImpl implements ListingService {
 
-    private static final int DEFAULT_PAGE_SIZE = 12;
-
     private final ListingDao listingDao;
 
     private final UserService userService;
@@ -60,7 +58,7 @@ public class ListingServiceImpl implements ListingService {
             .query(dto.query())
             .sort(parseSort(dto.sort()))
             .page(sanitizePage(dto.page()))
-            .pageSize(sanitizePageSize(dto.pageSize()))
+            .pageSize(dto.pageSize())
             .creatorId(dto.creatorId())
             .status(parseStatus(dto.status()))
             .build();
@@ -70,10 +68,6 @@ public class ListingServiceImpl implements ListingService {
 
     private static int sanitizePage(final Integer page) {
         return page == null || page < 1 ? 1 : page;
-    }
-
-    private static int sanitizePageSize(final Integer pageSize) {
-        return pageSize == null || pageSize < 1 ? DEFAULT_PAGE_SIZE : pageSize;
     }
 
     private static ListingStatus parseStatus(final String value) {
