@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 public enum Condition {
     UNUSED("UNUSED"),
@@ -12,6 +13,7 @@ public enum Condition {
     FAIR("FAIR"),
     AS_IS("AS_IS"),
     FOR_PARTS("FOR_PARTS");
+
     @Getter private final String condition;
     public static Optional<Condition> fromString(final String condition) {
         return Arrays.stream(Condition.values())
