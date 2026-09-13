@@ -10,4 +10,5 @@ public final class UserSchema {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
     public static final String IMAGE_ID = "image_id";
+    public static final String JOINED_AT = "joined_at";
 }

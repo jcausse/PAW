@@ -5,6 +5,8 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
+
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -46,23 +48,30 @@ public class UserServiceImpl implements UserService {
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
 
-        Image image = null;
-        if (dto.image() != null && dto.image().imageBytes() != null && dto.image().imageBytes().length > 0) {
-            String alt = dto.username() + "'s profile picture";
-            image = imageService.create(dto.image().imageFilename(), alt, dto.image().imageContentType(), dto.image().imageBytes());
-        }
-
         var user = userDao.create(
             dto.username().toLowerCase(),
             dto.displayName(),
             dto.email().toLowerCase(),
             passwordEncoder.encode(dto.password()),
-            image
+            extractImage(dto),
+            Instant.now()
         );
 
         mailingService.sendWelcomeEmail(user, LocaleContextHolder.getLocale());
 
         return user;
+    }
+
+    private Image extractImage(UserCreationDto dto) {
+        if (dto.image() != null && dto.image().imageBytes() != null && dto.image().imageBytes().length > 0) {
+            return imageService.create(
+                    dto.image().imageFilename(),
+                    dto.username() + "'s profile picture",
+                    dto.image().imageContentType(),
+                    dto.image().imageBytes()
+            );
+        }
+        return null;
     }
 
     @Override
