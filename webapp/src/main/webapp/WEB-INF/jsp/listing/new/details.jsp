@@ -4,9 +4,17 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+
+<c:url value="/listing/new/choose-product" var="backUrl">
+    <c:param name="productId" value="${detailsForm.productId}"/>
+</c:url>
+<spring:message code="listing.new.back" var="backLabel"/>
+<spring:message code="listing.new.changeProduct" var="changeProductLabel"/>
+
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="listing.new.title"/>
+
 <body class="px-8 pb-24 bg-neutral-50">
     <paw:navbar />
 
@@ -40,6 +48,16 @@
                 <form:form id="detailsForm" modelAttribute="detailsForm" action="${detailsUrl}" method="post" class="flex flex-col gap-6 mt-4" enctype="multipart/form-data">
                     <form:hidden path="productId"/>
 
+                    <div class="flex flex-col">
+                        <div class="text-xs text-black/70 font-medium">
+                            <spring:message code="listing.new.product"/>
+                        </div>
+                        <div class="flex flex-row items-center justify-between">
+                            <paw:product product="${product}" />
+                            <paw:linkButton href="${backUrl}" text="${changeProductLabel}" variant="outline" />
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4 items-start">
                         <spring:message code="listing.new.titleLabel" var="titleLabel"/>
                         <paw:formInput path="title" label="${titleLabel}" />
@@ -66,10 +84,6 @@
                     <paw:imageUpload path="images" label="${imagesLabel}" multiple="true" />
 
                     <div class="mt-2 flex justify-center gap-4">
-                        <c:url value="/listing/new/choose-product" var="backUrl">
-                            <c:param name="productId" value="${detailsForm.productId}"/>
-                        </c:url>
-                        <spring:message code="listing.new.back" var="backLabel"/>
                         <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
                         <spring:message code="listing.new.submitListing" var="submitLabel"/>
                         <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
