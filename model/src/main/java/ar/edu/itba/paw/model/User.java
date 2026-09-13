@@ -2,6 +2,7 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -24,4 +25,6 @@ public final class User {
     public Optional<Long> getImageId() {
         return Optional.ofNullable(imageId);
     }
+
+    private final @NonNull Instant joinedAt;
 }
