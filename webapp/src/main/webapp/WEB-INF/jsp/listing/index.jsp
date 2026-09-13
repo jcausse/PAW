@@ -73,6 +73,12 @@
                                 </div>
                             </c:otherwise>
                         </c:choose>
+
+                        <paw:divider />
+
+                        <c:url value="/listing/new/choose-product?productId=${listing.product.getId()}" var="sellSameProductUrl" />
+                        <spring:message code="listing.detail.sellSameProduct" var="sellSameProductLabel" />
+                        <paw:linkButton href="${sellSameProductUrl}" variant="ghost" size="sm" role="secondary" text="${sellSameProductLabel}" />
                     </div>
                 </paw:card>
             </div>
