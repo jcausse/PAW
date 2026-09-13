@@ -28,6 +28,7 @@ public class OneTimePasswordServiceImpl implements OneTimePasswordService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public boolean verify(User user, String otpValue) {
         if (user == null || otpValue == null || otpValue.isBlank()) {
             return false;
