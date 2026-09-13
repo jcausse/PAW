@@ -8,7 +8,6 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<spring:message code="imageUpload.uploadLabel" var="uploadLabel"/>
 <spring:message code="imageUpload.clearLabel" var="clearLabel"/>
 <spring:message code="imageUpload.removeLabel" var="removeLabel"/>
 
@@ -39,18 +38,18 @@
         </div>
 
         <label for="${path}-file" class="aspect-square rounded-lg border-2 border-dashed border-black/20 bg-neutral-50 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-lime-600 hover:bg-lime-50 transition-all order-999">
+            <c:choose>
+                <c:when test="${inputMultiple}">
+                    <spring:message code="imageUpload.uploadLabelMultiple" var="uploadLabel"/>
+                    <form:input path="${path}" id="${path}-file" type="file" accept="image/*" disabled="${inputDisabled}" class="hidden" onchange="handleImageUpload(this, '${path}')" multiple="true" />
+                </c:when>
+                <c:otherwise>
+                    <spring:message code="imageUpload.uploadLabel" var="uploadLabel"/>
+                    <form:input path="${path}" id="${path}-file" type="file" accept="image/*" disabled="${inputDisabled}" class="hidden" onchange="handleImageUpload(this, '${path}')"/>
+                </c:otherwise>
+            </c:choose>
             <paw:icon name="plus" classname="text-black/40 text-3xl" />
             <span class="text-sm text-black/60 font-medium text-center px-2"><c:out value="${uploadLabel}"/></span>
-            <form:input
-                path="${path}"
-                id="${path}-file"
-                type="file"
-                accept="image/*"
-                multiple="${inputMultiple}"
-                disabled="${inputDisabled}"
-                class="hidden"
-                onchange="handleImageUpload(this, '${path}')"
-            />
         </label>
     </div>
 
@@ -67,7 +66,7 @@
     function handleImageUpload(fileInput, fieldId) {
         const previewsContainer = document.getElementById(fieldId + '-previews');
         const clearBtn = document.getElementById(fieldId + '-clear');
-        const isMultiple = fileInput.multiple;
+        const isMultiple = fileInput.multiple == "true";
 
         if (!imageUploadState.has(fieldId)) {
             imageUploadState.set(fieldId, {
@@ -79,9 +78,11 @@
         const state = imageUploadState.get(fieldId);
         const files = Array.from(fileInput.files);
 
+        console.log(state, files, isMultiple);
         if (!isMultiple) {
             // Single file mode: clear existing previews
-            previewsContainer.innerHTML = '';
+            const previews = previewsContainer.querySelectorAll('[data-index]');
+            previews.forEach((preview) => preview.remove());
             state.objectUrls.forEach(url => URL.revokeObjectURL(url));
             state.objectUrls.clear();
             state.originalFiles = [];
