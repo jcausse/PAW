@@ -7,6 +7,7 @@
 <%@ attribute name="role" required="false" %>
 <%@ attribute name="id" required="false" %>
 <%@ attribute name="classname" required="false" %>
+<%@ attribute name="onclick" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
@@ -87,6 +88,7 @@
     "
     <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     <c:if test="${isDisabled}">disabled</c:if>
+    <c:if test="${not empty onclick}">onclick="${onclick}"</c:if>
 >
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />

@@ -66,18 +66,17 @@
                     <paw:imageUpload path="images" label="${imagesLabel}" multiple="true" />
 
                     <div class="mt-2 flex justify-center gap-4">
-<c:url value="/listing/new/choose-product" var="backUrl">
-                        <c:param name="productId" value="${detailsForm.productId}"/>
-                    </c:url>
-                    <spring:message code="listing.new.back" var="backLabel"/>
-                    <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
-                    <spring:message code="listing.new.submitListing" var="submitLabel"/>
-                    <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
-                </div>
-            </form:form>
-        </jsp:body>
-    </paw:card>
-</div>
-
+                        <c:url value="/listing/new/choose-product" var="backUrl">
+                            <c:param name="productId" value="${detailsForm.productId}"/>
+                        </c:url>
+                        <spring:message code="listing.new.back" var="backLabel"/>
+                        <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
+                        <spring:message code="listing.new.submitListing" var="submitLabel"/>
+                        <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
+                    </div>
+                </form:form>
+            </jsp:body>
+        </paw:card>
+    </div>
 </body>
 </html>
