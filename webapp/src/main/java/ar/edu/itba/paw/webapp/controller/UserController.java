@@ -1,8 +1,14 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
@@ -31,7 +37,10 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
+    private final ListingService listingService;
     private final AuthenticationManager authenticationManager;
+
+    private static final int PROFILE_LISTINGS_PAGE_SIZE = 5;
 
     /* PROFILE */
 
@@ -39,9 +48,25 @@ public class UserController {
     public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
         final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
         final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
+
+        final var filter = new ListingFilterDto(
+                null, null, null, null, null, null,
+                null,
+                ListingSort.RECENT.getKey(),
+                user.getId(),
+                ListingStatus.ACTIVE.name(),
+                1,
+                PROFILE_LISTINGS_PAGE_SIZE
+        );
+
+        final var listingPage = listingService.search(filter);
+        final var listings = listingPage.getContent();
+
         return new ModelAndView("profile")
                 .addObject("user", user)
-                .addObject("allowEdit", isSelfRequest);
+                .addObject("allowEdit", isSelfRequest)
+                .addObject("listings", listings)
+                .addObject("listingPage", listingPage);
     }
 
     @GetMapping("/profile")
