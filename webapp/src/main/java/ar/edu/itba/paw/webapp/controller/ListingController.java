@@ -360,6 +360,9 @@ public class ListingController {
         if (!listing.getCreator().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Not authorized to edit this listing");
         }
+        if (listing.getStatus() == ListingStatus.CANCELED) {
+            throw new ForbiddenException("Cannot edit a canceled listing");
+        }
         return new ModelAndView("redirect:/listing/new/choose-product?productId="
             + listing.getProduct().getId() + "&editListingId=" + id);
     }
