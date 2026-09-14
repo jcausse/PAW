@@ -87,9 +87,11 @@ public class OfferJdbcDao implements OfferDao {
             .displayName(rs.getString(UserSchema.DISPLAY_NAME))
             .email(rs.getString(UserSchema.EMAIL))
             .password("<redacted>")
-            .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+            .imageId(
+                    Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
                             .map(Integer::longValue)
                             .orElse(null))
+            .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
             .build();
 
         String imageIdsStr = rs.getString("image_ids");
@@ -110,9 +112,11 @@ public class OfferJdbcDao implements OfferDao {
                     .displayName(rs.getString("creator_display_name"))
                     .email(rs.getString("creator_email"))
                     .password("<redacted>")
-                    .imageId(Optional.ofNullable(rs.getObject("creator_image_id", Integer.class))
+                    .imageId(
+                            Optional.ofNullable(rs.getObject("creator_image_id", Integer.class))
                                     .map(Integer::longValue)
                                     .orElse(null))
+                    .joinedAt(rs.getTimestamp("creator_joined_at").toInstant())
                     .build()
             )
             .product(
@@ -170,13 +174,13 @@ public class OfferJdbcDao implements OfferDao {
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
             ", o." + OfferSchema.MESSAGE +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
-            ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID +
+            ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
             ", l." + ListingSchema.PRICE + ", l." + ListingSchema.STATUS + ", l." + ListingSchema.CONDITION +
             ", l." + ListingSchema.ACCEPTS_TRADE + ", l." + ListingSchema.CREATOR_ID + ", l." + ListingSchema.PRODUCT_ID +
             ", c." + UserSchema.ID + " as creator_id, c." + UserSchema.USERNAME + " as creator_username" +
             ", c." + UserSchema.DISPLAY_NAME + " as creator_display_name, c." + UserSchema.EMAIL + " as creator_email" +
-            ", c." + UserSchema.IMAGE_ID + " as creator_image_id" +
+            ", c." + UserSchema.IMAGE_ID + " as creator_image_id" + ", c." + UserSchema.JOINED_AT + " as creator_joined_at" +
             ", p." + ProductSchema.ID + ", p." + ProductSchema.BRAND + ", p." + ProductSchema.MODEL +
             ", p." + ProductSchema.YEAR + ", p." + ProductSchema.SUBCATEGORY_ID +
             ", s." + SubcategorySchema.ID + ", s." + SubcategorySchema.NAME +

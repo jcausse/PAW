@@ -19,6 +19,11 @@
                 <div class="flex flex-col">
                     <h1 class="text-3xl font-bold tracking-tight text-neutral-900"><c:out value="${user.displayName}"/></h1>
                     <span class="text-lg text-neutral-500 font-medium">@<c:out value="${user.username}"/></span>
+                    <c:if test="${not empty user.joinedAt}">
+                        <span class="text-sm text-neutral-500 mt-1">
+                            <spring:message code="profile.memberSince" arguments="${user.joinedAt.toEpochMilli()}"/>
+                        </span>
+                    </c:if>
                     <c:if test="${allowEdit}">
                         <div class="mt-6">
                             <c:url value="/profile/edit" var="editUrl"/>
