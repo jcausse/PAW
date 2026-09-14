@@ -2,6 +2,7 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.service.dto.IncomingOffersDto;
+import ar.edu.itba.paw.service.dto.MyOffersDto;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,8 @@ public interface OfferService {
     List<Offer> getByBuyerId(Long buyerId);
 
     IncomingOffersDto getIncomingOffersForUser(Long userId);
+
+    MyOffersDto getMyOffersForUser(Long userId);
 
     Offer create(OfferCreationDto dto);
 

@@ -9,6 +9,7 @@ import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.IncomingOffersDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.MyOffersDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
@@ -110,6 +111,20 @@ public class AccountController {
         final var offers = offerService.getIncomingOffersForUser(user.getId());
 
         return new ModelAndView("account/incomingOffers")
+                .addObject("pendingOffers", offers.pending())
+                .addObject("resolvedOffers", offers.resolved())
+                .addObject("user", user)
+                .addObject("currentUser", currentUser)
+                .addObject("pendingOffersCount", offers.pending().size());
+    }
+
+    @GetMapping("/my-offers")
+    public ModelAndView myOffers() {
+        final var currentUser = getCurrentUser();
+        final var user = currentUser.orElseThrow();
+        final var offers = offerService.getMyOffersForUser(user.getId());
+
+        return new ModelAndView("account/myOffers")
                 .addObject("pendingOffers", offers.pending())
                 .addObject("resolvedOffers", offers.resolved())
                 .addObject("user", user)

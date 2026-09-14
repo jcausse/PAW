@@ -152,6 +152,7 @@ public class OfferJdbcDao implements OfferDao {
             .message(rs.getString(OfferSchema.MESSAGE))
             .hasOtherOffers(rs.getBoolean("has_other_offers"))
             .hasBetterOffers(rs.getBoolean("has_better_offers"))
+            .createdAt(rs.getTimestamp(OfferSchema.CREATED_AT).toInstant())
             .build();
     };
 
@@ -172,7 +173,7 @@ public class OfferJdbcDao implements OfferDao {
         private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
-            ", o." + OfferSchema.MESSAGE +
+            ", o." + OfferSchema.MESSAGE + ", o." + OfferSchema.CREATED_AT +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
