@@ -3,7 +3,9 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.OneTimePassword;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OneTimePasswordDao;
+import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,24 +30,24 @@ public class OneTimePasswordServiceImpl implements OneTimePasswordService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional
-    public boolean verify(User user, String otpValue) {
+    public OneTimePasswordVerificationResult verify(User user, String otpValue) {
         if (user == null || otpValue == null || otpValue.isBlank()) {
-            return false;
+            return OneTimePasswordVerificationResult.REJECTED;
         }
 
         Optional<OneTimePassword> maybeOtp = otpDao.getByUser(user);
         if (maybeOtp.isEmpty()) {
-            return false;
+            return OneTimePasswordVerificationResult.REJECTED;
         }
 
         OneTimePassword otp = maybeOtp.get();
         if (otp.getCreatedAt().plus(OTP_EXPIRATION).isBefore(Instant.now())) {
-            otpDao.deleteIfPresentByUser(user);
-            return false;
+            return OneTimePasswordVerificationResult.EXPIRED;
         }
 
-        return passwordEncoder.matches(otpValue, otp.getOtpValue());
+        return passwordEncoder.matches(otpValue, otp.getOtpValue())
+                ? OneTimePasswordVerificationResult.ACCEPTED
+                : OneTimePasswordVerificationResult.REJECTED;
     }
 
     @Override
@@ -53,18 +55,25 @@ public class OneTimePasswordServiceImpl implements OneTimePasswordService {
     public OneTimePassword create(User requester) {
         Objects.requireNonNull(requester, "Requester cannot be null");
 
-        otpDao.deleteIfPresentByUser(requester);
+        otpDao.deleteIfPresentByUser(requester);            // Only one OTP is allowed per User
 
         String plainOtp = generateRandomOneTimePassword();
         Instant now = Instant.now();
 
-        otpDao.create(requester.getId(), passwordEncoder.encode(plainOtp), now);
+        otpDao.create(requester.getId(), passwordEncoder.encode(plainOtp), now);    // OTPs are stored encoded
 
         return OneTimePassword.builder()
                 .requesterId(requester.getId())
-                .otpValue(plainOtp)
+                .otpValue(plainOtp)                 // Return the OTP un-encoded so it can be sent via e-mail
                 .createdAt(now)
                 .build();
+    }
+
+    @Override
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void clearUnused() {
+        otpDao.deleteOlderThan(Instant.now().minus(OTP_EXPIRATION));
     }
 
     private String generateRandomOneTimePassword() {

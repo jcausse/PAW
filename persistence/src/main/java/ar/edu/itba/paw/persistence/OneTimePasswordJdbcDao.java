@@ -61,11 +61,10 @@ public class OneTimePasswordJdbcDao implements OneTimePasswordDao {
     }
 
     @Override
-    public boolean existsByUser(User requester) {
-        return jdbcTemplate.queryForObject(
-                Queries.EXISTS_BY_USER,
-                Boolean.class,
-                requester.getId()
+    public void deleteOlderThan(Instant cutoff) {
+        jdbcTemplate.update(
+                Queries.DELETE_OLDER_THAN,
+                Timestamp.from(cutoff)
         );
     }
 
@@ -94,8 +93,8 @@ public class OneTimePasswordJdbcDao implements OneTimePasswordDao {
             "DELETE FROM " + OneTimePasswordSchema.TABLE_NAME +
             " WHERE " + OneTimePasswordSchema.REQUESTER_ID + " = ?";
 
-        private static final String EXISTS_BY_USER =
-            "SELECT EXISTS(SELECT 1 FROM " + OneTimePasswordSchema.TABLE_NAME +
-            " WHERE " + OneTimePasswordSchema.REQUESTER_ID + " = ?)";
+        private static final String DELETE_OLDER_THAN =
+            "DELETE FROM " + OneTimePasswordSchema.TABLE_NAME +
+            " WHERE " + OneTimePasswordSchema.CREATED_AT + " < ?";
     }
 }

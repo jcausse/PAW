@@ -13,5 +13,5 @@ public interface OneTimePasswordDao {
 
     void deleteIfPresentByUser(User requester);
 
-    boolean existsByUser(User requester);
+    void deleteOlderThan(Instant cutoff);
 }
