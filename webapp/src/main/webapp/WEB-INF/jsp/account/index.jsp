@@ -10,15 +10,32 @@
 
 <c:url value="/account/listings" var="listingsUrl"/>
 <c:url value="/account/incoming-offers" var="offersUrl"/>
+<c:url value="/account/my-offers" var="myOffersUrl"/>
 
 <spring:message code="account.myListings" var="myListingsTitle"/>
 <spring:message code="account.incomingOffers" var="incomingOffersTitle"/>
+<spring:message code="account.myOffers" var="myOffersTitle"/>
 
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="account.title"/>
 
 <account:layout title="${welcomeMsg}" subtitle="${subtitleMsg}">
-    <paw:card>
+    <spring:message code="account.sidebar.buyer" var="buyerSubtitle"/>
+    <paw:card title="${buyerSubtitle}">
+        <div class="flex flex-col">
+            <paw:linkButton variant="ghost" size="lg" href="${myOffersUrl}">
+                <div class="grow flex flex-col gap-2">
+                    <h3 class="text-black font-semibold"><c:out value="${myOffersTitle}"/></h3>
+                    <spring:message code="account.myOffers.desc" var="myOffersDesc"/>
+                    <p class="text-black/60 font-normal text-sm"><c:out value="${myOffersDesc}"/></p>
+                </div>
+                <paw:icon name="chevron-right" classname="text-xl" />
+            </paw:linkButton>
+        </div>
+    </paw:card>
+
+    <spring:message code="account.sidebar.seller" var="sellerSubtitle"/>
+    <paw:card title="${sellerSubtitle}" classname="mt-6">
         <div class="flex flex-col">
             <paw:linkButton variant="ghost" size="lg" href="${listingsUrl}">
                 <div class="grow flex flex-col gap-2">

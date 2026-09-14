@@ -1,0 +1,8 @@
+Keeping track of tech debt
+
+- Make sure we don't have any business logic in controllers. Mostly validations not used to set view params.
+
+- Service methods to fetch single objects should return Optional<T> if they can fail, instead of potentially returning null or throwing an exception.
+  - Exceptions for missing items should be thrown in the controller instead (orElseThrow)
+
+- Remove any unused i18n messages, we probably have a bunch.
