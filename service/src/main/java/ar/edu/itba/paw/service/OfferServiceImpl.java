@@ -132,4 +132,26 @@ public class OfferServiceImpl implements OfferService {
 
         return offerDao.getById(offerId).orElseThrow();
     }
+
+    @Override
+    @Transactional
+    public Offer withdraw(Long offerId, Long buyerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!Objects.equals(offer.getBuyer().getId(), buyerId)) {
+            throw new BadParameterException("Only the buyer can withdraw this offer");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING) {
+            throw new BadParameterException("Offer is not pending");
+        }
+
+        offerDao.withdraw(offerId, buyerId);
+
+        // Send email notification to seller about offer withdrawal
+        mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        return offerDao.getById(offerId).orElseThrow();
+    }
 }

@@ -78,4 +78,23 @@ public class OfferController {
         var successMessage = messageSource.getMessage("offer.rejected", null, locale);
         return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
     }
+
+    @PostMapping("/{offerId}/withdraw")
+    public ModelAndView withdrawOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        final Listing listing = offer.getListing();
+        final Long currentUserId = currentUser.getId();
+
+        if (!offer.getBuyer().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to withdraw this offer");
+        }
+
+        offerService.withdraw(offerId, currentUserId);
+
+        var locale = LocaleContextHolder.getLocale();
+        var successMessage = messageSource.getMessage("offer.withdrawn", null, locale);
+        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+    }
 }

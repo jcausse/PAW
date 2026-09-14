@@ -23,4 +23,6 @@ public interface OfferService {
     Offer accept(Long offerId);
 
     Offer reject(Long offerId);
+
+    Offer withdraw(Long offerId, Long buyerId);
 }

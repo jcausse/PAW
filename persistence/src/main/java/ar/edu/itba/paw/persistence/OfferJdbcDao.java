@@ -229,6 +229,13 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
+        private static final String WITHDRAW =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.BUYER_ID + " = ?" +
+            " AND " + OfferSchema.STATUS + " = ?";
+
         private static final String REJECT_OTHER_OFFERS =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
@@ -240,6 +247,17 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean updateStatus(Long offerId, OfferStatus status) {
         return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
+    }
+
+    @Override
+    public boolean withdraw(Long offerId, Long buyerId) {
+        return jdbcTemplate.update(
+            Queries.WITHDRAW,
+            OfferStatus.WITHDRAWN.getStatus(),
+            offerId,
+            buyerId,
+            OfferStatus.PENDING.getStatus()
+        ) > 0;
     }
 
     @Override

@@ -126,6 +126,10 @@
                                             <c:set var="statusClass" value="text-red-600"/>
                                             <spring:message code="offer.status.REJECTED" var="statusLabel"/>
                                         </c:when>
+                                        <c:when test="${offer.status.name() == 'WITHDRAWN'}">
+                                            <c:set var="statusClass" value="text-stone-600"/>
+                                            <spring:message code="offer.status.WITHDRAWN" var="statusLabel"/>
+                                        </c:when>
                                         <c:otherwise>
                                             <c:set var="statusClass" value="text-neutral-600"/>
                                             <c:set var="statusLabel" value="${offer.status.name()}"/>
