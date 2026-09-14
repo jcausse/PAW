@@ -47,7 +47,7 @@
 
                                 <div class="flex-1 min-w-0 flex flex-col justify-between">
                                     <paw:product product="${offer.listing.product}" size="sm" />
-                                    <div class="mt-2 flex flex-row gap-4 items-end justify-between">
+                                    <div class="mt-2 flex flex-row gap-4 items-end">
                                         <div>
                                             <c:if test="${not offer.isFullPrice}">
                                                 <p class="text-base font-medium line-through text-black/60">
@@ -64,9 +64,15 @@
                                                 </c:if>
                                             </p>
                                         </div>
-                                        <div class="max-w-48">
+
+                                        <div class="max-w-48 ml-auto">
                                             <paw:user user="${offer.listing.creator}" variant="compact" />
                                         </div>
+
+                                        <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                            <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                                            <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -78,13 +84,6 @@
                                     <p class="text-sm whitespace-pre-wrap"><c:out value="${offer.message}"/></p>
                                 </paw:collapsible>
                             </c:if>
-
-                            <div class="flex flex-row gap-1 self-end mt-2 pt-2 border-t border-black/10">
-                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST" onsubmit="return confirm('<spring:message code=\"account.myOffers.withdrawConfirm\"/>')">
-                                    <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                    <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
-                                </form>
-                            </div>
                         </paw:card>
                     </c:forEach>
                 </div>

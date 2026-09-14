@@ -57,8 +57,8 @@
                             <c:when test="${userPendingOffer != null}">
                                 <div class="flex flex-col gap-2">
                                     <spring:message code="listing.detail.pendingOffer" arguments="${userPendingOffer.amount}" var="pendingOfferMsg"/>
-                                    <p class="text-blue-600 text-sm"><c:out value="${pendingOfferMsg}"/></p>
-                                    <form action="<c:url value='/offer/${userPendingOffer.id}/withdraw'/>" method="POST" onsubmit="return confirm('<spring:message code=\"account.myOffers.withdrawConfirm\"/>')">
+                                    <p class="text-black/60 text-sm"><c:out value="${pendingOfferMsg}"/></p>
+                                    <form action="<c:url value='/offer/${userPendingOffer.id}/withdraw'/>" method="POST">
                                         <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
                                         <paw:button type="submit" variant="outline" role="danger" classname="w-full" icon="x" text="${withdrawLabel}" />
                                     </form>
