@@ -4,6 +4,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+
 <spring:message code="profile.listings.title" var="listingsTitle"/>
 <spring:message code="profile.listings.empty" var="listingsEmpty"/>
 <spring:message code="profile.listings.view" var="viewListingLabel"/>
@@ -12,7 +13,7 @@
 <paw:head title="${user.displayName}"/>
 <body class="min-h-screen bg-neutral-50 flex flex-col">
     <paw:navbar/>
-    <main class="max-w-6xl w-full mx-auto px-6 pt-8 pb-16">
+    <main class="max-w-5xl w-full mx-auto px-6 pt-8 pb-16 flex flex-col gap-6">
         <paw:card classname="w-full flex flex-col gap-8">
             <div class="flex items-center gap-6">
                 <paw:userAvatar user="${user}" size="xl" />
@@ -46,11 +47,7 @@
             </div>
         </paw:card>
 
-        <paw:card>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-neutral-900"><c:out value="${listingsTitle}"/></h2>
-            </div>
-
+        <paw:card title="${listingsTitle}">
             <c:choose>
                 <c:when test="${empty listings}">
                     <div class="mt-12 mb-12 flex flex-col items-center">
@@ -59,7 +56,7 @@
                 </c:when>
 
                 <c:otherwise>
-                    <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-4 mt-4">
                         <c:forEach var="listing" items="${listings}" varStatus="loop">
                             <c:url value="/listing/${listing.id}" var="listingUrl"/>
                             <div class="flex flex-col gap-2">
@@ -69,6 +66,9 @@
                                             <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
                                         </h3>
                                     </div>
+                                    <c:if test="${listing.pendingOffersCount > 0}">
+                                        <paw:badge text="${listing.pendingOffersCount} offers" classname="text-red-600 ml-auto" />
+                                    </c:if>
                                 </div>
 
                                 <div class="flex flex-row gap-3 w-full sm:w-auto">
@@ -82,7 +82,7 @@
                                     </div>
 
                                     <div class="flex flex-row gap-1 self-end">
-                                        <paw:linkButton variant="outline" href="${listingUrl}" text="${viewListingLabel}" size="sm" />
+                                        <paw:linkButton variant="outline" href="${listingUrl}" text="${viewListingLabel}" />
                                     </div>
                                 </div>
                             </div>
