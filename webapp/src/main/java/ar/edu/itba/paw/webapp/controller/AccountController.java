@@ -1,15 +1,11 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
-import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
-import ar.edu.itba.paw.service.dto.IncomingOffersDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
-import ar.edu.itba.paw.service.dto.MyOffersDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
@@ -24,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -129,7 +124,7 @@ public class AccountController {
                 .addObject("resolvedOffers", offers.resolved())
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", offers.pending().size());
+                .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
 	private int getPendingOffersCount(final User user) {
