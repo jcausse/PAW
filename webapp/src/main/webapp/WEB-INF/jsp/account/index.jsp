@@ -20,7 +20,8 @@
 <paw:head titleKey="account.title"/>
 
 <account:layout title="${welcomeMsg}" subtitle="${subtitleMsg}">
-    <paw:card>
+    <spring:message code="account.sidebar.buyer" var="buyerSubtitle"/>
+    <paw:card title="${buyerSubtitle}">
         <div class="flex flex-col">
             <paw:linkButton variant="ghost" size="lg" href="${myOffersUrl}">
                 <div class="grow flex flex-col gap-2">
@@ -33,7 +34,8 @@
         </div>
     </paw:card>
 
-    <paw:card>
+    <spring:message code="account.sidebar.seller" var="sellerSubtitle"/>
+    <paw:card title="${sellerSubtitle}" classname="mt-6">
         <div class="flex flex-col">
             <paw:linkButton variant="ghost" size="lg" href="${listingsUrl}">
                 <div class="grow flex flex-col gap-2">
