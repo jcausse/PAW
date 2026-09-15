@@ -9,9 +9,6 @@ import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.Offer;
-import ar.edu.itba.paw.model.OfferStatus;
-import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
@@ -35,12 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingDao listingDao;
-    private final OfferDao offerDao;
 
     private final UserService userService;
     private final ProductService productService;
     private final ImageService imageService;
     private final MailingService mailingService;
+    private final OfferService offerService;
 
     @Override
     public Listing getById(Long id) {
@@ -200,16 +197,8 @@ public class ListingServiceImpl implements ListingService {
     @Override
     @Transactional
     public void cancel(Long id) {
-        var listing = getById(id);
-
-        final Locale locale = LocaleContextHolder.getLocale();
-        for (Offer offer : offerDao.getByListingId(id)) {
-            if (offer.getStatus() == OfferStatus.PENDING) {
-                offerDao.updateStatus(offer.getId(), OfferStatus.REJECTED);
-                mailingService.sendOfferRejectedEmail(offer.getBuyer(), listing, offer, locale);
-            }
-        }
-
+        getById(id);
+        offerService.rejectPendingOffers(id, null);
         listingDao.cancel(id);
     }
 }

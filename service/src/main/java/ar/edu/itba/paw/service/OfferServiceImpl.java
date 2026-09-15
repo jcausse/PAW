@@ -12,12 +12,15 @@ import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
-@RequiredArgsConstructor
+
 @Service
 @Transactional(readOnly = true)
 public class OfferServiceImpl implements OfferService {
@@ -26,6 +29,15 @@ public class OfferServiceImpl implements OfferService {
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
+
+    @Autowired
+    public OfferServiceImpl(OfferDao offerDao, UserService userService,
+                             @Lazy ListingService listingService, MailingService mailingService) {
+        this.offerDao = offerDao;
+        this.userService = userService;
+        this.listingService = listingService;
+        this.mailingService = mailingService;
+    }
 
     @Override
     public Optional<Offer> getById(Long id) {
@@ -98,19 +110,11 @@ public class OfferServiceImpl implements OfferService {
         }
 
         listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
-        offerDao.rejectOtherOffers(offer.getListing().getId(), offerId);
+        rejectPendingOffers(offer.getListing().getId(), offerId);
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
 
         // Send email notification to buyer about offer acceptance
         mailingService.sendOfferAcceptedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
-
-        // Send email notifications to buyers of other offers about offer rejection
-        final List<Offer> otherOffers = offerDao.getByListingId(offer.getListing().getId());
-        for (Offer otherOffer : otherOffers) {
-            if (!Objects.equals(otherOffer.getId(), offerId) && otherOffer.getStatus() == OfferStatus.REJECTED) {
-                mailingService.sendOfferRejectedEmail(otherOffer.getBuyer(), offer.getListing(), otherOffer, LocaleContextHolder.getLocale());
-            }
-        }
 
         return offerDao.getById(offerId).orElseThrow();
     }
@@ -153,5 +157,16 @@ public class OfferServiceImpl implements OfferService {
         mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
         return offerDao.getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public List<Offer> rejectPendingOffers(Long listingId, Long exceptOfferId) {
+        final List<Offer> rejected = offerDao.rejectPendingOffers(listingId, exceptOfferId);
+        final Locale locale = LocaleContextHolder.getLocale();
+        for (Offer offer : rejected) {
+            mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, locale);
+        }
+        return rejected;
     }
 }

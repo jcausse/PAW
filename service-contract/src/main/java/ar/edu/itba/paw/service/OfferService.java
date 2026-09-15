@@ -25,4 +25,6 @@ public interface OfferService {
     Offer reject(Long offerId);
 
     Offer withdraw(Long offerId, Long buyerId);
+
+    List<Offer> rejectPendingOffers(Long listingId, Long exceptOfferId);
 }

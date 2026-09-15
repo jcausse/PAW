@@ -236,12 +236,18 @@ public class OfferJdbcDao implements OfferDao {
             " AND " + OfferSchema.BUYER_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?";
 
-        private static final String REJECT_OTHER_OFFERS =
+        private static final String GET_PENDING_TO_REJECT =
+            BASE_SELECT +
+            " WHERE o." + OfferSchema.LISTING_ID + " = ?" +
+            " AND o." + OfferSchema.STATUS + " = ?" +
+            " AND (? IS NULL OR o." + OfferSchema.ID + " != ?)";
+
+        private static final String REJECT_PENDING =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
-            " AND " + OfferSchema.ID + " != ?" +
-            " AND " + OfferSchema.STATUS + " = ?";
+            " AND " + OfferSchema.STATUS + " = ?" +
+            " AND (? IS NULL OR " + OfferSchema.ID + " != ?)";
     }
 
     @Override
@@ -261,13 +267,18 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public void rejectOtherOffers(Long listingId, Long exceptOfferId) {
-        jdbcTemplate.update(
-            Queries.REJECT_OTHER_OFFERS,
-            OfferStatus.REJECTED.getStatus(),
-            listingId,
-            exceptOfferId,
-            OfferStatus.PENDING.getStatus()
+    public List<Offer> rejectPendingOffers(Long listingId, Long exceptOfferId) {
+        final List<Offer> toReject = jdbcTemplate.query(
+            Queries.GET_PENDING_TO_REJECT,
+            ROW_MAPPER,
+            listingId, OfferStatus.PENDING.getStatus(), exceptOfferId, exceptOfferId
         );
+
+        jdbcTemplate.update(
+            Queries.REJECT_PENDING,
+            OfferStatus.REJECTED.getStatus(), listingId, OfferStatus.PENDING.getStatus(), exceptOfferId, exceptOfferId
+        );
+
+        return toReject;
     }
 }
