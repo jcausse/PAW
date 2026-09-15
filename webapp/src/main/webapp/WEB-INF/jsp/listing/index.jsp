@@ -84,6 +84,16 @@
                                 <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>
                                 <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
                             </c:when>
+                            <c:when test="${userPendingOffer != null}">
+                                <div class="flex flex-col gap-2">
+                                    <spring:message code="listing.detail.pendingOffer" arguments="${userPendingOffer.amount}" var="pendingOfferMsg"/>
+                                    <p class="text-black/60 text-sm"><c:out value="${pendingOfferMsg}"/></p>
+                                    <form action="<c:url value='/offer/${userPendingOffer.id}/withdraw'/>" method="POST">
+                                        <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                                        <paw:button type="submit" variant="outline" role="danger" classname="w-full" icon="x" text="${withdrawLabel}" />
+                                    </form>
+                                </div>
+                            </c:when>
                             <c:otherwise>
                                 <div class="flex flex-col gap-2">
                                     <c:if test="${listing.pendingOffersCount > 0}">
@@ -103,6 +113,12 @@
                                 </div>
                             </c:otherwise>
                         </c:choose>
+
+                        <paw:divider />
+
+                        <c:url value="/listing/new/choose-product?productId=${listing.product.getId()}" var="sellSameProductUrl" />
+                        <spring:message code="listing.detail.sellSameProduct" var="sellSameProductLabel" />
+                        <paw:linkButton href="${sellSameProductUrl}" variant="ghost" size="sm" role="secondary" text="${sellSameProductLabel}" />
                     </div>
                 </paw:card>
             </div>

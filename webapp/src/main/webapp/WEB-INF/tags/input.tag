@@ -7,10 +7,13 @@
 <%@ attribute name="error" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="showPasswordToggle" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <c:set var="inputVariant" value="${not empty variant ? variant : 'default'}"/>
 <c:set var="inputType" value="${not empty type ? type : 'text'}"/>
+<c:set var="hasPasswordToggle" value="${showPasswordToggle ne null ? showPasswordToggle : (inputType eq 'password')}"/>
 
 <c:set var="variantClassnames" value="${
   inputVariant eq 'outline'
@@ -32,19 +35,49 @@
     </label>
   </c:if>
 
-  <input
-    id="${id}"
-    name="${name}"
-    type="${type}"
-    class="
-      px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-lime-600/30
-      placeholder:text-black/40
-      ${variantClassnames}
-    "
-    placeholder="${placeholder}"
-    <c:if test="${isDisabled}">disabled</c:if>
-    <c:if test="${isError}">data-error</c:if>
-  />
+  <c:choose>
+    <c:when test="${hasPasswordToggle}">
+      <div class="relative flex items-center w-full">
+        <input
+          id="${id}"
+          name="${name}"
+          type="password"
+          class="
+            w-full px-2 py-1 pr-9 rounded-lg text-sm outline-0 transition duration-150 outline-lime-600/30
+            placeholder:text-black/40
+            ${variantClassnames}
+          "
+          placeholder="${placeholder}"
+          <c:if test="${isDisabled}">disabled</c:if>
+          <c:if test="${isError}">data-error</c:if>
+        />
+        <button
+          type="button"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/40 hover:text-black/70 focus:outline-none cursor-pointer flex items-center justify-center p-1"
+          onclick="var input = this.previousElementSibling; var icon = this.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.className = 'icon-eye-off'; } else { input.type = 'password'; icon.className = 'icon-eye'; } input.focus();"
+          tabindex="-1"
+          aria-label="Toggle password visibility"
+        >
+          <paw:icon name="eye" classname="text-base" />
+        </button>
+      </div>
+    </c:when>
+    <c:otherwise>
+      <input
+        id="${id}"
+        name="${name}"
+        type="${inputType}"
+        class="
+          px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-lime-600/30
+          placeholder:text-black/40
+          ${variantClassnames}
+        "
+        placeholder="${placeholder}"
+        <c:if test="${isDisabled}">disabled</c:if>
+        <c:if test="${isError}">data-error</c:if>
+      />
+    </c:otherwise>
+  </c:choose>
 
   <c:if test="${not empty error}">
     <div class="text-xs text-red-600">

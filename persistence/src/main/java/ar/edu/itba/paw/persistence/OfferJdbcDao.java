@@ -87,9 +87,11 @@ public class OfferJdbcDao implements OfferDao {
             .displayName(rs.getString(UserSchema.DISPLAY_NAME))
             .email(rs.getString(UserSchema.EMAIL))
             .password("<redacted>")
-            .imageId(Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
+            .imageId(
+                    Optional.ofNullable(rs.getObject(UserSchema.IMAGE_ID, Integer.class))
                             .map(Integer::longValue)
                             .orElse(null))
+            .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
             .build();
 
         String imageIdsStr = rs.getString("image_ids");
@@ -110,9 +112,11 @@ public class OfferJdbcDao implements OfferDao {
                     .displayName(rs.getString("creator_display_name"))
                     .email(rs.getString("creator_email"))
                     .password("<redacted>")
-                    .imageId(Optional.ofNullable(rs.getObject("creator_image_id", Integer.class))
+                    .imageId(
+                            Optional.ofNullable(rs.getObject("creator_image_id", Integer.class))
                                     .map(Integer::longValue)
                                     .orElse(null))
+                    .joinedAt(rs.getTimestamp("creator_joined_at").toInstant())
                     .build()
             )
             .product(
@@ -148,6 +152,7 @@ public class OfferJdbcDao implements OfferDao {
             .message(rs.getString(OfferSchema.MESSAGE))
             .hasOtherOffers(rs.getBoolean("has_other_offers"))
             .hasBetterOffers(rs.getBoolean("has_better_offers"))
+            .createdAt(rs.getTimestamp(OfferSchema.CREATED_AT).toInstant())
             .build();
     };
 
@@ -168,15 +173,15 @@ public class OfferJdbcDao implements OfferDao {
         private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
-            ", o." + OfferSchema.MESSAGE +
+            ", o." + OfferSchema.MESSAGE + ", o." + OfferSchema.CREATED_AT +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
-            ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID +
+            ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
             ", l." + ListingSchema.PRICE + ", l." + ListingSchema.STATUS + ", l." + ListingSchema.CONDITION +
             ", l." + ListingSchema.ACCEPTS_TRADE + ", l." + ListingSchema.CREATOR_ID + ", l." + ListingSchema.PRODUCT_ID +
             ", c." + UserSchema.ID + " as creator_id, c." + UserSchema.USERNAME + " as creator_username" +
             ", c." + UserSchema.DISPLAY_NAME + " as creator_display_name, c." + UserSchema.EMAIL + " as creator_email" +
-            ", c." + UserSchema.IMAGE_ID + " as creator_image_id" +
+            ", c." + UserSchema.IMAGE_ID + " as creator_image_id" + ", c." + UserSchema.JOINED_AT + " as creator_joined_at" +
             ", p." + ProductSchema.ID + ", p." + ProductSchema.BRAND + ", p." + ProductSchema.MODEL +
             ", p." + ProductSchema.YEAR + ", p." + ProductSchema.SUBCATEGORY_ID +
             ", s." + SubcategorySchema.ID + ", s." + SubcategorySchema.NAME +
@@ -185,11 +190,13 @@ public class OfferJdbcDao implements OfferDao {
             " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
             ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o2 " +
             " WHERE o2." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
-            " AND o2." + OfferSchema.ID + " != o." + OfferSchema.ID + ") as has_other_offers" +
+            " AND o2." + OfferSchema.ID + " != o." + OfferSchema.ID +
+            " AND o2." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') as has_other_offers" +
             ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o3 " +
             " WHERE o3." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
             " AND o3." + OfferSchema.ID + " != o." + OfferSchema.ID +
-            " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT + ") as has_better_offers" +
+            " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT +
+            " AND o3." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') as has_better_offers" +
             " FROM " + OfferSchema.TABLE_NAME + " o" +
             " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
             " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
@@ -222,6 +229,13 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
+        private static final String WITHDRAW =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.BUYER_ID + " = ?" +
+            " AND " + OfferSchema.STATUS + " = ?";
+
         private static final String REJECT_OTHER_OFFERS =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
@@ -233,6 +247,17 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean updateStatus(Long offerId, OfferStatus status) {
         return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
+    }
+
+    @Override
+    public boolean withdraw(Long offerId, Long buyerId) {
+        return jdbcTemplate.update(
+            Queries.WITHDRAW,
+            OfferStatus.WITHDRAWN.getStatus(),
+            offerId,
+            buyerId,
+            OfferStatus.PENDING.getStatus()
+        ) > 0;
     }
 
     @Override

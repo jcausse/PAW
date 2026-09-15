@@ -10,7 +10,8 @@ import java.util.Optional;
 public enum OfferStatus {
     PENDING("pending"),
     ACCEPTED("accepted"),
-    REJECTED("rejected");
+    REJECTED("rejected"),
+    WITHDRAWN("withdrawn");
 
     @Getter
     private final String status;

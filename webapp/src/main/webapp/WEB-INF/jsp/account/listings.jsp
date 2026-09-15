@@ -129,9 +129,10 @@
                         </c:if>
                     </c:forEach>
                 </div>
+
+                <paw:pagination page="${listingPage}" baseUrl="/account/listings"/>
             </c:otherwise>
         </c:choose>
-        
     </paw:card>
 </account:layout>
 

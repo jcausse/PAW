@@ -74,7 +74,6 @@
 <button
     type="${btnType}"
     id="${id}"
-    onclick="${onclick}"
     class="
         font-semibold rounded-lg
         flex flex-row flex-shrink-0 items-center justify-center gap-2
@@ -89,6 +88,7 @@
     "
     <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     <c:if test="${isDisabled}">disabled</c:if>
+    <c:if test="${not empty onclick}">onclick="${onclick}"</c:if>
 >
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />

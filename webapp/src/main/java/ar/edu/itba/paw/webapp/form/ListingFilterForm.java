@@ -23,4 +23,5 @@ public class ListingFilterForm {
     private String query;
     private String sort;
     private String status;
+    private Integer page;
 }

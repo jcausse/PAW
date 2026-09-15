@@ -22,5 +22,7 @@ public interface OfferDao {
 
     boolean updateStatus(Long offerId, OfferStatus status);
 
+    boolean withdraw(Long offerId, Long buyerId);
+
     void rejectOtherOffers(Long listingId, Long exceptOfferId);
 }

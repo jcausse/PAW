@@ -27,4 +27,7 @@ public interface MailingService {
 
     /** Notify the buyer that their offer was rejected. */
     void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale);
+
+    /** Notify the seller that an offer on their listing was withdrawn by the buyer. */
+    void sendOfferWithdrawnEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
 }

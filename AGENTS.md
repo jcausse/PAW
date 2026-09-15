@@ -32,6 +32,7 @@ The project is called **Swappr** (it is the official name). That name should be 
 - **Always** use `<html lang="${pageContext.response.locale.language}">` — never hardcode `<html lang="en">` or use a bare `<html>` tag, so the HTML document language matches the user's selected locale.
 - Inside `<form:form>`, use the `paw:formInput` tag (not `paw:input`) to get automatic Spring binding and error display.
 - Use `paw:input` only for standalone inputs outside of Spring forms (e.g., search bars, filters).
+- **Icons**: The project uses [Lucide Icons](https://lucide.dev/icons/). Render icons using `<paw:icon name="..."/>` (e.g. `<paw:icon name="eye"/>`). Look up icon names on [lucide.dev/icons](https://lucide.dev/icons/) and pass the name to the `name` attribute of `<paw:icon>` (or the `icon` attribute on tags like `<paw:button>` and `<paw:linkButton>`).
 
 ## Internationalization (i18n) Conventions
 
@@ -128,6 +129,17 @@ The project is called **Swappr** (it is the official name). That name should be 
 - `USER` is a reserved keyword in PostgreSQL — always use `users`.
 - Existence checks use `SELECT EXISTS(SELECT 1 FROM ...)` returning `Boolean.class`.
 - Table creations always use `CREATE TABLE IF NOT EXISTS`.
+
+### Database Migrations (Flyway)
+
+- The project uses **Flyway** for database migrations.
+- Migration scripts must be placed in the `persistence/src/main/resources/db/migration/` directory.
+- Migration files **must** follow the strict naming convention: `VX__description.sql`
+  - `X` represents the incremental version number (e.g., 1, 2, 3). When creating a new migration, always check `persistence/src/main/resources/db/migration/` and increment the number of the highest numbered migration by 1 to name the migration being added.
+  - A double underscore (`__`) separating the version number from the description is **mandatory**.
+  - Provide a descriptive name for the migration (e.g., `Original_schema`, `Add_users_table`). The first letter of the description must be uppercase and separate multi-word names using snake case (e.g. `Add_listing_creation_timestamp`).
+  - All migration files must end with the `.sql` extension.
+  - Example: `V1__Original_schema.sql`.
 
 ## Local Database Access
 

@@ -7,9 +7,11 @@
 
 <c:url value="/account/listings" var="listingsUrl"/>
 <c:url value="/account/incoming-offers" var="offersUrl"/>
+<c:url value="/account/my-offers" var="myOffersUrl"/>
 
 <spring:message code="account.myListings" var="myListingsTitle"/>
 <spring:message code="account.incomingOffers" var="incomingOffersTitle"/>
+<spring:message code="account.myOffers" var="myOffersTitle"/>
 
 <spring:message code="account.title" var="accountTitle"/>
 <paw:card title="${accountTitle}" classname="sticky top-24">
@@ -19,7 +21,12 @@
         <paw:divider />
 
         <spring:message code="account.sidebar.buyer" var="buyerSubtitle"/>
-        <%-- TODO --%>
+        <h4 class="font-semibold text-sm mt-2"><c:out value="${buyerSubtitle}" /></h4>
+        <div class="flex flex-col gap-1">
+            <account:link href="${myOffersUrl}" text="${myOffersTitle}" icon="handshake" />
+        </div>
+
+        <paw:divider />
 
         <spring:message code="account.sidebar.seller" var="sellerSubtitle"/>
         <h4 class="font-semibold text-sm mt-2"><c:out value="${sellerSubtitle}" /></h4>
