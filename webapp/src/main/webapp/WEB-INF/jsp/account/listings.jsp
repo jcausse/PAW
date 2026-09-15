@@ -16,6 +16,7 @@
 <spring:message code="account.listings.filter.default" var="defaultLabel"/>
 <spring:message code="listing.status.ACTIVE" var="statusActive"/>
 <spring:message code="listing.status.SOLD" var="statusSold"/>
+<spring:message code="listing.status.CANCELED" var="statusCanceled"/>
 <spring:message code="discovery.sort.recent" var="sortRecent"/>
 <spring:message code="discovery.sort.price_asc" var="sortPriceAsc"/>
 <spring:message code="discovery.sort.price_desc" var="sortPriceDesc"/>
@@ -65,6 +66,10 @@
                                     <c:set var="statusClass" value="text-neutral-600"/>
                                     <spring:message code="listing.status.SOLD" var="statusLabel"/>
                                 </c:when>
+                                <c:when test="${listing.status.name() == 'CANCELED'}">
+                                    <c:set var="statusClass" value="text-red-600"/>
+                                    <spring:message code="listing.status.CANCELED" var="statusLabel"/>
+                                </c:when>
                                 <c:otherwise>
                                     <c:set var="statusClass" value="text-yellow-800"/>
                                     <c:set var="statusLabel" value="${listing.status.name()}"/>
@@ -102,11 +107,8 @@
                                         <paw:linkButton variant="outline" href="${editListingUrl}" icon="pencil" />
                                     </c:if>
                                     <c:if test="${listing.status.name() != 'CANCELED' && listing.status.name() != 'SOLD'}">
-                                        <button type="button"
-                                            onclick="document.getElementById('cancelDialog-${listing.id}').showModal()"
-                                            class="w-9 h-9 flex items-center justify-center rounded-lg border border-current/15 text-red-600 hover:bg-current/10 transition">
-                                            <paw:icon name="trash-2" />
-                                        </button>
+                                        <paw:button variant="outline" role="danger" icon="trash-2"
+                                                    onclick="document.getElementById('cancelDialog-${listing.id}').showModal()"/>
 
                                         <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
                                         <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>

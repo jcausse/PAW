@@ -121,8 +121,7 @@ public class ListingController {
 
     @GetMapping("/new/choose-product")
     public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form,
-                                      @RequestParam(value = "productId", required = false) Long productId,
-                                      @RequestParam(value = "editListingId", required = false) Long editListingId) {
+                                      @RequestParam(value = "productId", required = false) Long productId) {
         var mav = new ModelAndView("listing/new/chooseProduct");
         // Coming back from step 2: rehydrate the form from the already chosen product
         // so the user sees and can change their selection instead of starting over.
@@ -135,7 +134,6 @@ public class ListingController {
             form.setNewProductModel(product.getModel());
             form.setNewProductYear(product.getYear());
             form.setStep(3);
-            form.setEditListingId(editListingId);
             form.updatePreviousValues();
         } else {
             form.setStep(1);
@@ -215,11 +213,7 @@ public class ListingController {
                     form.getNewProductYear(),
                     form.getSubcategoryId()
             );
-            var redirectUrl = "redirect:/listing/new/details?productId=" + product.getId();
-            if (form.getEditListingId() != null) {
-                redirectUrl += "&editListingId=" + form.getEditListingId();
-            }
-            return new ModelAndView(redirectUrl);
+            return new ModelAndView("redirect:/listing/new/details?productId=" + product.getId());
         }
 
         // Update previous values for next request
@@ -363,7 +357,7 @@ public class ListingController {
         if (listing.getStatus() == ListingStatus.CANCELED) {
             throw new ForbiddenException("Cannot edit a canceled listing");
         }
-        return new ModelAndView("redirect:/listing/new/choose-product?productId="
+        return new ModelAndView("redirect:/listing/new/details?productId="
             + listing.getProduct().getId() + "&editListingId=" + id);
     }
 

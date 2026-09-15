@@ -7,15 +7,7 @@
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="listing.detail.title" />
-<spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
-<spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
-<spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
-<spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
-<c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
-<paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
-                    cancelText="${cancelCancel}" formAction="${cancelUrl}">
-    <c:out value="${cancelMessage}"/>
-</paw:confirmDialog>
+
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
@@ -72,6 +64,15 @@
                                                 class="w-full text-center text-sm text-red-600 hover:underline mt-2">
                                             <c:out value="${cancelLabel}"/>
                                         </button>
+                                        <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
+                                        <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
+                                        <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
+                                        <spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
+                                        <c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
+                                        <paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
+                                                            cancelText="${cancelCancel}" formAction="${cancelUrl}">
+                                            <c:out value="${cancelMessage}"/>
+                                        </paw:confirmDialog>
                                     </c:otherwise>
                                 </c:choose>
                             </c:when>

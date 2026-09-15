@@ -15,18 +15,30 @@
 
         <paw:card>
             <jsp:body>
-                <div class="mb-2 flex items-center gap-2">
-                    <div class="flex-1 text-lime-600 font-medium text-sm flex items-center gap-2 p-3 rounded-lg">
-                        <div class="w-6 h-6 rounded-full border-2 border-lime-600 flex items-center justify-center text-xs text-lime-600">✓</div>
-                        <spring:message code="listing.new.step1" var="step1Label"/>
-                        <span><c:out value="${step1Label}"/></span>
-                    </div>
-                    <div class="flex-1 text-lime-600 font-medium text-sm flex items-center gap-2 bg-lime-100 p-3 rounded-lg">
-                        <div class="w-6 h-6 rounded-full border-2 border-lime-600 bg-lime-600 flex items-center justify-center text-xs text-lime-100">2</div>
-                        <spring:message code="listing.new.step2" var="step2Label"/>
-                        <span><c:out value="${step2Label}"/></span>
-                    </div>
-                </div>
+                <c:choose>
+                    <c:when test="${not empty detailsForm.editListingId}">
+                        <div class="mb-2 flex items-center gap-2">
+                            <div class="flex-1 text-lime-600 font-medium text-sm flex items-center gap-2 bg-lime-100 p-3 rounded-lg">
+                                <spring:message code="listing.new.editing" var="editingLabel"/>
+                                <span><c:out value="${editingLabel}"/></span>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="mb-2 flex items-center gap-2">
+                            <div class="flex-1 text-lime-600 font-medium text-sm flex items-center gap-2 p-3 rounded-lg">
+                                <div class="w-6 h-6 rounded-full border-2 border-lime-600 flex items-center justify-center text-xs text-lime-600">✓</div>
+                                <spring:message code="listing.new.step1" var="step1Label"/>
+                                <span><c:out value="${step1Label}"/></span>
+                            </div>
+                            <div class="flex-1 text-lime-600 font-medium text-sm flex items-center gap-2 bg-lime-100 p-3 rounded-lg">
+                                <div class="w-6 h-6 rounded-full border-2 border-lime-600 bg-lime-600 flex items-center justify-center text-xs text-lime-100">2</div>
+                                <spring:message code="listing.new.step2" var="step2Label"/>
+                                <span><c:out value="${step2Label}"/></span>
+                            </div>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
 
                 <div class="text-sm text-black/60 mb-2">
                     <spring:message code="listing.new.details.desc" var="detailsDesc"/>
@@ -69,11 +81,13 @@
                     <div id="imagePreviews" class="flex flex-wrap gap-2 empty:hidden"></div>
 
                     <div class="mt-2 flex justify-center gap-4">
-                        <c:url value="/listing/new/choose-product" var="backUrl">
-                            <c:param name="productId" value="${detailsForm.productId}"/>
-                        </c:url>
-                        <spring:message code="listing.new.back" var="backLabel"/>
-                        <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
+                        <c:if test="${empty detailsForm.editListingId}">
+                            <c:url value="/listing/new/choose-product" var="backUrl">
+                                <c:param name="productId" value="${detailsForm.productId}"/>
+                            </c:url>
+                            <spring:message code="listing.new.back" var="backLabel"/>
+                            <paw:linkButton href="${backUrl}" text="${backLabel}" size="lg" variant="outline" classname="w-40" />
+                        </c:if>
                         <c:choose>
                             <c:when test="${not empty detailsForm.editListingId}">
                                 <spring:message code="listing.new.updateListing" var="submitLabel"/>
@@ -82,7 +96,7 @@
                                 <spring:message code="listing.new.submitListing" var="submitLabel"/>
                             </c:otherwise>
                         </c:choose>
-                        <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>   
+                        <paw:button text="${submitLabel}" size="lg" classname="w-60" type="submit" variant="primary"/>
                     </div>
                 </form:form>
             </jsp:body>
