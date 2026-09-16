@@ -17,6 +17,8 @@ import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +68,7 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
+    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
         values.put(OfferSchema.BUYER_ID, buyer.getId());
@@ -74,6 +76,7 @@ public class OfferJdbcDao implements OfferDao {
         values.put(OfferSchema.IS_FULL_PRICE, isFullPrice);
         values.put(OfferSchema.STATUS, status.getStatus());
         values.put(OfferSchema.MESSAGE, message);
+        values.put(OfferSchema.CREATED_AT, Timestamp.from(createdAt));
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 

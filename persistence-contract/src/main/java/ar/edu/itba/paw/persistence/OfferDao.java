@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,7 @@ public interface OfferDao {
 
     List<Offer> getByCreatorId(Long creatorId);
 
-    Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message);
+    Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt);
 
     boolean updateStatus(Long offerId, OfferStatus status);
 
