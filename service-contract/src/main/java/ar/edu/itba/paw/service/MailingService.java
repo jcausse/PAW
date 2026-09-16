@@ -30,4 +30,7 @@ public interface MailingService {
 
     /** Notify the seller that an offer on their listing was withdrawn by the buyer. */
     void sendOfferWithdrawnEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
+
+    /** Send password recovery email containing the one-time password code. */
+    void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale);
 }

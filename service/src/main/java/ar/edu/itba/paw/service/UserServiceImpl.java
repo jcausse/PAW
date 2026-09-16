@@ -34,13 +34,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getByUsername(String username) {
         Objects.requireNonNull(username, "username cannot be null");
-        return userDao.getByUsername(username.toLowerCase());
+        return userDao.getByUsername(username.trim().toLowerCase());
     }
 
     @Override
     public Optional<User> getByEmail(String email) {
         Objects.requireNonNull(email, "email cannot be null");
-        return userDao.getByEmail(email.toLowerCase());
+        return userDao.getByEmail(email.trim().toLowerCase());
     }
 
     @Override
@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
 
         var user = userDao.create(
-            dto.username().toLowerCase(),
+            dto.username().trim().toLowerCase(),
             dto.displayName(),
-            dto.email().toLowerCase(),
+            dto.email().trim().toLowerCase(),
             passwordEncoder.encode(dto.password()),
             extractImage(dto),
             Instant.now()
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
                 ? dto.newDisplayName()
                 : null;
         String email = (dto.newEmail() != null && !dto.newEmail().isBlank())
-                ? dto.newEmail().toLowerCase()
+                ? dto.newEmail().trim().toLowerCase()
                 : null;
         String encodedPassword = (dto.newPassword() != null && !dto.newPassword().isBlank())
                 ? passwordEncoder.encode(dto.newPassword())
@@ -117,19 +117,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isUsernameTaken(String username) {
         Objects.requireNonNull(username, "username cannot be null");
-        return userDao.isUsernameTaken(username.toLowerCase());
+        return userDao.isUsernameTaken(username.trim().toLowerCase());
     }
 
     @Override
     public boolean isEmailTaken(String email) {
         Objects.requireNonNull(email, "email cannot be null");
-        return userDao.isEmailTaken(email.toLowerCase());
+        return userDao.isEmailTaken(email.trim().toLowerCase());
     }
 
     @Override
     public boolean isEmailTakenByAnother(String email, Long excludeUserId) {
         Objects.requireNonNull(email, "email cannot be null");
         Objects.requireNonNull(excludeUserId, "excludeUserId cannot be null");
-        return userDao.isEmailTakenByAnother(email.toLowerCase(), excludeUserId);
+        return userDao.isEmailTakenByAnother(email.trim().toLowerCase(), excludeUserId);
     }
 }
