@@ -3,9 +3,12 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
+import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
@@ -20,11 +23,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
+import org.springframework.validation.BindingResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +47,7 @@ public class ListingController {
     private static final String OTHER_VALUE = "__OTHER__";
 
     private final ListingService listingService;
+    private final OfferService offerService;
     private final ProductService productService;
     private final MessageSource messageSource;
 
@@ -116,10 +120,21 @@ public class ListingController {
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
         var isSold = listing.getStatus() == ListingStatus.SOLD;
 
+        Offer userPendingOffer = null;
+        if (currentUser != null && !isCreator && !isSold) {
+            var offers = offerService.getByListingId(id);
+            userPendingOffer = offers.stream()
+                    .filter(o -> o.getBuyer().getId().equals(currentUser.getId()))
+                    .filter(o -> o.getStatus() == OfferStatus.PENDING)
+                    .findFirst()
+                    .orElse(null);
+        }
+
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
                 .addObject("isCreator", isCreator)
-                .addObject("isSold", isSold);
+                .addObject("isSold", isSold)
+                .addObject("userPendingOffer", userPendingOffer);
     }
 
     @GetMapping("/new/choose-product")

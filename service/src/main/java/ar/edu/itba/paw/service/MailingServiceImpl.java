@@ -136,6 +136,21 @@ public class MailingServiceImpl implements MailingService {
 
     @Async
     @Override
+    public void sendOfferWithdrawnEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("seller", seller);
+        context.setVariable("buyer", buyer);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
+
+        String subject = messageSource.getMessage("email.offer.withdrawn.subject", null, locale);
+        sendEmail(seller.getEmail(), subject, "offer-withdrawn", context);
+    }
+
+    @Async
+    @Override
     public void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale) {
         var context = new Context(locale);
         context.setVariable("user", user);

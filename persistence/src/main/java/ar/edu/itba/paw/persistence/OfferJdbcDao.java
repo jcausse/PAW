@@ -17,6 +17,8 @@ import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +68,7 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message) {
+    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
         values.put(OfferSchema.BUYER_ID, buyer.getId());
@@ -74,6 +76,7 @@ public class OfferJdbcDao implements OfferDao {
         values.put(OfferSchema.IS_FULL_PRICE, isFullPrice);
         values.put(OfferSchema.STATUS, status.getStatus());
         values.put(OfferSchema.MESSAGE, message);
+        values.put(OfferSchema.CREATED_AT, Timestamp.from(createdAt));
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -152,6 +155,7 @@ public class OfferJdbcDao implements OfferDao {
             .message(rs.getString(OfferSchema.MESSAGE))
             .hasOtherOffers(rs.getBoolean("has_other_offers"))
             .hasBetterOffers(rs.getBoolean("has_better_offers"))
+            .createdAt(rs.getTimestamp(OfferSchema.CREATED_AT).toInstant())
             .build();
     };
 
@@ -172,7 +176,7 @@ public class OfferJdbcDao implements OfferDao {
         private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
-            ", o." + OfferSchema.MESSAGE +
+            ", o." + OfferSchema.MESSAGE + ", o." + OfferSchema.CREATED_AT +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
@@ -228,6 +232,13 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
+        private static final String WITHDRAW =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.BUYER_ID + " = ?" +
+            " AND " + OfferSchema.STATUS + " = ?";
+
         private static final String REJECT_OTHER_OFFERS =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
@@ -239,6 +250,17 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean updateStatus(Long offerId, OfferStatus status) {
         return jdbcTemplate.update(Queries.UPDATE_STATUS, status.getStatus(), offerId) > 0;
+    }
+
+    @Override
+    public boolean withdraw(Long offerId, Long buyerId) {
+        return jdbcTemplate.update(
+            Queries.WITHDRAW,
+            OfferStatus.WITHDRAWN.getStatus(),
+            offerId,
+            buyerId,
+            OfferStatus.PENDING.getStatus()
+        ) > 0;
     }
 
     @Override

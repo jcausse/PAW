@@ -5,10 +5,12 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OfferDao;
-import ar.edu.itba.paw.service.dto.IncomingOffersDto;
+import ar.edu.itba.paw.service.dto.OffersDto;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,7 +45,7 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public IncomingOffersDto getIncomingOffersForUser(Long userId) {
+    public OffersDto getIncomingOffersForUser(Long userId) {
         final List<Offer> allOffers = offerDao.getByCreatorId(userId);
         final List<Offer> pending = allOffers.stream()
                 .filter(o -> o.getStatus() == OfferStatus.PENDING)
@@ -51,7 +53,19 @@ public class OfferServiceImpl implements OfferService {
         final List<Offer> resolved = allOffers.stream()
                 .filter(o -> o.getStatus() != OfferStatus.PENDING)
                 .toList();
-        return new IncomingOffersDto(pending, resolved);
+        return new OffersDto(pending, resolved);
+    }
+
+    @Override
+    public OffersDto getMyOffersForUser(Long userId) {
+        final List<Offer> allOffers = offerDao.getByBuyerId(userId);
+        final List<Offer> pending = allOffers.stream()
+                .filter(o -> o.getStatus() == OfferStatus.PENDING)
+                .toList();
+        final List<Offer> resolved = allOffers.stream()
+                .filter(o -> o.getStatus() != OfferStatus.PENDING)
+                .toList();
+        return new OffersDto(pending, resolved);
     }
 
     @Override
@@ -67,7 +81,15 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
-        final Offer offer = offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
+        final Offer offer = offerDao.create(
+            dto.listingId(),
+            buyer,
+            dto.amount(),
+            dto.isFullPrice(),
+            OfferStatus.PENDING,
+            dto.message(),
+            Instant.now()
+        );
 
         // Send email notification to seller about the new offer
         mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
@@ -117,6 +139,28 @@ public class OfferServiceImpl implements OfferService {
 
         // Send email notification to buyer about offer rejection
         mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        return offerDao.getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Offer withdraw(Long offerId, Long buyerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!Objects.equals(offer.getBuyer().getId(), buyerId)) {
+            throw new BadParameterException("Only the buyer can withdraw this offer");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING) {
+            throw new BadParameterException("Offer is not pending");
+        }
+
+        offerDao.withdraw(offerId, buyerId);
+
+        // Send email notification to seller about offer withdrawal
+        mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
         return offerDao.getById(offerId).orElseThrow();
     }

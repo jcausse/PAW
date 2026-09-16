@@ -5,19 +5,19 @@
 <%@ taglib prefix="account" tagdir="/WEB-INF/tags/account" %>
 
 
-<spring:message code="account.incomingOffers.title" var="titleMsg"/>
-<spring:message code="account.incomingOffers.subtitle" var="subtitleMsg"/>
-<spring:message code="account.incomingOffers.pendingTitle" var="pendingTitleMsg"/>
-<spring:message code="account.incomingOffers.resolvedTitle" var="resolvedTitleMsg"/>
+<spring:message code="account.myOffers.title" var="titleMsg"/>
+<spring:message code="account.myOffers.subtitle" var="subtitleMsg"/>
+<spring:message code="account.myOffers.pendingTitle" var="pendingTitleMsg"/>
+<spring:message code="account.myOffers.resolvedTitle" var="resolvedTitleMsg"/>
 
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="account.incomingOffers.title"/>
+<paw:head titleKey="account.myOffers.title"/>
 
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <c:choose>
         <c:when test="${empty pendingOffers and empty resolvedOffers}">
             <div class="text-center py-12">
-                <spring:message code="account.incomingOffers.empty" var="emptyMsg"/>
+                <spring:message code="account.myOffers.empty" var="emptyMsg"/>
                 <p class="text-black/50 text-lg"><c:out value="${emptyMsg}"/></p>
             </div>
         </c:when>
@@ -47,7 +47,7 @@
 
                                 <div class="flex-1 min-w-0 flex flex-col justify-between">
                                     <paw:product product="${offer.listing.product}" size="sm" />
-                                    <div class="mt-2 flex flex-row gap-4 items-end justify-between">
+                                    <div class="mt-2 flex flex-row gap-4 items-end">
                                         <div>
                                             <c:if test="${not offer.isFullPrice}">
                                                 <p class="text-base font-medium line-through text-black/60">
@@ -64,31 +64,18 @@
                                                 </c:if>
                                             </p>
                                         </div>
-                                        <div class="max-w-48">
-                                            <paw:user user="${offer.buyer}" variant="compact" />
+
+                                        <div class="max-w-48 ml-auto">
+                                            <paw:user user="${offer.listing.creator}" variant="compact" />
                                         </div>
+
+                                        <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                            <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                                            <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
+                                        </form>
                                     </div>
                                 </div>
-
-                                <div class="flex flex-row gap-1 self-end">
-                                    <c:url value="/offer/${offer.id}" var="offerUrl"/>
-                                    <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
-                                    <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST">
-                                        <paw:button type="submit" variant="outline" icon="check" />
-                                    </form>
-                                    <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST">
-                                        <paw:button type="submit" variant="outline" role="danger" icon="x" />
-                                    </form>
-                                </div>
                             </div>
-
-                            <c:if test="${offer.hasOtherOffers}">
-                                <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-2 flex flex-row gap-2 text-amber-800 items-center">
-                                    <paw:icon name="triangle-alert" />
-                                    <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
-                                    <p class="text-sm"><c:out value="${warningMsg}"/></p>
-                                </div>
-                            </c:if>
 
                             <c:if test="${not empty offer.message}">
                                 <paw:divider />
@@ -108,11 +95,10 @@
                         <table class="w-full text-left text-sm">
                             <thead>
                                 <tr class="border-b border-black/10">
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.listing"/></th>
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.buyer"/></th>
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.amount"/></th>
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.status"/></th>
-                                    <th class="pb-2 font-medium text-black/60"></th>
+                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.myOffers.table.listing"/></th>
+                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.myOffers.table.seller"/></th>
+                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.myOffers.table.amount"/></th>
+                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.myOffers.table.status"/></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,7 +128,7 @@
                                             <a href="${listingUrl}" class="hover:text-lime-600 transition font-medium"><c:out value="${offer.listing.title}"/></a>
                                         </td>
                                         <td class="py-1 pr-2">
-                                            <paw:user user="${offer.buyer}" variant="compact" />
+                                            <paw:user user="${offer.listing.creator}" variant="compact" />
                                         </td>
                                         <td class="py-1 font-semibold">
                                             <div>
@@ -157,12 +143,6 @@
                                         <td class="py-1">
                                             <div class="flex flex-row">
                                                 <paw:badge text="${statusLabel}" classname="${statusClass}" size="sm" />
-                                            </div>
-                                        </td>
-                                        <td class="py-1">
-                                            <div class="flex flex-row gap-1 justify-end">
-                                                <c:url value="/offer/${offer.id}" var="offerUrl"/>
-                                                <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
                                             </div>
                                         </td>
                                     </tr>
