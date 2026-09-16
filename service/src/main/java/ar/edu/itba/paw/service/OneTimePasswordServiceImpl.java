@@ -30,24 +30,35 @@ public class OneTimePasswordServiceImpl implements OneTimePasswordService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public OneTimePasswordVerificationResult verify(User user, String otpValue) {
+
+        // Parameter validation
         if (user == null || otpValue == null || otpValue.isBlank()) {
             return OneTimePasswordVerificationResult.REJECTED;
         }
 
+        // User did not request a One Time Password
         Optional<OneTimePassword> maybeOtp = otpDao.getByUser(user);
         if (maybeOtp.isEmpty()) {
             return OneTimePasswordVerificationResult.REJECTED;
         }
 
+        // User did request a One Time Password, but it expired
         OneTimePassword otp = maybeOtp.get();
         if (otp.getCreatedAt().plus(OTP_EXPIRATION).isBefore(Instant.now())) {
+            otpDao.deleteIfPresentByUser(user);
             return OneTimePasswordVerificationResult.EXPIRED;
         }
 
-        return passwordEncoder.matches(otpValue, otp.getOtpValue())
-                ? OneTimePasswordVerificationResult.ACCEPTED
-                : OneTimePasswordVerificationResult.REJECTED;
+        // OTP did not expire yet, and user entered it correctly
+        if (passwordEncoder.matches(otpValue, otp.getOtpValue())) {
+            otpDao.deleteIfPresentByUser(user);
+            return OneTimePasswordVerificationResult.ACCEPTED;
+        }
+
+        // OTP did not expire yet, and user failed to verify (wrong OTP entered)
+        return OneTimePasswordVerificationResult.REJECTED;
     }
 
     @Override

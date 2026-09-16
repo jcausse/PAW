@@ -27,4 +27,7 @@ public interface MailingService {
 
     /** Notify the buyer that their offer was rejected. */
     void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale);
+
+    /** Send password recovery email containing the one-time password code. */
+    void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale);
 }
