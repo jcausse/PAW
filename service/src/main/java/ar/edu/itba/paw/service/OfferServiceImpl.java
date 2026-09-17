@@ -86,7 +86,8 @@ public class OfferServiceImpl implements OfferService {
     public Offer create(OfferCreationDto dto) {
         Objects.requireNonNull(dto, "OfferCreationDto cannot be null");
 
-        final Listing listing = listingService.getById(dto.listingId());
+        final Listing listing = listingService.getById(dto.listingId())
+                .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + dto.listingId()));
         if (Objects.equals(dto.buyerId(), listing.getCreator().getId())) {
             throw BadParameterException.create("buyerId", "User cannot buy their own listing");
         }
@@ -118,7 +119,8 @@ public class OfferServiceImpl implements OfferService {
         Objects.requireNonNull(amount, "amount cannot be null");
         Objects.requireNonNull(isFullPrice, "isFullPrice cannot be null");
 
-        final Listing listing = listingService.getById(listingId);
+        final Listing listing = listingService.getById(listingId)
+                .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + listingId));
         if (Objects.equals(buyerId, listing.getCreator().getId())) {
             throw BadParameterException.create("buyerId", "User cannot buy their own listing");
         }

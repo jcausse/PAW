@@ -5,9 +5,10 @@ import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.service.dto.ProductCreationDto;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
-    Product getById(Long id);
+    Optional<Product> getById(Long id);
 
     List<Product> getByCategory(Long categoryId);
     List<Product> getBySubcategory(Long subcategoryId);

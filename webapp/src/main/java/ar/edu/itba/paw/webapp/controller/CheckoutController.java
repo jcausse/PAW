@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
+import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.CheckoutForm;
 import java.math.BigDecimal;
@@ -29,7 +30,8 @@ public class CheckoutController {
 
     @GetMapping
     public ModelAndView checkout(@RequestParam("listingId") Long listingId, @ModelAttribute("checkoutForm") CheckoutForm form) {
-        Listing listing = listingService.getById(listingId);
+        Listing listing = listingService.getById(listingId)
+                .orElseThrow(() -> new NotFoundException("Listing not found"));
         form.setListingId(listingId);
         form.setOfferType("full");
 
@@ -44,7 +46,8 @@ public class CheckoutController {
             BindingResult bindingResult,
             @CurrentUser User currentUser
             ) {
-        Listing listing = listingService.getById(form.getListingId());
+        Listing listing = listingService.getById(form.getListingId())
+                .orElseThrow(() -> new NotFoundException("Listing not found"));
 
         if (bindingResult.hasErrors()) {
             return new ModelAndView("checkout/index")

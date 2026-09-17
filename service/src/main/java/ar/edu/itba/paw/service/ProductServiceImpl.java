@@ -10,6 +10,7 @@ import ar.edu.itba.paw.service.dto.ProductCreationDto;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +25,8 @@ public class ProductServiceImpl implements ProductService {
     private final SubcategoryDao subcategoryDao;
 
     @Override
-    public Product getById(Long id) {
-        return productDao
-            .getById(id)
-            .orElseThrow(() ->
-                NotFoundException.createFor("Product with ID " + id)
-            );
+    public Optional<Product> getById(Long id) {
+        return productDao.getById(id);
     }
 
     @Override

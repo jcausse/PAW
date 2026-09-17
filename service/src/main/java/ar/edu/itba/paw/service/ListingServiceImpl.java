@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,10 +41,8 @@ public class ListingServiceImpl implements ListingService {
     private final OfferService offerService;
 
     @Override
-    public Listing getById(Long id) {
-        return listingDao
-            .getById(id)
-            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
+    public Optional<Listing> getById(Long id) {
+        return listingDao.getById(id);
     }
 
     @Override
@@ -102,12 +101,8 @@ public class ListingServiceImpl implements ListingService {
         User creator = userService.getById(dto.creatorId())
                 .orElseThrow(() -> new BadParameterException("Invalid creatorId"));
 
-        Product product;
-        try {
-            product = productService.getById(dto.productId());
-        } catch (NotFoundException e) {
-            throw BadParameterException.create("productId", e.getMessage());
-        }
+        Product product = productService.getById(dto.productId())
+                .orElseThrow(() -> BadParameterException.create("productId", "Product not found"));
 
         List<Long> imageIds = new ArrayList<>();
         if (dto.images() != null) {
@@ -168,14 +163,11 @@ public class ListingServiceImpl implements ListingService {
     public Listing update(ListingUpdateDto dto) {
         Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
 
-        var existing = getById(dto.listingId());
+        var existing = getById(dto.listingId())
+                .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + dto.listingId()));
 
-        Product product;
-        try {
-            product = productService.getById(dto.productId());
-        } catch (NotFoundException e) {
-            throw BadParameterException.create("productId", e.getMessage());
-        }
+        Product product = productService.getById(dto.productId())
+                .orElseThrow(() -> BadParameterException.create("productId", "Product not found"));
 
         if (dto.condition() == null || dto.condition().isBlank()) {
             throw BadParameterException.create("condition", "Condition is required");
@@ -197,7 +189,7 @@ public class ListingServiceImpl implements ListingService {
     @Override
     @Transactional
     public void cancel(Long id) {
-        getById(id);
+        getById(id).orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
         offerService.rejectPendingOffers(id, null);
         listingDao.cancel(id);
     }

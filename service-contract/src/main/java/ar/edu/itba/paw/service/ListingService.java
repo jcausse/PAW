@@ -6,9 +6,10 @@ import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.ListingUpdateDto;
 import java.util.List;
+import java.util.Optional;
 
 public interface ListingService {
-    Listing getById(Long id);
+    Optional<Listing> getById(Long id);
 
     Listing create(ListingCreationDto dto);
 

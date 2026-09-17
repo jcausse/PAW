@@ -14,6 +14,7 @@ import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.ListingUpdateDto;
+import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
@@ -118,7 +119,8 @@ public class ListingController {
 
     @GetMapping("/{id}")
     public ModelAndView listing(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
-        var listing = listingService.getById(id);
+        var listing = listingService.getById(id)
+                .orElseThrow(() -> new NotFoundException("Listing not found"));
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
         var isSold = listing.getStatus() == ListingStatus.SOLD;
         var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
@@ -148,7 +150,8 @@ public class ListingController {
         // Coming back from step 2: rehydrate the form from the already chosen product
         // so the user sees and can change their selection instead of starting over.
         if (productId != null) {
-            var product = productService.getById(productId);
+            var product = productService.getById(productId)
+                    .orElseThrow(() -> new NotFoundException("Product not found"));
             var subcategory = product.getSubcategory();
             form.setCategoryId(subcategory.getCategory().getId());
             form.setSubcategoryId(subcategory.getId());
@@ -250,7 +253,8 @@ public class ListingController {
                                 @RequestParam(value = "editListingId", required = false) Long editListingId,
                                 @ModelAttribute("detailsForm") ListingDetailsForm form,
                                 @CurrentUser User currentUser) {
-        var product = productService.getById(productId);
+        var product = productService.getById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
         var mav = new ModelAndView("listing/new/details");
 
         mav.addObject("product", product);
@@ -259,7 +263,8 @@ public class ListingController {
         form.setEditListingId(editListingId);
 
         if (editListingId != null) {
-            var listing = listingService.getById(editListingId);
+            var listing = listingService.getById(editListingId)
+                    .orElseThrow(() -> new NotFoundException("Listing not found"));
             if (!listing.getCreator().getId().equals(currentUser.getId())) {
                 throw new ForbiddenException("Not authorized to edit this listing");
             }
@@ -288,7 +293,8 @@ public class ListingController {
         }
 
         if (form.getEditListingId() != null) {
-            var listing = listingService.getById(form.getEditListingId());
+            var listing = listingService.getById(form.getEditListingId())
+                    .orElseThrow(() -> new NotFoundException("Listing not found"));
             if (!listing.getCreator().getId().equals(currentUser.getId())) {
                 throw new ForbiddenException("Not authorized to edit this listing");
             }
@@ -381,7 +387,8 @@ public class ListingController {
 
     @GetMapping("/{id}/edit")
     public ModelAndView editListing(@PathVariable Long id, @CurrentUser User currentUser) {
-        var listing = listingService.getById(id);
+        var listing = listingService.getById(id)
+                .orElseThrow(() -> new NotFoundException("Listing not found"));
         if (!listing.getCreator().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Not authorized to edit this listing");
         }
@@ -394,7 +401,8 @@ public class ListingController {
 
     @PostMapping("/{id}/cancel")
     public ModelAndView cancelListing(@PathVariable Long id, @CurrentUser User currentUser) {
-        var listing = listingService.getById(id);
+        var listing = listingService.getById(id)
+                .orElseThrow(() -> new NotFoundException("Listing not found"));
         if (!listing.getCreator().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Not authorized to cancel this listing");
         }
