@@ -64,4 +64,31 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                 .map(user -> otpService.verify(user, otpValue))
                 .orElse(OneTimePasswordVerificationResult.REJECTED);
     }
+
+    @Override
+    @Transactional
+    public Optional<OneTimePassword> startRecovery(String identifier) {
+        Objects.requireNonNull(identifier, "identifier cannot be null");
+        String trimmed = identifier.trim().toLowerCase();
+
+        if (trimmed.contains("@")) {
+            return startByEmail(trimmed);
+        } else {
+            return startByUsername(trimmed);
+        }
+    }
+
+    @Override
+    @Transactional
+    public OneTimePasswordVerificationResult verifyRecovery(String identifier, String otpValue) {
+        Objects.requireNonNull(identifier, "identifier cannot be null");
+        Objects.requireNonNull(otpValue, "otpValue cannot be null");
+        String trimmed = identifier.trim().toLowerCase();
+
+        if (trimmed.contains("@")) {
+            return verifyByEmail(trimmed, otpValue);
+        } else {
+            return verifyByUsername(trimmed, otpValue);
+        }
+    }
 }

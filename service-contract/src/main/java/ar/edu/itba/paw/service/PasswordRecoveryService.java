@@ -11,4 +11,7 @@ public interface PasswordRecoveryService {
     
     OneTimePasswordVerificationResult verifyByUsername(String username, String otpValue);
     OneTimePasswordVerificationResult verifyByEmail(String email, String otpValue);
+
+    Optional<OneTimePassword> startRecovery(String identifier);
+    OneTimePasswordVerificationResult verifyRecovery(String identifier, String otpValue);
 }

@@ -42,32 +42,16 @@ public class PasswordRecoveryController {
             return new ModelAndView("recovery/request");
         }
 
-        /*
-         * Password recovery requests can be started either with an email or with a username. This is left to
-         * user's convenience.
-         * In order to be able to call the service to the right method, we must first determine whether the user
-         * entered an email or a username, and then call the adequate service method.
-         */
-        String identifierParam;
-        String identifierType;
+        String identifier = form.getEmail() != null && !form.getEmail().isBlank()
+                ? form.getEmail()
+                : form.getUsername();
 
-        if (form.getEmail() != null && !form.getEmail().isBlank()) {
-            String email = form.getEmail().trim().toLowerCase();
-            passwordRecoveryService.startByEmail(email);
-            identifierParam = email;
-            identifierType = "email";
-        }
-        else {
-            String username = form.getUsername().trim().toLowerCase();
-            passwordRecoveryService.startByUsername(username);
-            identifierParam = username;
-            identifierType = "username";
-        }
+        passwordRecoveryService.startRecovery(identifier);
 
         var mav = new ModelAndView("recovery/request");
         mav.addObject("codeSent", true);
-        mav.addObject("identifierParam", identifierParam);
-        mav.addObject("identifierType", identifierType);
+        mav.addObject("identifierParam", identifier);
+        mav.addObject("identifierType", identifier.contains("@") ? "email" : "username");
         return mav;
     }
 
@@ -90,23 +74,15 @@ public class PasswordRecoveryController {
             return new ModelAndView("recovery/verification");
         }
 
-        OneTimePasswordVerificationResult result;
-        Optional<User> maybeUser;
+        String identifier = form.getEmail() != null && !form.getEmail().isBlank()
+                ? form.getEmail()
+                : form.getUsername();
 
-        /*
-         * Verify OTP according to the user's input (either email or username)
-         */
-        if (form.getEmail() != null && !form.getEmail().isBlank()) {
-            result = passwordRecoveryService.verifyByEmail(form.getEmail(), form.getOtp().trim());
-            maybeUser = userService.getByEmail(form.getEmail());
-        }
-        else if (form.getUsername() != null && !form.getUsername().isBlank()) {
-            result = passwordRecoveryService.verifyByUsername(form.getUsername(), form.getOtp().trim());
-            maybeUser = userService.getByUsername(form.getUsername());
-        }
-        else {
+        if (identifier == null || identifier.isBlank()) {
             return new ModelAndView("redirect:/recovery/request");
         }
+
+        OneTimePasswordVerificationResult result = passwordRecoveryService.verifyRecovery(identifier, form.getOtp().trim());
 
         /*
          * Inform errors to the user if the OTP is invalid or has expired
@@ -118,6 +94,10 @@ public class PasswordRecoveryController {
             errors.rejectValue("otp", "recovery.verification.error.expiredOtp");
             return new ModelAndView("recovery/verification");
         }
+
+        var maybeUser = identifier.contains("@")
+                ? userService.getByEmail(identifier)
+                : userService.getByUsername(identifier);
 
         userService.update(new UserEditDto(
                 maybeUser.orElseThrow(() -> new UserNotFoundException("User not found")), // Should never throw

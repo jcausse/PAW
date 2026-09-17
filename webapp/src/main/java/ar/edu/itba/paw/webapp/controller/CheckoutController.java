@@ -52,28 +52,15 @@ public class CheckoutController {
         }
 
         Long buyerId = currentUser.getId();
+        BigDecimal amount = "full".equals(form.getOfferType()) ? listing.getPrice().getAmount() : form.getCustomAmount();
+        Boolean isFullPrice = "full".equals(form.getOfferType());
 
-        BigDecimal amount;
-        boolean isFullPrice;
-
-        if ("full".equals(form.getOfferType())) {
-            amount = listing.getPrice().getAmount();
-            isFullPrice = true;
-        } else {
-            if (form.getCustomAmount() == null || form.getCustomAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                bindingResult.rejectValue("customAmount", "NotNull.checkoutForm.customAmount");
-                return new ModelAndView("checkout/index").addObject("listing", listing);
-            }
-            if (form.getCustomAmount().compareTo(listing.getPrice().getAmount()) > 0) {
-                bindingResult.rejectValue("customAmount", "Max.checkoutForm.customAmount", new Object[]{listing.getPrice().getAmount()}, "Offer amount cannot exceed listing price");
-                return new ModelAndView("checkout/index").addObject("listing", listing);
-            }
-            amount = form.getCustomAmount();
-            isFullPrice = false;
+        try {
+            offerService.createOffer(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
+        } catch (ar.edu.itba.paw.service.exception.BadParameterException e) {
+            bindingResult.rejectValue("customAmount", "customAmount", e.getMessage());
+            return new ModelAndView("checkout/index").addObject("listing", listing);
         }
-
-        OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
-        offerService.create(offerDto);
 
         return new ModelAndView("redirect:/listing/" + form.getListingId());
     }

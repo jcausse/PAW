@@ -10,6 +10,7 @@ import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -100,6 +101,49 @@ public class OfferServiceImpl implements OfferService {
             dto.isFullPrice(),
             OfferStatus.PENDING,
             dto.message(),
+            Instant.now()
+        );
+
+        // Send email notification to seller about the new offer
+        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
+
+        return offer;
+    }
+
+    @Override
+    @Transactional
+    public Offer createOffer(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, String message) {
+        Objects.requireNonNull(listingId, "listingId cannot be null");
+        Objects.requireNonNull(buyerId, "buyerId cannot be null");
+        Objects.requireNonNull(amount, "amount cannot be null");
+        Objects.requireNonNull(isFullPrice, "isFullPrice cannot be null");
+
+        final Listing listing = listingService.getById(listingId);
+        if (Objects.equals(buyerId, listing.getCreator().getId())) {
+            throw BadParameterException.create("buyerId", "User cannot buy their own listing");
+        }
+
+        if (isFullPrice) {
+            amount = listing.getPrice().getAmount();
+        } else {
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw BadParameterException.create("amount", "Offer amount must be positive");
+            }
+            if (amount.compareTo(listing.getPrice().getAmount()) > 0) {
+                throw BadParameterException.create("amount", "Offer amount cannot exceed listing price");
+            }
+        }
+
+        final User buyer = userService.getById(buyerId)
+                .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
+
+        final Offer offer = offerDao.create(
+            listingId,
+            buyer,
+            amount,
+            isFullPrice,
+            OfferStatus.PENDING,
+            message,
             Instant.now()
         );
 

@@ -282,22 +282,9 @@ public class ListingController {
             return detailsWithErrors();
         }
 
-        List<ImageData> imageDataList = new ArrayList<>();
-        if (form.getImages() != null) {
-            for (MultipartFile imageFile : form.getImages()) {
-                if (imageFile != null && !imageFile.isEmpty()) {
-                    try {
-                        imageDataList.add(new ImageData(
-                            imageFile.getBytes(),
-                            imageFile.getOriginalFilename(),
-                            imageFile.getContentType()
-                        ));
-                    } catch (IOException e) {
-                        bindingResult.rejectValue("images", "error.image.upload");
-                        return detailsWithErrors();
-                    }
-                }
-            }
+        List<ImageData> imageDataList = extractImageData(form.getImages(), form.getTitle(), bindingResult);
+        if (bindingResult.hasErrors()) {
+            return detailsWithErrors();
         }
 
         if (form.getEditListingId() != null) {
@@ -328,6 +315,28 @@ public class ListingController {
                 imageDataList
         ));
         return new ModelAndView("redirect:/listing/" + newListing.getId());
+    }
+
+    private List<ImageData> extractImageData(List<MultipartFile> files, String title, BindingResult bindingResult) {
+        List<ImageData> imageDataList = new ArrayList<>();
+        if (files != null) {
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile imageFile = files.get(i);
+                if (imageFile != null && !imageFile.isEmpty()) {
+                    try {
+                        imageDataList.add(new ImageData(
+                            imageFile.getBytes(),
+                            imageFile.getOriginalFilename(),
+                            imageFile.getContentType()
+                        ));
+                    } catch (IOException e) {
+                        bindingResult.rejectValue("images", "error.image.upload");
+                        return List.of();
+                    }
+                }
+            }
+        }
+        return imageDataList;
     }
 
     private ModelAndView detailsWithErrors() {

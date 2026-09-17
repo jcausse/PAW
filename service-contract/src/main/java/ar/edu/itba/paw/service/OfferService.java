@@ -3,6 +3,7 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.service.dto.OffersDto;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,8 @@ public interface OfferService {
     OffersDto getMyOffersForUser(Long userId);
 
     Offer create(OfferCreationDto dto);
+
+    Offer createOffer(Long listingId, Long buyerId, BigDecimal amount, Boolean isFullPrice, String message);
 
     Offer accept(Long offerId);
 
