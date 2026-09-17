@@ -203,6 +203,28 @@ public class ListingJdbcDao implements ListingDao {
         return ListingStatus.SOLD;
     }
 
+    @Override
+    public void cancel(Long id) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.CANCELED.getStatus(), id);
+    }
+
+    @Override
+    public Listing update(
+        Long id,
+        String title,
+        Price price,
+        Product product,
+        Condition condition,
+        boolean acceptsTrade,
+        String description
+    ) {
+        jdbcTemplate.update(
+            Queries.UPDATE_BY_ID,
+            title, description, product.getId(), price.getAmount(), condition.getCondition(),acceptsTrade, id
+        );
+        return getById(id).orElseThrow();
+    }
+
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) ->
@@ -322,5 +344,18 @@ public class ListingJdbcDao implements ListingDao {
         private static final String UPDATE_STATUS_BY_ID =
             "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? " +
             "WHERE " + ListingSchema.ID + " = ?";
+
+        private static final String UPDATE_BY_ID =
+            "UPDATE " + ListingSchema.TABLE_NAME + " SET " +
+            ListingSchema.TITLE + " = ?, " +
+            ListingSchema.DESCRIPTION + " = ?, " +
+            ListingSchema.PRODUCT_ID + " = ?, " +
+            ListingSchema.PRICE + " = ?, " +
+            ListingSchema.CONDITION + " = ?, " +
+            ListingSchema.ACCEPTS_TRADE + " = ? " +
+            "WHERE " + ListingSchema.ID + " = ?";
+        
+        private static final String DELETE_BY_ID =
+            "DELETE FROM " + ListingSchema.TABLE_NAME + " WHERE " + ListingSchema.ID + " = ?";
     }
 }

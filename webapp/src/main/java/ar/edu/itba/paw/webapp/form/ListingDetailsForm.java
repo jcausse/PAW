@@ -39,4 +39,6 @@ public class ListingDetailsForm {
 
     @Size(max = 2000)
     private String description;
+
+    private Long editListingId;
 }

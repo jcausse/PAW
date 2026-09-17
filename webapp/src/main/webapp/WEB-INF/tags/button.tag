@@ -7,8 +7,8 @@
 <%@ attribute name="role" required="false" %>
 <%@ attribute name="id" required="false" %>
 <%@ attribute name="classname" required="false" %>
-<%@ attribute name="onclick" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="onclick" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 

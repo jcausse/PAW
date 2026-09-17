@@ -16,6 +16,7 @@
 <spring:message code="account.listings.filter.default" var="defaultLabel"/>
 <spring:message code="listing.status.ACTIVE" var="statusActive"/>
 <spring:message code="listing.status.SOLD" var="statusSold"/>
+<spring:message code="listing.status.CANCELED" var="statusCanceled"/>
 <spring:message code="discovery.sort.recent" var="sortRecent"/>
 <spring:message code="discovery.sort.price_asc" var="sortPriceAsc"/>
 <spring:message code="discovery.sort.price_desc" var="sortPriceDesc"/>
@@ -39,78 +40,99 @@
                     <paw:formSelect path="sort" label="${sortLabel}" placeholder="${defaultLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
                 </div>
             </div>
+        </form:form>
+        <paw:divider />
 
-            <paw:divider />
+        <c:choose>
+            <c:when test="${empty listings}">
+                <div class="mt-12 mb-12 flex flex-col items-center">
+                    <spring:message code="account.listings.empty" var="emptyMsg"/>
+                    <p class="text-black/60 text-lg mb-4"><c:out value="${emptyMsg}"/></p>
+                    <paw:linkButton text="${newListingLabel}" size="lg" href="${newListingUrl}"/>
+                </div>
+            </c:when>
 
-            <c:choose>
-                <c:when test="${empty listings}">
-                    <div class="mt-12 mb-12 flex flex-col items-center">
-                        <spring:message code="account.listings.empty" var="emptyMsg"/>
-                        <p class="text-black/60 text-lg mb-4"><c:out value="${emptyMsg}"/></p>
-                        <paw:linkButton text="${newListingLabel}" size="lg" href="${newListingUrl}"/>
-                    </div>
-                </c:when>
+            <c:otherwise>
+                <div class="flex flex-col gap-4 mt-4">
+                    <c:forEach var="listing" items="${listings}" varStatus="loop">
+                        <c:url value="/listing/${listing.id}" var="listingUrl"/>
+                        <div class="flex flex-col gap-2">
+                            <c:choose>
+                                <c:when test="${listing.status.name() == 'ACTIVE'}">
+                                    <c:set var="statusClass" value="text-green-600"/>
+                                    <spring:message code="listing.status.ACTIVE" var="statusLabel"/>
+                                </c:when>
+                                <c:when test="${listing.status.name() == 'SOLD'}">
+                                    <c:set var="statusClass" value="text-neutral-600"/>
+                                    <spring:message code="listing.status.SOLD" var="statusLabel"/>
+                                </c:when>
+                                <c:when test="${listing.status.name() == 'CANCELED'}">
+                                    <c:set var="statusClass" value="text-red-600"/>
+                                    <spring:message code="listing.status.CANCELED" var="statusLabel"/>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="statusClass" value="text-yellow-800"/>
+                                    <c:set var="statusLabel" value="${listing.status.name()}"/>
+                                </c:otherwise>
+                            </c:choose>
 
-                <c:otherwise>
-                    <div class="flex flex-col gap-4 mt-4">
-                        <c:forEach var="listing" items="${listings}" varStatus="loop">
-                            <c:url value="/listing/${listing.id}" var="listingUrl"/>
-                            <div class="flex flex-col gap-2">
-                                <c:choose>
-                                    <c:when test="${listing.status.name() == 'ACTIVE'}">
-                                        <c:set var="statusClass" value="text-green-600"/>
-                                        <spring:message code="listing.status.ACTIVE" var="statusLabel"/>
-                                    </c:when>
-                                    <c:when test="${listing.status.name() == 'SOLD'}">
-                                        <c:set var="statusClass" value="text-neutral-600"/>
-                                        <spring:message code="listing.status.SOLD" var="statusLabel"/>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <c:set var="statusClass" value="text-yellow-800"/>
-                                        <c:set var="statusLabel" value="${listing.status.name()}"/>
-                                    </c:otherwise>
-                                </c:choose>
-
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                                    <div class="min-w-0">
-                                        <h3 class="text-base font-semibold truncate">
-                                            <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
-                                        </h3>
-                                    </div>
-                                    <div class="flex items-center gap-2 ml-auto">
-                                        <paw:badge text="${statusLabel}" classname="${statusClass}" />
-                                        <c:if test="${listing.pendingOffersCount > 0}">
-                                            <paw:badge text="${listing.pendingOffersCount} offers" classname="text-amber-600" />
-                                        </c:if>
-                                    </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                                <div class="min-w-0">
+                                    <h3 class="text-base font-semibold truncate">
+                                        <a href="${listingUrl}" class="hover:text-lime-600 transition block truncate"><c:out value="${listing.title}"/></a>
+                                    </h3>
                                 </div>
-
-                                <div class="flex flex-row gap-3 w-full sm:w-auto">
-                                    <paw:listingImage listing="${listing}" />
-
-                                    <div class="flex-1 min-w-0 flex flex-col justify-between">
-                                        <paw:product product="${listing.product}" size="sm" />
-                                        <div class="text-xl font-bold mt-2 sm:mt-0">
-                                            $<c:out value="${listing.price.amount}"/>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex flex-row gap-1 self-end">
-                                        <paw:linkButton variant="outline" href="${listingUrl}" icon="eye" />
-                                    </div>
+                                <div class="flex items-center gap-2 ml-auto">
+                                    <paw:badge text="${statusLabel}" classname="${statusClass}" />
+                                    <c:if test="${listing.pendingOffersCount > 0}">
+                                        <paw:badge text="${listing.pendingOffersCount} offers" classname="text-amber-600" />
+                                    </c:if>
                                 </div>
                             </div>
 
-                            <c:if test="${!loop.last}">
-                                <paw:divider />
-                            </c:if>
-                        </c:forEach>
-                    </div>
+                            <div class="flex flex-row gap-3 w-full sm:w-auto">
+                                <paw:listingImage listing="${listing}" />
 
-                    <paw:pagination page="${listingPage}" baseUrl="/account/listings"/>
-                </c:otherwise>
-            </c:choose>
-        </form:form>
+                                <div class="flex-1 min-w-0 flex flex-col justify-between">
+                                    <paw:product product="${listing.product}" size="sm" />
+                                    <div class="text-xl font-bold mt-2 sm:mt-0">
+                                        $<c:out value="${listing.price.amount}"/>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-row gap-1 self-end">
+                                    <paw:linkButton variant="outline" href="${listingUrl}" icon="eye" />
+                                    <c:if test="${listing.status.name() != 'CANCELED'}">
+                                        <c:url value="/listing/${listing.id}/edit" var="editListingUrl"/>
+                                        <paw:linkButton variant="outline" href="${editListingUrl}" icon="pencil" />
+                                    </c:if>
+                                    <c:if test="${listing.status.name() != 'CANCELED' && listing.status.name() != 'SOLD'}">
+                                        <paw:button variant="outline" role="danger" icon="trash-2"
+                                                    onclick="document.getElementById('cancelDialog-${listing.id}').showModal()"/>
+
+                                        <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
+                                        <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
+                                        <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
+                                        <spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
+                                        <c:url value="/listing/${listing.id}/cancel" var="cancelListingUrl"/>
+                                        <paw:confirmDialog id="cancelDialog-${listing.id}" title="${cancelTitle}" confirmText="${cancelConfirm}"
+                                                            cancelText="${cancelCancel}" formAction="${cancelListingUrl}">
+                                            <c:out value="${cancelMessage}"/>
+                                        </paw:confirmDialog>
+                                    </c:if>
+                                </div>
+                            </div>
+                        </div>
+
+                        <c:if test="${!loop.last}">
+                            <paw:divider />
+                        </c:if>
+                    </c:forEach>
+                </div>
+
+                <paw:pagination page="${listingPage}" baseUrl="/account/listings"/>
+            </c:otherwise>
+        </c:choose>
     </paw:card>
 </account:layout>
 

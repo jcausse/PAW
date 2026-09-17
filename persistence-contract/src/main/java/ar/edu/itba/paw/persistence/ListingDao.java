@@ -19,4 +19,7 @@ public interface ListingDao {
                     Condition condition, boolean acceptsTrade, String description, List<Long> imageIds);
     Page<Listing> search(ListingFilter filter);
     ListingStatus purchase(Long id, Long buyerId);
+    Listing update(Long id, String title, Price price, Product product,
+                   Condition condition, boolean acceptsTrade, String description);
+    void cancel(Long id);
 }

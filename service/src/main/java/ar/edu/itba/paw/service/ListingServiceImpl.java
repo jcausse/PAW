@@ -13,6 +13,7 @@ import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.ListingUpdateDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.math.BigDecimal;
@@ -36,6 +37,7 @@ public class ListingServiceImpl implements ListingService {
     private final ProductService productService;
     private final ImageService imageService;
     private final MailingService mailingService;
+    private final OfferService offerService;
 
     @Override
     public Listing getById(Long id) {
@@ -159,5 +161,44 @@ public class ListingServiceImpl implements ListingService {
         mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
 
         return listing;
+    }
+
+    @Override
+    @Transactional
+    public Listing update(ListingUpdateDto dto) {
+        Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
+
+        var existing = getById(dto.listingId());
+
+        Product product;
+        try {
+            product = productService.getById(dto.productId());
+        } catch (NotFoundException e) {
+            throw BadParameterException.create("productId", e.getMessage());
+        }
+
+        if (dto.condition() == null || dto.condition().isBlank()) {
+            throw BadParameterException.create("condition", "Condition is required");
+        }
+        final Condition condition = Condition.fromString(dto.condition())
+            .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+
+        return listingDao.update(
+            existing.getId(),
+            dto.title(),
+            dto.price(),
+            product,
+            condition,
+            dto.acceptsTrade(),
+            dto.description()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void cancel(Long id) {
+        getById(id);
+        offerService.rejectPendingOffers(id, null);
+        listingDao.cancel(id);
     }
 }
