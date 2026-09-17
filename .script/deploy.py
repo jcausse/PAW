@@ -7,6 +7,8 @@ Deploy the project to the server using Maven and SSH.
 """
 
 import os
+import sys
+from datetime import datetime
 from subprocess import run, CalledProcessError
 from configparser import RawConfigParser, NoSectionError, NoOptionError
 from typing import Dict
@@ -22,6 +24,14 @@ SECRETS_OPTIONS = [
     'sftp_username', 
     'sftp_password', 
     'sftp_server'
+]
+
+DATABASE_SECTION = 'DATABASE'
+DATABASE_OPTIONS = [
+    'db_host',
+    'db_user',
+    'db_password',
+    'db_database'
 ]
 
 WAR_FILENAME = './webapp/target/webapp.war'
@@ -75,17 +85,63 @@ def load_secrets(filename: str) -> Dict[str, str]:
     secrets = {}
 
     try:
+        section = SECRETS_SECTION
         for option in SECRETS_OPTIONS:
-            secrets[option] = config.get(SECRETS_SECTION, option)
+            secrets[option] = config.get(section, option)
+        section = DATABASE_SECTION
+        for option in DATABASE_OPTIONS:
+            secrets[option] = config.get(section, option)
     except NoSectionError:
-        print(f"Section {SECRETS_SECTION} not found in {filename}.")
+        print(f"Section '{section}' not found in '{filename}'.")
         raise
     except NoOptionError:
-        print(f"Option {option} not found in {filename}.")
+        print(f"Option '{option}' of section '{section}' not found in '{filename}'.")
         raise
 
     print("Done.")
     return secrets
+
+
+def db_backup(secrets: Dict[str, str]) -> None:
+    """
+    Generate a dump of the database using pg_dump on the remote server.
+    @param secrets: Dictionary containing SSH and database connection details.
+    """
+    print("Backing up database...", end=' ', flush=True)
+
+    ssh_username = secrets['ssh_username']
+    ssh_password = secrets['ssh_password']
+    ssh_server = secrets['ssh_server']
+    ssh_port = secrets['ssh_port']
+
+    db_host = secrets['db_host']
+    db_user = secrets['db_user']
+    db_password = secrets['db_password']
+    db_database = secrets['db_database']
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    dump_filename = f"db_dump_{timestamp}"
+
+    dump_command = f"PGPASSWORD='{db_password}' pg_dump -h {db_host} -U {db_user} -d {db_database} -F c -b -v -f {dump_filename} > /dev/null 2>&1"
+
+    ssh_command = [
+        'sshpass', '-p', ssh_password,
+        'ssh',
+        '-p', ssh_port,
+        '-o', 'StrictHostKeyChecking=no',
+        f"{ssh_username}@{ssh_server}",
+        dump_command
+    ]
+
+    try:
+        run(ssh_command, check=True)
+        print(f"Done. Dump saved to {dump_filename}.")
+    except CalledProcessError as e:
+        print(f"Error backing up database: {e}")
+        raise
+    except FileNotFoundError:
+        print("Error: sshpass or ssh command not found. Please install sshpass and OpenSSH client.")
+        raise
 
 
 def upload_file(secrets: Dict[str, str]) -> None:
@@ -195,8 +251,9 @@ def remove_war_file(secrets: Dict[str, str]) -> None:
         print("Error: sshpass or ssh command not found. Please install sshpass and OpenSSH client.")
         raise
 
+###########################################################################################################
 
-def main():
+def full_deploy():
     """
     Deploy the project to the server using Maven and SSH.
     """
@@ -204,6 +261,7 @@ def main():
         clean()
         build()
         secrets = load_secrets(SECRETS_FILENAME)
+        db_backup(secrets)
         upload_file(secrets)
         deploy(secrets)
         remove_war_file(secrets)
@@ -212,5 +270,19 @@ def main():
     finally:
         clean()
 
+def backup_only():
+    """
+    Only backup the production DB
+    """
+    try:
+        secrets = load_secrets(SECRETS_FILENAME)
+        db_backup(secrets)
+    except Exception:
+        print("=== DATABASE BACKUP FAILED ===")
+
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "--db-backup-only":
+            backup_only()
+    else:
+        full_deploy()
