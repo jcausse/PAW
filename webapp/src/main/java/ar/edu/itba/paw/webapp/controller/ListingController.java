@@ -24,7 +24,6 @@ import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.validation.BindingResult;
 import lombok.RequiredArgsConstructor;

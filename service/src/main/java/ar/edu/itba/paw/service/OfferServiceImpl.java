@@ -9,6 +9,8 @@ import ar.edu.itba.paw.service.dto.OffersDto;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,7 +93,15 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
-        final Offer offer = offerDao.create(dto.listingId(), buyer, dto.amount(), dto.isFullPrice(), OfferStatus.PENDING, dto.message());
+        final Offer offer = offerDao.create(
+            dto.listingId(),
+            buyer,
+            dto.amount(),
+            dto.isFullPrice(),
+            OfferStatus.PENDING,
+            dto.message(),
+            Instant.now()
+        );
 
         // Send email notification to seller about the new offer
         mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());

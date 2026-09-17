@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -146,6 +147,19 @@ public class MailingServiceImpl implements MailingService {
 
         String subject = messageSource.getMessage("email.offer.withdrawn.subject", null, locale);
         sendEmail(seller.getEmail(), subject, "offer-withdrawn", context);
+    }
+
+    @Async
+    @Override
+    public void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("user", user);
+        context.setVariable("otpValue", otpValue);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/recovery/verification?email=" + URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8));
+
+        String subject = messageSource.getMessage("email.passwordRecovery.subject", null, locale);
+        sendEmail(user.getEmail(), subject, "password-recovery", context);
     }
 
     private void sendEmail(String to, String subject, String templateName, Context context) {
