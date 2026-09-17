@@ -8,8 +8,6 @@ import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,7 +18,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class OfferController {
 
     private final OfferService offerService;
-    private final MessageSource messageSource;
 
     @GetMapping("/{offerId}")
     public ModelAndView viewOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
@@ -55,9 +52,7 @@ public class OfferController {
 
         offerService.accept(offerId);
 
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("offer.accepted", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/account/incoming-offers");
     }
 
     @PostMapping("/{offerId}/reject")
@@ -74,9 +69,7 @@ public class OfferController {
 
         offerService.reject(offerId);
 
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("offer.rejected", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/account/incoming-offers");
     }
 
     @PostMapping("/{offerId}/withdraw")
@@ -93,8 +86,6 @@ public class OfferController {
 
         offerService.withdraw(offerId, currentUserId);
 
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("offer.withdrawn", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/listing/" + listing.getId());
     }
 }
