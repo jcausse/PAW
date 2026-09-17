@@ -76,7 +76,15 @@ public class ProductServiceImpl implements ProductService {
             .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + subcategoryId));
 
         return productDao.getByBrandModelYearSubcategory(brand, model, year, subcategoryId)
-            .orElseGet(() -> productDao.create(brand, model, year, subcategory));
+            .orElseGet(() -> {
+                Product product = Product.builder()
+                        .brand(brand)
+                        .model(model)
+                        .year(year)
+                        .subcategory(subcategory)
+                        .build();
+                return productDao.create(product);
+            });
     }
 
     @Override
@@ -85,6 +93,13 @@ public class ProductServiceImpl implements ProductService {
         Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
         var subcategory = subcategoryDao.getById(dto.subcategoryId())
             .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + dto.subcategoryId()));
-        return productDao.create(dto.brand(), dto.model(), dto.year(), subcategory);
+        
+        Product product = Product.builder()
+                .brand(dto.brand())
+                .model(dto.model())
+                .year(dto.year())
+                .subcategory(subcategory)
+                .build();
+        return productDao.create(product);
     }
 }

@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 
 import java.time.Instant;
@@ -11,14 +10,7 @@ public interface UserDao {
     Optional<User> getByUsername(String username);
     Optional<User> getByEmail(String email);
 
-    User create(
-            String username,
-            String displayName,
-            String email,
-            String password,
-            Image image,
-            Instant joinedAt
-    );
+    User create(User user);
 
     void update(Long userId, String displayName, String email, String password, Long imageId);
 

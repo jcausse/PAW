@@ -94,25 +94,20 @@ public class ProductJdbcDao implements ProductDao {
     }
 
     @Override
-    public Product create(
-        String brand,
-        String model,
-        Integer year,
-        Subcategory subcategory
-    ) {
+    public Product create(Product product) {
         final Map<String, Object> values = new HashMap<>();
-        values.put(ProductSchema.BRAND, brand);
-        values.put(ProductSchema.MODEL, model);
-        values.put(ProductSchema.YEAR, year);
-        values.put(ProductSchema.SUBCATEGORY_ID, subcategory.getId());
+        values.put(ProductSchema.BRAND, product.getBrand());
+        values.put(ProductSchema.MODEL, product.getModel());
+        values.put(ProductSchema.YEAR, product.getYear());
+        values.put(ProductSchema.SUBCATEGORY_ID, product.getSubcategory().getId());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
         return Product.builder()
             .id(key)
-            .brand(brand)
-            .model(model)
-            .year(year)
-            .subcategory(subcategory)
+            .brand(product.getBrand())
+            .model(product.getModel())
+            .year(product.getYear())
+            .subcategory(product.getSubcategory())
             .build();
     }
 

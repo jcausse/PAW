@@ -95,20 +95,22 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
-        final Offer offer = offerDao.create(
-            dto.listingId(),
-            buyer,
-            dto.amount(),
-            dto.isFullPrice(),
-            OfferStatus.PENDING,
-            dto.message(),
-            Instant.now()
-        );
+        Offer offer = Offer.builder()
+                .listing(listing)
+                .buyer(buyer)
+                .amount(dto.amount())
+                .isFullPrice(dto.isFullPrice())
+                .status(OfferStatus.PENDING)
+                .message(dto.message())
+                .createdAt(Instant.now())
+                .build();
+
+        Offer createdOffer = offerDao.create(offer);
 
         // Send email notification to seller about the new offer
-        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
+        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, createdOffer, LocaleContextHolder.getLocale());
 
-        return offer;
+        return createdOffer;
     }
 
     @Override
@@ -139,20 +141,22 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(buyerId)
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
-        final Offer offer = offerDao.create(
-            listingId,
-            buyer,
-            amount,
-            isFullPrice,
-            OfferStatus.PENDING,
-            message,
-            Instant.now()
-        );
+        Offer offer = Offer.builder()
+                .listing(listing)
+                .buyer(buyer)
+                .amount(amount)
+                .isFullPrice(isFullPrice)
+                .status(OfferStatus.PENDING)
+                .message(message)
+                .createdAt(Instant.now())
+                .build();
+
+        Offer createdOffer = offerDao.create(offer);
 
         // Send email notification to seller about the new offer
-        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
+        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, createdOffer, LocaleContextHolder.getLocale());
 
-        return offer;
+        return createdOffer;
     }
 
     @Override

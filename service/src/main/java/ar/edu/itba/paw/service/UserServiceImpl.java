@@ -48,18 +48,23 @@ public class UserServiceImpl implements UserService {
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
 
-        var user = userDao.create(
-            dto.username().trim().toLowerCase(),
-            dto.displayName(),
-            dto.email().trim().toLowerCase(),
-            passwordEncoder.encode(dto.password()),
-            extractImage(dto),
-            Instant.now()
-        );
+        Image image = extractImage(dto);
+        Long imageId = image != null ? image.getId() : null;
 
-        mailingService.sendWelcomeEmail(user, LocaleContextHolder.getLocale());
+        User user = User.builder()
+                .username(dto.username().trim().toLowerCase())
+                .displayName(dto.displayName())
+                .email(dto.email().trim().toLowerCase())
+                .password(passwordEncoder.encode(dto.password()))
+                .imageId(imageId)
+                .joinedAt(Instant.now())
+                .build();
 
-        return user;
+        User createdUser = userDao.create(user);
+
+        mailingService.sendWelcomeEmail(createdUser, LocaleContextHolder.getLocale());
+
+        return createdUser;
     }
 
     private Image extractImage(UserCreationDto dto) {

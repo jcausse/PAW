@@ -19,5 +19,5 @@ public interface ProductDao {
     List<String> getModelsBySubcategoryAndBrand(Long subcategoryId, String brand);
     List<Integer> getYearsBySubcategoryAndBrandAndModel(Long subcategoryId, String brand, String model);
 
-    Product create(String brand, String model, Integer year, Subcategory subcategory);
+    Product create(Product product);
 }

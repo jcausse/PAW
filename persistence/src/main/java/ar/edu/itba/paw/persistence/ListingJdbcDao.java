@@ -152,47 +152,38 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
-    public Listing create(
-        String title,
-        Price price,
-        User creator,
-        Product product,
-        Condition condition,
-        boolean acceptsTrade,
-        String description,
-        List<Long> imageIds
-    ) {
+    public Listing create(Listing listing) {
         final Map<String, Object> values = new HashMap<>();
-        values.put(ListingSchema.TITLE, title);
-        values.put(ListingSchema.DESCRIPTION, description);
-        values.put(ListingSchema.CREATOR_ID, creator.getId());
-        values.put(ListingSchema.PRODUCT_ID, product.getId());
-        values.put(ListingSchema.PRICE, price.getAmount());
+        values.put(ListingSchema.TITLE, listing.getTitle());
+        values.put(ListingSchema.DESCRIPTION, listing.getDescription());
+        values.put(ListingSchema.CREATOR_ID, listing.getCreator().getId());
+        values.put(ListingSchema.PRODUCT_ID, listing.getProduct().getId());
+        values.put(ListingSchema.PRICE, listing.getPrice().getAmount());
         values.put(ListingSchema.STATUS, ListingStatus.ACTIVE.getStatus());
-        values.put(ListingSchema.CONDITION, condition.getCondition());
-        values.put(ListingSchema.ACCEPTS_TRADE, acceptsTrade);
+        values.put(ListingSchema.CONDITION, listing.getCondition().getCondition());
+        values.put(ListingSchema.ACCEPTS_TRADE, listing.isAcceptsTrade());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
-        if (imageIds != null && !imageIds.isEmpty()) {
+        if (listing.getImageIds() != null && !listing.getImageIds().isEmpty()) {
             final String sql = "INSERT INTO listing_images (listing_id, image_id, display_order) VALUES (?, ?, ?)";
             int order = 0;
-            for (Long imageId : imageIds) {
+            for (Long imageId : listing.getImageIds()) {
                 jdbcTemplate.update(sql, key, imageId, order++);
             }
         }
 
         return Listing.builder()
             .id(key)
-            .title(title)
-            .description(description)
-            .creator(creator)
-            .product(product)
-            .price(price)
+            .title(listing.getTitle())
+            .description(listing.getDescription())
+            .creator(listing.getCreator())
+            .product(listing.getProduct())
+            .price(listing.getPrice())
             .status(ListingStatus.ACTIVE)
-            .condition(condition)
-            .acceptsTrade(acceptsTrade)
-            .imageIds(imageIds != null ? imageIds : List.of())
+            .condition(listing.getCondition())
+            .acceptsTrade(listing.isAcceptsTrade())
+            .imageIds(listing.getImageIds() != null ? listing.getImageIds() : List.of())
             .pendingOffersCount(0)
             .build();
     }

@@ -15,8 +15,7 @@ public interface ListingDao {
 
     Optional<Listing> getById(Long id);
 
-    Listing create(String title, Price price, User creator, Product product,
-                    Condition condition, boolean acceptsTrade, String description, List<Long> imageIds);
+    Listing create(Listing listing);
     Page<Listing> search(ListingFilter filter);
     ListingStatus purchase(Long id, Long buyerId);
     Listing update(Long id, String title, Price price, Product product,

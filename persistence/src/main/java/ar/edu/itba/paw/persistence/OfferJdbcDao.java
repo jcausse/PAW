@@ -68,15 +68,15 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt) {
+    public Offer create(Offer offer) {
         final Map<String, Object> values = new java.util.HashMap<>();
-        values.put(OfferSchema.LISTING_ID, listingId);
-        values.put(OfferSchema.BUYER_ID, buyer.getId());
-        values.put(OfferSchema.AMOUNT, amount);
-        values.put(OfferSchema.IS_FULL_PRICE, isFullPrice);
-        values.put(OfferSchema.STATUS, status.getStatus());
-        values.put(OfferSchema.MESSAGE, message);
-        values.put(OfferSchema.CREATED_AT, Timestamp.from(createdAt));
+        values.put(OfferSchema.LISTING_ID, offer.getListing().getId());
+        values.put(OfferSchema.BUYER_ID, offer.getBuyer().getId());
+        values.put(OfferSchema.AMOUNT, offer.getAmount());
+        values.put(OfferSchema.IS_FULL_PRICE, offer.getIsFullPrice());
+        values.put(OfferSchema.STATUS, offer.getStatus().getStatus());
+        values.put(OfferSchema.MESSAGE, offer.getMessage());
+        values.put(OfferSchema.CREATED_AT, Timestamp.from(offer.getCreatedAt()));
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 

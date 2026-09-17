@@ -56,34 +56,27 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public User create(
-            String username,
-            String displayName,
-            String email,
-            String password,
-            Image image,
-            Instant joinedAt
-    ) {
-        final Long imageId = image != null ? image.getId() : null;
+    public User create(User user) {
+        final Long imageId = user.getImageId().orElse(null);
 
         final Map<String, Object> values = new HashMap<>();
-        values.put(UserSchema.USERNAME, username);
-        values.put(UserSchema.DISPLAY_NAME, displayName);
-        values.put(UserSchema.EMAIL, email);
-        values.put(UserSchema.PASSWORD, password);
+        values.put(UserSchema.USERNAME, user.getUsername());
+        values.put(UserSchema.DISPLAY_NAME, user.getDisplayName());
+        values.put(UserSchema.EMAIL, user.getEmail());
+        values.put(UserSchema.PASSWORD, user.getPassword());
         values.put(UserSchema.IMAGE_ID, imageId);
-        values.put(UserSchema.JOINED_AT, Timestamp.from(joinedAt));
+        values.put(UserSchema.JOINED_AT, Timestamp.from(user.getJoinedAt()));
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
         return User.builder()
                 .id(key)
-                .username(username)
-                .displayName(displayName)
-                .email(email)
-                .password(password)
+                .username(user.getUsername())
+                .displayName(user.getDisplayName())
+                .email(user.getEmail())
+                .password(user.getPassword())
                 .imageId(imageId)
-                .joinedAt(joinedAt)
+                .joinedAt(user.getJoinedAt())
                 .build();
     }
 

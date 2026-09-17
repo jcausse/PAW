@@ -122,20 +122,22 @@ public class ListingServiceImpl implements ListingService {
         final Condition condition = Condition.fromString(dto.condition())
             .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
 
-        var listing = listingDao.create(
-            dto.title(),
-            dto.price(),
-            creator,
-            product,
-            condition,
-            dto.acceptsTrade(),
-            dto.description(),
-            imageIds
-        );
+        Listing listing = Listing.builder()
+                .title(dto.title())
+                .price(dto.price())
+                .creator(creator)
+                .product(product)
+                .condition(condition)
+                .acceptsTrade(dto.acceptsTrade())
+                .description(dto.description())
+                .imageIds(imageIds)
+                .build();
 
-        mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+        Listing createdListing = listingDao.create(listing);
 
-        return listing;
+        mailingService.sendListingPublishedEmail(creator, createdListing, LocaleContextHolder.getLocale());
+
+        return createdListing;
     }
 
     @Override
