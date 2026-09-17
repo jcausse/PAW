@@ -1,7 +1,7 @@
 MAVEN  := mvn
 PYTHON := python3
 
-.PHONY: dev clean pack compile deploy db-start db-stop
+.PHONY: dev clean pack compile deploy db-start db-stop troubleshoot
 
 # LOCAL DEVELOPMENT TARGETS
 
@@ -20,6 +20,9 @@ compile:
 
 clean:
 	$(MAVEN) clean
+
+troubleshoot:
+	@$(PYTHON) ./.script/troubleshooter/main.py $(ARGS)
 
 # PRODUCTION TARGETS
 
