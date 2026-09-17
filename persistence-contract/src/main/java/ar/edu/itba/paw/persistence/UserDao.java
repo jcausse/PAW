@@ -24,5 +24,4 @@ public interface UserDao {
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
-    boolean isEmailTakenByAnother(String email, Long excludeUserId);
 }
