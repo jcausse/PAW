@@ -243,14 +243,14 @@ public class OfferJdbcDao implements OfferDao {
             BASE_SELECT +
             " WHERE o." + OfferSchema.LISTING_ID + " = ?" +
             " AND o." + OfferSchema.STATUS + " = ?" +
-            " AND (? IS NULL OR o." + OfferSchema.ID + " != ?)";
+            " AND (?::bigint IS NULL OR o." + OfferSchema.ID + " != ?)";
 
         private static final String REJECT_PENDING =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?" +
-            " AND (? IS NULL OR " + OfferSchema.ID + " != ?)";
+            " AND (?::bigint IS NULL OR " + OfferSchema.ID + " != ?)";
     }
 
     @Override
