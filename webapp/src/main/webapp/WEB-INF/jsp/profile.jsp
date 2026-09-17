@@ -34,17 +34,6 @@
                     </c:if>
                 </div>
             </div>
-
-            <div class="flex flex-col gap-4">
-                <div class="flex items-center justify-between bg-neutral-50 p-4 rounded-xl border border-black/5">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1"><spring:message code="profile.email"/></span>
-                        <span class="text-neutral-800 font-medium"><c:out value="${user.email}"/></span>
-                    </div>
-                    <spring:message code="profile.sendEmail" var="sendEmailLabel"/>
-                    <paw:linkButton href="mailto:${user.email}" text="${sendEmailLabel}" size="sm" variant="outline"/>
-                </div>
-            </div>
         </paw:card>
 
         <paw:card title="${listingsTitle}">
