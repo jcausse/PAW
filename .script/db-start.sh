@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DB_CONTAINER="paw-db"
 DB_IMAGE="paw-postgres"
 DB_PORT="5432"
@@ -14,7 +15,7 @@ elif [ "$STATUS" = "false" ]; then
     docker start "$DB_CONTAINER"
 else
     echo "Building database image '$DB_IMAGE'..."
-    docker build -t "$DB_IMAGE" .
+    docker build -t "$DB_IMAGE" -f "$SCRIPT_DIR/Dockerfile" "$SCRIPT_DIR"
     echo "Running database container '$DB_CONTAINER' on port $DB_PORT..."
     docker run --name "$DB_CONTAINER" -d -p "$DB_PORT":5432 "$DB_IMAGE"
 fi
