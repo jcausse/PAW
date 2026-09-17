@@ -84,11 +84,11 @@
                                 <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>
                                 <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
                             </c:when>
-                            <c:when test="${userPendingOffer != null}">
+                            <c:when test="${userPendingOffer.isPresent()}">
                                 <div class="flex flex-col gap-2">
-                                    <spring:message code="listing.detail.pendingOffer" arguments="${userPendingOffer.amount}" var="pendingOfferMsg"/>
+                                    <spring:message code="listing.detail.pendingOffer" arguments="${userPendingOffer.get().amount}" var="pendingOfferMsg"/>
                                     <p class="text-black/60 text-sm"><c:out value="${pendingOfferMsg}"/></p>
-                                    <form action="<c:url value='/offer/${userPendingOffer.id}/withdraw'/>" method="POST">
+                                    <form action="<c:url value='/offer/${userPendingOffer.get().id}/withdraw'/>" method="POST">
                                         <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
                                         <paw:button type="submit" variant="outline" role="danger" classname="w-full" icon="x" text="${withdrawLabel}" />
                                     </form>

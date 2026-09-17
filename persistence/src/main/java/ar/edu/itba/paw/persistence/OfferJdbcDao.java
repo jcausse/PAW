@@ -5,7 +5,9 @@ import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
@@ -53,18 +55,49 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public List<Offer> getByListingId(Long listingId) {
-        return jdbcTemplate.query(Queries.GET_BY_LISTING_ID, ROW_MAPPER, listingId);
+	public Optional<Offer> getByListingAndBuyer(Listing listing, User buyer) {
+        return jdbcTemplate
+            .query(Queries.GET_BY_LISTING_AND_BUYER_ID, ROW_MAPPER, listing.getId(), buyer.getId())
+            .stream()
+            .findFirst();
     }
 
     @Override
-    public List<Offer> getByBuyerId(Long buyerId) {
-        return jdbcTemplate.query(Queries.GET_BY_BUYER_ID, ROW_MAPPER, buyerId);
-    }
+	public Page<Offer> search(OfferFilter filter) {
+    	final List<String> conditions = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
 
-    @Override
-    public List<Offer> getByCreatorId(Long creatorId) {
-        return jdbcTemplate.query(Queries.GET_BY_CREATOR_ID, ROW_MAPPER, creatorId);
+        final var whereClause = " WHERE " + String.join(" AND ", conditions);
+
+        final long totalCount = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*)" + Queries.BASE_FROM + whereClause,
+            Long.class,
+            params.toArray()
+        );
+
+        final int page = filter.getPage();
+        final int pageSize = filter.getPageSize();
+        final int offset = (page - 1) * pageSize;
+        final List<Object> idParams = new ArrayList<>(params);
+        idParams.add(pageSize);
+        idParams.add(offset);
+        final var ids = jdbcTemplate.queryForList(
+            "SELECT l." + OfferSchema.ID + Queries.BASE_FROM + whereClause
+                + " LIMIT ? OFFSET ?",
+            Long.class,
+            idParams.toArray()
+        );
+
+        if (ids.isEmpty()) {
+            return new Page<>(List.of(), page, pageSize, totalCount);
+        }
+
+        final var inPlaceholders = String.join(", ", ids.stream().map(id -> "?").toArray(String[]::new));
+        final var sql = Queries.BASE_SELECT
+            + " WHERE l." + ListingSchema.ID + " IN (" + inPlaceholders + ")";
+
+        final var content = jdbcTemplate.query(sql, ROW_MAPPER, ids.toArray());
+        return new Page<>(content, page, pageSize, totalCount);
     }
 
     @Override
@@ -172,7 +205,15 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     private static final class Queries {
-        // here be dragons
+        private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o" +
+		            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
+		            " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
+		            " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+		            " JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
+		            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
+		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
+
+		// here be dragons
         private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
@@ -200,31 +241,16 @@ public class OfferJdbcDao implements OfferDao {
             " AND o3." + OfferSchema.ID + " != o." + OfferSchema.ID +
             " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT +
             " AND o3." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') as has_better_offers" +
-            " FROM " + OfferSchema.TABLE_NAME + " o" +
-            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
-            " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
-            " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
-            " JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
-            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
-            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
+            BASE_FROM;
 
         private static final String GET_BY_ID =
             BASE_SELECT +
             " WHERE o." + OfferSchema.ID + " = ?";
 
-        private static final String GET_BY_LISTING_ID =
+        private static final String GET_BY_LISTING_AND_BUYER_ID =
             BASE_SELECT +
             " WHERE o." + OfferSchema.LISTING_ID + " = ?" +
-            " ORDER BY o." + OfferSchema.ID + " DESC";
-
-        private static final String GET_BY_BUYER_ID =
-            BASE_SELECT +
-            " WHERE o." + OfferSchema.BUYER_ID + " = ?" +
-            " ORDER BY o." + OfferSchema.ID + " DESC";
-
-        private static final String GET_BY_CREATOR_ID =
-            BASE_SELECT +
-            " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
+            " AND o." + OfferSchema.BUYER_ID + " = ?" +
             " ORDER BY o." + OfferSchema.ID + " DESC";
 
         private static final String UPDATE_STATUS =

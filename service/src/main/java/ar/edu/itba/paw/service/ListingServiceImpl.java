@@ -50,7 +50,7 @@ public class ListingServiceImpl implements ListingService {
     public Page<Listing> search(ListingFilterDto dto) {
         Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
 
-        final ListingFilter filter = ListingFilter.builder()
+        final var filter = ListingFilter.builder()
             .categoryId(dto.categoryId())
             .subcategoryId(dto.subcategoryId())
             .minPrice(sanitizePrice(dto.minPrice()))
@@ -198,7 +198,7 @@ public class ListingServiceImpl implements ListingService {
     @Transactional
     public void cancel(Long id) {
         getById(id);
-        offerService.rejectPendingOffers(id, null);
+        offerService.rejectPendingOffersForListing(id, null);
         listingDao.cancel(id);
     }
 }

@@ -6,6 +6,7 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
@@ -17,9 +18,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -100,17 +104,19 @@ public class AccountController {
     }
 
     @GetMapping("/incoming-offers")
-    public ModelAndView incomingOffers() {
+    public ModelAndView incomingOffers(@RequestParam("status") String status, @ModelAttribute("pageForm") PaginationForm pageForm) {
         final var currentUser = getCurrentUser();
         final var user = currentUser.orElseThrow();
-        final var offers = offerService.getIncomingOffersForUser(user.getId());
+
+        final var filter = new OfferFilterDto(user.getId(), null, status, pageForm.getPage(), 5);
+        final var offersPage = offerService.get(filter);
 
         return new ModelAndView("account/incomingOffers")
                 .addObject("pendingOffers", offers.pending())
                 .addObject("resolvedOffers", offers.resolved())
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", offers.pending().size());
+                .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
     @GetMapping("/my-offers")
@@ -128,6 +134,6 @@ public class AccountController {
     }
 
 	private int getPendingOffersCount(final User user) {
-		return offerService.getIncomingOffersForUser(user.getId()).pending().size();
+		return 0; // TODO offerService.getIncomingOffersForUser(user.getId()).pending().size();
 	}
 }

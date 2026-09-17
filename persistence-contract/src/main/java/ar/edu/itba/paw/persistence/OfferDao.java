@@ -1,7 +1,10 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.User;
 
 import java.math.BigDecimal;
@@ -13,11 +16,9 @@ public interface OfferDao {
 
     Optional<Offer> getById(Long id);
 
-    List<Offer> getByListingId(Long listingId);
+    Optional<Offer> getByListingAndBuyer(Listing listing, User buyer);
 
-    List<Offer> getByBuyerId(Long buyerId);
-
-    List<Offer> getByCreatorId(Long creatorId);
+    Page<Offer> search(OfferFilter filter);
 
     Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt);
 

@@ -3,8 +3,6 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
-import ar.edu.itba.paw.model.Offer;
-import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
@@ -123,15 +121,7 @@ public class ListingController {
         var isSold = listing.getStatus() == ListingStatus.SOLD;
         var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
 
-        Offer userPendingOffer = null;
-        if (currentUser != null && !isCreator && !isSold) {
-            var offers = offerService.getByListingId(id);
-            userPendingOffer = offers.stream()
-                    .filter(o -> o.getBuyer().getId().equals(currentUser.getId()))
-                    .filter(o -> o.getStatus() == OfferStatus.PENDING)
-                    .findFirst()
-                    .orElse(null);
-        }
+        var userPendingOffer = offerService.getByListingAndBuyer(listing, currentUser);
 
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
