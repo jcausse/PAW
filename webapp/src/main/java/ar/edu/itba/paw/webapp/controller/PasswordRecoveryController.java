@@ -83,7 +83,6 @@ public class PasswordRecoveryController {
         userService.update(new UserEditDto(
                 user,
                 null,
-                null,
                 form.getPassword(),
                 null
         ));

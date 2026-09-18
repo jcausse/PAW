@@ -1,3 +1,9 @@
+---
+name: test-route
+description: >-
+  Debug pages that are erroring out, find route URLs, and verify non-trivial changes to JSP files or controllers using Chrome DevTools MCP.
+---
+
 # Test Route Skill
 
 ## Purpose

@@ -1,3 +1,9 @@
+---
+name: screenshot-page
+description: >-
+  Take screenshots of web pages using the Chrome DevTools MCP server, document visual changes to JSP pages, and verify UI rendering.
+---
+
 # Screenshot Page Skill
 
 ## Purpose

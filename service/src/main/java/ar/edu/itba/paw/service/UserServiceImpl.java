@@ -97,9 +97,6 @@ public class UserServiceImpl implements UserService {
         String displayName = (dto.newDisplayName() != null && !dto.newDisplayName().isBlank())
                 ? dto.newDisplayName()
                 : null;
-        String email = (dto.newEmail() != null && !dto.newEmail().isBlank())
-                ? dto.newEmail().trim().toLowerCase()
-                : null;
         String encodedPassword = (dto.newPassword() != null && !dto.newPassword().isBlank())
                 ? passwordEncoder.encode(dto.newPassword())
                 : null;
@@ -116,7 +113,7 @@ public class UserServiceImpl implements UserService {
             imageId = image.getId();
         }
 
-        userDao.update(user.getId(), displayName, email, encodedPassword, imageId);
+        userDao.update(user.getId(), displayName, null, encodedPassword, imageId);
 
         // Delete the old image to prevent orphans, if a new one was set and the user previously had one
         if (imageId != null && user.getImageId().isPresent()) {
@@ -124,6 +121,15 @@ public class UserServiceImpl implements UserService {
         }
 
         return userDao.getById(user.getId()).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Optional<User> updateEmail(Long userId, String email) {
+        Objects.requireNonNull(userId, "userId cannot be null");
+        Objects.requireNonNull(email, "email cannot be null");
+        userDao.update(userId, null, email.trim().toLowerCase(), null, null);
+        return userDao.getById(userId);
     }
 
     @Override
@@ -136,12 +142,5 @@ public class UserServiceImpl implements UserService {
     public boolean isEmailTaken(String email) {
         Objects.requireNonNull(email, "email cannot be null");
         return userDao.isEmailTaken(email.trim().toLowerCase());
-    }
-
-    @Override
-    public boolean isEmailTakenByAnother(String email, Long excludeUserId) {
-        Objects.requireNonNull(email, "email cannot be null");
-        Objects.requireNonNull(excludeUserId, "excludeUserId cannot be null");
-        return userDao.isEmailTakenByAnother(email.trim().toLowerCase(), excludeUserId);
     }
 }
