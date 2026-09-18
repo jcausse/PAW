@@ -67,6 +67,21 @@ public class OfferJdbcDao implements OfferDao {
     	final List<String> conditions = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
+        if (filter.getBuyerId() != null) {
+            conditions.add("o." + OfferSchema.BUYER_ID + " = ?");
+            params.add(filter.getBuyerId());
+        }
+
+        if (filter.getSellerId() != null) {
+            conditions.add("l." + ListingSchema.CREATOR_ID + " = ?");
+            params.add(filter.getSellerId());
+        }
+
+        if (filter.getStatus() != null) {
+            conditions.add("o." + OfferSchema.STATUS + " IN (" + String.join(", ", filter.getStatus().stream().map((s) -> "?").toArray(String[]::new)) + ")");
+            params.addAll(filter.getStatus().stream().map((s) -> s.getStatus()).toList());
+        }
+
         final var whereClause = " WHERE " + String.join(" AND ", conditions);
 
         final long totalCount = jdbcTemplate.queryForObject(
@@ -82,7 +97,7 @@ public class OfferJdbcDao implements OfferDao {
         idParams.add(pageSize);
         idParams.add(offset);
         final var ids = jdbcTemplate.queryForList(
-            "SELECT l." + OfferSchema.ID + Queries.BASE_FROM + whereClause
+            "SELECT o." + OfferSchema.ID + Queries.BASE_FROM + whereClause
                 + " LIMIT ? OFFSET ?",
             Long.class,
             idParams.toArray()
@@ -94,7 +109,7 @@ public class OfferJdbcDao implements OfferDao {
 
         final var inPlaceholders = String.join(", ", ids.stream().map(id -> "?").toArray(String[]::new));
         final var sql = Queries.BASE_SELECT
-            + " WHERE l." + ListingSchema.ID + " IN (" + inPlaceholders + ")";
+            + " WHERE o." + OfferSchema.ID + " IN (" + inPlaceholders + ")";
 
         final var content = jdbcTemplate.query(sql, ROW_MAPPER, ids.toArray());
         return new Page<>(content, page, pageSize, totalCount);

@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
+import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OfferDao;
@@ -61,7 +62,7 @@ public class OfferServiceImpl implements OfferService {
             .pageSize(dto.pageSize())
             .sellerId(dto.sellerId())
             .buyerId(dto.buyerId())
-            .status(dto.status().stream().map((s) -> parseStatus(s)).toList())
+            .status(parseStatusGroup(dto.statusGroup()))
             .build();
 
         return offerDao.search(filter);
@@ -71,10 +72,12 @@ public class OfferServiceImpl implements OfferService {
         return page == null || page < 1 ? 1 : page;
     }
 
-    private static OfferStatus parseStatus(final String value) {
-        return value == null || value.isBlank()
+    private static List<OfferStatus> parseStatusGroup(final String value) {
+        final var statusGroup = value == null || value.isBlank()
             ? null
-            : OfferStatus.fromString(value).orElse(null);
+            : OfferStatusGroup.fromString(value).orElse(null);
+
+        return statusGroup == null ? OfferStatusGroup.PENDING.toStatusList() : statusGroup.toStatusList();
     }
 
     @Override

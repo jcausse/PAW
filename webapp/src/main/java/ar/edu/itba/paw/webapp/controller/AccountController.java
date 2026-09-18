@@ -9,6 +9,7 @@ import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
+import ar.edu.itba.paw.webapp.form.OfferFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -104,30 +105,34 @@ public class AccountController {
     }
 
     @GetMapping("/incoming-offers")
-    public ModelAndView incomingOffers(@RequestParam("status") String status, @ModelAttribute("pageForm") PaginationForm pageForm) {
+    public ModelAndView incomingOffers(@ModelAttribute("filterForm") OfferFilterForm filterForm) {
         final var currentUser = getCurrentUser();
         final var user = currentUser.orElseThrow();
 
-        final var filter = new OfferFilterDto(user.getId(), null, status, pageForm.getPage(), 5);
-        final var offersPage = offerService.get(filter);
+        final var filter = new OfferFilterDto(user.getId(), null, filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var offerPage = offerService.get(filter);
 
         return new ModelAndView("account/incomingOffers")
-                .addObject("pendingOffers", offers.pending())
-                .addObject("resolvedOffers", offers.resolved())
+                .addObject("offerPage", offerPage)
+                .addObject("offers", offerPage.getContent())
+                .addObject("statusGroup", filterForm.getStatusGroup())
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
                 .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
     @GetMapping("/my-offers")
-    public ModelAndView myOffers() {
+    public ModelAndView myOffers(@ModelAttribute("filterForm") OfferFilterForm filterForm) {
         final var currentUser = getCurrentUser();
         final var user = currentUser.orElseThrow();
-        final var offers = offerService.getMyOffersForUser(user.getId());
+
+        final var filter = new OfferFilterDto(user.getId(), null, filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var offerPage = offerService.get(filter);
 
         return new ModelAndView("account/myOffers")
-                .addObject("pendingOffers", offers.pending())
-                .addObject("resolvedOffers", offers.resolved())
+                .addObject("offerPage", offerPage)
+                .addObject("offers", offerPage.getContent())
+                .addObject("statusGroup", filterForm.getStatusGroup())
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
                 .addObject("pendingOffersCount", getPendingOffersCount(user));

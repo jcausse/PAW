@@ -5,10 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Backs the discovery filter form. All fields optional; empty means "not filtering".
- * Bound from query params so applied filters are preserved in the URL and UI.
- */
 @NoArgsConstructor
 @Getter
 @Setter
