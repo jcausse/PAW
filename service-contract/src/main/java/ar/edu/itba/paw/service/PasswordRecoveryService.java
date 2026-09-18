@@ -6,9 +6,8 @@ import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
 import java.util.Optional;
 
 public interface PasswordRecoveryService {
-    Optional<OneTimePassword> startByUsername(String username);
-    Optional<OneTimePassword> startByEmail(String email);
-    
-    OneTimePasswordVerificationResult verifyByUsername(String username, String otpValue);
-    OneTimePasswordVerificationResult verifyByEmail(String email, String otpValue);
+
+    Optional<OneTimePassword> start(String usernameOrEmail);
+
+    OneTimePasswordVerificationResult verify(String usernameOrEmail, String otpValue);
 }

@@ -11,6 +11,9 @@ public interface UserService {
     Optional<User> getByUsername(String username);
     Optional<User> getByEmail(String email);
 
+    /* Get a user by either their username (does not contain '@') or email (contains '@') */
+    Optional<User> getByUsernameOrEmail(String usernameOrEmail);
+
     User create(UserCreationDto dto);
     User update(UserEditDto dto);
 
