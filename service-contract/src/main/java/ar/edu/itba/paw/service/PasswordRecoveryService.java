@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface PasswordRecoveryService {
 
-    Optional<OneTimePassword> start(String usernameOrEmail);
+    Optional<OneTimePassword> startAndSendRecoveryEmail(String usernameOrEmail);
 
-    OneTimePasswordVerificationResult verify(String usernameOrEmail, String otpValue);
+    OneTimePasswordVerificationResult verifyAndUpdatePassword(String usernameOrEmail, String password, String otpValue);
 }

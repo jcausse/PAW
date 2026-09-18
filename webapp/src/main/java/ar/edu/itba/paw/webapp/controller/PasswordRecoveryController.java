@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.PasswordRecoveryService;
-import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
-import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.PasswordRecoveryRequestForm;
 import ar.edu.itba.paw.webapp.form.PasswordRecoveryVerificationForm;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +19,6 @@ import javax.validation.Valid;
 public class PasswordRecoveryController {
 
     private final PasswordRecoveryService passwordRecoveryService;
-    private final UserService userService;
 
     @GetMapping("/recovery/request")
     public ModelAndView passwordRecoveryRequestGET(
@@ -40,7 +36,7 @@ public class PasswordRecoveryController {
             return new ModelAndView("recovery/request");
         }
 
-        passwordRecoveryService.start(form.getUsernameOrEmail());
+        passwordRecoveryService.startAndSendRecoveryEmail(form.getUsernameOrEmail());
 
         return new ModelAndView("recovery/request")
                 .addObject("codeSent", true)
@@ -51,9 +47,6 @@ public class PasswordRecoveryController {
     public ModelAndView passwordRecoveryVerificationGET(
             @ModelAttribute("passwordRecoveryVerificationForm") PasswordRecoveryVerificationForm form
     ) {
-        if (form.getUsernameOrEmail() == null || form.getUsernameOrEmail().isBlank()) {
-            return new ModelAndView("redirect:/recovery/request");
-        }
         return new ModelAndView("recovery/verification");
     }
 
@@ -66,27 +59,20 @@ public class PasswordRecoveryController {
             return new ModelAndView("recovery/verification");
         }
 
-        var usernameOrEmail = form.getUsernameOrEmail().trim().toLowerCase();
-        var result = passwordRecoveryService.verify(form.getUsernameOrEmail(), form.getOtp().trim());
+        final var result = passwordRecoveryService.verifyAndUpdatePassword(
+                form.getUsernameOrEmail(),
+                form.getPassword(),
+                form.getOtp()
+        );
 
-        if (result == OneTimePasswordVerificationResult.REJECTED) {
-            errors.rejectValue("otp", "recovery.verification.error.invalidOtp");
-            return new ModelAndView("recovery/verification");
-        } else if (result == OneTimePasswordVerificationResult.EXPIRED) {
-            errors.rejectValue("otp", "recovery.verification.error.expiredOtp");
-            return new ModelAndView("recovery/verification");
+        if (result == OneTimePasswordVerificationResult.ACCEPTED) {
+            return new ModelAndView("redirect:/login");
         }
 
-        var user = userService.getByUsernameOrEmail(usernameOrEmail)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        userService.update(new UserEditDto(
-                user,
-                null,
-                form.getPassword(),
-                null
-        ));
-
-        return new ModelAndView("redirect:/login");
+        errors.rejectValue("otp", result == OneTimePasswordVerificationResult.EXPIRED
+                ? "recovery.verification.error.expiredOtp"
+                : "recovery.verification.error.invalidOtp"
+        );
+        return new ModelAndView("recovery/verification");
     }
 }
