@@ -22,5 +22,3 @@
     }
     ```
 
-2. Chequear el fix del `PasswordEncoder` en su rama aparte.
-
