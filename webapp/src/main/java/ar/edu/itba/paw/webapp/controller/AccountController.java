@@ -154,6 +154,6 @@ public class AccountController {
     }
 
 	private int getPendingOffersCount(final User user) {
-		return 0; // TODO offerService.getIncomingOffersForUser(user.getId()).pending().size();
+		return offerService.getPendingOffersCount(user);
 	}
 }

@@ -325,4 +325,13 @@ public class OfferJdbcDao implements OfferDao {
 
         return toReject;
     }
+
+    @Override
+    public int countPendingBySeller(User seller) {
+        final String sql = "SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o" +
+                " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
+                " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
+                " AND o." + OfferSchema.STATUS + " = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, seller.getId(), OfferStatus.PENDING.getStatus());
+    }
 }

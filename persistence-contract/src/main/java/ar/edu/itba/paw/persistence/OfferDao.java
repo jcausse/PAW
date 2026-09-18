@@ -27,4 +27,6 @@ public interface OfferDao {
     boolean withdraw(Long offerId, Long buyerId);
 
     List<Offer> rejectPendingOffers(Long listingId, Long exceptOfferId);
+
+    int countPendingBySeller(User seller);
 }

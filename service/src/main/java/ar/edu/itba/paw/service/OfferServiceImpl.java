@@ -179,4 +179,9 @@ public class OfferServiceImpl implements OfferService {
         }
         return rejected;
     }
+
+    @Override
+    public int getPendingOffersCount(User seller) {
+        return offerDao.countPendingBySeller(seller);
+    }
 }
