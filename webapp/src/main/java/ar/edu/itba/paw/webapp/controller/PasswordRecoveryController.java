@@ -122,7 +122,6 @@ public class PasswordRecoveryController {
         userService.update(new UserEditDto(
                 maybeUser.orElseThrow(() -> new UserNotFoundException("User not found")), // Should never throw
                 null,
-                null,
                 form.getPassword(),
                 null
         ));

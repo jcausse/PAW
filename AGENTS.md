@@ -27,7 +27,7 @@ The project is called **Swappr** (it is the official name). That name should be 
 
 - Every JSP **must** declare `<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>`.
 - **Always** use `<c:out value="${...}"/>` for any model attribute rendered in HTML (XSS protection).
-- **Always** use `<c:url value="..."/>` for all URLs (context path resolution).
+- **Always** use `<c:url value="..."/>` for all URLs (context path resolution). **Always verify URLs with `make troubleshoot`** whenever creating or editing JSPs or tags to ensure no unmanaged or hardcoded routes exist.
 - **Never hardcode user-facing strings in JSPs** — all UI text must use `<spring:message>`.
 - **Always** use `<html lang="${pageContext.response.locale.language}">` — never hardcode `<html lang="en">` or use a bare `<html>` tag, so the HTML document language matches the user's selected locale.
 - Inside `<form:form>`, use the `paw:formInput` tag (not `paw:input`) to get automatic Spring binding and error display.
@@ -178,6 +178,7 @@ JOIN categories c ON s.category_id = c.category_id;
 ## Build & Scripts
 
 - Build with `mvn clean compile` to verify changes across all modules.
+- **Troubleshoot URLs**: `make troubleshoot` (runs `.script/troubleshooter/` to check that all JSP and custom tag URLs are wrapped in `<c:url>`; see `troubleshoot-urls` skill).
 - Dev server: `make dev` (starts DB container + Jetty). Wait ~15-20s for "Started Jetty Server".
 - **Alternative background server** (for testing):
   ```bash
@@ -215,60 +216,14 @@ When asked to share an image (e.g., a screenshot you just captured), **your resp
 
 ## Skills
 
-### test-route Skill
+List directory `.agents/skills` to find AI agent skills. The format is standard: `.agents/skills/<Skill Name>/SKILL.md`. Each skill has a standard YAML descriptor embedded:
 
-Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
+```markdown
+---
+name: Skill name
+description: >-
+  Skill description
+---
+```
 
-- Debug a page that's erroring out (find the cause of the error and potentially fix it)
-- Verify non-trivial changes to JSP files or controllers don't produce errors
-
-**Workflow:**
-1. **Restart dev server in background** (never assume it's running):
-   ```bash
-   pkill -f jetty
-   nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
-   sleep 25
-   ```
-2. Seed DB if needed: `docker exec paw-db psql ...`
-3. **Navigate with `chrome-devtools_navigate`** to the route
-4. **Inspect with `chrome-devtools_evaluate`** (get HTML, check console, etc.)
-5. Optionally **screenshot with `chrome-devtools_screenshot`** for visual verification
-6. If error: inspect response + server logs (`/tmp/jetty.log`)
-7. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
-8. Re-test
-
-**Important Rules:**
-- **Never use semicolons in bash commands** — execute each command separately
-- **Always wait for page loads** after navigation
-- **Use `curl` for quick API/status checks**, but prefer MCP tools for full page inspection
-- **When asked to debug an issue, always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
-
-### screenshot-page Skill
-
-Located at `.agents/skills/screenshot-page/SKILL.md`. Use this skill to:
-
-- Take screenshots of web pages using the Chrome DevTools MCP server
-- Document visual changes to JSP pages
-- Verify UI renders correctly after changes
-
-**Key Workflow:**
-
-1. **ALWAYS restart the dev server first** (never assume it's running):
-   ```bash
-   pkill -f jetty
-   nohup mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
-   sleep 25
-   ```
-
-2. **Navigate and interact** using MCP tools:
-   - `chrome-devtools_navigate` — load a URL
-   - `chrome-devtools_evaluate` — execute JS (fill forms, click, etc.)
-   - `chrome-devtools_screenshot` — capture page (saves to `/tmp/chrome-devtools-mcp-*/screenshot.png`)
-
-3. **Send screenshot directly from `/tmp`** using the attachment format in `AGENTS.md` (no need to copy), together with your usual text response.
-
-**Important Rules:**
-- **Never use semicolons in bash commands** — execute each command separately
-- **Always wait for page loads** after navigation/form submissions
-- **Login first** if the target page requires authentication
-- **Use this skill** to attach a screenshot with your change summary whenever you make visual changes to a JSP page
+Make sure to read the descriptors to know when to load and use each skill.

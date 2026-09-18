@@ -17,9 +17,6 @@
                 <spring:message code="register.displayName" var="displayNameLabel"/>
                 <paw:formInput path="displayName" label="${displayNameLabel}" variant="outline"/>
 
-                <spring:message code="register.email" var="emailLabel"/>
-                <paw:formInput path="email" type="email" label="${emailLabel}" variant="outline"/>
-
                 <spring:message code="profileEdit.profilePicture" var="profilePictureLabel"/>
                 <paw:imageUpload path="profilePicture" label="${profilePictureLabel}"/>
 

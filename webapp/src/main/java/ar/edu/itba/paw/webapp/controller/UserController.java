@@ -79,7 +79,6 @@ public class UserController {
     @GetMapping("/profile/edit")
     public ModelAndView editProfileForm(@CurrentUser User currentUser, @ModelAttribute("userEditForm") UserEditForm form) {
         form.setDisplayName(currentUser.getDisplayName());
-        form.setEmail(currentUser.getEmail());
         return new ModelAndView("profileEdit")
                 .addObject("user", currentUser);
     }
@@ -90,13 +89,6 @@ public class UserController {
             @Valid @ModelAttribute("userEditForm") UserEditForm form,
             BindingResult errors
     ) {
-        // Check email uniqueness (excluding the current user's own email)
-        if (form.getEmail() != null && !form.getEmail().isBlank()
-                && !form.getEmail().equalsIgnoreCase(currentUser.getEmail())
-                && userService.isEmailTakenByAnother(form.getEmail(), currentUser.getId())) {
-            errors.rejectValue("email", "error.email.taken");
-        }
-
         if (errors.hasErrors()) {
             return new ModelAndView("profileEdit")
                     .addObject("user", currentUser);
@@ -121,7 +113,6 @@ public class UserController {
         User updatedUser = userService.update(new UserEditDto(
             currentUser,
             form.getDisplayName(),
-            form.getEmail(),
             form.getPassword(),
             imageData
         ));
