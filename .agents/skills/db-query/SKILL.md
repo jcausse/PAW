@@ -1,3 +1,9 @@
+---
+name: db-query
+description: >-
+  Query the local PostgreSQL development database (paw-db) using docker exec and common SQL queries for categories, subcategories, and products.
+---
+
 # Database Query Skill
 
 ## Description

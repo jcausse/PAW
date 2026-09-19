@@ -139,15 +139,6 @@ public class UserJdbcDao implements UserDao {
         );
     }
 
-    @Override
-    public boolean isEmailTakenByAnother(String email, Long excludeUserId) {
-        return jdbcTemplate.queryForObject(
-                Queries.IS_EMAIL_TAKEN_BY_ANOTHER,
-                Boolean.class,
-                email, excludeUserId
-        );
-    }
-
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<User> ROW_MAPPER = (rs, rowNum) -> User.builder()
@@ -198,9 +189,5 @@ public class UserJdbcDao implements UserDao {
         private static final String IS_EMAIL_TAKEN =
             "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
             " WHERE " + UserSchema.EMAIL + " = ?)";
-
-        private static final String IS_EMAIL_TAKEN_BY_ANOTHER =
-            "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +
-            " WHERE " + UserSchema.EMAIL + " = ? AND " + UserSchema.ID + " <> ?)";
     }
 }
