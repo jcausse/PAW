@@ -11,10 +11,30 @@
     <div class="w-96 bg-white border border-black/10 rounded-2xl p-6">
         <c:url value="/login" var="loginUrl"/>
         <form action="${loginUrl}" method="post" class="flex flex-col gap-4">
-            <c:if test="${param.error != null}">
-                <div class="text-xs text-red-600 font-medium">
-                    <spring:message code="login.error.invalidCredentials"/>
+            <c:if test="${param.verified != null}">
+                <div class="text-xs text-lime-700 bg-lime-50 border border-lime-200 rounded-lg p-3 font-medium">
+                    <spring:message code="login.verifiedSuccess"/>
                 </div>
+            </c:if>
+            <c:if test="${param.error != null}">
+                <c:choose>
+                    <c:when test="${sessionScope.SPRING_SECURITY_LAST_EXCEPTION['class'].simpleName == 'DisabledException'}">
+                        <div class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <p><spring:message code="login.error.unverified"/></p>
+                            <div class="mt-2">
+                                <c:url value="/verify" var="verifyUrl"/>
+                                <a href="${verifyUrl}" class="underline font-semibold text-amber-900 hover:text-amber-950">
+                                    <spring:message code="login.error.unverified.verifyLink"/>
+                                </a>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="text-xs text-red-600 font-medium">
+                            <spring:message code="login.error.invalidCredentials"/>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </c:if>
 
             <spring:message code="field.usernameOrEmail" var="usernameOrEmailLabel"/>

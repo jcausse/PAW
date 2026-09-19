@@ -33,4 +33,7 @@ public interface MailingService {
 
     /** Send password recovery email containing the one-time password code. */
     void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale);
+
+    /** Send email verification email containing the one-time password code. */
+    void sendVerificationEmail(User user, String otpValue, Locale locale);
 }

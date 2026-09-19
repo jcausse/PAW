@@ -20,7 +20,8 @@ public interface UserDao {
             Instant joinedAt
     );
 
-    void update(Long userId, String displayName, String email, String password, Long imageId);
+    Optional<User> update(Long userId, String displayName, String email, String password, Long imageId);
+    Optional<User> verifyEmail(Long userId, Instant verifiedAt);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);

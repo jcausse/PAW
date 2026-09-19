@@ -16,8 +16,8 @@ public interface UserService {
 
     User create(UserCreationDto dto);
     User update(UserEditDto dto);
-
-    Optional<User> updateEmail(Long userId, String email);
+    User updateEmail(User user, String email);
+    User markEmailAsVerified(User user);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);

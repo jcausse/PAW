@@ -79,6 +79,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/register").anonymous()               // User registration page
                 .antMatchers("/logout").authenticated()             // User logout endpoint (Spring-managed)
                 .antMatchers("/recovery/**").permitAll()            // Password recovery page
+                .antMatchers("/verify/**").permitAll()              // Email verification page
 
                 /* Profiles and User Accounts */
                 .antMatchers("/profile").authenticated()            // Current user's profile

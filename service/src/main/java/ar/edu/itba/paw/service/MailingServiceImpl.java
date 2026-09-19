@@ -162,6 +162,19 @@ public class MailingServiceImpl implements MailingService {
         sendEmail(user.getEmail(), subject, "password-recovery", context);
     }
 
+    @Async
+    @Override
+    public void sendVerificationEmail(User user, String otpValue, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("user", user);
+        context.setVariable("otpValue", otpValue);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/verify?email=" + URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8));
+
+        String subject = messageSource.getMessage("email.verification.subject", null, locale);
+        sendEmail(user.getEmail(), subject, "email-verification", context);
+    }
+
     private void sendEmail(String to, String subject, String templateName, Context context) {
         try {
             var mimeMessage = mailSender.createMimeMessage();
