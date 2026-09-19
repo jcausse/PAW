@@ -98,6 +98,7 @@ public class OfferJdbcDao implements OfferDao {
         idParams.add(offset);
         final var ids = jdbcTemplate.queryForList(
             "SELECT o." + OfferSchema.ID + Queries.BASE_FROM + whereClause
+                + " ORDER BY o." + OfferSchema.CREATED_AT + " DESC"
                 + " LIMIT ? OFFSET ?",
             Long.class,
             idParams.toArray()
@@ -109,7 +110,8 @@ public class OfferJdbcDao implements OfferDao {
 
         final var inPlaceholders = String.join(", ", ids.stream().map(id -> "?").toArray(String[]::new));
         final var sql = Queries.BASE_SELECT
-            + " WHERE o." + OfferSchema.ID + " IN (" + inPlaceholders + ")";
+            + " WHERE o." + OfferSchema.ID + " IN (" + inPlaceholders + ")"
+            + " ORDER BY o." + OfferSchema.CREATED_AT + " DESC";
 
         final var content = jdbcTemplate.query(sql, ROW_MAPPER, ids.toArray());
         return new Page<>(content, page, pageSize, totalCount);
