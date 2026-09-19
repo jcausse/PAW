@@ -44,9 +44,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> getByUsernameOrEmail(String usernameOrEmail) {
+        Objects.requireNonNull(usernameOrEmail, "usernameOrEmail cannot be null");
+        return usernameOrEmail.contains("@")
+                ? getByEmail(usernameOrEmail)
+                : getByUsername(usernameOrEmail);
+    }
+
+    @Override
     @Transactional
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
+
+        if (dto.username().contains("@")) {
+            throw new IllegalArgumentException("UserCreationDto.username cannot contain @");
+        }
 
         var user = userDao.create(
             dto.username().trim().toLowerCase(),

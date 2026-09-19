@@ -11,8 +11,7 @@
     <div class="w-96 bg-white border border-black/10 rounded-2xl p-6">
         <c:url value="/recovery/verification" var="verificationUrl"/>
         <form:form modelAttribute="passwordRecoveryVerificationForm" action="${verificationUrl}" method="post" class="flex flex-col gap-4">
-            <form:hidden path="email"/>
-            <form:hidden path="username"/>
+            <form:hidden path="usernameOrEmail"/>
 
             <p class="text-sm text-neutral-600 mb-1">
                 <spring:message code="recovery.verification.subtitle"/>

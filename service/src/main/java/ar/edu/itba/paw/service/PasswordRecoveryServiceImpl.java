@@ -1,18 +1,17 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.OneTimePassword;
+import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
 public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     private final UserService userService;
@@ -20,48 +19,39 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     private final MailingService mailingService;
 
     @Override
-    @Transactional
-    public Optional<OneTimePassword> startByUsername(String username) {
-        Objects.requireNonNull(username, "username cannot be null");
+    public Optional<OneTimePassword> startAndSendRecoveryEmail(String usernameOrEmail) {
+        Objects.requireNonNull(usernameOrEmail, "usernameOrEmail cannot be null");
 
-        return userService.getByUsername(username).map(user -> {
-            var otp = otpService.create(user);
+        return userService.getByUsernameOrEmail(usernameOrEmail).map(user -> {
+            final var otp = otpService.create(user);
             mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
             return otp;
         });
     }
 
     @Override
-    @Transactional
-    public Optional<OneTimePassword> startByEmail(String email) {
-        Objects.requireNonNull(email, "email cannot be null");
-
-        return userService.getByEmail(email).map(user -> {
-            var otp = otpService.create(user);
-            mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
-            return otp;
-        });
-    }
-
-    @Override
-    @Transactional
-    public OneTimePasswordVerificationResult verifyByUsername(String username, String otpValue) {
-        Objects.requireNonNull(username, "username cannot be null");
+    public OneTimePasswordVerificationResult verifyAndUpdatePassword(
+            String usernameOrEmail,
+            String password,
+            String otpValue
+    ) {
+        Objects.requireNonNull(usernameOrEmail, "usernameOrEmail cannot be null");
+        Objects.requireNonNull(password, "password cannot be null");
         Objects.requireNonNull(otpValue, "otpValue cannot be null");
 
-        return userService.getByUsername(username)
-                .map(user -> otpService.verify(user, otpValue))
+        final var maybeUser = userService.getByUsernameOrEmail(usernameOrEmail);
+        final var result = maybeUser.map(user -> otpService.verify(user, otpValue))
                 .orElse(OneTimePasswordVerificationResult.REJECTED);
-    }
 
-    @Override
-    @Transactional
-    public OneTimePasswordVerificationResult verifyByEmail(String email, String otpValue) {
-        Objects.requireNonNull(email, "email cannot be null");
-        Objects.requireNonNull(otpValue, "otpValue cannot be null");
+        if (result == OneTimePasswordVerificationResult.ACCEPTED) {
+            userService.update(new UserEditDto(
+                    maybeUser.get(),
+                    null,
+                    password,
+                    null
+            ));
+        }
 
-        return userService.getByEmail(email)
-                .map(user -> otpService.verify(user, otpValue))
-                .orElse(OneTimePasswordVerificationResult.REJECTED);
+        return result;
     }
 }
