@@ -4,14 +4,11 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <html lang="${pageContext.response.locale.language}">
-<head>
-    <meta charset="UTF-8">
-    <title><spring:message code="landing.title"/></title>
+<paw:head titleKey="landing.title">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
     <link rel="stylesheet" href="<c:url value="/css/input.css"/>"/>
-</head>
+</paw:head>
 
 <body class=" pb-24 bg-neutral-50">
     <paw:navbar/>

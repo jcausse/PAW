@@ -4,6 +4,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+
+<c:set var="lucideVersion" value="1.44.0" />
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +24,11 @@
     <link rel="shortcut icon" href="<c:url value="/favicon.ico"/>"/>
 
     <link rel="stylesheet" href="<c:url value="/css/tailwind.css"/>"/>
+    <link rel="stylesheet" href="https://unpkg.com/lucide-static@${lucideVersion}/font/lucide.css" />
+
+    <%-- Tailwind CDN to prevent needing a full recompile on JSP classname changes --%>
+    <%-- FOR DEV ONLY -- DO NOT DEPLOY TO PROD! --%>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <jsp:doBody/>
 </head>

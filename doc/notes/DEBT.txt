@@ -1,0 +1,11 @@
+Keeping track of tech debt
+
+- Make sure we don't have any business logic in controllers. Mostly validations not used to set view params.
+
+- Service methods to fetch single objects should return Optional<T> if they can fail, instead of potentially returning null or throwing an exception.
+  - Exceptions for missing items should be thrown in the controller instead (orElseThrow)
+
+- Remove any unused i18n messages, we probably have a bunch.
+
+- Some DAO create methods take IDs instead of the corresponding model object, rendering them unable to use the builder to return the created object.
+  - DAO create methods should return a copy of the newly created object directly, not fetch it from the database after creation.

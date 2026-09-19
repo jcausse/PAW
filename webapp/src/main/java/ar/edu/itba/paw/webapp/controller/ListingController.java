@@ -3,14 +3,19 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
+import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
-import ar.edu.itba.paw.webapp.exception.UserNotAuthenticatedException;
+import ar.edu.itba.paw.service.dto.ListingUpdateDto;
+import ar.edu.itba.paw.webapp.exception.ForbiddenException;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
@@ -19,13 +24,12 @@ import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
+import org.springframework.validation.BindingResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,9 +44,12 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/listing")
 public class ListingController {
 
+    private static final int DISCOVERY_PAGE_SIZE = 12;
+
     private static final String OTHER_VALUE = "__OTHER__";
 
     private final ListingService listingService;
+    private final OfferService offerService;
     private final ProductService productService;
     private final MessageSource messageSource;
 
@@ -56,21 +63,18 @@ public class ListingController {
             filterForm.getCondition(),
             filterForm.getAcceptsTrade(),
             filterForm.getQuery(),
-            filterForm.getSort()
+            filterForm.getSort(),
+            null,
+            ListingStatus.ACTIVE.getStatus(),
+            filterForm.getPage(),
+            DISCOVERY_PAGE_SIZE
         );
 
-        final var mav = new ModelAndView("listing/discovery");
-        mav.addObject("listings", listingService.search(filter));
-        
-        var categories = productService.getAllCategories();
-        mav.addObject("categories", categories);
+        final var listingPage = listingService.search(filter);
 
-        // Create translated category options for paw:formSelect
-        var categoryOptions = new java.util.ArrayList<SelectOption>();
-        for (var cat : categories) {
-            categoryOptions.add(new SelectOption(cat.getId(), messageSource.getMessage("category." + cat.getName(), null, LocaleContextHolder.getLocale())));
-        }
-        mav.addObject("categoryOptions", categoryOptions);
+        final var mav = new ModelAndView("listing/discovery");
+        mav.addObject("listingPage", listingPage);
+        mav.addObject("listings", listingPage.getContent());
 
         // Create translated condition options for paw:formSelect
         var conditionOptions = new java.util.ArrayList<StringSelectOption>();
@@ -92,11 +96,17 @@ public class ListingController {
         }
         mav.addObject("sortOptions", sortOptions);
 
-        if (filterForm.getCategoryId() != null) {
-            var subcategories = productService.getSubcategoriesByCategory(filterForm.getCategoryId());
-            mav.addObject("subcategories", subcategories);
+        // Create translated category options for paw:formSelect
+        var categories = productService.getAllCategories();
+        var categoryOptions = new java.util.ArrayList<SelectOption>();
+        for (var cat : categories) {
+            categoryOptions.add(new SelectOption(cat.getId(), messageSource.getMessage("category." + cat.getName(), null, LocaleContextHolder.getLocale())));
+        }
+        mav.addObject("categoryOptions", categoryOptions);
 
+        if (filterForm.getCategoryId() != null) {
             // Create translated subcategory options for paw:formSelect
+            var subcategories = productService.getSubcategoriesByCategory(filterForm.getCategoryId());
             var subcategoryOptions = new java.util.ArrayList<SelectOption>();
             for (var sub : subcategories) {
                 subcategoryOptions.add(new SelectOption(sub.getId(), messageSource.getMessage("subcategory." + sub.getName(), null, LocaleContextHolder.getLocale())));
@@ -107,17 +117,28 @@ public class ListingController {
     }
 
     @GetMapping("/{id}")
-    public ModelAndView listing(@PathVariable Long id, @ModelAttribute("currentUser") Optional<User> maybeCurrentUser) {
+    public ModelAndView listing(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
         var listing = listingService.getById(id);
-        var currentUser = maybeCurrentUser.orElseThrow(UserNotAuthenticatedException::new);
-        var isCreator = currentUser.getId().equals(listing.getCreator().getId());
+        var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
         var isSold = listing.getStatus() == ListingStatus.SOLD;
+        var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
+
+        Offer userPendingOffer = null;
+        if (currentUser != null && !isCreator && !isSold) {
+            var offers = offerService.getByListingId(id);
+            userPendingOffer = offers.stream()
+                    .filter(o -> o.getBuyer().getId().equals(currentUser.getId()))
+                    .filter(o -> o.getStatus() == OfferStatus.PENDING)
+                    .findFirst()
+                    .orElse(null);
+        }
 
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
-                .addObject("currentUser", Optional.of(currentUser)) // TODO: ESTO CREO QUE PUEDE SACARSE
                 .addObject("isCreator", isCreator)
-                .addObject("isSold", isSold);
+                .addObject("isSold", isSold)
+                .addObject("isCanceled", isCanceled)
+                .addObject("userPendingOffer", userPendingOffer);
     }
 
     @GetMapping("/new/choose-product")
@@ -225,13 +246,29 @@ public class ListingController {
     }
 
     @GetMapping("/new/details")
-    public ModelAndView details(@RequestParam("productId") Long productId, @ModelAttribute("detailsForm") ListingDetailsForm form) {
+    public ModelAndView details(@RequestParam("productId") Long productId,
+                                @RequestParam(value = "editListingId", required = false) Long editListingId,
+                                @ModelAttribute("detailsForm") ListingDetailsForm form,
+                                @CurrentUser User currentUser) {
         var product = productService.getById(productId);
         var mav = new ModelAndView("listing/new/details");
 
         mav.addObject("product", product);
         mav.addObject("conditionOptions", buildConditionOptions());
         form.setProductId(product.getId());
+        form.setEditListingId(editListingId);
+
+        if (editListingId != null) {
+            var listing = listingService.getById(editListingId);
+            if (!listing.getCreator().getId().equals(currentUser.getId())) {
+                throw new ForbiddenException("Not authorized to edit this listing");
+            }
+            form.setTitle(listing.getTitle());
+            form.setPrice(listing.getPrice().getAmount());
+            form.setCondition(listing.getCondition().name());
+            form.setAcceptsTrade(listing.isAcceptsTrade());
+            form.setDescription(listing.getDescription());
+        }
         return mav;
     }
 
@@ -239,10 +276,10 @@ public class ListingController {
     public ModelAndView detailsPost(
             @Valid @ModelAttribute("detailsForm") ListingDetailsForm form,
             BindingResult bindingResult,
-            @ModelAttribute("currentUser") Optional<User> currentUser
+            @CurrentUser User currentUser
     ) {
         if (bindingResult.hasErrors()) {
-            return detailsWithErrors(currentUser);
+            return detailsWithErrors();
         }
 
         List<ImageData> imageDataList = new ArrayList<>();
@@ -257,16 +294,33 @@ public class ListingController {
                         ));
                     } catch (IOException e) {
                         bindingResult.rejectValue("images", "error.image.upload");
-                        return detailsWithErrors(currentUser);
+                        return detailsWithErrors();
                     }
                 }
             }
         }
 
+        if (form.getEditListingId() != null) {
+            var listing = listingService.getById(form.getEditListingId());
+            if (!listing.getCreator().getId().equals(currentUser.getId())) {
+                throw new ForbiddenException("Not authorized to edit this listing");
+            }
+            var updated = listingService.update(new ListingUpdateDto(
+                form.getEditListingId(),
+                form.getTitle(),
+                new Price(form.getPrice()),
+                form.getProductId(),
+                form.getCondition(),
+                form.isAcceptsTrade(),
+                form.getDescription()
+            ));
+            return new ModelAndView("redirect:/listing/" + updated.getId());
+        }
+
         var newListing = listingService.create(new ListingCreationDto(
                 form.getTitle(),
                 new Price(form.getPrice()),
-                currentUser.orElseThrow(UserNotAuthenticatedException::new).getId(),
+                currentUser.getId(),
                 form.getProductId(),
                 form.getCondition(),
                 form.isAcceptsTrade(),
@@ -276,11 +330,9 @@ public class ListingController {
         return new ModelAndView("redirect:/listing/" + newListing.getId());
     }
 
-    private ModelAndView detailsWithErrors(Optional<User> currentUser) {
-        var mav = new ModelAndView("listing/new/details");
-        mav.addObject("conditionOptions", buildConditionOptions());
-        mav.addObject("currentUser", currentUser);
-        return mav;
+    private ModelAndView detailsWithErrors() {
+        return new ModelAndView("listing/new/details")
+                .addObject("conditionOptions", buildConditionOptions());
     }
 
     private void populateModel(ModelAndView mav, ChooseProductForm form) {
@@ -316,6 +368,29 @@ public class ListingController {
             mav.addObject("models", models);
             mav.addObject("modelsEmpty", models.isEmpty());
         }
+    }
+
+    @GetMapping("/{id}/edit")
+    public ModelAndView editListing(@PathVariable Long id, @CurrentUser User currentUser) {
+        var listing = listingService.getById(id);
+        if (!listing.getCreator().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to edit this listing");
+        }
+        if (listing.getStatus() == ListingStatus.CANCELED) {
+            throw new ForbiddenException("Cannot edit a canceled listing");
+        }
+        return new ModelAndView("redirect:/listing/new/details?productId="
+            + listing.getProduct().getId() + "&editListingId=" + id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ModelAndView cancelListing(@PathVariable Long id, @CurrentUser User currentUser) {
+        var listing = listingService.getById(id);
+        if (!listing.getCreator().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to cancel this listing");
+        }
+        listingService.cancel(id);
+        return new ModelAndView("redirect:/account/listings");
     }
 
     private List<StringSelectOption> buildConditionOptions() {

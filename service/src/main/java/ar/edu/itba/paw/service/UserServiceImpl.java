@@ -4,6 +4,9 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
+
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -31,13 +34,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getByUsername(String username) {
         Objects.requireNonNull(username, "username cannot be null");
-        return userDao.getByUsername(username.toLowerCase());
+        return userDao.getByUsername(username.trim().toLowerCase());
     }
 
     @Override
     public Optional<User> getByEmail(String email) {
         Objects.requireNonNull(email, "email cannot be null");
-        return userDao.getByEmail(email.toLowerCase());
+        return userDao.getByEmail(email.trim().toLowerCase());
+    }
+
+    @Override
+    public Optional<User> getByUsernameOrEmail(String usernameOrEmail) {
+        Objects.requireNonNull(usernameOrEmail, "usernameOrEmail cannot be null");
+        return usernameOrEmail.contains("@")
+                ? getByEmail(usernameOrEmail)
+                : getByUsername(usernameOrEmail);
     }
 
     @Override
@@ -45,18 +56,17 @@ public class UserServiceImpl implements UserService {
     public User create(UserCreationDto dto) {
         Objects.requireNonNull(dto, "UserCreationDto cannot be null");
 
-        Image image = null;
-        if (dto.image() != null && dto.image().imageBytes() != null && dto.image().imageBytes().length > 0) {
-            String alt = dto.username() + "'s profile picture";
-            image = imageService.create(dto.image().imageFilename(), alt, dto.image().imageContentType(), dto.image().imageBytes());
+        if (dto.username().contains("@")) {
+            throw new IllegalArgumentException("UserCreationDto.username cannot contain @");
         }
 
         var user = userDao.create(
-            dto.username().toLowerCase(),
+            dto.username().trim().toLowerCase(),
             dto.displayName(),
-            dto.email().toLowerCase(),
+            dto.email().trim().toLowerCase(),
             passwordEncoder.encode(dto.password()),
-            image
+            extractImage(dto),
+            Instant.now()
         );
 
         mailingService.sendWelcomeEmail(user, LocaleContextHolder.getLocale());
@@ -64,21 +74,73 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    private Image extractImage(UserCreationDto dto) {
+        if (dto.image() != null && dto.image().imageBytes() != null && dto.image().imageBytes().length > 0) {
+            return imageService.create(
+                    dto.image().imageFilename(),
+                    dto.username() + "'s profile picture",
+                    dto.image().imageContentType(),
+                    dto.image().imageBytes()
+            );
+        }
+        return null;
+    }
+
     @Override
     @Transactional
-    public Image updateImage(User user, Image image) {
-        return userDao.updateImage(user, image);
+    public User update(UserEditDto dto) {
+        Objects.requireNonNull(dto, "UserEditDto cannot be null");
+        Objects.requireNonNull(dto.user(), "User cannot be null");
+
+        var user = dto.user();
+
+        String displayName = (dto.newDisplayName() != null && !dto.newDisplayName().isBlank())
+                ? dto.newDisplayName()
+                : null;
+        String encodedPassword = (dto.newPassword() != null && !dto.newPassword().isBlank())
+                ? passwordEncoder.encode(dto.newPassword())
+                : null;
+
+        Long imageId = null;
+        if (dto.newImageData() != null && dto.newImageData().imageBytes() != null && dto.newImageData().imageBytes().length > 0) {
+            String alt = user.getUsername() + "'s profile picture";
+            var image = imageService.create(
+                    dto.newImageData().imageFilename(),
+                    alt,
+                    dto.newImageData().imageContentType(),
+                    dto.newImageData().imageBytes()
+            );
+            imageId = image.getId();
+        }
+
+        userDao.update(user.getId(), displayName, null, encodedPassword, imageId);
+
+        // Delete the old image to prevent orphans, if a new one was set and the user previously had one
+        if (imageId != null && user.getImageId().isPresent()) {
+            imageService.delete(user.getImageId().get());
+        }
+
+        return userDao.getById(user.getId()).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Optional<User> updateEmail(Long userId, String email) {
+        Objects.requireNonNull(userId, "userId cannot be null");
+        Objects.requireNonNull(email, "email cannot be null");
+        userDao.update(userId, null, email.trim().toLowerCase(), null, null);
+        return userDao.getById(userId);
     }
 
     @Override
     public boolean isUsernameTaken(String username) {
         Objects.requireNonNull(username, "username cannot be null");
-        return userDao.isUsernameTaken(username.toLowerCase());
+        return userDao.isUsernameTaken(username.trim().toLowerCase());
     }
 
     @Override
     public boolean isEmailTaken(String email) {
         Objects.requireNonNull(email, "email cannot be null");
-        return userDao.isEmailTaken(email.toLowerCase());
+        return userDao.isEmailTaken(email.trim().toLowerCase());
     }
 }

@@ -5,14 +5,18 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
 import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.Page;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.ListingDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.ListingUpdateDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +37,7 @@ public class ListingServiceImpl implements ListingService {
     private final ProductService productService;
     private final ImageService imageService;
     private final MailingService mailingService;
+    private final OfferService offerService;
 
     @Override
     public Listing getById(Long id) {
@@ -42,21 +47,35 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public List<Listing> search(ListingFilterDto dto) {
+    public Page<Listing> search(ListingFilterDto dto) {
         Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
 
         final ListingFilter filter = ListingFilter.builder()
             .categoryId(dto.categoryId())
             .subcategoryId(dto.subcategoryId())
-            .minPrice(dto.minPrice())
-            .maxPrice(dto.maxPrice())
+            .minPrice(sanitizePrice(dto.minPrice()))
+            .maxPrice(sanitizePrice(dto.maxPrice()))
             .condition(parseCondition(dto.condition()))
             .acceptsTrade(Boolean.TRUE.equals(dto.acceptsTrade()) ? Boolean.TRUE : null)
             .query(dto.query())
             .sort(parseSort(dto.sort()))
+            .page(sanitizePage(dto.page()))
+            .pageSize(dto.pageSize())
+            .creatorId(dto.creatorId())
+            .status(parseStatus(dto.status()))
             .build();
 
         return listingDao.search(filter);
+    }
+
+    private static int sanitizePage(final Integer page) {
+        return page == null || page < 1 ? 1 : page;
+    }
+
+    private static ListingStatus parseStatus(final String value) {
+        return value == null || value.isBlank()
+            ? null
+            : ListingStatus.fromString(value).orElse(null);
     }
 
     private static Condition parseCondition(final String value) {
@@ -69,6 +88,10 @@ public class ListingServiceImpl implements ListingService {
         return value == null || value.isBlank()
             ? null
             : ListingSort.fromString(value).orElse(null);
+    }
+
+    private static BigDecimal sanitizePrice(final BigDecimal value) {
+        return value != null && value.signum() >= 0 ? value : null;
     }
 
     @Override
@@ -98,10 +121,11 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
-        final Condition condition = dto.condition() == null || dto.condition().isBlank()
-            ? Condition.GOOD
-            : Condition.fromString(dto.condition())
-                .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+        if (dto.condition() == null || dto.condition().isBlank()) {
+            throw BadParameterException.create("condition", "Condition is required");
+        }
+        final Condition condition = Condition.fromString(dto.condition())
+            .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
 
         var listing = listingDao.create(
             dto.title(),
@@ -137,5 +161,44 @@ public class ListingServiceImpl implements ListingService {
         mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
 
         return listing;
+    }
+
+    @Override
+    @Transactional
+    public Listing update(ListingUpdateDto dto) {
+        Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
+
+        var existing = getById(dto.listingId());
+
+        Product product;
+        try {
+            product = productService.getById(dto.productId());
+        } catch (NotFoundException e) {
+            throw BadParameterException.create("productId", e.getMessage());
+        }
+
+        if (dto.condition() == null || dto.condition().isBlank()) {
+            throw BadParameterException.create("condition", "Condition is required");
+        }
+        final Condition condition = Condition.fromString(dto.condition())
+            .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
+
+        return listingDao.update(
+            existing.getId(),
+            dto.title(),
+            dto.price(),
+            product,
+            condition,
+            dto.acceptsTrade(),
+            dto.description()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void cancel(Long id) {
+        getById(id);
+        offerService.rejectPendingOffers(id, null);
+        listingDao.cancel(id);
     }
 }

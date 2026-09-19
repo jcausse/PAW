@@ -5,13 +5,18 @@
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="offer.decision.title">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</paw:head>
+<paw:head titleKey="offer.decision.title" />
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar />
 
     <div class="max-w-2xl mx-auto p-8 pb-24">
+        <!-- Back link -->
+        <div class="mb-4">
+            <c:url value="/account/incoming-offers" var="incomingOffersUrl"/>
+            <spring:message code="offer.decision.backToOffers" var="backLabel"/>
+            <paw:linkButton href="${incomingOffersUrl}" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
+        </div>
+
         <paw:card classname="w-full">
             <div class="flex flex-col gap-4">
                 <div class="text-center">
@@ -24,7 +29,15 @@
                     <p class="text-black/60 mt-2 text-balance"><c:out value="${description}"/></p>
                 </div>
 
-                <hr class="border-t-0 border-b border-black/10">
+                <c:if test="${offer.hasOtherOffers and offer.status.name() == 'PENDING'}">
+                    <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-2 flex flex-row gap-2 text-amber-800 items-center">
+                        <paw:icon name="triangle-alert" />
+                        <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
+                        <p class="text-sm"><c:out value="${warningMsg}"/></p>
+                    </div>
+                </c:if>
+
+                <paw:divider />
 
                 <!-- Listing info section -->
                 <div class="flex flex-row gap-4">
@@ -63,25 +76,7 @@
                     <spring:message code="offer.decision.buyer" var="buyerLabel"/>
                     <div class="flex flex-col">
                         <span class="text-sm text-black/60"><c:out value="${buyerLabel}"/></span>
-                        <c:url value="/profile/${offer.buyer.id}" var="buyerProfileUrl"/>
-                        <paw:linkButton href="${buyerProfileUrl}" variant="ghost" classname="w-full justify-start px-0 gap-3">
-                            <div class="flex flex-row gap-2 items-center text-sm">
-                                <div class="rounded-full border border-black/10 w-10 h-10 grid place-items-center overflow-hidden flex-shrink-0">
-                                    <c:choose>
-                                        <c:when test="${offer.buyer.imageId.present}">
-                                            <img src="<c:url value='/image/${offer.buyer.imageId.get()}'/>" alt="<c:out value='${offer.buyer.displayName}'/> Profile Picture" class="w-full h-full object-cover"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img src="<c:url value='/static-image/defaultProfilePicture.svg'/>" alt="Default Profile Picture" class="w-full h-full object-cover"/>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <p>
-                                    <span class="text-black font-normal"><c:out value="${offer.buyer.displayName}"/></span>
-                                    <span class="text-black/60 font-normal">(<c:out value="${offer.buyer.username}"/>)</span>
-                                 </p>
-                            </div>
-                        </paw:linkButton>
+                        <paw:user user="${offer.buyer}" />
                     </div>
                 </div>
 
@@ -105,7 +100,7 @@
                 </div>
 
                 <c:if test="${not empty offer.message}">
-                    <hr class="border-t-0 border-b border-black/10">
+                    <paw:divider />
                     <spring:message code="offer.decision.message" var="messageLabel"/>
                     <div class="flex flex-col">
                         <span class="text-sm text-black/60"><c:out value="${messageLabel}"/></span>
@@ -113,19 +108,31 @@
                     </div>
                 </c:if>
 
-                <hr class="border-t-0 border-b border-black/10">
+                <paw:divider />
 
-                <div class="flex flex-row gap-4">
-                    <spring:message code="offer.decision.accept" var="acceptLabel"/>
-                    <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST" class="flex-1">
-                        <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${acceptLabel}"/>
-                    </form>
+                <c:choose>
+                    <c:when test="${offer.status.name() == 'ACCEPTED'}">
+                        <spring:message code="offer.decision.accepted" var="acceptedMsg"/>
+                        <p class="text-center text-lg font-medium text-lime-700"><c:out value="${acceptedMsg}"/></p>
+                    </c:when>
+                    <c:when test="${offer.status.name() == 'REJECTED'}">
+                        <spring:message code="offer.decision.rejected" var="rejectedMsg"/>
+                        <p class="text-center text-lg font-medium text-red-700"><c:out value="${rejectedMsg}"/></p>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="flex flex-row gap-4">
+                            <spring:message code="offer.decision.accept" var="acceptLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST" class="flex-1">
+                                <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${acceptLabel}"/>
+                            </form>
 
-                    <spring:message code="offer.decision.reject" var="rejectLabel"/>
-                    <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST" class="flex-1">
-                        <paw:button type="submit" variant="default" role="danger" size="lg" classname="w-full" text="${rejectLabel}"/>
-                    </form>
-                </div>
+                            <spring:message code="offer.decision.reject" var="rejectLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST" class="flex-1">
+                                <paw:button type="submit" variant="default" role="danger" size="lg" classname="w-full" text="${rejectLabel}"/>
+                            </form>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </paw:card>
     </div>

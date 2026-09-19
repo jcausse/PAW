@@ -33,8 +33,7 @@
                     <c:out value="${chooseProductDesc}"/>
                 </div>
 
-                <%-- TODO move this to a custom tag --%>
-                <hr class="border-t-0 border-b border-black/10">
+                <paw:divider />
 
                 <c:url value="/listing/new/choose-product" var="chooseProductUrl"/>
                 <form:form id="chooseProductForm" modelAttribute="chooseProductForm" action="${chooseProductUrl}" method="post" class="flex flex-col gap-6 mt-4">

@@ -4,6 +4,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+
+
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="discovery.title"/>
@@ -46,8 +48,8 @@
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" stringOptions="true" />
 
                         <div class="flex flex-row gap-2">
-                            <paw:formInput path="minPrice" type="number" step="0.01" label="${minPriceLabel}" classname="min-w-0" />
-                            <paw:formInput path="maxPrice" type="number" step="0.01" label="${maxPriceLabel}" classname="min-w-0" />
+                            <paw:formInput path="minPrice" type="number" step="0.01" min="0" label="${minPriceLabel}" classname="min-w-0" />
+                            <paw:formInput path="maxPrice" type="number" step="0.01" min="0" label="${maxPriceLabel}" classname="min-w-0" />
                         </div>
 
                         <div class="flex flex-col gap-1">
@@ -98,8 +100,10 @@
                             <a href="${listingUrl}" class="block hover:-translate-y-0.5 transition">
                                 <paw:card title="${listing.title}" subtitle="${subLabel}"
                                           showImage="true" imageUrl="${coverUrl}"
-                                          imageAlt="${listing.title}" noImageLabel="${noImageLabel}">
-                                    <div class="flex items-center gap-2 flex-wrap">
+                                          imageAlt="${listing.title}" noImageLabel="${noImageLabel}"
+                                          classname="h-full relative">
+                                    <paw:listingHotBadge listing="${listing}" />
+                                    <div class="flex items-center gap-2 flex-wrap mt-auto">
                                         <p class="text-xl font-bold">$<c:out value="${listing.price.amount}"/></p>
                                         <c:if test="${listing.acceptsTrade}">
                                             <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
@@ -113,6 +117,8 @@
                     </div>
                 </c:otherwise>
             </c:choose>
+
+            <paw:pagination page="${listingPage}" baseUrl="/listing"/>
         </section>
     </div>
 </main>

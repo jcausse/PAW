@@ -100,6 +100,16 @@
       <groupId>org.thymeleaf</groupId>
       <artifactId>thymeleaf-spring5</artifactId>
     </dependency>
+
+    <!-- Flyway -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -176,6 +186,29 @@
           <outputFile>
             ${project.basedir}/src/main/webapp/css/tailwind.css
           </outputFile>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>5.0.0</version>
+        <executions>
+          <execution>
+            <id>get-the-git-info</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+          <includeOnlyProperties>
+            <includeOnlyProperty>^git.commit.id.*$</includeOnlyProperty>
+            <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
+            <includeOnlyProperty>^git.branch$</includeOnlyProperty>
+          </includeOnlyProperties>
         </configuration>
       </plugin>
     </plugins>

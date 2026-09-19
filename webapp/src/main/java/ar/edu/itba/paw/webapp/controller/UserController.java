@@ -1,14 +1,24 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.ListingSort;
+import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
+import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,19 +28,98 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Controller
 public class UserController {
 
     private final UserService userService;
+    private final ListingService listingService;
     private final AuthenticationManager authenticationManager;
+
+    private static final int PROFILE_LISTINGS_PAGE_SIZE = 5;
 
     /* PROFILE */
 
     @GetMapping("/profile/{id}")
-    public ModelAndView profile(@PathVariable Long id) {
+    public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
+        final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
+        final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
+
+        final var filter = new ListingFilterDto(
+                null, null, null, null, null, null,
+                null,
+                ListingSort.RECENT.getKey(),
+                user.getId(),
+                ListingStatus.ACTIVE.name(),
+                1,
+                PROFILE_LISTINGS_PAGE_SIZE
+        );
+
+        final var listingPage = listingService.search(filter);
+        final var listings = listingPage.getContent();
+
         return new ModelAndView("profile")
-                .addObject("user", userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id)));
+                .addObject("user", user)
+                .addObject("allowEdit", isSelfRequest)
+                .addObject("listings", listings)
+                .addObject("listingPage", listingPage);
+    }
+
+    @GetMapping("/profile")
+    public ModelAndView currentUserProfile(@CurrentUser User currentUser) {
+        return new ModelAndView("profile")
+                .addObject("user", currentUser)
+                .addObject("allowEdit", true);
+    }
+
+    /* PROFILE EDIT */
+
+    @GetMapping("/profile/edit")
+    public ModelAndView editProfileForm(@CurrentUser User currentUser, @ModelAttribute("userEditForm") UserEditForm form) {
+        form.setDisplayName(currentUser.getDisplayName());
+        return new ModelAndView("profileEdit")
+                .addObject("user", currentUser);
+    }
+
+    @PostMapping("/profile/edit")
+    public ModelAndView editProfile(
+            @CurrentUser User currentUser,
+            @Valid @ModelAttribute("userEditForm") UserEditForm form,
+            BindingResult errors
+    ) {
+        if (errors.hasErrors()) {
+            return new ModelAndView("profileEdit")
+                    .addObject("user", currentUser);
+        }
+
+        // Extract image from form
+        ImageData imageData = null;
+        if (form.getProfilePicture() != null && !form.getProfilePicture().isEmpty()) {
+            try {
+                imageData = new ImageData(
+                    form.getProfilePicture().getBytes(),
+                    form.getProfilePicture().getOriginalFilename(),
+                    form.getProfilePicture().getContentType()
+                );
+            } catch (java.io.IOException e) {
+                errors.rejectValue("profilePicture", "error.image.upload");
+                return new ModelAndView("profileEdit")
+                        .addObject("user", currentUser);
+            }
+        }
+
+        User updatedUser = userService.update(new UserEditDto(
+            currentUser,
+            form.getDisplayName(),
+            form.getPassword(),
+            imageData
+        ));
+
+        updateAuthUserDetails(updatedUser);
+
+        return new ModelAndView("redirect:/profile");
     }
 
     /* REGISTER */
@@ -85,5 +174,17 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         ));
+    }
+
+    private void updateAuthUserDetails(final User updatedUser) {
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth != null && currentAuth.getPrincipal() instanceof AuthUserDetails oldDetails) {
+            AuthUserDetails newDetails = new AuthUserDetails(updatedUser, oldDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                    newDetails,
+                    currentAuth.getCredentials(),
+                    newDetails.getAuthorities()
+            ));
+        }
     }
 }

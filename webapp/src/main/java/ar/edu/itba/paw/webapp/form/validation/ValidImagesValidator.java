@@ -6,6 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
+// Validates a list of uploaded images (e.g. the photos of a listing).
 public class ValidImagesValidator implements ConstraintValidator<ValidImages, List<MultipartFile>> {
 
     private long maxSizeBytes;
@@ -20,22 +21,11 @@ public class ValidImagesValidator implements ConstraintValidator<ValidImages, Li
         if (files == null || files.isEmpty()) {
             return true;
         }
-
         for (MultipartFile file : files) {
-            if (file == null || file.isEmpty()) {
-                continue;
-            }
-
-            if (file.getSize() > maxSizeBytes) {
-                return false;
-            }
-
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
+            if (!ImageFileValidation.isValidImage(file, maxSizeBytes)) {
                 return false;
             }
         }
-
         return true;
     }
 }

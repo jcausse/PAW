@@ -1,15 +1,20 @@
 package ar.edu.itba.paw.webapp.form.validation;
 
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
-import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.Year;
 
+@RequiredArgsConstructor
 public class ChooseProductValidator implements ConstraintValidator<ValidChooseProduct, ChooseProductForm> {
 
     private static final String OTHER_VALUE = "__OTHER__";
+
+    private final MessageSource messageSource;
 
     @Override
     public boolean isValid(ChooseProductForm form, ConstraintValidatorContext context) {
@@ -99,18 +104,14 @@ public class ChooseProductValidator implements ConstraintValidator<ValidChoosePr
                         .addConstraintViolation();
                 valid = false;
             } else if (year < 1900 || year > currentYear) {
-                try {
-                    HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
-                    hibernateContext.addMessageParameter("0", 1900)
-                            .addMessageParameter("1", currentYear)
-                            .buildConstraintViolationWithTemplate("{Range.chooseProductForm.newProductYear}")
-                            .addPropertyNode("newProductYear")
-                            .addConstraintViolation();
-                } catch (Exception e) {
-                    context.buildConstraintViolationWithTemplate("{Range.chooseProductForm.newProductYear}")
-                            .addPropertyNode("newProductYear")
-                            .addConstraintViolation();
-                }
+                final String message = messageSource.getMessage(
+                    "Range.chooseProductForm.newProductYear",
+                    new Object[]{String.valueOf(1900), String.valueOf(currentYear)},
+                    LocaleContextHolder.getLocale()
+                );
+                context.buildConstraintViolationWithTemplate(message)
+                        .addPropertyNode("newProductYear")
+                        .addConstraintViolation();
                 valid = false;
             }
         }

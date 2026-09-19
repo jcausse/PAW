@@ -70,16 +70,35 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
             /* Access Control */
             .and().authorizeRequests()
-                .antMatchers("/login", "/register").anonymous()
-                .antMatchers("/logout").authenticated()
+
+                /* Administrator Back-office */
                 .antMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
-                .antMatchers("/listing/**").permitAll()
-                .anyRequest().authenticated()
+
+                /* Login, Register, Logout and Password Recovery */
+                .antMatchers("/login").anonymous()                  // User login page
+                .antMatchers("/register").anonymous()               // User registration page
+                .antMatchers("/logout").authenticated()             // User logout endpoint (Spring-managed)
+                .antMatchers("/recovery/**").permitAll()            // Password recovery page
+
+                /* Profiles and User Accounts */
+                .antMatchers("/profile").authenticated()            // Current user's profile
+                .antMatchers("/profile/edit").authenticated()       // Profile editing
+                .antMatchers("/profile/**").permitAll()             // Profiles of users other than the current user
+                .antMatchers("/account/**").authenticated()         // Current user account details and settings
+
+                /* Listings */
+                .antMatchers("/listing/**").permitAll()             // Listings
+
+                /* Miscellaneous */
+                .antMatchers("/appinfo").permitAll()                // Deploy info
+
+                /* Default */
+                .anyRequest().authenticated()                         // Non-listed endpoints require authentication
 
             /* Login */
             .and().formLogin()
                 .loginPage("/login")
-                .usernameParameter("username")
+                .usernameParameter("usernameOrEmail")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/", false)
 

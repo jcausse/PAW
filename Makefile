@@ -1,7 +1,9 @@
 MAVEN  := mvn
 PYTHON := python3
 
-.PHONY: dev clean pack compile deploy db-start db-stop
+.PHONY: dev clean pack compile deploy db-start db-stop troubleshoot
+
+# LOCAL DEVELOPMENT TARGETS
 
 dev: clean db-start
 	$(MAVEN) install -DskipTests -Pdev
@@ -13,14 +15,19 @@ db-start:
 db-stop:
 	@./.script/db-stop.sh
 
-pack:
-	$(MAVEN) package -DskipTests
-
 compile:
 	$(MAVEN) compile
 
 clean:
 	$(MAVEN) clean
 
-deploy:
+troubleshoot:
+	@$(PYTHON) ./.script/troubleshooter/main.py $(ARGS)
+
+# PRODUCTION TARGETS
+
+prod-deploy:
 	$(PYTHON) ./.script/deploy.py
+
+prod-db-backup:
+	$(PYTHON) ./.script/deploy.py --db-backup-only

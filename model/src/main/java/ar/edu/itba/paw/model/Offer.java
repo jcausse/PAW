@@ -3,6 +3,7 @@ package ar.edu.itba.paw.model;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode
@@ -17,4 +18,7 @@ public final class Offer {
     private final @NonNull Boolean isFullPrice;
     private final @NonNull OfferStatus status;
     private final String message;
+    private final boolean hasOtherOffers;
+    private final boolean hasBetterOffers;
+    private final @NonNull Instant createdAt;
 }

@@ -17,23 +17,28 @@
                 </div>
             </c:if>
 
-            <spring:message code="field.username" var="usernameLabel"/>
-            <paw:input id="username" name="username" label="${usernameLabel}" variant="outline"/>
+            <spring:message code="field.usernameOrEmail" var="usernameOrEmailLabel"/>
+            <paw:input id="usernameOrEmail" name="usernameOrEmail" label="${usernameOrEmailLabel}" variant="outline"/>
 
             <spring:message code="field.password" var="passwordLabel"/>
             <paw:input id="password" name="password" type="password" label="${passwordLabel}" variant="outline"/>
 
-            <div class="flex items-center gap-2">
-                <input
-                    type="checkbox"
-                    id="rememberMe"
-                    name="rememberMe"
-                    checked
-                    class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"
-                >
-                <label for="rememberMe" class="text-sm font-medium select-none">
-                    <spring:message code="field.rememberMe"/>
-                </label>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        id="rememberMe"
+                        name="rememberMe"
+                        checked
+                        class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"
+                    >
+                    <label for="rememberMe" class="text-sm font-medium select-none">
+                        <spring:message code="field.rememberMe"/>
+                    </label>
+                </div>
+                <a href="<c:url value="/recovery/request"/>" class="text-xs text-neutral-600 hover:text-neutral-900 underline select-none">
+                    <spring:message code="login.forgotPassword"/>
+                </a>
             </div>
 
             <spring:message code="login.submit" var="submitLabel"/>

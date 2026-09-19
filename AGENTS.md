@@ -27,11 +27,12 @@ The project is called **Swappr** (it is the official name). That name should be 
 
 - Every JSP **must** declare `<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>`.
 - **Always** use `<c:out value="${...}"/>` for any model attribute rendered in HTML (XSS protection).
-- **Always** use `<c:url value="..."/>` for all URLs (context path resolution).
+- **Always** use `<c:url value="..."/>` for all URLs (context path resolution). **Always verify URLs with `make troubleshoot`** whenever creating or editing JSPs or tags to ensure no unmanaged or hardcoded routes exist.
 - **Never hardcode user-facing strings in JSPs** — all UI text must use `<spring:message>`.
 - **Always** use `<html lang="${pageContext.response.locale.language}">` — never hardcode `<html lang="en">` or use a bare `<html>` tag, so the HTML document language matches the user's selected locale.
 - Inside `<form:form>`, use the `paw:formInput` tag (not `paw:input`) to get automatic Spring binding and error display.
 - Use `paw:input` only for standalone inputs outside of Spring forms (e.g., search bars, filters).
+- **Icons**: The project uses [Lucide Icons](https://lucide.dev/icons/). Render icons using `<paw:icon name="..."/>` (e.g. `<paw:icon name="eye"/>`). Look up icon names on [lucide.dev/icons](https://lucide.dev/icons/) and pass the name to the `name` attribute of `<paw:icon>` (or the `icon` attribute on tags like `<paw:button>` and `<paw:linkButton>`).
 
 ## Internationalization (i18n) Conventions
 
@@ -82,6 +83,7 @@ The project is called **Swappr** (it is the official name). That name should be 
 - All service methods of all services must be either marked as `@Transactional` if they perform read/write operations, or `@Transactional(readOnly = true)` if they perform read only operations.
   - A class shall be marked `@Transactional(readOnly = true)` instead of marking every method. This shall only be done with `readOnly = true`.
   - Write permissions are only given to those methods that explicitly need those permissions. Never give extra permissions in advance. Always give read permissions by default and then elevate those to write permissions if needed.
+- To obtain the logged-in user in a controller handler method, use `@CurrentUser User currentUser` (see **Current User Resolution**). Never receive `Optional<User>` or use `@ModelAttribute("currentUser")` as a controller method parameter.
 
 ## Spring Security
 
@@ -90,6 +92,14 @@ The project is called **Swappr** (it is the official name). That name should be 
 - Authentication is made using `username` and `password` and is handled by service `ar.edu.itba.paw.webapp.auth.AuthUserDetailsService`.
 - User details for Spring Security uses class `ar.edu.itba.paw.webapp.auth.AuthUserDetails`, which contains a domain user (`ar.edu.itba.paw.model.User`).
 - Passwords must be BCrypt-encoded.
+
+### Current User Resolution (`@CurrentUser`)
+
+- **In Controllers**: **Never** use `@ModelAttribute("currentUser") Optional<User>` as a controller method parameter (receiving `Optional` as a parameter is a code smell). Instead, inject the authenticated `User` via the `@CurrentUser` annotation (`ar.edu.itba.paw.webapp.auth.CurrentUser`):
+  - **Protected routes** (default): `@CurrentUser User currentUser` — resolved by `CurrentUserArgumentResolver`. If unauthenticated, it automatically throws `UserNotAuthenticatedException` (caught by `GlobalExceptionHandler` to return 401 Unauthorized). Controllers do not need manual `.orElseThrow(...)` boilerplate.
+  - **Public / Optional routes**: `@CurrentUser(required = false) User currentUser` — resolves to `null` if unauthenticated, allowing public endpoints (e.g., `/listing/{id}`, `/profile/{id}`) to safely inspect the current user without throwing.
+- **In JSPs & Views**: `CurrentUserControllerAdvice` exposes `${currentUser}` (as `Optional<User>`) globally to all views and custom tags (such as `navbar.tag`). **Never** re-add `"currentUser"` to `ModelAndView` in controllers — the controller advice already supplies it to the view.
+- **Why `@ModelAttribute` in `@ControllerAdvice` cannot enforce authentication**: `@ModelAttribute` methods in a `@ControllerAdvice` run globally for **every request** across the entire application before any controller handler method is selected. A `@ModelAttribute` method that throws an exception when unauthenticated would break all public routes (including `/login`, `/register`, etc.). Argument resolvers, by contrast, are lazy and run on-demand only for the specific parameters declared by a handler.
 
 ## Other Conventions
 
@@ -119,6 +129,17 @@ The project is called **Swappr** (it is the official name). That name should be 
 - `USER` is a reserved keyword in PostgreSQL — always use `users`.
 - Existence checks use `SELECT EXISTS(SELECT 1 FROM ...)` returning `Boolean.class`.
 - Table creations always use `CREATE TABLE IF NOT EXISTS`.
+
+### Database Migrations (Flyway)
+
+- The project uses **Flyway** for database migrations.
+- Migration scripts must be placed in the `persistence/src/main/resources/db/migration/` directory.
+- Migration files **must** follow the strict naming convention: `VX__description.sql`
+  - `X` represents the incremental version number (e.g., 1, 2, 3). When creating a new migration, always check `persistence/src/main/resources/db/migration/` and increment the number of the highest numbered migration by 1 to name the migration being added.
+  - A double underscore (`__`) separating the version number from the description is **mandatory**.
+  - Provide a descriptive name for the migration (e.g., `Original_schema`, `Add_users_table`). The first letter of the description must be uppercase and separate multi-word names using snake case (e.g. `Add_listing_creation_timestamp`).
+  - All migration files must end with the `.sql` extension.
+  - Example: `V1__Original_schema.sql`.
 
 ## Local Database Access
 
@@ -157,8 +178,9 @@ JOIN categories c ON s.category_id = c.category_id;
 ## Build & Scripts
 
 - Build with `mvn clean compile` to verify changes across all modules.
+- **Troubleshoot URLs**: `make troubleshoot` (runs `.script/troubleshooter/` to check that all JSP and custom tag URLs are wrapped in `<c:url>`; see `troubleshoot-urls` skill).
 - Dev server: `make dev` (starts DB container + Jetty). Wait ~15-20s for "Started Jetty Server".
-- **Alternative background server** (for testing/screenshots):
+- **Alternative background server** (for testing):
   ```bash
   ./.script/db-start.sh
   mvn -pl webapp jetty:run -Pdev > /tmp/jetty.log 2>&1 &
@@ -174,7 +196,7 @@ JOIN categories c ON s.category_id = c.category_id;
 
 ## Attachment Output Format
 
-When asked to share an image (e.g., a screenshot you just captured), the **last part of your response must be only JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments.
+When asked to share an image (e.g., a screenshot you just captured), **your response must include JSON inside a json-tagged code block** containing an `attachments` array. This allows the Discord bot to parse and include the files as attachments. Include this code block within your usual response; avoid messages containing only screenshots unless specifically requested.
 
 ```json
 {
@@ -190,43 +212,18 @@ When asked to share an image (e.g., a screenshot you just captured), the **last 
 }
 ```
 
-- Include only this JSON block at the very end of your response
-- No additional text before or after the JSON block
 - The `path` must be absolute and accessible on the server filesystem
 
 ## Skills
 
-### test-route Skill
+List directory `.agents/skills` to find AI agent skills. The format is standard: `.agents/skills/<Skill Name>/SKILL.md`. Each skill has a standard YAML descriptor embedded:
 
-Located at `.agents/skills/test-route/SKILL.md`. Use this skill to:
+```markdown
+---
+name: Skill name
+description: >-
+  Skill description
+---
+```
 
-- Debug a page that's erroring out (find the cause of the error and potentially fix it)
-- Verify non-trivial changes to JSP files or controllers don't produce errors
-
-**Workflow:**
-1. Run `make dev` and wait for "Started Jetty Server"
-2. Seed DB if needed: `docker exec paw-db psql ...`
-3. `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
-4. If error: inspect response + server logs
-5. Fix code → rebuild (JSPs hot-reload; Java changes need restart)
-6. Re-test
-
-**Important:** When asked to debug an issue, **always explain the issue and the fix you found, then ask for confirmation before applying it** unless explicitly told to apply a fix without asking.
-
-### screenshot-page Skill
-
-Located at `.agents/skills/screenshot-page/SKILL.md`. Use this skill to:
-
-- Take screenshots of web pages to check how they look
-- Capture and share visual results after UI changes (each screenshot should have a unique filename)
-
-**Workflow:**
-1. Run `make dev` and wait for Jetty to start (can reuse server from `test-route` skill)
-2. Verify route works: `curl -s --max-time 10 "http://localhost:8080/<route>" | head -50`
-3. Take screenshot: `chromium --headless --window-size=1920,1080 --screenshot="/home/nemo/screenshots/<filename>.png" "http://localhost:8080/<route>"`
-4. Send attachment by including the JSON block **inside a json-tagged code block** at the end of your response (see **Attachment Output Format**)
-
-**Integration with test-route:**
-- Use `test-route` to debug errors and verify routes work correctly
-- Once a route renders properly, use `screenshot-page` to capture and share the visual result
-- Run the dev server once, then both test the route AND take screenshots in the same session
+Make sure to read the descriptors to know when to load and use each skill.

@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
 
 import java.util.Optional;
 
@@ -11,9 +11,13 @@ public interface UserService {
     Optional<User> getByUsername(String username);
     Optional<User> getByEmail(String email);
 
-    User create(UserCreationDto dto);
+    /* Get a user by either their username (does not contain '@') or email (contains '@') */
+    Optional<User> getByUsernameOrEmail(String usernameOrEmail);
 
-    Image updateImage(User user, Image image);
+    User create(UserCreationDto dto);
+    User update(UserEditDto dto);
+
+    Optional<User> updateEmail(Long userId, String email);
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
