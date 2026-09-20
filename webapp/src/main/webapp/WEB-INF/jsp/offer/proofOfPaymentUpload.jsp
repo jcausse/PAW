@@ -35,7 +35,7 @@
                         <spring:message code="offer.proofOfPayment.fileLabel" var="fileLabelMsg"/>
                         <c:out value="${fileLabelMsg}"/>
                     </label>
-                    <paw:input type="file" name="file" accept="image/*" required="true" />
+                    <paw:fileUpload path="file" required="true" accept="image/*,application/pdf" />
                     <p class="text-xs text-black/50 mt-1">
                         <spring:message code="offer.proofOfPayment.fileHint" var="fileHintMsg"/>
                         <c:out value="${fileHintMsg}"/>
