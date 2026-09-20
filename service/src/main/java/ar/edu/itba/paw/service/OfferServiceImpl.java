@@ -205,6 +205,14 @@ public class OfferServiceImpl implements OfferService {
             throw new BadParameterException("Offer is not pending payment");
         }
 
+        if (data == null || data.length == 0) {
+            throw new BadParameterException("File is empty");
+        }
+
+        if (contentType == null || (!contentType.startsWith("image/") && !"application/pdf".equals(contentType))) {
+            throw new BadParameterException("Only image and PDF files are allowed");
+        }
+
         final File file = fileDao.create(filename, alt, contentType, data);
         offerDao.updateProofOfPaymentId(offerId, file.getId());
 

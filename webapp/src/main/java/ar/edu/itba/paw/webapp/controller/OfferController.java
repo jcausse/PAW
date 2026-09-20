@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
+import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.ForbiddenException;
@@ -128,12 +129,7 @@ public class OfferController {
         }
 
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("File is empty");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Only image files are allowed");
+            throw new BadParameterException("File is empty");
         }
 
         try {
@@ -142,7 +138,7 @@ public class OfferController {
                 currentUser.getId(),
                 file.getOriginalFilename(),
                 "Proof of payment for offer " + offerId,
-                contentType,
+                file.getContentType(),
                 file.getBytes()
             );
         } catch (IOException e) {
