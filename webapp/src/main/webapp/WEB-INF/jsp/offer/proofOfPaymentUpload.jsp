@@ -3,7 +3,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
-<%@ taglib prefix="account" tagdir="/WEB-INF/tags/account" />
+<%@ taglib prefix="account" tagdir="/WEB-INF/tags/account" %>
 
 
 <c:url value="/offer/${offer.id}/proof-of-payment" var="uploadAction"/>
@@ -36,7 +36,7 @@
                         <spring:message code="offer.proofOfPayment.fileLabel" var="fileLabelMsg"/>
                         <c:out value="${fileLabelMsg}"/>
                     </label>
-                    <paw:fileUpload path="file" required="true" accept="image/*,application/pdf" />
+                    <paw:fileUpload path="file" accept="image/*,application/pdf" />
                     <p class="text-xs text-black/50 mt-1">
                         <spring:message code="offer.proofOfPayment.fileHint" var="fileHintMsg"/>
                         <c:out value="${fileHintMsg}"/>

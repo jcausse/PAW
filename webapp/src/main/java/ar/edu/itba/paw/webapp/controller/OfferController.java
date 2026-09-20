@@ -5,7 +5,6 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
-import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.ForbiddenException;
@@ -41,7 +40,6 @@ public class OfferController {
 
         var mav = new ModelAndView("offer/decision");
         mav.addObject("offer", offer);
-        mav.addObject("currentUser", currentUser);
         return mav;
     }
 
@@ -111,7 +109,6 @@ public class OfferController {
 
         var mav = new ModelAndView("offer/proofOfPaymentUpload");
         mav.addObject("offer", offer);
-        mav.addObject("currentUser", currentUser);
         mav.addObject("proofOfPaymentUploadForm", new ProofOfPaymentUploadForm());
         return mav;
     }
