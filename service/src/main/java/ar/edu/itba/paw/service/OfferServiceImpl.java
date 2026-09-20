@@ -6,10 +6,10 @@ import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.Page;
-import ar.edu.itba.paw.model.ProofOfPayment;
+import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OfferDao;
-import ar.edu.itba.paw.persistence.ProofOfPaymentDao;
+import ar.edu.itba.paw.persistence.FileDao;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
@@ -32,16 +32,16 @@ import org.springframework.context.annotation.Lazy;
 public class OfferServiceImpl implements OfferService {
 
     private final OfferDao offerDao;
-    private final ProofOfPaymentDao proofOfPaymentDao;
+    private final FileDao fileDao;
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
 
     @Autowired
-    public OfferServiceImpl(OfferDao offerDao, ProofOfPaymentDao proofOfPaymentDao, UserService userService,
+    public OfferServiceImpl(OfferDao offerDao, FileDao fileDao, UserService userService,
                              @Lazy ListingService listingService, MailingService mailingService) {
         this.offerDao = offerDao;
-        this.proofOfPaymentDao = proofOfPaymentDao;
+        this.fileDao = fileDao;
         this.userService = userService;
         this.listingService = listingService;
         this.mailingService = mailingService;
@@ -205,8 +205,8 @@ public class OfferServiceImpl implements OfferService {
             throw new BadParameterException("Offer is not pending payment");
         }
 
-        final ProofOfPayment proof = proofOfPaymentDao.create(filename, alt, contentType, data);
-        offerDao.updateProofOfPaymentId(offerId, proof.getId());
+        final File file = fileDao.create(filename, alt, contentType, data);
+        offerDao.updateFileId(offerId, file.getId());
 
         // Notify seller that proof of payment was uploaded
         mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());

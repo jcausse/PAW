@@ -9,13 +9,13 @@ import java.util.Optional;
 @Getter
 @Builder
 @ToString
-public final class ProofOfPayment {
+public final class File {
 
     private final @NonNull Long id;
     private final @NonNull String filename;
     private final @NonNull String alt;
 
-    // Nullable if not provided when creating proof of payment
+    // Nullable if not provided when creating file
     private final String contentType;
 
     private final byte[] data;
