@@ -30,5 +30,5 @@ public interface OfferDao {
 
     int countPendingBySeller(User seller);
 
-    boolean updateFileId(Long offerId, Long fileId);
+    boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId);
 }

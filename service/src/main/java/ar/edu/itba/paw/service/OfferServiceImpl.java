@@ -206,7 +206,7 @@ public class OfferServiceImpl implements OfferService {
         }
 
         final File file = fileDao.create(filename, alt, contentType, data);
-        offerDao.updateFileId(offerId, file.getId());
+        offerDao.updateProofOfPaymentId(offerId, file.getId());
 
         // Notify seller that proof of payment was uploaded
         mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());

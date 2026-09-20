@@ -206,8 +206,8 @@ public class OfferJdbcDao implements OfferDao {
             .hasOtherOffers(rs.getBoolean("has_other_offers"))
             .hasBetterOffers(rs.getBoolean("has_better_offers"))
             .createdAt(rs.getTimestamp(OfferSchema.CREATED_AT).toInstant())
-            .fileId(
-                    Optional.ofNullable(rs.getObject(OfferSchema.FILE_ID, Integer.class))
+            .proofOfPaymentId(
+                    Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_PAYMENT_ID, Integer.class))
                             .map(Integer::longValue)
                             .orElse(null))
             .build();
@@ -238,7 +238,7 @@ public class OfferJdbcDao implements OfferDao {
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
             ", o." + OfferSchema.MESSAGE + ", o." + OfferSchema.CREATED_AT +
-            ", o." + OfferSchema.FILE_ID +
+            ", o." + OfferSchema.PROOF_OF_PAYMENT_ID +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
@@ -279,9 +279,9 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
-        private static final String UPDATE_FILE_ID =
+        private static final String UPDATE_PROOF_OF_PAYMENT_ID =
             "UPDATE " + OfferSchema.TABLE_NAME +
-            " SET " + OfferSchema.FILE_ID + " = ?" +
+            " SET " + OfferSchema.PROOF_OF_PAYMENT_ID + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
         private static final String WITHDRAW =
@@ -347,7 +347,7 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public boolean updateFileId(Long offerId, Long fileId) {
-        return jdbcTemplate.update(Queries.UPDATE_FILE_ID, fileId, offerId) > 0;
+    public boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId) {
+        return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_PAYMENT_ID, proofOfPaymentId, offerId) > 0;
     }
 }
