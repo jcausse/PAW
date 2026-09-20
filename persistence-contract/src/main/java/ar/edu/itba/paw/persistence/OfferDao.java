@@ -29,4 +29,6 @@ public interface OfferDao {
     List<Offer> rejectPendingOffers(Long listingId, Long exceptOfferId);
 
     int countPendingBySeller(User seller);
+
+    boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId);
 }

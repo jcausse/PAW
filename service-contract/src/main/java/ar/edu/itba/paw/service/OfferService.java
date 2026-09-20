@@ -29,4 +29,8 @@ public interface OfferService {
     List<Offer> rejectPendingOffersForListing(Long listingId, Long exceptOfferId);
 
     int getPendingOffersCount(User seller);
+
+    Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data);
+
+    Offer confirmPayment(Long offerId, Long sellerId);
 }

@@ -206,6 +206,10 @@ public class OfferJdbcDao implements OfferDao {
             .hasOtherOffers(rs.getBoolean("has_other_offers"))
             .hasBetterOffers(rs.getBoolean("has_better_offers"))
             .createdAt(rs.getTimestamp(OfferSchema.CREATED_AT).toInstant())
+            .proofOfPaymentId(
+                    Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_PAYMENT_ID, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null))
             .build();
     };
 
@@ -230,11 +234,11 @@ public class OfferJdbcDao implements OfferDao {
 		            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
 		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
 
-		// here be dragons
-        private static final String BASE_SELECT =
+		private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
             ", o." + OfferSchema.MESSAGE + ", o." + OfferSchema.CREATED_AT +
+            ", o." + OfferSchema.PROOF_OF_PAYMENT_ID +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
@@ -273,6 +277,11 @@ public class OfferJdbcDao implements OfferDao {
         private static final String UPDATE_STATUS =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?";
+
+        private static final String UPDATE_PROOF_OF_PAYMENT_ID =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.PROOF_OF_PAYMENT_ID + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
         private static final String WITHDRAW =
@@ -335,5 +344,10 @@ public class OfferJdbcDao implements OfferDao {
                 " WHERE l." + ListingSchema.CREATOR_ID + " = ?" +
                 " AND o." + OfferSchema.STATUS + " = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, seller.getId(), OfferStatus.PENDING.getStatus());
+    }
+
+    @Override
+    public boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId) {
+        return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_PAYMENT_ID, proofOfPaymentId, offerId) > 0;
     }
 }

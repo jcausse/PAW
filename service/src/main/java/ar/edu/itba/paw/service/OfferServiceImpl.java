@@ -6,8 +6,10 @@ import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.Page;
+import ar.edu.itba.paw.model.ProofOfPayment;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.OfferDao;
+import ar.edu.itba.paw.persistence.ProofOfPaymentDao;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
@@ -30,14 +32,16 @@ import org.springframework.context.annotation.Lazy;
 public class OfferServiceImpl implements OfferService {
 
     private final OfferDao offerDao;
+    private final ProofOfPaymentDao proofOfPaymentDao;
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
 
     @Autowired
-    public OfferServiceImpl(OfferDao offerDao, UserService userService,
+    public OfferServiceImpl(OfferDao offerDao, ProofOfPaymentDao proofOfPaymentDao, UserService userService,
                              @Lazy ListingService listingService, MailingService mailingService) {
         this.offerDao = offerDao;
+        this.proofOfPaymentDao = proofOfPaymentDao;
         this.userService = userService;
         this.listingService = listingService;
         this.mailingService = mailingService;
@@ -119,12 +123,14 @@ public class OfferServiceImpl implements OfferService {
             throw new BadParameterException("Offer is not pending");
         }
 
-        listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
+        listingService.pendingTransaction(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
         rejectPendingOffersForListing(offer.getListing().getId(), offerId);
-        offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
+        offerDao.updateStatus(offerId, OfferStatus.PENDING_PAYMENT);
 
-        // Send email notification to buyer about offer acceptance
-        mailingService.sendOfferAcceptedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        // Send email notification to buyer about offer acceptance (pending payment)
+        mailingService.sendOfferPendingPaymentEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        // Send email notification to seller about pending transaction
+        mailingService.sendPendingTransactionEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
         return offerDao.getById(offerId).orElseThrow();
     }
@@ -183,5 +189,52 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public int getPendingOffersCount(User seller) {
         return offerDao.countPendingBySeller(seller);
+    }
+
+    @Override
+    @Transactional
+    public Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!Objects.equals(offer.getBuyer().getId(), buyerId)) {
+            throw new BadParameterException("Only the buyer can upload proof of payment");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new BadParameterException("Offer is not pending payment");
+        }
+
+        final ProofOfPayment proof = proofOfPaymentDao.create(filename, alt, contentType, data);
+        offerDao.updateProofOfPaymentId(offerId, proof.getId());
+
+        // Notify seller that proof of payment was uploaded
+        mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        return offerDao.getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Offer confirmPayment(Long offerId, Long sellerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!Objects.equals(offer.getListing().getCreator().getId(), sellerId)) {
+            throw new BadParameterException("Only the seller can confirm payment");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new BadParameterException("Offer is not pending payment");
+        }
+
+        listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
+        offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
+
+        // Send email notifications for completed purchase
+        mailingService.sendPurchaseCompletedBuyerEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendPurchaseCompletedSellerEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        return offerDao.getById(offerId).orElseThrow();
     }
 }

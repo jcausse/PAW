@@ -21,4 +21,5 @@ public final class Offer {
     private final boolean hasOtherOffers;
     private final boolean hasBetterOffers;
     private final @NonNull Instant createdAt;
+    private final Long proofOfPaymentId;
 }

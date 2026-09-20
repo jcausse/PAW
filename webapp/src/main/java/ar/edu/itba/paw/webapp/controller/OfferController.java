@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.exception.NotFoundException;
@@ -10,7 +11,10 @@ import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @Controller
@@ -87,5 +91,85 @@ public class OfferController {
         offerService.withdraw(offerId, currentUserId);
 
         return new ModelAndView("redirect:/listing/" + listing.getId());
+    }
+
+    @GetMapping("/{offerId}/proof-of-payment")
+    public ModelAndView showProofOfPaymentUpload(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        if (!offer.getBuyer().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to upload proof of payment");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new ForbiddenException("Offer is not pending payment");
+        }
+
+        var mav = new ModelAndView("offer/proofOfPaymentUpload");
+        mav.addObject("offer", offer);
+        mav.addObject("currentUser", currentUser);
+        return mav;
+    }
+
+    @PostMapping("/{offerId}/proof-of-payment")
+    public ModelAndView uploadProofOfPayment(@PathVariable Long offerId,
+                                              @CurrentUser User currentUser,
+                                              @RequestParam("file") MultipartFile file) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        if (!offer.getBuyer().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to upload proof of payment");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new ForbiddenException("Offer is not pending payment");
+        }
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Only image files are allowed");
+        }
+
+        try {
+            offerService.uploadProofOfPayment(
+                offerId,
+                currentUser.getId(),
+                file.getOriginalFilename(),
+                "Proof of payment for offer " + offerId,
+                contentType,
+                file.getBytes()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read uploaded file", e);
+        }
+
+        return new ModelAndView("redirect:/account/my-offers");
+    }
+
+    @PostMapping("/{offerId}/confirm-payment")
+    public ModelAndView confirmPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        final Listing listing = offer.getListing();
+        final Long currentUserId = currentUser.getId();
+
+        if (!listing.getCreator().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to confirm payment");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new ForbiddenException("Offer is not pending payment");
+        }
+
+        offerService.confirmPayment(offerId, currentUserId);
+
+        return new ModelAndView("redirect:/account/incoming-offers");
     }
 }

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ListingStatus {
     ACTIVE("ACTIVE"),
+    PENDING_TRANSACTION("PENDING_TRANSACTION"),
     SOLD("SOLD"),
     CANCELED("CANCELED");
 

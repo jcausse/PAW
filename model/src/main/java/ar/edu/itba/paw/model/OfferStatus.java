@@ -9,6 +9,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public enum OfferStatus {
     PENDING("pending"),
+    PENDING_PAYMENT("pending_payment"),
     ACCEPTED("accepted"),
     REJECTED("rejected"),
     WITHDRAWN("withdrawn");

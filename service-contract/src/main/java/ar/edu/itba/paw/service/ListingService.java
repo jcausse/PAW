@@ -16,6 +16,8 @@ public interface ListingService {
 
     Listing purchase(Long id, Long buyerId, String message);
 
+    Listing pendingTransaction(Long id, Long buyerId, String message);
+
     Listing update(ListingUpdateDto dto);
 
     void cancel(Long id);
