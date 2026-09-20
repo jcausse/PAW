@@ -25,4 +25,26 @@ public final class Offer {
     private final String proofOfPaymentFilename;
     private final String proofOfPaymentContentType;
     private final Long proofOfPaymentSize;
+
+    public String getProofOfPaymentExtension() {
+        if (proofOfPaymentFilename == null || proofOfPaymentFilename.isBlank()) {
+            return "";
+        }
+        int lastDot = proofOfPaymentFilename.lastIndexOf('.');
+        if (lastDot == -1 || lastDot == proofOfPaymentFilename.length() - 1) {
+            return "";
+        }
+        return proofOfPaymentFilename.substring(lastDot + 1).toLowerCase();
+    }
+
+    public Long getProofOfPaymentSizeKb() {
+        if (proofOfPaymentSize == null || proofOfPaymentSize <= 0) {
+            return 0L;
+        }
+        return proofOfPaymentSize / 1024;
+    }
+
+    public boolean isProofOfPaymentIsImage() {
+        return proofOfPaymentContentType != null && proofOfPaymentContentType.startsWith("image/");
+    }
 }
