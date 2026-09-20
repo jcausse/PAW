@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.PasswordRecoveryService;
 import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
+import ar.edu.itba.paw.webapp.auth.AuthHelper;
 import ar.edu.itba.paw.webapp.form.PasswordRecoveryRequestForm;
 import ar.edu.itba.paw.webapp.form.PasswordRecoveryVerificationForm;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import javax.validation.Valid;
 public class PasswordRecoveryController {
 
     private final PasswordRecoveryService passwordRecoveryService;
+    private final AuthHelper authHelper;
 
     @GetMapping("/recovery/request")
     public ModelAndView passwordRecoveryRequestGET(
@@ -66,7 +68,8 @@ public class PasswordRecoveryController {
         );
 
         if (result == OneTimePasswordVerificationResult.ACCEPTED) {
-            return new ModelAndView("redirect:/login");
+            authHelper.login(form.getUsernameOrEmail());
+            return new ModelAndView("redirect:/");
         }
 
         errors.rejectValue("otp", result == OneTimePasswordVerificationResult.EXPIRED

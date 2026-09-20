@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.service.EmailVerificationService;
 import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
+import ar.edu.itba.paw.webapp.auth.AuthHelper;
 import ar.edu.itba.paw.webapp.form.EmailVerificationForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
+    private final AuthHelper authHelper;
 
     @GetMapping("/verify")
     public ModelAndView verifyForm(
@@ -42,7 +44,8 @@ public class EmailVerificationController {
 
         final var result = emailVerificationService.verifyEmail(form.getUsernameOrEmail(), form.getOtp());
         if (result == OneTimePasswordVerificationResult.ACCEPTED) {
-            return new ModelAndView("redirect:/login?verified=true");
+            authHelper.login(form.getUsernameOrEmail());
+            return new ModelAndView("redirect:/");
         }
 
         errors.rejectValue("otp", result == OneTimePasswordVerificationResult.EXPIRED
