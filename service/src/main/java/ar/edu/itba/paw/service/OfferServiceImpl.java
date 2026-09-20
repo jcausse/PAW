@@ -245,4 +245,16 @@ public class OfferServiceImpl implements OfferService {
 
         return offerDao.getById(offerId).orElseThrow();
     }
+
+    @Override
+    public Optional<File> getProofOfPaymentFile(Long offerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (offer.getProofOfPaymentId() == null) {
+            return Optional.empty();
+        }
+
+        return fileDao.getById(offer.getProofOfPaymentId());
+    }
 }
