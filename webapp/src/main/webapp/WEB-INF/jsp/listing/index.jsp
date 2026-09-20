@@ -53,17 +53,14 @@
                                         <spring:message code="listing.detail.canceled" var="canceledLabel"/>
                                         <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
                                     </c:when>
-                                    <c:otherwise>
+                                    <c:when test="${listing.status.name() == 'ACTIVE'}">
                                         <spring:message code="listing.detail.edit" var="editLabel"/>
                                         <c:url value="/listing/${listing.id}/edit" var="editUrl"/>
                                         <paw:linkButton href="${editUrl}" size="lg" classname="w-full" variant="outline" text="${editLabel}"/>
 
                                         <spring:message code="listing.detail.cancel" var="cancelLabel"/>
-                                        <button type="button"
-                                                onclick="document.getElementById('cancelListingDialog').showModal()"
-                                                class="w-full text-center text-sm text-red-600 hover:underline mt-2">
-                                            <c:out value="${cancelLabel}"/>
-                                        </button>
+                                        <paw:button text="${cancelLabel}" variant="ghost" role="danger" onclick="document.getElementById('cancelListingDialog').showModal()" />
+
                                         <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
                                         <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
                                         <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
@@ -73,7 +70,7 @@
                                                             cancelText="${cancelCancel}" formAction="${cancelUrl}">
                                             <c:out value="${cancelMessage}"/>
                                         </paw:confirmDialog>
-                                    </c:otherwise>
+                                    </c:when>
                                 </c:choose>
                             </c:when>
                             <c:when test="${isCanceled}">

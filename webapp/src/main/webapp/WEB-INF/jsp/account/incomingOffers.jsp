@@ -157,7 +157,7 @@
                                     <c:url value="/offer/${offer.id}" var="offerUrl"/>
                                     <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
                                     <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
-                                        <paw:button type="submit" variant="outline" icon="credit-card" />
+                                        <paw:button type="submit" variant="outline" icon="check" />
                                     </form>
                                 </div>
                             </div>

@@ -66,12 +66,16 @@
                                     <c:set var="statusClass" value="text-neutral-600"/>
                                     <spring:message code="listing.status.SOLD" var="statusLabel"/>
                                 </c:when>
+                                <c:when test="${listing.status.name() == 'PENDING_TRANSACTION'}">
+                                    <c:set var="statusClass" value="text-blue-600"/>
+                                    <spring:message code="listing.status.PENDING_TRANSACTION" var="statusLabel"/>
+                                </c:when>
                                 <c:when test="${listing.status.name() == 'CANCELED'}">
                                     <c:set var="statusClass" value="text-red-600"/>
                                     <spring:message code="listing.status.CANCELED" var="statusLabel"/>
                                 </c:when>
                                 <c:otherwise>
-                                    <c:set var="statusClass" value="text-yellow-800"/>
+                                    <c:set var="statusClass" value="text-yellow-600"/>
                                     <c:set var="statusLabel" value="${listing.status.name()}"/>
                                 </c:otherwise>
                             </c:choose>
@@ -102,11 +106,10 @@
 
                                 <div class="flex flex-row gap-1 self-end">
                                     <paw:linkButton variant="outline" href="${listingUrl}" icon="eye" />
-                                    <c:if test="${listing.status.name() != 'CANCELED'}">
+                                    <c:if test="${listing.status.name() == 'ACTIVE'}">
                                         <c:url value="/listing/${listing.id}/edit" var="editListingUrl"/>
                                         <paw:linkButton variant="outline" href="${editListingUrl}" icon="pencil" />
-                                    </c:if>
-                                    <c:if test="${listing.status.name() != 'CANCELED' && listing.status.name() != 'SOLD'}">
+
                                         <paw:button variant="outline" role="danger" icon="trash-2"
                                                     onclick="document.getElementById('cancelDialog-${listing.id}').showModal()"/>
 
