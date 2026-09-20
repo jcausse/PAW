@@ -20,12 +20,60 @@
         <paw:card classname="w-full">
             <div class="flex flex-col gap-4">
                 <div class="text-center">
-                    <spring:message code="offer.decision.title"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
+                    <c:choose>
+                        <c:when test="${offer.status.name() == 'PENDING'}">
+                            <spring:message code="offer.decision.title"
+                                            arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                            var="title"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                            <spring:message code="offer.detail.title.pendingPayment"
+                                            arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                            var="title"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'ACCEPTED'}">
+                            <spring:message code="offer.detail.title.accepted"
+                                            arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                            var="title"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'REJECTED'}">
+                            <spring:message code="offer.detail.title.rejected"
+                                            arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                            var="title"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'WITHDRAWN'}">
+                            <spring:message code="offer.detail.title.withdrawn"
+                                            arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                            var="title"/>
+                        </c:when>
+                        <c:otherwise>
+                            <spring:message code="offer.decision.title"
+                                            arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                            var="title"/>
+                        </c:otherwise>
+                    </c:choose>
                     <h1 class="text-xl font-medium text-balance"><c:out value="${title}"/></h1>
 
-                    <spring:message code="offer.decision.description" var="description"/>
+                    <c:choose>
+                        <c:when test="${offer.status.name() == 'PENDING'}">
+                            <spring:message code="offer.decision.description" var="description"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                            <spring:message code="offer.detail.description.pendingPayment" var="description"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'ACCEPTED'}">
+                            <spring:message code="offer.detail.description.accepted" var="description"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'REJECTED'}">
+                            <spring:message code="offer.detail.description.rejected" var="description"/>
+                        </c:when>
+                        <c:when test="${offer.status.name() == 'WITHDRAWN'}">
+                            <spring:message code="offer.detail.description.withdrawn" var="description"/>
+                        </c:when>
+                        <c:otherwise>
+                            <spring:message code="offer.decision.description" var="description"/>
+                        </c:otherwise>
+                    </c:choose>
                     <p class="text-black/60 mt-2 text-balance"><c:out value="${description}"/></p>
                 </div>
 
@@ -108,9 +156,51 @@
                     </div>
                 </c:if>
 
+                <!-- Proof of payment for pending payment state -->
+                <c:if test="${offer.status.name() == 'PENDING_PAYMENT' and offer.proofOfPaymentId != null}">
+                    <paw:divider />
+                    <spring:message code="offer.detail.proofOfPayment" var="proofLabel"/>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-sm text-black/60"><c:out value="${proofLabel}"/></span>
+                        <c:url value="/offer/${offer.id}/proof-of-payment/download" var="downloadUrl"/>
+                        <paw:linkButton variant="default" href="${downloadUrl}" icon="download" classname="w-full text-left">
+                            <div class="flex flex-col items-start">
+                                <span class="text-black font-medium"><c:out value="${offer.proofOfPaymentFilename}"/></span>
+                                <span class="text-xs text-black/60">
+                                    <c:out value="${offer.proofOfPaymentExtension}"/>
+                                    &nbsp;|&nbsp;
+                                    <c:out value="${offer.proofOfPaymentSizeKb}"/> KB
+                                </span>
+                            </div>
+                        </paw:linkButton>
+                        <c:if test="${offer.proofOfPaymentIsImage}">
+                            <img src="${downloadUrl}" alt="Proof of payment" class="max-w-full h-auto rounded-lg border border-black/10 mt-2" />
+                        </c:if>
+                    </div>
+                </c:if>
+
                 <paw:divider />
 
                 <c:choose>
+                    <c:when test="${offer.status.name() == 'PENDING'}">
+                        <div class="flex flex-row gap-4">
+                            <spring:message code="offer.decision.accept" var="acceptLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST" class="flex-1">
+                                <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${acceptLabel}"/>
+                            </form>
+
+                            <spring:message code="offer.decision.reject" var="rejectLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST" class="flex-1">
+                                <paw:button type="submit" variant="default" role="danger" size="lg" classname="w-full" text="${rejectLabel}"/>
+                            </form>
+                        </div>
+                    </c:when>
+                    <c:when test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                        <spring:message code="offer.detail.confirmPayment" var="confirmLabel"/>
+                        <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST" class="w-full">
+                            <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${confirmLabel}"/>
+                        </form>
+                    </c:when>
                     <c:when test="${offer.status.name() == 'ACCEPTED'}">
                         <spring:message code="offer.decision.accepted" var="acceptedMsg"/>
                         <p class="text-center text-lg font-medium text-lime-700"><c:out value="${acceptedMsg}"/></p>
@@ -118,6 +208,10 @@
                     <c:when test="${offer.status.name() == 'REJECTED'}">
                         <spring:message code="offer.decision.rejected" var="rejectedMsg"/>
                         <p class="text-center text-lg font-medium text-red-700"><c:out value="${rejectedMsg}"/></p>
+                    </c:when>
+                    <c:when test="${offer.status.name() == 'WITHDRAWN'}">
+                        <spring:message code="offer.detail.withdrawn" var="withdrawnMsg"/>
+                        <p class="text-center text-lg font-medium text-stone-700"><c:out value="${withdrawnMsg}"/></p>
                     </c:when>
                     <c:otherwise>
                         <div class="flex flex-row gap-4">

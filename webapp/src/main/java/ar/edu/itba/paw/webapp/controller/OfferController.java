@@ -44,7 +44,7 @@ public class OfferController {
             throw new ForbiddenException("Not authorized to view this offer");
         }
 
-        var mav = new ModelAndView("offer/decision");
+        var mav = new ModelAndView("offer/detail");
         mav.addObject("offer", offer);
         return mav;
     }
