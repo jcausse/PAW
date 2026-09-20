@@ -24,7 +24,7 @@
             <spring:message code="field.usernameOrEmail" var="usernameOrEmailLabel"/>
             <paw:formInput path="usernameOrEmail" label="${usernameOrEmailLabel}" variant="outline"/>
 
-            <spring:message code="field.otp" var="otpLabel"/>
+            <spring:message code="field.verificationCode" var="otpLabel"/>
             <paw:formInput path="otp" label="${otpLabel}" variant="outline"/>
 
             <spring:message code="verify.submit" var="submitLabel"/>

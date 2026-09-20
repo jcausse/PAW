@@ -30,11 +30,11 @@
 
     <c:if test="${codeSent}">
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-sm w-full border border-black/10 shadow-xl flex flex-col items-center text-center gap-4">
+            <div class="bg-white rounded-2xl p-6 w-96 max-w-full border border-black/10 shadow-xl flex flex-col items-center text-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-lime-100 flex items-center justify-center text-lime-600">
                     <paw:icon name="mail-check" />
                 </div>
-                <h3 class="text-lg font-bold text-neutral-900">
+                <h3 class="text-xl font-bold text-neutral-900">
                     <spring:message code="recovery.request.modal.title"/>
                 </h3>
                 <p class="text-sm text-neutral-600">
