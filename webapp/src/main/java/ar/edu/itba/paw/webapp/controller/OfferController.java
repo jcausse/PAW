@@ -9,10 +9,12 @@ import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.ForbiddenException;
+import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
@@ -110,13 +112,15 @@ public class OfferController {
         var mav = new ModelAndView("offer/proofOfPaymentUpload");
         mav.addObject("offer", offer);
         mav.addObject("currentUser", currentUser);
+        mav.addObject("proofOfPaymentUploadForm", new ProofOfPaymentUploadForm());
         return mav;
     }
 
     @PostMapping("/{offerId}/proof-of-payment")
     public ModelAndView uploadProofOfPayment(@PathVariable Long offerId,
                                               @CurrentUser User currentUser,
-                                              @RequestParam("file") MultipartFile file) {
+                                              @Valid @ModelAttribute("proofOfPaymentUploadForm") ProofOfPaymentUploadForm form,
+                                              BindingResult bindingResult) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
@@ -128,18 +132,21 @@ public class OfferController {
             throw new ForbiddenException("Offer is not pending payment");
         }
 
-        if (file.isEmpty()) {
-            throw new BadParameterException("File is empty");
+        if (bindingResult.hasErrors()) {
+            var mav = new ModelAndView("offer/proofOfPaymentUpload");
+            mav.addObject("offer", offer);
+            mav.addObject("currentUser", currentUser);
+            return mav;
         }
 
         try {
             offerService.uploadProofOfPayment(
                 offerId,
                 currentUser.getId(),
-                file.getOriginalFilename(),
+                form.getFile().getOriginalFilename(),
                 "Proof of payment for offer " + offerId,
-                file.getContentType(),
-                file.getBytes()
+                form.getFile().getContentType(),
+                form.getFile().getBytes()
             );
         } catch (IOException e) {
             throw new RuntimeException("Failed to read uploaded file", e);

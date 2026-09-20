@@ -29,7 +29,8 @@
 
             <paw:divider />
 
-            <form:form method="POST" action="${uploadAction}" enctype="multipart/form-data" class="space-y-4">
+            <form:form method="POST" action="${uploadAction}" enctype="multipart/form-data" class="space-y-4" modelAttribute="proofOfPaymentUploadForm">
+                <form:errors path="*" element="div" cssClass="text-xs text-red-600 mb-4" />
                 <div>
                     <label class="block text-sm font-medium text-black/70 mb-2">
                         <spring:message code="offer.proofOfPayment.fileLabel" var="fileLabelMsg"/>
