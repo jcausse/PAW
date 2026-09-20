@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
@@ -11,6 +12,11 @@ import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -171,5 +177,31 @@ public class OfferController {
         offerService.confirmPayment(offerId, currentUserId);
 
         return new ModelAndView("redirect:/account/incoming-offers");
+    }
+
+    @GetMapping("/{offerId}/proof-of-payment/download")
+    public ResponseEntity<Resource> downloadProofOfPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        // Both buyer and seller can download the proof of payment
+        final Long currentUserId = currentUser.getId();
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
+        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
+
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenException("Not authorized to download proof of payment");
+        }
+
+        final File file = offerService.getProofOfPaymentFile(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Proof of payment not found"));
+
+        final ByteArrayResource resource = new ByteArrayResource(file.getData());
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(file.getContentType().orElse("application/octet-stream")))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+            .contentLength(file.getData().length)
+            .body(resource);
     }
 }

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
@@ -33,4 +34,6 @@ public interface OfferService {
     Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data);
 
     Offer confirmPayment(Long offerId, Long sellerId);
+
+    Optional<File> getProofOfPaymentFile(Long offerId);
 }

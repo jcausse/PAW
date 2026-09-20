@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
@@ -152,11 +153,27 @@
                             </div>
 
                             <c:if test="${offer.proofOfPaymentId != null}">
-                                <div class="p-3 rounded-lg bg-lime-50 border border-lime-200 mt-2 flex flex-row gap-2 text-lime-800 items-center">
-                                    <paw:icon name="check-circle" />
-                                    <spring:message code="offer.proofOfPayment.uploaded" var="proofMsg"/>
-                                    <p class="text-sm"><c:out value="${proofMsg}"/></p>
-                                </div>
+                                <c:url value="/offer/${offer.id}/proof-of-payment/download" var="downloadUrl"/>
+                                <c:set var="proofExt" value="${fn:substringAfterLast(offer.proofOfPaymentFilename, '.')}"/>
+                                <c:set var="proofSizeKb" value="${offer.proofOfPaymentSize / 1024}"/>
+                                <c:set var="proofIsImage" value="${offer.proofOfPaymentContentType != null && fn:startsWith(offer.proofOfPaymentContentType, 'image/')}"/>
+                                <paw:collapsible title="Proof of Payment">
+                                    <div class="flex flex-col gap-2">
+                                        <paw:linkButton variant="default" href="${downloadUrl}" icon="download" classname="w-full text-left">
+                                            <div class="flex flex-col items-start">
+                                                <span class="text-black font-medium"><c:out value="${offer.proofOfPaymentFilename}"/></span>
+                                                <span class="text-xs text-black/60">
+                                                    <c:out value="${proofExt}"/>
+                                                    &nbsp;|&nbsp;
+                                                    <c:out value="${proofSizeKb}"/> KB
+                                                </span>
+                                            </div>
+                                        </paw:linkButton>
+                                        <c:if test="${proofIsImage}">
+                                            <img src="${downloadUrl}" alt="Proof of payment" class="max-w-full h-auto rounded-lg border border-black/10 mt-2" />
+                                        </c:if>
+                                    </div>
+                                </paw:collapsible>
                             </c:if>
 
                             <c:if test="${not empty offer.message}">

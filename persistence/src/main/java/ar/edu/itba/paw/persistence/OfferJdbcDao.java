@@ -13,6 +13,7 @@ import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
+import ar.edu.itba.paw.persistence.schema.FileSchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
@@ -210,6 +211,12 @@ public class OfferJdbcDao implements OfferDao {
                     Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_PAYMENT_ID, Integer.class))
                             .map(Integer::longValue)
                             .orElse(null))
+            .proofOfPaymentFilename(rs.getString(OfferSchema.PROOF_OF_PAYMENT_FILENAME))
+            .proofOfPaymentContentType(rs.getString(OfferSchema.PROOF_OF_PAYMENT_CONTENT_TYPE))
+            .proofOfPaymentSize(
+                    Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_PAYMENT_SIZE, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null))
             .build();
     };
 
@@ -239,6 +246,9 @@ public class OfferJdbcDao implements OfferDao {
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
             ", o." + OfferSchema.MESSAGE + ", o." + OfferSchema.CREATED_AT +
             ", o." + OfferSchema.PROOF_OF_PAYMENT_ID +
+            ", f." + FileSchema.FILENAME + " as " + OfferSchema.PROOF_OF_PAYMENT_FILENAME +
+            ", f." + FileSchema.CONTENT_TYPE + " as " + OfferSchema.PROOF_OF_PAYMENT_CONTENT_TYPE +
+            ", OCTET_LENGTH(f." + FileSchema.DATA + ") as " + OfferSchema.PROOF_OF_PAYMENT_SIZE +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
@@ -262,7 +272,8 @@ public class OfferJdbcDao implements OfferDao {
             " AND o3." + OfferSchema.ID + " != o." + OfferSchema.ID +
             " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT +
             " AND o3." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') as has_better_offers" +
-            BASE_FROM;
+            BASE_FROM
+            + " LEFT JOIN " + FileSchema.TABLE_NAME + " f ON f." + FileSchema.ID + " = o." + OfferSchema.PROOF_OF_PAYMENT_ID;
 
         private static final String GET_BY_ID =
             BASE_SELECT +

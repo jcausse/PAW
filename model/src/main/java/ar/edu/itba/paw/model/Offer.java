@@ -22,4 +22,7 @@ public final class Offer {
     private final boolean hasBetterOffers;
     private final @NonNull Instant createdAt;
     private final Long proofOfPaymentId;
+    private final String proofOfPaymentFilename;
+    private final String proofOfPaymentContentType;
+    private final Long proofOfPaymentSize;
 }
