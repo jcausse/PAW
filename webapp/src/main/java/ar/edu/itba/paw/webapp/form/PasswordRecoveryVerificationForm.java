@@ -14,8 +14,8 @@ import javax.validation.constraints.Size;
 @FieldMatch(first = "password", second = "repeatPassword")
 public class PasswordRecoveryVerificationForm {
 
-    private String email;
-    private String username;
+    @NotEmpty
+    private String usernameOrEmail;
 
     @NotEmpty
     private String otp;

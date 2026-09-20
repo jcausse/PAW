@@ -98,7 +98,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
             /* Login */
             .and().formLogin()
                 .loginPage("/login")
-                .usernameParameter("username")
+                .usernameParameter("usernameOrEmail")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/", false)
 

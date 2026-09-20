@@ -17,8 +17,8 @@
                 </div>
             </c:if>
 
-            <spring:message code="field.username" var="usernameLabel"/>
-            <paw:input id="username" name="username" label="${usernameLabel}" variant="outline"/>
+            <spring:message code="field.usernameOrEmail" var="usernameOrEmailLabel"/>
+            <paw:input id="usernameOrEmail" name="usernameOrEmail" label="${usernameOrEmailLabel}" variant="outline"/>
 
             <spring:message code="field.password" var="passwordLabel"/>
             <paw:input id="password" name="password" type="password" label="${passwordLabel}" variant="outline"/>

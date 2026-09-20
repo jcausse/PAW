@@ -28,7 +28,7 @@ MINOR CHANGES
 
 MAJOR CHANGES
 
-[ ] MEJORA UX QUE PERMITA INGRESAR EMAIL O USERNAME EN EL MISMO TEXT FIELD AL HACER LOGIN O PASSWORD RECOVERY
+[X] MEJORA UX QUE PERMITA INGRESAR EMAIL O USERNAME EN EL MISMO TEXT FIELD AL HACER LOGIN O PASSWORD RECOVERY
 
 [ ] ACCOUNT VERIFICATION
 
@@ -39,7 +39,7 @@ TODO JUNTO.
 
 [ ] VOLAR LA HOME Y QUE VAYAS DIRECTO A /listings PORQUE EL FLUJO DE VENTA YA ESTA EN LA NAVBAR
 
-[] Doble `LocaleResolver`
+[ ] Doble `LocaleResolver`
 
    [WebConfig](webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java) debiera usar AMBOS `CookieLocaleResolver` y un `DatabaseLocaleResolver`.
 

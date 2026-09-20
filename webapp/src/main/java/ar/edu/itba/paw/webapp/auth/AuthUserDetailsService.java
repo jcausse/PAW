@@ -22,7 +22,7 @@ public class AuthUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User domainUser = us.getByUsername(username).orElseThrow(()  -> new UsernameNotFoundException(username));
+        final User domainUser = us.getByUsernameOrEmail(username).orElseThrow(() -> new UsernameNotFoundException(username));
         final Collection<? extends GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + Role.USER.getRoleName())
         );

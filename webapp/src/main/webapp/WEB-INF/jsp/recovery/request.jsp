@@ -10,46 +10,14 @@
 
     <div class="w-96 bg-white border border-black/10 rounded-2xl p-6">
         <c:url value="/recovery/request" var="requestUrl"/>
-        <form:form modelAttribute="passwordRecoveryRequestForm" action="${requestUrl}" method="post" id="recoveryForm" class="flex flex-col gap-4">
+        <form:form modelAttribute="passwordRecoveryRequestForm" action="${requestUrl}" method="post" class="flex flex-col gap-4">
             <p class="text-sm text-neutral-600 mb-1">
                 <spring:message code="recovery.request.subtitle"/>
             </p>
 
-            <form:errors path="username" element="div" cssClass="text-xs text-red-600 font-medium" />
-            <form:errors path="email" element="div" cssClass="text-xs text-red-600 font-medium" />
-
-            <spring:message code="recovery.request.label.username" var="usernameLabel"/>
-            <spring:message code="recovery.request.label.email" var="emailLabel"/>
-            <spring:message code="recovery.request.placeholder.username" var="usernamePlaceholder"/>
-            <spring:message code="recovery.request.placeholder.email" var="emailPlaceholder"/>
-
-            <c:set var="isEmailMode" value="${not empty passwordRecoveryRequestForm.email}"/>
-
-            <div class="flex flex-col gap-1">
-                <label id="identifierLabel" for="identifierInput" class="text-xs text-black/70 font-medium">
-                    <c:out value="${isEmailMode ? emailLabel : usernameLabel}"/>
-                </label>
-                <input
-                    type="${isEmailMode ? 'email' : 'text'}"
-                    id="identifierInput"
-                    name="${isEmailMode ? 'email' : 'username'}"
-                    value="<c:out value="${isEmailMode ? passwordRecoveryRequestForm.email : passwordRecoveryRequestForm.username}"/>"
-                    placeholder="${isEmailMode ? emailPlaceholder : usernamePlaceholder}"
-                    class="px-2 py-1 rounded-lg text-sm outline-0 transition duration-150 outline-lime-600/30 placeholder:text-black/40 border border-black/20 focus-visible:border-lime-600 focus-visible:outline-2"
-                />
-            </div>
-
-            <div class="flex items-center gap-2">
-                <input
-                    type="checkbox"
-                    id="useEmailCheckbox"
-                    <c:if test="${isEmailMode}">checked</c:if>
-                    class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600 cursor-pointer"
-                >
-                <label for="useEmailCheckbox" class="text-sm font-medium select-none cursor-pointer">
-                    <spring:message code="recovery.request.useEmailCheckbox"/>
-                </label>
-            </div>
+            <spring:message code="recovery.request.label.usernameOrEmail" var="usernameOrEmailLabel"/>
+            <spring:message code="recovery.request.placeholder.usernameOrEmail" var="usernameOrEmailPlaceholder"/>
+            <paw:formInput path="usernameOrEmail" label="${usernameOrEmailLabel}" placeholder="${usernameOrEmailPlaceholder}" variant="outline"/>
 
             <spring:message code="recovery.request.submit" var="submitLabel"/>
             <paw:button text="${submitLabel}" type="submit"/>
@@ -73,43 +41,12 @@
                     <spring:message code="recovery.request.modal.message"/>
                 </p>
                 <c:url value="/recovery/verification" var="continueUrl">
-                    <c:if test="${not empty identifierParam}">
-                        <c:param name="${identifierType}" value="${identifierParam}"/>
-                    </c:if>
+                    <c:param name="usernameOrEmail" value="${usernameOrEmail}"/>
                 </c:url>
                 <spring:message code="recovery.request.modal.continue" var="continueLabel"/>
                 <paw:linkButton href="${continueUrl}" text="${continueLabel}" classname="w-full"/>
             </div>
         </div>
     </c:if>
-
-    <script>
-        (function() {
-            var checkbox = document.getElementById('useEmailCheckbox');
-            var input = document.getElementById('identifierInput');
-            var label = document.getElementById('identifierLabel');
-
-            var usernamePlaceholder = "${usernamePlaceholder}";
-            var emailPlaceholder = "${emailPlaceholder}";
-            var usernameLabel = "${usernameLabel}";
-            var emailLabel = "${emailLabel}";
-
-            function updateMode() {
-                if (checkbox.checked) {
-                    input.name = 'email';
-                    input.type = 'email';
-                    input.placeholder = emailPlaceholder;
-                    label.textContent = emailLabel;
-                } else {
-                    input.name = 'username';
-                    input.type = 'text';
-                    input.placeholder = usernamePlaceholder;
-                    label.textContent = usernameLabel;
-                }
-            }
-
-            checkbox.addEventListener('change', updateMode);
-        })();
-    </script>
 </body>
 </html>
