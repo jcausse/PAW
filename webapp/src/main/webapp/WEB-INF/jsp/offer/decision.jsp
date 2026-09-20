@@ -41,7 +41,6 @@
 
                 <!-- Listing info section -->
                 <div class="flex flex-row gap-4">
-                    <!-- Listing image (smaller, to the side) -->
                     <c:set var="listingImageUrl" value=""/>
                     <c:forEach items="${offer.listing.imageIds}" var="imageId" varStatus="status">
                         <c:if test="${status.first}">
@@ -61,7 +60,6 @@
                         </c:choose>
                     </div>
 
-                    <!-- Listing title and product info -->
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                         <h2 class="text-xl font-semibold truncate"><c:out value="${offer.listing.title}"/></h2>
                         <p class="text-sm text-black/60 mt-1 truncate">

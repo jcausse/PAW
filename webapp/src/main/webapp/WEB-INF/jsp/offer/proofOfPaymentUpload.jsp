@@ -33,9 +33,7 @@
 
                 <paw:divider />
 
-                <!-- Listing info section -->
                 <div class="flex flex-row gap-4">
-                    <!-- Listing image -->
                     <c:set var="listingImageUrl" value=""/>
                     <c:forEach items="${offer.listing.imageIds}" var="imageId" varStatus="status">
                         <c:if test="${status.first}">
@@ -55,7 +53,6 @@
                         </c:choose>
                     </div>
 
-                    <!-- Listing title and product info -->
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                         <h2 class="text-xl font-semibold truncate"><c:out value="${offer.listing.title}"/></h2>
                         <p class="text-sm text-black/60 mt-1 truncate">
@@ -70,19 +67,8 @@
                     <div class="flex flex-col">
                         <spring:message code="offer.decision.amount" var="amountLabel"/>
                         <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
-                        <c:if test="${not offer.isFullPrice}">
-                            <p class="text-lg font-medium line-through text-black/60">
-                                $<c:out value="${offer.listing.price.amount}"/>
-                            </p>
-                        </c:if>
                         <p class="text-3xl font-bold">
                             $<c:out value="${offer.amount}"/>
-                            <c:if test="${not offer.isFullPrice}">
-                                <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
-                                <c:set var="offerAmount" value="${offer.amount}"/>
-                                <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                                <span class="text-red-600 text-xl"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
-                            </c:if>
                         </p>
                     </div>
                 </div>
