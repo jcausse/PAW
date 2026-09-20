@@ -16,4 +16,10 @@ public class EmailVerificationForm {
 
     @NotEmpty
     private String otp;
+
+    public void setEmail(String email) {
+        if (this.usernameOrEmail == null || this.usernameOrEmail.isBlank()) {
+            this.usernameOrEmail = email;
+        }
+    }
 }

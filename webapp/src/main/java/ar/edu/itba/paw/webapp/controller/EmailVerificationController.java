@@ -24,13 +24,9 @@ public class EmailVerificationController {
 
     @GetMapping("/verify")
     public ModelAndView verifyForm(
-            @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "resent", required = false) Boolean resent,
             @ModelAttribute("emailVerificationForm") EmailVerificationForm form
     ) {
-        if (email != null && !email.isBlank() && (form.getUsernameOrEmail() == null || form.getUsernameOrEmail().isBlank())) {
-            form.setUsernameOrEmail(email.trim());
-        }
         return new ModelAndView("verify")
                 .addObject("resent", Boolean.TRUE.equals(resent));
     }
