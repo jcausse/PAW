@@ -1,7 +1,6 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="text" required="false" %>
 <%@ attribute name="icon" required="false" %>
-<%@ attribute name="type" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ attribute name="size" required="false" %>
 <%@ attribute name="role" required="false" %>
@@ -13,7 +12,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
-<c:set var="btnType" value="${not empty type ? type : 'button'}"/>
 <c:set var="btnVariant" value="${not empty variant ? variant : 'default'}"/>
 <c:set var="btnSize" value="${not empty size ? size : 'md'}"/>
 <c:set var="btnRole" value="${not empty role ? role : 'default'}"/>
@@ -73,8 +71,7 @@
     : 'text-lime-600'
 }"/>
 
-<button
-    type="${btnType}"
+<div
     id="${id}"
     class="
         font-semibold rounded-lg
@@ -88,7 +85,6 @@
         ${roleClassnames}
         ${btnClass}
     "
-    <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     <c:if test="${isDisabled}">disabled</c:if>
     <c:if test="${isOn}">data-state="on"</c:if>
     <c:if test="${not empty onclick}">onclick="${onclick}"</c:if>
@@ -100,20 +96,4 @@
         <c:out value="${text}"/>
     </c:if>
     <jsp:doBody/>
-</button>
-
-<c:if test="${btnType eq 'submit'}">
-    <script>
-        if (!window.__submitGuardInstalled) {
-            window.__submitGuardInstalled = true;
-            document.addEventListener('submit', function (e) {
-                var form = e.target;
-                var button = form.querySelector('button[type="submit"][data-submit-guard]');
-                if (button) {
-                    // Disable after the current submit is dispatched, so the form still sends.
-                    setTimeout(function () { button.disabled = true; }, 0);
-                }
-            }, true);
-        }
-    </script>
-</c:if>
+</div>

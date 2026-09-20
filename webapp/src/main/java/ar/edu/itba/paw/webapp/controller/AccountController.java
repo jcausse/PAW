@@ -2,12 +2,15 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
+import ar.edu.itba.paw.webapp.form.OfferFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -21,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Controller
@@ -74,7 +76,7 @@ public class AccountController {
         final var locale = LocaleContextHolder.getLocale();
         final var statusOptions = Arrays.stream(ListingStatus.values())
             .map(s -> new StringSelectOption(s.name(), messageSource.getMessage("listing.status." + s.name(), null, locale)))
-            .collect(Collectors.toList());
+            .toList();
 
         final var sortOptions = Arrays.stream(ListingSort.values())
             .map(s -> {
@@ -87,7 +89,7 @@ public class AccountController {
                 else key = s.getKey();
                 return new StringSelectOption(s.getKey(), messageSource.getMessage(key, null, locale));
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return new ModelAndView("account/listings")
                 .addObject("listingPage", listingPage)
@@ -100,34 +102,58 @@ public class AccountController {
     }
 
     @GetMapping("/incoming-offers")
-    public ModelAndView incomingOffers() {
+    public ModelAndView incomingOffers(@ModelAttribute("filterForm") OfferFilterForm filterForm) {
         final var currentUser = getCurrentUser();
         final var user = currentUser.orElseThrow();
-        final var offers = offerService.getIncomingOffersForUser(user.getId());
+
+        if (filterForm.getStatusGroup() == null || filterForm.getStatusGroup().isBlank()) {
+            filterForm.setStatusGroup(OfferStatusGroup.PENDING.getStatus());
+        }
+
+        final var filter = new OfferFilterDto(user.getId(), null, filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var offerPage = offerService.get(filter);
+
+        final var locale = LocaleContextHolder.getLocale();
+        final var statusGroupOptions = Arrays.stream(OfferStatusGroup.values())
+            .map(s -> new StringSelectOption(s.getStatus(), messageSource.getMessage("offer.statusGroup." + s.getStatus(), null, locale)))
+            .toList();
 
         return new ModelAndView("account/incomingOffers")
-                .addObject("pendingOffers", offers.pending())
-                .addObject("resolvedOffers", offers.resolved())
+                .addObject("offerPage", offerPage)
+                .addObject("offers", offerPage.getContent())
+                .addObject("statusGroupOptions", statusGroupOptions)
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", offers.pending().size());
+                .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
     @GetMapping("/my-offers")
-    public ModelAndView myOffers() {
+    public ModelAndView myOffers(@ModelAttribute("filterForm") OfferFilterForm filterForm) {
         final var currentUser = getCurrentUser();
         final var user = currentUser.orElseThrow();
-        final var offers = offerService.getMyOffersForUser(user.getId());
+
+        if (filterForm.getStatusGroup() == null || filterForm.getStatusGroup().isBlank()) {
+            filterForm.setStatusGroup(OfferStatusGroup.PENDING.getStatus());
+        }
+
+        final var filter = new OfferFilterDto(null, user.getId(), filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var offerPage = offerService.get(filter);
+
+        final var locale = LocaleContextHolder.getLocale();
+        final var statusGroupOptions = Arrays.stream(OfferStatusGroup.values())
+            .map(s -> new StringSelectOption(s.getStatus(), messageSource.getMessage("offer.statusGroup." + s.getStatus(), null, locale)))
+            .toList();
 
         return new ModelAndView("account/myOffers")
-                .addObject("pendingOffers", offers.pending())
-                .addObject("resolvedOffers", offers.resolved())
+                .addObject("offerPage", offerPage)
+                .addObject("offers", offerPage.getContent())
+                .addObject("statusGroupOptions", statusGroupOptions)
                 .addObject("user", user)
                 .addObject("currentUser", currentUser)
                 .addObject("pendingOffersCount", getPendingOffersCount(user));
     }
 
 	private int getPendingOffersCount(final User user) {
-		return offerService.getIncomingOffersForUser(user.getId()).pending().size();
+		return offerService.getPendingOffersCount(user);
 	}
 }

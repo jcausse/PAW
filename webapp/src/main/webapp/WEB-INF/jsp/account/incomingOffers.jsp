@@ -1,10 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="account" tagdir="/WEB-INF/tags/account" %>
 
 
+<c:url value="/account/incoming-offers" var="filterAction"/>
 <spring:message code="account.incomingOffers.title" var="titleMsg"/>
 <spring:message code="account.incomingOffers.subtitle" var="subtitleMsg"/>
 <spring:message code="account.incomingOffers.pendingTitle" var="pendingTitleMsg"/>
@@ -14,18 +16,18 @@
 <paw:head titleKey="account.incomingOffers.title"/>
 
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
-    <c:choose>
-        <c:when test="${empty pendingOffers and empty resolvedOffers}">
-            <div class="text-center py-12">
-                <spring:message code="account.incomingOffers.empty" var="emptyMsg"/>
-                <p class="text-black/50 text-lg"><c:out value="${emptyMsg}"/></p>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <c:if test="${not empty pendingOffers}">
-                <h2 class="text-lg font-semibold mb-4"><c:out value="${pendingTitleMsg}"/></h2>
+    <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
+        <paw:formButtonToggle path="statusGroup" items="${statusGroupOptions}" selectedOption="${filterForm.getStatusGroup()}" classname="mb-4" />
+        <c:choose>
+            <c:when test="${empty offers}">
+                <div class="text-center py-12">
+                    <spring:message code="account.incomingOffers.empty" var="emptyMsg"/>
+                    <p class="text-black/50 text-lg"><c:out value="${emptyMsg}"/></p>
+                </div>
+            </c:when>
+            <c:when test="${filterForm.getStatusGroup() == 'pending'}">
                 <div class="flex flex-col gap-4 mb-8">
-                    <c:forEach var="offer" items="${pendingOffers}">
+                    <c:forEach var="offer" items="${offers}">
                         <c:set var="coverUrl" value=""/>
                         <c:if test="${not empty offer.listing.imageIds}">
                             <c:url value="/image/${offer.listing.imageIds[0]}" var="coverUrl"/>
@@ -99,11 +101,12 @@
                             </c:if>
                         </paw:card>
                     </c:forEach>
-                </div>
-            </c:if>
 
-            <c:if test="${not empty resolvedOffers}">
-                <paw:card title="${resolvedTitleMsg}">
+                    <paw:pagination page="${offerPage}" baseUrl="/account/incoming-offers"/>
+                </div>
+            </c:when>
+            <c:when test="${filterForm.getStatusGroup() == 'resolved'}">
+                <paw:card>
                     <div class="overflow-x-auto mt-2">
                         <table class="w-full text-left text-sm">
                             <thead>
@@ -116,7 +119,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="offer" items="${resolvedOffers}">
+                                <c:forEach var="offer" items="${offers}">
                                     <c:choose>
                                         <c:when test="${offer.status.name() == 'ACCEPTED'}">
                                             <c:set var="statusClass" value="text-lime-600"/>
@@ -170,9 +173,11 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <paw:pagination page="${offerPage}" baseUrl="/account/incoming-offers"/>
                 </paw:card>
-            </c:if>
-        </c:otherwise>
-    </c:choose>
+            </c:when>
+        </c:choose>
+    </form:form>
 </account:layout>
 </html>
