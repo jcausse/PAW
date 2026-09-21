@@ -6,13 +6,13 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-public class ValidFilesValidator implements ConstraintValidator<ValidFiles, List<MultipartFile>> {
+public class ValidFilesValidator implements ConstraintValidator<ValidFile, List<MultipartFile>> {
 
     private long maxSizeBytes;
     private String[] allowedTypes;
 
     @Override
-    public void initialize(ValidFiles constraintAnnotation) {
+    public void initialize(ValidFile constraintAnnotation) {
         this.maxSizeBytes = constraintAnnotation.maxSizeBytes();
         this.allowedTypes = constraintAnnotation.allowedTypes();
     }
