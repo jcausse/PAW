@@ -14,8 +14,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -65,14 +63,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ModelAndView handleMaxUploadSizeExceeded(HttpServletRequest request, RedirectAttributes redirectAttributes) {
-        String referer = request.getHeader("Referer");
-        String fallbackUrl = "/";
-        String redirectUrl = (referer != null && !referer.isBlank()) ? referer : fallbackUrl;
-        
-        redirectAttributes.addFlashAttribute("fileSizeError", true);
-        redirectAttributes.addFlashAttribute("fileSizeErrorMessage", "The uploaded file exceeds the maximum allowed size (5MB).");
-        
-        return new ModelAndView("redirect:" + redirectUrl);
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ModelAndView handleMaxUploadSizeExceeded() {
+        return new ModelAndView("error/badRequest")
+            .addObject("messageCode", "fileSizeExceeded");
     }
 }
