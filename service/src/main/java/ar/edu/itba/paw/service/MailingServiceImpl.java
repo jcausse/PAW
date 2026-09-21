@@ -196,36 +196,6 @@ public class MailingServiceImpl implements MailingService {
 
     @Async
     @Override
-    public void sendPurchaseCompletedBuyerEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
-        context.setVariable("buyer", buyer);
-        context.setVariable("seller", seller);
-        context.setVariable("listing", listing);
-        context.setVariable("offer", offer);
-        context.setVariable("baseUrl", baseUrl);
-        context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
-
-        String subject = messageSource.getMessage("email.purchase.completed.buyer.subject", null, locale);
-        sendEmail(buyer.getEmail(), subject, "purchase-completed-buyer", context);
-    }
-
-    @Async
-    @Override
-    public void sendPurchaseCompletedSellerEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
-        context.setVariable("seller", seller);
-        context.setVariable("buyer", buyer);
-        context.setVariable("listing", listing);
-        context.setVariable("offer", offer);
-        context.setVariable("baseUrl", baseUrl);
-        context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
-
-        String subject = messageSource.getMessage("email.purchase.completed.seller.subject", null, locale);
-        sendEmail(seller.getEmail(), subject, "purchase-completed-seller", context);
-    }
-
-    @Async
-    @Override
     public void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale) {
         var context = new Context(locale);
         context.setVariable("user", user);

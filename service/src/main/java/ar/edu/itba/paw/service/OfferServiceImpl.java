@@ -205,11 +205,6 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public int getPendingOffersCount(User seller) {
-        return offerDao.countPendingBySeller(seller);
-    }
-
-    @Override
     @Transactional
     public Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data) {
         final Offer offer = offerDao.getById(offerId)
@@ -257,10 +252,6 @@ public class OfferServiceImpl implements OfferService {
         listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
         offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
 
-        // Send email notifications for completed purchase
-        mailingService.sendPurchaseCompletedBuyerEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
-        mailingService.sendPurchaseCompletedSellerEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
-
         return offerDao.getById(offerId).orElseThrow();
     }
 
@@ -274,5 +265,10 @@ public class OfferServiceImpl implements OfferService {
         }
 
         return fileDao.getById(offer.getProofOfPaymentId());
+    }
+
+    @Override
+    public int getPendingOffersCount(User seller) {
+        return offerDao.countPendingBySeller(seller);
     }
 }
