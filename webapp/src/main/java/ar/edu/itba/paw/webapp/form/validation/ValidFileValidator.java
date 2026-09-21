@@ -4,7 +4,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Arrays;
 
 public class ValidFileValidator implements ConstraintValidator<ValidFile, MultipartFile> {
 
@@ -19,21 +18,6 @@ public class ValidFileValidator implements ConstraintValidator<ValidFile, Multip
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
-        if (file == null || file.isEmpty()) {
-            return false;
-        }
-        if (file.getSize() > maxSizeBytes) {
-            return false;
-        }
-        final String contentType = file.getContentType();
-        if (contentType == null) {
-            return false;
-        }
-        return Arrays.stream(allowedTypes).anyMatch(type -> {
-            if (type.endsWith("/*")) {
-                return contentType.startsWith(type.substring(0, type.length() - 1));
-            }
-            return type.equals(contentType);
-        });
+        return FileValidation.isValidFile(file, maxSizeBytes, allowedTypes);
     }
 }
