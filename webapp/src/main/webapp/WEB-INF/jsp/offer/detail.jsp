@@ -109,8 +109,8 @@
                     </div>
 
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
-                        <h2 class="text-xl font-semibold truncate"><c:out value="${offer.listing.title}"/></h2>
-                        <p class="text-sm text-black/60 mt-1 truncate">
+                        <h2 class="text-xl font-semibold"><c:out value="${offer.listing.title}"/></h2>
+                        <p class="text-sm text-black/60 mt-1">
                             <c:out value="${offer.listing.product.brand}"/>
                             <c:out value="${offer.listing.product.model}"/>
                             (<c:out value="${offer.listing.product.year}"/>)
@@ -119,16 +119,10 @@
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <spring:message code="offer.decision.buyer" var="buyerLabel"/>
-                    <div class="flex flex-col">
-                        <span class="text-sm text-black/60"><c:out value="${buyerLabel}"/></span>
-                        <paw:user user="${offer.buyer}" />
-                    </div>
+                    <paw:user user="${offer.buyer}" />
                 </div>
 
                 <div class="flex flex-col">
-                    <spring:message code="offer.decision.amount" var="amountLabel"/>
-                    <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
                     <c:if test="${not offer.isFullPrice}">
                         <p class="text-lg font-medium line-through text-black/60">
                             $<c:out value="${offer.listing.price.getAmount()}"/>
@@ -160,20 +154,7 @@
                     <spring:message code="offer.detail.proofOfPayment" var="proofLabel"/>
                     <div class="flex flex-col gap-2">
                         <span class="text-sm text-black/60"><c:out value="${proofLabel}"/></span>
-                        <c:url value="/offer/${offer.id}/proof-of-payment/download" var="downloadUrl"/>
-                        <paw:linkButton variant="ghost" href="${downloadUrl}" icon="download" classname="w-full justify-start text-start px-3!">
-                            <div class="flex flex-col items-start ml-1">
-                                <span class="text-black font-medium"><c:out value="${offer.proofOfPaymentFilename}"/></span>
-                                <span class="text-xs text-black/60 font-normal">
-                                    <c:out value="${offer.getProofOfPaymentExtension()}"/>
-                                    &nbsp;|&nbsp;
-                                    <c:out value="${offer.getProofOfPaymentSizeKb()}"/> KB
-                                </span>
-                            </div>
-                        </paw:linkButton>
-                        <c:if test="${offer.proofOfPaymentIsImage()}">
-                            <img src="${downloadUrl}" alt="Proof of payment" class="max-w-full h-auto rounded-lg border border-black/10" />
-                        </c:if>
+                        <paw:offerProofOfPayment offer="${offer}" />
                     </div>
                 </c:if>
 

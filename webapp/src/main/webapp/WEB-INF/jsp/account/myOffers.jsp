@@ -154,23 +154,8 @@
                             </div>
 
                             <c:if test="${offer.proofOfPaymentId != null}">
-                                <c:url value="/offer/${offer.id}/proof-of-payment/download" var="downloadUrl"/>
                                 <paw:collapsible title="Proof of Payment">
-                                    <div class="flex flex-col gap-2">
-                                        <paw:linkButton variant="ghost" href="${downloadUrl}" icon="download" classname="w-full justify-start text-start px-3!">
-                                            <div class="flex flex-col items-start ml-1">
-                                                <span class="text-black font-medium"><c:out value="${offer.proofOfPaymentFilename}"/></span>
-                                                <span class="text-xs text-black/60 font-normal">
-                                                    <c:out value="${offer.getProofOfPaymentExtension()}"/>
-                                                    &nbsp;|&nbsp;
-                                                    <c:out value="${offer.getProofOfPaymentSizeKb()}"/> KB
-                                                </span>
-                                            </div>
-                                        </paw:linkButton>
-                                        <c:if test="${offer.proofOfPaymentIsImage()}">
-                                            <img src="${downloadUrl}" alt="Proof of payment" class="max-w-full h-auto rounded-lg border border-black/10" />
-                                        </c:if>
-                                    </div>
+                                    <paw:offerProofOfPayment offer="${offer}" />
                                 </paw:collapsible>
                             </c:if>
 
