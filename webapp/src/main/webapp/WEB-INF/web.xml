@@ -56,6 +56,12 @@
     <url-pattern>/</url-pattern>
   </servlet-mapping>
 
+  <!-- Error page for 413 Payload Too Large (file upload size exceeded) -->
+  <error-page>
+    <error-code>413</error-code>
+    <location>/error/fileSizeExceeded</location>
+  </error-page>
+
   <!-- Character Encoding Filter (must run before security filter) -->
   <filter>
     <filter-name>characterEncodingFilter</filter-name>
