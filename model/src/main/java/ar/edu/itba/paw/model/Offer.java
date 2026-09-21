@@ -44,7 +44,7 @@ public final class Offer {
         return proofOfPaymentSize / 1024;
     }
 
-    public boolean isProofOfPaymentIsImage() {
+    public boolean proofOfPaymentIsImage() {
         return proofOfPaymentContentType != null && proofOfPaymentContentType.startsWith("image/");
     }
 }
