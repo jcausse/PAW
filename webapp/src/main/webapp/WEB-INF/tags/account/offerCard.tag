@@ -6,11 +6,6 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 
-<c:set var="coverUrl" value=""/>
-<c:if test="${not empty offer.listing.imageIds}">
-    <c:url value="/image/${offer.listing.imageIds[0]}" var="coverUrl"/>
-</c:if>
-
 <paw:card classname="flex flex-col h-full gap-2">
     <div class="flex items-start justify-between gap-2">
         <h3 class="text-base font-semibold flex-1 min-w-0 truncate">
@@ -69,6 +64,14 @@
             <jsp:doBody />
         </div>
     </div>
+
+    <c:if test="${offer.hasOtherOffers}">
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-2 flex flex-row gap-2 text-amber-800 items-center">
+            <paw:icon name="triangle-alert" />
+            <spring:message code="${offer.hasBetterOffers ? 'offer.warning.betterOffers' : 'offer.warning.otherOffers'}" var="warningMsg"/>
+            <p class="text-sm"><c:out value="${warningMsg}"/></p>
+        </div>
+    </c:if>
 
     <c:if test="${offer.proofOfPaymentId != null}">
         <paw:collapsible title="Proof of Payment">

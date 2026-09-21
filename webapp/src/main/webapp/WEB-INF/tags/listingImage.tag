@@ -14,6 +14,8 @@
     ? 'w-16 h-16'
     : imageSize eq 'lg'
     ? 'w-24 h-24'
+    : imageSize eq 'xl'
+    ? 'w-28 h-28'
     : 'w-20 h-20'
 }"/>
 

@@ -89,24 +89,7 @@
 
                 <!-- Listing info section -->
                 <div class="flex flex-row gap-4">
-                    <c:set var="listingImageUrl" value=""/>
-                    <c:forEach items="${offer.listing.imageIds}" var="imageId" varStatus="status">
-                        <c:if test="${status.first}">
-                            <c:url value="/image/${imageId}" var="listingImageUrl"/>
-                        </c:if>
-                    </c:forEach>
-                    <div class="w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden border border-black/10 bg-neutral-200">
-                        <c:choose>
-                            <c:when test="${not empty listingImageUrl}">
-                                <img src="${listingImageUrl}" alt="<c:out value='${offer.listing.title}'/>" class="w-full h-full object-cover"/>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="w-full h-full grid place-items-center text-black/30 text-xs px-2 text-center">
-                                    <spring:message code="card.noImage"/>
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
+                    <paw:listingImage listing="${offer.listing}" size="xl" />
 
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                         <h2 class="text-xl font-semibold"><c:out value="${offer.listing.title}"/></h2>

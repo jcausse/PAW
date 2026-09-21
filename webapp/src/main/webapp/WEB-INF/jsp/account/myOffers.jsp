@@ -19,41 +19,41 @@
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
         <paw:formButtonToggle path="statusGroup" items="${statusGroupOptions}" selectedOption="${filterForm.getStatusGroup()}" classname="mb-4" />
-
-        <c:choose>
-            <c:when test="${empty offers}">
-                <div class="text-center py-12">
-                    <spring:message code="account.myOffers.empty" var="emptyMsg"/>
-                    <p class="text-black/50 text-lg"><c:out value="${emptyMsg}"/></p>
-                </div>
-            </c:when>
-            <c:when test="${filterForm.getStatusGroup() == 'pending' || filterForm.getStatusGroup() == 'pending_payment'}">
-                <div class="flex flex-col gap-4 mb-8">
-                    <c:forEach var="offer" items="${offers}">
-                        <account:offerCard offer="${offer}" user="seller">
-                            <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
-                                <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
-                                <paw:linkButton variant="outline" href="${proofUrl}" icon="upload" />
-                            </c:if>
-                            <c:if test="${offer.status.name() == 'PENDING'}">
-                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
-                                    <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                    <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
-                                </form>
-                            </c:if>
-                        </account:offerCard>
-                    </c:forEach>
-
-                    <paw:pagination page="${offerPage}" baseUrl="/account/my-offers"/>
-                </div>
-            </c:when>
-            <c:when test="${filterForm.getStatusGroup() == 'resolved'}">
-                <paw:card>
-                    <account:offerTable offers="${offers}" user="seller" />
-                    <paw:pagination page="${offerPage}" baseUrl="/account/my-offers"/>
-                </paw:card>
-            </c:when>
-        </c:choose>
     </form:form>
+
+    <c:choose>
+        <c:when test="${empty offers}">
+            <div class="text-center py-12">
+                <spring:message code="account.myOffers.empty" var="emptyMsg"/>
+                <p class="text-black/50 text-lg"><c:out value="${emptyMsg}"/></p>
+            </div>
+        </c:when>
+        <c:when test="${filterForm.getStatusGroup() == 'pending' || filterForm.getStatusGroup() == 'pending_payment'}">
+            <div class="flex flex-col gap-4 mb-8">
+                <c:forEach var="offer" items="${offers}">
+                    <account:offerCard offer="${offer}" user="seller">
+                        <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                            <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
+                            <paw:linkButton variant="outline" href="${proofUrl}" icon="upload" />
+                        </c:if>
+                        <c:if test="${offer.status.name() == 'PENDING'}">
+                            <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                                <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
+                            </form>
+                        </c:if>
+                    </account:offerCard>
+                </c:forEach>
+
+                <paw:pagination page="${offerPage}" baseUrl="/account/my-offers"/>
+            </div>
+        </c:when>
+        <c:when test="${filterForm.getStatusGroup() == 'resolved'}">
+            <paw:card>
+                <account:offerTable offers="${offers}" user="seller" />
+                <paw:pagination page="${offerPage}" baseUrl="/account/my-offers"/>
+            </paw:card>
+        </c:when>
+    </c:choose>
 </account:layout>
 </html>
