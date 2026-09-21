@@ -75,6 +75,13 @@ public class OfferController {
         return new ModelAndView("redirect:/listing/" + listing.getId());
     }
 
+    @PostMapping("/{offerId}/confirm-payment")
+    public ModelAndView confirmPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        offerService.confirmPayment(offerId, currentUser.getId());
+
+        return new ModelAndView("redirect:/account/incoming-offers");
+    }
+
     @GetMapping("/{offerId}/proof-of-payment")
     public ModelAndView showProofOfPaymentUpload(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
@@ -123,27 +130,6 @@ public class OfferController {
         }
 
         return new ModelAndView("redirect:/account/my-offers");
-    }
-
-    @PostMapping("/{offerId}/confirm-payment")
-    public ModelAndView confirmPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to confirm payment");
-        }
-
-        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
-            throw new ForbiddenException("Offer is not pending payment");
-        }
-
-        offerService.confirmPayment(offerId, currentUserId);
-
-        return new ModelAndView("redirect:/account/incoming-offers");
     }
 
     @GetMapping("/{offerId}/proof-of-payment/download")

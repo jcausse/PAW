@@ -246,7 +246,7 @@ public class OfferServiceImpl implements OfferService {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
-        if (!Objects.equals(offer.getListing().getCreator().getId(), sellerId)) {
+        if (!offer.getListing().getCreator().getId().equals(sellerId)) {
             throw new BadParameterException("Only the seller can confirm payment");
         }
 
