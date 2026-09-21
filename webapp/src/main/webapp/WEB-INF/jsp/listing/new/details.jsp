@@ -94,7 +94,7 @@
                     <paw:formInput type="textarea" path="description" label="${descriptionLabel}" inputClassname="min-h-40 resize-none" />
 
                     <spring:message code="listing.new.imagesLabel" var="imagesLabel"/>
-                    <paw:imageUpload path="images" label="${imagesLabel}" multiple="true" />
+                    <paw:fileUpload path="images" label="${imagesLabel}" multiple="true" accept="image/*" />
 
                     <div class="mt-2 flex justify-center gap-4">
                         <c:if test="${empty detailsForm.editListingId}">
