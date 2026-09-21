@@ -34,12 +34,15 @@
 
     <div id="${path}-previews" class="grid ${inputMultiple ? 'grid-cols-5' : 'grid-cols-2 max-w-66 w-full'} gap-2">
         <div id="${path}-preview-template" class="relative group aspect-square rounded-lg border border-black/10 overflow-hidden hidden">
-            <div class="w-full h-full flex items-center justify-center bg-neutral-50">
+            <div class="w-full h-full flex flex-col gap-1 items-center justify-center bg-neutral-50">
                 <img class="w-full h-full object-cover hidden" />
-                <div class="file-icon-container hidden flex flex-col items-center justify-center gap-1 p-2">
-                    <paw:icon name="file" classname="text-black/40 text-3xl" />
-                    <span class="text-xs text-black/60 font-medium text-center px-1"></span>
+                <div class="file-icon-container hidden flex flex-col items-center justify-center relative">
+                    <paw:icon name="file" classname="text-black/40 text-4xl" />
+                    <div class="rounded-full bg-white absolute left-full top-full -translate-x-2/3 -translate-y-3/4">
+                        <paw:badge size="sm" classname="file-extension text-lime-600" />
+                    </div>
                 </div>
+                <div class="file-name hidden text-black/60 text-xs"></div>
             </div>
             <div class="absolute top-1 right-1 bg-white rounded-lg">
                 <paw:button size="sm" variant="outline" icon="x" type="button" role="danger" />
@@ -140,8 +143,9 @@
         const contentDiv = preview.querySelector('.w-full.h-full');
         const img = preview.querySelector('img');
         const iconContainer = preview.querySelector('.file-icon-container');
+        const filenameElement = preview.querySelector('.file-name');
         const iconElement = iconContainer ? iconContainer.querySelector('paw-icon') : null;
-        const extensionElement = iconContainer ? iconContainer.querySelector('span') : null;
+        const extensionElement = iconContainer ? iconContainer.querySelector('.file-extension') : null;
 
         const isImage = objectUrl !== null;
 
@@ -158,9 +162,13 @@
                     iconElement.setAttribute('name', 'file');
                 }
                 if (extensionElement) {
-                    const ext = fileName.split('.').pop().toLowerCase();
-                    extensionElement.textContent = ext ? '.' + ext : '';
+                    const ext = fileName.split('.').pop().toUpperCase();
+                    extensionElement.textContent = ext ?? '';
                 }
+            }
+            if (filenameElement) {
+              filenameElement.classList.remove('hidden');
+              filenameElement.textContent = fileName;
             }
         }
 
