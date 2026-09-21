@@ -60,6 +60,11 @@
 
                 <form:form method="POST" action="${uploadAction}" enctype="multipart/form-data" class="space-y-4" modelAttribute="proofOfPaymentUploadForm">
                     <form:errors path="*" element="div" cssClass="text-xs text-red-600 mb-4" />
+                    <c:if test="${flashScope.fileSizeError}">
+                        <div class="text-xs text-red-600 mb-4">
+                            <c:out value="${flashScope.fileSizeErrorMessage}"/>
+                        </div>
+                    </c:if>
                     <div>
                         <label class="block text-sm font-medium text-black/70 mb-2">
                             <spring:message code="offer.proofOfPayment.fileLabel" var="fileLabelMsg"/>
