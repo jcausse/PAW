@@ -176,8 +176,12 @@
                     </c:when>
                     <c:when test="${offer.status.name() == 'PENDING_PAYMENT'}">
                         <spring:message code="offer.detail.confirmPayment" var="confirmLabel"/>
-                        <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST" class="w-full">
+                        <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST" class="w-full mb-2">
                             <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${confirmLabel}"/>
+                        </form>
+                        <spring:message code="offer.decision.reject" var="rejectLabel"/>
+                        <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST" class="w-full">
+                            <paw:button type="submit" variant="ghost" role="danger" size="md" classname="w-full" text="${rejectLabel}"/>
                         </form>
                     </c:when>
                     <c:when test="${offer.status.name() == 'ACCEPTED'}">
