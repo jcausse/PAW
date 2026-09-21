@@ -14,6 +14,7 @@ import ar.edu.itba.paw.persistence.FileDao;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
+import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 
 import java.time.Instant;
@@ -116,9 +117,13 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     @Transactional
-    public Offer accept(Long offerId) {
+    public Offer accept(Long offerId, Long currentUserId) {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!offer.getListing().getCreator().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to accept this offer");
+        }
 
         if (offer.getStatus() != OfferStatus.PENDING) {
             throw new BadParameterException("Offer is not pending");
@@ -133,72 +138,58 @@ public class OfferServiceImpl implements OfferService {
         // Send email notification to seller about pending transaction
         mailingService.sendPendingTransactionEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
+        // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
     }
 
     @Override
     @Transactional
-    public Offer reject(Long offerId) {
+    public Offer reject(Long offerId, Long currentUserId) {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
-        if (offer.getStatus() != OfferStatus.PENDING) {
-            throw new BadParameterException("Offer is not pending");
+        if (!offer.getListing().getCreator().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to reject this offer");
         }
+
+        switch (offer.getStatus()) {
+           	case OfferStatus.PENDING -> {}
+            case OfferStatus.PENDING_PAYMENT -> {
+                // Reset listing to ACTIVE
+                listingService.updateStatus(offer.getListing().getId(), ListingStatus.ACTIVE);
+            }
+            default -> throw new BadParameterException("Offer cannot be rejected in its current state");
+        };
 
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
 
         // Send email notification to buyer about offer rejection
         mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
+        // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
     }
 
     @Override
     @Transactional
-    public Offer withdraw(Long offerId, Long buyerId) {
+    public Offer withdraw(Long offerId, Long currentUserId) {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
-        if (!Objects.equals(offer.getBuyer().getId(), buyerId)) {
-            throw new BadParameterException("Only the buyer can withdraw this offer");
+        if (!offer.getBuyer().getId().equals(currentUserId)) {
+            throw new BadParameterException("Not authorized to withdraw this offer");
         }
 
         if (offer.getStatus() != OfferStatus.PENDING) {
             throw new BadParameterException("Offer is not pending");
         }
 
-        offerDao.withdraw(offerId, buyerId);
+        offerDao.withdraw(offerId, currentUserId);
 
         // Send email notification to seller about offer withdrawal
         mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
-        return offerDao.getById(offerId).orElseThrow();
-    }
-
-    @Override
-    @Transactional
-    public Offer rejectPendingPayment(Long offerId, Long sellerId) {
-        final Offer offer = offerDao.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
-
-        if (!Objects.equals(offer.getListing().getCreator().getId(), sellerId)) {
-            throw new BadParameterException("Only the seller can reject this offer");
-        }
-
-        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
-            throw new BadParameterException("Offer is not pending payment");
-        }
-
-        // Reset listing to ACTIVE
-        listingService.updateStatus(offer.getListing().getId(), ListingStatus.ACTIVE);
-        
-        // Reject the offer
-        offerDao.updateStatus(offerId, OfferStatus.REJECTED);
-
-        // Send email notification to buyer about offer rejection
-        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
-
+        // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
     }
 
@@ -224,7 +215,7 @@ public class OfferServiceImpl implements OfferService {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
-        if (!Objects.equals(offer.getBuyer().getId(), buyerId)) {
+        if (!offer.getBuyer().getId().equals(buyerId)) {
             throw new BadParameterException("Only the buyer can upload proof of payment");
         }
 

@@ -6,9 +6,10 @@ import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.OfferService;
+import ar.edu.itba.paw.service.exception.BadParameterException;
+import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
-import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,17 +52,14 @@ public class OfferController {
 
     @PostMapping("/{offerId}/accept")
     public ModelAndView acceptOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+        offerService.accept(offerId, currentUser.getId());
 
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
+        return new ModelAndView("redirect:/account/incoming-offers");
+    }
 
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to accept this offer");
-        }
-
-        offerService.accept(offerId);
+    @PostMapping("/{offerId}/reject")
+    public ModelAndView rejectOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        offerService.reject(offerId, currentUser.getId());
 
         return new ModelAndView("redirect:/account/incoming-offers");
     }
@@ -72,13 +70,7 @@ public class OfferController {
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        if (!offer.getBuyer().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to withdraw this offer");
-        }
-
-        offerService.withdraw(offerId, currentUserId);
+        offerService.withdraw(offerId, currentUser.getId());
 
         return new ModelAndView("redirect:/listing/" + listing.getId());
     }
@@ -93,7 +85,7 @@ public class OfferController {
         }
 
         if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
-            throw new ForbiddenException("Offer is not pending payment");
+            throw new BadParameterException("Offer is not pending payment");
         }
 
         var mav = new ModelAndView("offer/proofOfPaymentUpload");
@@ -109,14 +101,6 @@ public class OfferController {
                                               BindingResult bindingResult) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        if (!offer.getBuyer().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not authorized to upload proof of payment");
-        }
-
-        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
-            throw new ForbiddenException("Offer is not pending payment");
-        }
 
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("offer/proofOfPaymentUpload");
@@ -158,30 +142,6 @@ public class OfferController {
         }
 
         offerService.confirmPayment(offerId, currentUserId);
-
-        return new ModelAndView("redirect:/account/incoming-offers");
-    }
-
-    @PostMapping("/{offerId}/reject")
-    public ModelAndView rejectOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        // Seller can reject pending or pending_payment offers
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to reject this offer");
-        }
-
-        if (offer.getStatus() == OfferStatus.PENDING) {
-            offerService.reject(offerId);
-        } else if (offer.getStatus() == OfferStatus.PENDING_PAYMENT) {
-            offerService.rejectPendingPayment(offerId, currentUserId);
-        } else {
-            throw new ForbiddenException("Offer cannot be rejected in current state");
-        }
 
         return new ModelAndView("redirect:/account/incoming-offers");
     }

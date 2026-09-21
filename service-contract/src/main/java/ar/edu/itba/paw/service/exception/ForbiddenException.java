@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.exception;
+package ar.edu.itba.paw.service.exception;
 
 public class ForbiddenException extends RuntimeException {
 

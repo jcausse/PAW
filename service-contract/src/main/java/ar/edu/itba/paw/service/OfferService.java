@@ -21,11 +21,11 @@ public interface OfferService {
 
     Offer create(OfferCreationDto dto);
 
-    Offer accept(Long offerId);
+    Offer accept(Long offerId, Long currentUserId);
 
-    Offer reject(Long offerId);
+    Offer reject(Long offerId, Long currentUserId);
 
-    Offer withdraw(Long offerId, Long buyerId);
+    Offer withdraw(Long offerId, Long currentUserId);
 
     List<Offer> rejectPendingOffersForListing(Long listingId, Long exceptOfferId);
 
@@ -34,8 +34,6 @@ public interface OfferService {
     Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data);
 
     Offer confirmPayment(Long offerId, Long sellerId);
-
-    Offer rejectPendingPayment(Long offerId, Long sellerId);
 
     Optional<File> getProofOfPaymentFile(Long offerId);
 }
