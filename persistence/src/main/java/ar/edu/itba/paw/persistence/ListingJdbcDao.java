@@ -215,6 +215,11 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
+    public void updateStatus(Long id, ListingStatus status) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, status.getStatus(), id);
+    }
+
+    @Override
     public Listing update(
         Long id,
         String title,

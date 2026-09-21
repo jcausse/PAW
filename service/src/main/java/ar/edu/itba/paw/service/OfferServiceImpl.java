@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
@@ -171,6 +172,32 @@ public class OfferServiceImpl implements OfferService {
 
         // Send email notification to seller about offer withdrawal
         mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        return offerDao.getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Offer rejectPendingPayment(Long offerId, Long sellerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!Objects.equals(offer.getListing().getCreator().getId(), sellerId)) {
+            throw new BadParameterException("Only the seller can reject this offer");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new BadParameterException("Offer is not pending payment");
+        }
+
+        // Reset listing to ACTIVE
+        listingService.updateStatus(offer.getListing().getId(), ListingStatus.ACTIVE);
+        
+        // Reject the offer
+        offerDao.updateStatus(offerId, OfferStatus.REJECTED);
+
+        // Send email notification to buyer about offer rejection
+        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
         return offerDao.getById(offerId).orElseThrow();
     }

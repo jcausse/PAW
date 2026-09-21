@@ -20,6 +20,7 @@ public interface ListingDao {
     Page<Listing> search(ListingFilter filter);
     ListingStatus purchase(Long id, Long buyerId);
     ListingStatus pendingTransaction(Long id, Long buyerId);
+    void updateStatus(Long id, ListingStatus status);
     Listing update(Long id, String title, Price price, Product product,
                    Condition condition, boolean acceptsTrade, String description);
     void cancel(Long id);

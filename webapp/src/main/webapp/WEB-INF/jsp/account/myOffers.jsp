@@ -142,10 +142,12 @@
                                         <div class="flex flex-row gap-1">
                                             <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
                                             <paw:linkButton variant="outline" href="${proofUrl}" icon="upload" />
-                                            <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
-                                                <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                                <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
-                                            </form>
+                                            <c:if test="${offer.status.name() != 'PENDING_PAYMENT'}">
+                                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                                    <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                                                    <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
+                                                </form>
+                                            </c:if>
                                         </div>
                                     </div>
                                 </div>
