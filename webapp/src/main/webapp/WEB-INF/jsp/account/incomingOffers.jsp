@@ -54,73 +54,7 @@
             </c:when>
             <c:when test="${filterForm.getStatusGroup() == 'resolved'}">
                 <paw:card>
-                    <div class="overflow-x-auto mt-2">
-                        <table class="w-full text-left text-sm">
-                            <thead>
-                                <tr class="border-b border-black/10">
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.listing"/></th>
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.buyer"/></th>
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.amount"/></th>
-                                    <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.status"/></th>
-                                    <th class="pb-2 font-medium text-black/60"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="offer" items="${offers}">
-                                    <c:choose>
-                                        <c:when test="${offer.status.name() == 'ACCEPTED'}">
-                                            <c:set var="statusClass" value="text-lime-600"/>
-                                            <spring:message code="offer.status.ACCEPTED" var="statusLabel"/>
-                                        </c:when>
-                                        <c:when test="${offer.status.name() == 'REJECTED'}">
-                                            <c:set var="statusClass" value="text-red-600"/>
-                                            <spring:message code="offer.status.REJECTED" var="statusLabel"/>
-                                        </c:when>
-                                        <c:when test="${offer.status.name() == 'WITHDRAWN'}">
-                                            <c:set var="statusClass" value="text-stone-600"/>
-                                            <spring:message code="offer.status.WITHDRAWN" var="statusLabel"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <c:set var="statusClass" value="text-stone-600"/>
-                                            <c:set var="statusLabel" value="${offer.status.name()}"/>
-                                        </c:otherwise>
-                                    </c:choose>
-
-                                    <tr class="border-b border-black/5 last:border-0">
-                                        <td class="py-1">
-                                            <c:url value="/listing/${offer.listing.id}" var="listingUrl"/>
-                                            <a href="${listingUrl}" class="hover:text-lime-600 transition font-medium"><c:out value="${offer.listing.title}"/></a>
-                                        </td>
-                                        <td class="py-1 pr-2">
-                                            <paw:user user="${offer.buyer}" variant="compact" />
-                                        </td>
-                                        <td class="py-1 font-semibold">
-                                            <div>
-                                                <c:if test="${not offer.isFullPrice}">
-                                                    <p class="text-xs font-medium line-through text-black/60">
-                                                        $<c:out value="${offer.listing.price.amount}"/>
-                                                    </p>
-                                                </c:if>
-                                                $<c:out value="${offer.amount}"/>
-                                            </div>
-                                        </td>
-                                        <td class="py-1">
-                                            <div class="flex flex-row">
-                                                <paw:badge text="${statusLabel}" classname="${statusClass}" size="sm" />
-                                            </div>
-                                        </td>
-                                        <td class="py-1">
-                                            <div class="flex flex-row gap-1 justify-end">
-                                                <c:url value="/offer/${offer.id}" var="offerUrl"/>
-                                                <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
-
+                    <account:offerTable offers="${offers}" user="buyer" />
                     <paw:pagination page="${offerPage}" baseUrl="/account/incoming-offers"/>
                 </paw:card>
             </c:when>
