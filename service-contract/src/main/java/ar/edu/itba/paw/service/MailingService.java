@@ -22,9 +22,6 @@ public interface MailingService {
     /** Notify the seller that they received a new offer on their listing. */
     void sendNewOfferEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
 
-    /** Notify the buyer that their offer was accepted. */
-    void sendOfferAcceptedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale);
-
     /** Notify the buyer that their offer was rejected. */
     void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale);
 

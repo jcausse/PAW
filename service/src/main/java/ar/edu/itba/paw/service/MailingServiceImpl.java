@@ -108,21 +108,6 @@ public class MailingServiceImpl implements MailingService {
 
     @Async
     @Override
-    public void sendOfferAcceptedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
-        context.setVariable("buyer", buyer);
-        context.setVariable("seller", seller);
-        context.setVariable("listing", listing);
-        context.setVariable("offer", offer);
-        context.setVariable("baseUrl", baseUrl);
-        context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
-
-        String subject = messageSource.getMessage("email.offer.accepted.subject", null, locale);
-        sendEmail(buyer.getEmail(), subject, "offer-accepted", context);
-    }
-
-    @Async
-    @Override
     public void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale) {
         var context = new Context(locale);
         context.setVariable("buyer", buyer);
