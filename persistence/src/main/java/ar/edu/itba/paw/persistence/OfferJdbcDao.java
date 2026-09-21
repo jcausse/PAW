@@ -283,6 +283,7 @@ public class OfferJdbcDao implements OfferDao {
             BASE_SELECT +
             " WHERE o." + OfferSchema.LISTING_ID + " = ?" +
             " AND o." + OfferSchema.BUYER_ID + " = ?" +
+            " AND o." + OfferSchema.STATUS + " IN ('" + OfferStatus.PENDING.getStatus() + "', '" + OfferStatus.PENDING_PAYMENT.getStatus() + "')" +
             " ORDER BY o." + OfferSchema.ID + " DESC";
 
         private static final String UPDATE_STATUS =
