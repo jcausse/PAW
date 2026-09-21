@@ -213,4 +213,10 @@ public class ListingServiceImpl implements ListingService {
         offerService.rejectPendingOffersForListing(id, null);
         listingDao.cancel(id);
     }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id, ListingStatus status) {
+        listingDao.updateStatus(id, status);
+    }
 }

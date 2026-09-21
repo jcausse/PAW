@@ -159,6 +159,9 @@
                                     <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
                                         <paw:button type="submit" variant="outline" icon="credit-card" />
                                     </form>
+                                    <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST">
+                                        <paw:button type="submit" variant="outline" role="danger" icon="x" />
+                                    </form>
                                 </div>
                             </div>
 

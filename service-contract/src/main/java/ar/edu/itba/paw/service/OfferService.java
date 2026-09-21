@@ -35,5 +35,7 @@ public interface OfferService {
 
     Offer confirmPayment(Long offerId, Long sellerId);
 
+    Offer rejectPendingPayment(Long offerId, Long sellerId);
+
     Optional<File> getProofOfPaymentFile(Long offerId);
 }

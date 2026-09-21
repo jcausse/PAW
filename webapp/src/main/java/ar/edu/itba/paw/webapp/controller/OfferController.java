@@ -66,23 +66,6 @@ public class OfferController {
         return new ModelAndView("redirect:/account/incoming-offers");
     }
 
-    @PostMapping("/{offerId}/reject")
-    public ModelAndView rejectOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to reject this offer");
-        }
-
-        offerService.reject(offerId);
-
-        return new ModelAndView("redirect:/account/incoming-offers");
-    }
-
     @PostMapping("/{offerId}/withdraw")
     public ModelAndView withdrawOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
@@ -175,6 +158,30 @@ public class OfferController {
         }
 
         offerService.confirmPayment(offerId, currentUserId);
+
+        return new ModelAndView("redirect:/account/incoming-offers");
+    }
+
+    @PostMapping("/{offerId}/reject")
+    public ModelAndView rejectOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        final Listing listing = offer.getListing();
+        final Long currentUserId = currentUser.getId();
+
+        // Seller can reject pending or pending_payment offers
+        if (!listing.getCreator().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to reject this offer");
+        }
+
+        if (offer.getStatus() == OfferStatus.PENDING) {
+            offerService.reject(offerId);
+        } else if (offer.getStatus() == OfferStatus.PENDING_PAYMENT) {
+            offerService.rejectPendingPayment(offerId, currentUserId);
+        } else {
+            throw new ForbiddenException("Offer cannot be rejected in current state");
+        }
 
         return new ModelAndView("redirect:/account/incoming-offers");
     }
