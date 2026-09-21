@@ -4,6 +4,7 @@
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="multiple" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="accept" required="false" %>
+<%@ attribute name="maxSizeBytes" required="false" type="java.lang.Long" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
@@ -12,10 +13,12 @@
 <spring:message code="fileUpload.clearLabel" var="clearLabel"/>
 <spring:message code="fileUpload.changeLabel" var="changeLabel"/>
 <spring:message code="fileUpload.removeLabel" var="removeLabel"/>
+<spring:message code="fileUpload.sizeError" var="sizeErrorMsg"/>
 
 <c:set var="inputDisabled" value="${disabled ne null ? disabled : false}"/>
 <c:set var="inputMultiple" value="${multiple ne null ? multiple : false}"/>
 <c:set var="inputAccept" value="${not empty accept ? accept : 'image/*,application/pdf'}"/>
+<c:set var="inputMaxSizeBytes" value="${maxSizeBytes ne null ? maxSizeBytes : 5242880}"/>
 
 <div class="flex flex-col gap-2">
     <div class="flex flex-row gap-2 items-center min-h-5.5 justify-between">
@@ -30,6 +33,13 @@
                 <span class="text-center px-2"><c:out value="${clearLabel}"/></span>
             </paw:button>
         </c:if>
+    </div>
+
+    <!-- File size error banner -->
+    <div id="${path}-size-error" class="hidden px-3 py-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+        <paw:icon name="alert-circle" classname="text-red-600" size="16"/>
+        <span class="flex-1"></span>
+        <paw:button size="sm" variant="ghost" icon="x" type="button" onclick="dismissSizeError('${path}')" aria-label="Dismiss"/>
     </div>
 
     <div id="${path}-previews" class="grid ${inputMultiple ? 'grid-cols-5' : 'grid-cols-2 max-w-66 w-full'} gap-2">
@@ -58,11 +68,11 @@
             <c:choose>
                 <c:when test="${inputMultiple}">
                     <spring:message code="fileUpload.uploadLabelMultiple" var="uploadLabel"/>
-                    <form:input path="${path}" id="${path}-file" type="file" accept="${inputAccept}" disabled="${inputDisabled}" class="hidden" onchange="handleFileUpload(this, '${path}')" multiple="true" />
+                    <form:input path="${path}" id="${path}-file" type="file" accept="${inputAccept}" disabled="${inputDisabled}" class="hidden" onchange="handleFileUpload(this, '${path}')" multiple="true" data-max-size-bytes="${inputMaxSizeBytes}" />
                 </c:when>
                 <c:otherwise>
                     <spring:message code="fileUpload.uploadLabel" var="uploadLabel"/>
-                    <form:input path="${path}" id="${path}-file" type="file" accept="${inputAccept}" disabled="${inputDisabled}" class="hidden" onchange="handleFileUpload(this, '${path}')"/>
+                    <form:input path="${path}" id="${path}-file" type="file" accept="${inputAccept}" disabled="${inputDisabled}" class="hidden" onchange="handleFileUpload(this, '${path}')" data-max-size-bytes="${inputMaxSizeBytes}"/>
                 </c:otherwise>
             </c:choose>
             <paw:icon name="plus" classname="text-black/40 text-3xl" />
@@ -79,16 +89,27 @@
 <script>
     // Store original file input reference and object URLs
     let fileUploadState = new Map();
+    const sizeErrorMsg = '<spring:message code="fileUpload.sizeError" javaScriptEscape="true"/>';
 
     function changeFile(fieldId) {
       const addBtn = document.getElementById(fieldId + '-add');
       if (addBtn) addBtn.click();
     }
 
+    function dismissSizeError(fieldId) {
+        const errorBanner = document.getElementById(fieldId + '-size-error');
+        if (errorBanner) {
+            errorBanner.classList.add('hidden');
+        }
+    }
+
     function handleFileUpload(fileInput, fieldId) {
         const previewsContainer = document.getElementById(fieldId + '-previews');
         const clearBtn = document.getElementById(fieldId + '-clear');
         const addBtn = document.getElementById(fieldId + '-add');
+        const errorBanner = document.getElementById(fieldId + '-size-error');
+        const errorMessage = errorBanner ? errorBanner.querySelector('span') : null;
+        const maxSizeBytes = parseInt(fileInput.dataset.maxSizeBytes || '5242880', 10);
         const isMultiple = fileInput.multiple;
 
         if (!fileUploadState.has(fieldId)) {
@@ -112,9 +133,17 @@
             addBtn.classList.add('hidden');
         }
 
+        let hasSizeError = false;
+
         files.forEach((file, index) => {
             const isImage = file.type.startsWith('image/');
             if (!isImage && file.type !== 'application/pdf') return;
+
+            // Check file size
+            if (file.size > maxSizeBytes) {
+                hasSizeError = true;
+                return; // Ignore this file
+            }
 
             const objectUrl = isImage ? URL.createObjectURL(file) : null;
             const fileIndex = state.originalFiles.length;
@@ -125,6 +154,11 @@
 
             createPreview(previewsContainer, fieldId, objectUrl, file.name, file.type, fileIndex, state);
         });
+
+        if (hasSizeError && errorBanner && errorMessage) {
+            errorMessage.textContent = sizeErrorMsg || 'File exceeds maximum size of 5MB';
+            errorBanner.classList.remove('hidden');
+        }
 
         if (isMultiple && state.originalFiles.length > 0) {
             clearBtn.classList.remove('hidden');
