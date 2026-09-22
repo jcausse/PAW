@@ -12,6 +12,42 @@
     <paw:navbar />
 
     <div class="max-w-5xl mx-auto p-8 pb-24">
+        <c:choose>
+            <c:when test="${isCanceled}">
+                <spring:message code="listing.detail.canceled" var="canceledMsg"/>
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <paw:icon name="alert-circle" classname="h-5 w-5 text-red-600" />
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-800"><c:out value="${canceledMsg}"/></p>
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+            <c:when test="${isSold or listing.status.name() == 'PENDING_TRANSACTION'}">
+                <c:choose>
+                    <c:when test="${isSold}">
+                        <spring:message code="listing.detail.sold" var="statusMsg"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="listing.detail.pendingTransaction" var="statusMsg"/>
+                    </c:otherwise>
+                </c:choose>
+                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg" role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <paw:icon name="alert-triangle" classname="h-5 w-5 text-yellow-600" />
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-800"><c:out value="${statusMsg}"/></p>
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+        </c:choose>
+
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
                 <paw:card classname="relative">
@@ -120,6 +156,14 @@
                 </paw:card>
             </div>
         </div>
+
+        <c:if test="${not empty listing.description}">
+            <spring:message code="listing.detail.description" var="descriptionLabel"/>
+            <paw:card classname="mt-8">
+                <h2 class="text-xl font-semibold mb-4"><c:out value="${descriptionLabel}"/></h2>
+                <p class="whitespace-pre-wrap text-black/70"><c:out value="${listing.description}"/></p>
+            </paw:card>
+        </c:if>
     </div>
 </body>
 </html>
