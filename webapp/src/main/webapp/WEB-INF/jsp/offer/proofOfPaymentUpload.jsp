@@ -61,11 +61,8 @@
                 <form:form method="POST" action="${uploadAction}" enctype="multipart/form-data" class="space-y-4" modelAttribute="proofOfPaymentUploadForm">
                     <form:errors path="*" element="div" cssClass="text-xs text-red-600 mb-4" />
                     <div>
-                        <label class="block text-sm font-medium text-black/70 mb-2">
-                            <spring:message code="offer.proofOfPayment.fileLabel" var="fileLabelMsg"/>
-                            <c:out value="${fileLabelMsg}"/>
-                        </label>
-                        <paw:fileUpload path="file" accept="image/*,application/pdf" />
+                        <spring:message code="offer.proofOfPayment.fileLabel" var="fileLabelMsg"/>
+                        <paw:fileUpload path="file" label="${fileLabelMsg}" accept="image/*,application/pdf" />
                         <p class="text-xs text-black/50 mt-1">
                             <spring:message code="offer.proofOfPayment.fileHint" var="fileHintMsg"/>
                             <c:out value="${fileHintMsg}"/>

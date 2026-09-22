@@ -37,9 +37,9 @@
 
     <!-- File size error banner -->
     <div id="${path}-size-error" class="hidden px-3 py-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-        <paw:icon name="alert-circle" classname="text-red-600" size="16"/>
-        <span class="flex-1"></span>
-        <paw:button size="sm" variant="ghost" icon="x" type="button" onclick="dismissSizeError('${path}')" aria-label="Dismiss"/>
+        <paw:icon name="circle-alert" classname="text-red-600 text-sm" />
+        <span class="flex-1 error-message"></span>
+        <paw:button size="sm" variant="ghost" role="danger" icon="x" type="button" onclick="dismissSizeError('${path}')" />
     </div>
 
     <div id="${path}-previews" class="grid ${inputMultiple ? 'grid-cols-5' : 'grid-cols-2 max-w-66 w-full'} gap-2">
@@ -108,7 +108,7 @@
         const clearBtn = document.getElementById(fieldId + '-clear');
         const addBtn = document.getElementById(fieldId + '-add');
         const errorBanner = document.getElementById(fieldId + '-size-error');
-        const errorMessage = errorBanner ? errorBanner.querySelector('span') : null;
+        const errorMessage = errorBanner ? errorBanner.querySelector('span.error-message') : null;
         const maxSizeBytes = parseInt(fileInput.dataset.maxSizeBytes || '5242880', 10);
         const isMultiple = fileInput.multiple;
 
@@ -155,9 +155,12 @@
             createPreview(previewsContainer, fieldId, objectUrl, file.name, file.type, fileIndex, state);
         });
 
-        if (hasSizeError && errorBanner && errorMessage) {
+        if (hasSizeError) {
             errorMessage.textContent = sizeErrorMsg || 'File exceeds maximum size of 5MB';
             errorBanner.classList.remove('hidden');
+            addBtn.classList.remove('hidden');
+        } else {
+          errorBanner.classList.add('hidden');
         }
 
         if (isMultiple && state.originalFiles.length > 0) {
