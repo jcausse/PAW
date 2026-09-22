@@ -4,6 +4,10 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+
+<spring:message code="listing.detail.canceled" var="canceledMsg"/>
+<spring:message code="listing.detail.sold" var="soldMsg"/>
+
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="listing.detail.title" />
@@ -12,41 +16,12 @@
     <paw:navbar />
 
     <div class="max-w-5xl mx-auto p-8 pb-24">
-        <c:choose>
-            <c:when test="${isCanceled}">
-                <spring:message code="listing.detail.canceled" var="canceledMsg"/>
-                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <paw:icon name="alert-circle" classname="h-5 w-5 text-red-600" />
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-red-800"><c:out value="${canceledMsg}"/></p>
-                        </div>
-                    </div>
-                </div>
-            </c:when>
-            <c:when test="${isSold or listing.status.name() == 'PENDING_TRANSACTION'}">
-                <c:choose>
-                    <c:when test="${isSold}">
-                        <spring:message code="listing.detail.sold" var="statusMsg"/>
-                    </c:when>
-                    <c:otherwise>
-                        <spring:message code="listing.detail.pendingTransaction" var="statusMsg"/>
-                    </c:otherwise>
-                </c:choose>
-                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg" role="alert">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <paw:icon name="alert-triangle" classname="h-5 w-5 text-yellow-600" />
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-yellow-800"><c:out value="${statusMsg}"/></p>
-                        </div>
-                    </div>
-                </div>
-            </c:when>
-        </c:choose>
+        <c:if test="${isCanceled}">
+            <paw:banner text="${canceledMsg}" icon="circle-alert" role="danger" classname="mb-4" />
+        </c:if>
+        <c:if test="${isSold or listing.status.name() == 'PENDING_TRANSACTION'}">
+            <paw:banner text="${soldMsg}" icon="info" role="secondary" classname="mb-4" />
+        </c:if>
 
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
@@ -63,8 +38,8 @@
                 </paw:card>
             </div>
 
-            <div class="flex-1 min-w-sm">
-                <paw:card>
+            <div class="flex-1 min-w-sm relative">
+                <paw:card classname="sticky top-26">
                     <div class="flex flex-col gap-4">
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
                         <paw:product product="${listing.product}" />
@@ -83,39 +58,29 @@
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>
-                            <c:when test="${isCreator}">
-                                <c:choose>
-                                    <c:when test="${isCanceled}">
-                                        <spring:message code="listing.detail.canceled" var="canceledLabel"/>
-                                        <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
-                                    </c:when>
-                                    <c:when test="${listing.status.name() == 'ACTIVE'}">
-                                        <spring:message code="listing.detail.edit" var="editLabel"/>
-                                        <c:url value="/listing/${listing.id}/edit" var="editUrl"/>
-                                        <paw:linkButton href="${editUrl}" size="lg" classname="w-full" variant="outline" text="${editLabel}"/>
-
-                                        <spring:message code="listing.detail.cancel" var="cancelLabel"/>
-                                        <paw:button text="${cancelLabel}" variant="ghost" role="danger" onclick="document.getElementById('cancelListingDialog').showModal()" />
-
-                                        <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
-                                        <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
-                                        <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
-                                        <spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
-                                        <c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
-                                        <paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
-                                                            cancelText="${cancelCancel}" formAction="${cancelUrl}">
-                                            <c:out value="${cancelMessage}"/>
-                                        </paw:confirmDialog>
-                                    </c:when>
-                                </c:choose>
-                            </c:when>
                             <c:when test="${isCanceled}">
-                                <spring:message code="listing.detail.canceled" var="canceledLabel"/>
-                                <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
+                                <paw:banner text="${canceledMsg}" icon="circle-alert" role="danger" classname="mb-4" />
                             </c:when>
                             <c:when test="${isSold}">
-                                <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>
-                                <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
+                                <paw:banner text="${soldMsg}" icon="info" role="secondary" classname="mb-4" />
+                            </c:when>
+                            <c:when test="${isCreator}">
+                                <spring:message code="listing.detail.edit" var="editLabel"/>
+                                <c:url value="/listing/${listing.id}/edit" var="editUrl"/>
+                                <paw:linkButton href="${editUrl}" size="lg" classname="w-full" variant="outline" text="${editLabel}"/>
+
+                                <spring:message code="listing.detail.cancel" var="cancelLabel"/>
+                                <paw:button text="${cancelLabel}" variant="ghost" role="danger" onclick="document.getElementById('cancelListingDialog').showModal()" />
+
+                                <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
+                                <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
+                                <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
+                                <spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
+                                <c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
+                                <paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
+                                                    cancelText="${cancelCancel}" formAction="${cancelUrl}">
+                                    <c:out value="${cancelMessage}"/>
+                                </paw:confirmDialog>
                             </c:when>
                             <c:when test="${userPendingOffer.isPresent()}">
                                 <div class="flex flex-col gap-2">
