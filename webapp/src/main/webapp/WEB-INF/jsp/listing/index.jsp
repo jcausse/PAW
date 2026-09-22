@@ -4,6 +4,10 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+
+<spring:message code="listing.detail.canceled" var="canceledMsg"/>
+<spring:message code="listing.detail.sold" var="soldMsg"/>
+
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="listing.detail.title" />
@@ -12,6 +16,13 @@
     <paw:navbar />
 
     <div class="max-w-5xl mx-auto p-8 pb-24">
+        <c:if test="${isCanceled}">
+            <paw:banner text="${canceledMsg}" icon="circle-alert" role="danger" classname="mb-4" />
+        </c:if>
+        <c:if test="${isSold}">
+            <paw:banner text="${soldMsg}" icon="info" role="secondary" classname="mb-4" />
+        </c:if>
+
         <div class="flex flex-row gap-4">
             <div class="flex-2 min-w-0">
                 <paw:card classname="relative">
@@ -27,8 +38,8 @@
                 </paw:card>
             </div>
 
-            <div class="flex-1 min-w-sm">
-                <paw:card>
+            <div class="flex-1 min-w-sm relative">
+                <paw:card classname="sticky top-26">
                     <div class="flex flex-col gap-4">
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
                         <paw:product product="${listing.product}" />
@@ -47,39 +58,29 @@
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>
-                            <c:when test="${isCreator}">
-                                <c:choose>
-                                    <c:when test="${isCanceled}">
-                                        <spring:message code="listing.detail.canceled" var="canceledLabel"/>
-                                        <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
-                                    </c:when>
-                                    <c:when test="${listing.status.name() == 'ACTIVE'}">
-                                        <spring:message code="listing.detail.edit" var="editLabel"/>
-                                        <c:url value="/listing/${listing.id}/edit" var="editUrl"/>
-                                        <paw:linkButton href="${editUrl}" size="lg" classname="w-full" variant="outline" text="${editLabel}"/>
-
-                                        <spring:message code="listing.detail.cancel" var="cancelLabel"/>
-                                        <paw:button text="${cancelLabel}" variant="ghost" role="danger" onclick="document.getElementById('cancelListingDialog').showModal()" />
-
-                                        <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
-                                        <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
-                                        <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
-                                        <spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
-                                        <c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
-                                        <paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
-                                                            cancelText="${cancelCancel}" formAction="${cancelUrl}">
-                                            <c:out value="${cancelMessage}"/>
-                                        </paw:confirmDialog>
-                                    </c:when>
-                                </c:choose>
-                            </c:when>
                             <c:when test="${isCanceled}">
-                                <spring:message code="listing.detail.canceled" var="canceledLabel"/>
-                                <p class="text-center text-black/60 py-4"><c:out value="${canceledLabel}"/></p>
+                                <paw:banner text="${canceledMsg}" icon="circle-alert" role="danger" classname="mb-4" />
                             </c:when>
                             <c:when test="${isSold}">
-                                <spring:message code="listing.detail.alreadyPurchased" var="alreadyPurchasedLabel"/>
-                                <p class="text-center text-black/60 py-4"><c:out value="${alreadyPurchasedLabel}"/></p>
+                                <paw:banner text="${soldMsg}" icon="info" role="secondary" classname="mb-4" />
+                            </c:when>
+                            <c:when test="${isCreator}">
+                                <spring:message code="listing.detail.edit" var="editLabel"/>
+                                <c:url value="/listing/${listing.id}/edit" var="editUrl"/>
+                                <paw:linkButton href="${editUrl}" size="lg" classname="w-full" variant="outline" text="${editLabel}"/>
+
+                                <spring:message code="listing.detail.cancel" var="cancelLabel"/>
+                                <paw:button text="${cancelLabel}" variant="ghost" role="danger" onclick="document.getElementById('cancelListingDialog').showModal()" />
+
+                                <spring:message code="listing.cancel.confirm.title" var="cancelTitle"/>
+                                <spring:message code="listing.cancel.confirm.confirm" var="cancelConfirm"/>
+                                <spring:message code="listing.cancel.confirm.cancel" var="cancelCancel"/>
+                                <spring:message code="listing.cancel.confirm.message" var="cancelMessage"/>
+                                <c:url value="/listing/${listing.id}/cancel" var="cancelUrl"/>
+                                <paw:confirmDialog id="cancelListingDialog" title="${cancelTitle}" confirmText="${cancelConfirm}"
+                                                    cancelText="${cancelCancel}" formAction="${cancelUrl}">
+                                    <c:out value="${cancelMessage}"/>
+                                </paw:confirmDialog>
                             </c:when>
                             <c:when test="${userPendingOffer.isPresent()}">
                                 <div class="flex flex-col gap-2">
@@ -120,6 +121,14 @@
                 </paw:card>
             </div>
         </div>
+
+        <c:if test="${not empty listing.description}">
+            <spring:message code="listing.detail.description" var="descriptionLabel"/>
+            <paw:card classname="mt-8">
+                <h2 class="text-xl font-semibold mb-4"><c:out value="${descriptionLabel}"/></h2>
+                <p class="whitespace-pre-wrap text-black/70"><c:out value="${listing.description}"/></p>
+            </paw:card>
+        </c:if>
     </div>
 </body>
 </html>

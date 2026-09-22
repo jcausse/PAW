@@ -118,8 +118,9 @@ public class ListingController {
     public ModelAndView listing(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
         var listing = listingService.getById(id);
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
-        var isSold = listing.getStatus() == ListingStatus.SOLD;
         var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
+        // Pending transaction listings count as sold for public viewing purposes
+        var isSold = listing.getStatus() == ListingStatus.SOLD || listing.getStatus() == ListingStatus.PENDING_TRANSACTION;
 
         var userPendingOffer = offerService.getByListingAndBuyer(listing, currentUser);
 
