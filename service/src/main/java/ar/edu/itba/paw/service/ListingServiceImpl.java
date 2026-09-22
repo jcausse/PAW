@@ -50,7 +50,7 @@ public class ListingServiceImpl implements ListingService {
     public Page<Listing> search(ListingFilterDto dto) {
         Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
 
-        final ListingFilter filter = ListingFilter.builder()
+        final var filter = ListingFilter.builder()
             .categoryId(dto.categoryId())
             .subcategoryId(dto.subcategoryId())
             .minPrice(sanitizePrice(dto.minPrice()))
@@ -165,6 +165,18 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
+    public Listing pendingTransaction(Long id, Long buyerId, String message) {
+        var listing = listingDao
+            .getById(id)
+            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
+
+        listingDao.pendingTransaction(id, buyerId);
+
+        return listing;
+    }
+
+    @Override
+    @Transactional
     public Listing update(ListingUpdateDto dto) {
         Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
 
@@ -198,7 +210,13 @@ public class ListingServiceImpl implements ListingService {
     @Transactional
     public void cancel(Long id) {
         getById(id);
-        offerService.rejectPendingOffers(id, null);
+        offerService.rejectPendingOffersForListing(id, null);
         listingDao.cancel(id);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id, ListingStatus status) {
+        listingDao.updateStatus(id, status);
     }
 }

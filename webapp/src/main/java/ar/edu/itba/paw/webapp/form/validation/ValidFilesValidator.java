@@ -6,14 +6,15 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-// Validates a list of uploaded images (e.g. the photos of a listing).
-public class ValidImagesValidator implements ConstraintValidator<ValidImages, List<MultipartFile>> {
+public class ValidFilesValidator implements ConstraintValidator<ValidFile, List<MultipartFile>> {
 
     private long maxSizeBytes;
+    private String[] allowedTypes;
 
     @Override
-    public void initialize(ValidImages constraintAnnotation) {
+    public void initialize(ValidFile constraintAnnotation) {
         this.maxSizeBytes = constraintAnnotation.maxSizeBytes();
+        this.allowedTypes = constraintAnnotation.allowedTypes();
     }
 
     @Override
@@ -22,7 +23,7 @@ public class ValidImagesValidator implements ConstraintValidator<ValidImages, Li
             return true;
         }
         for (MultipartFile file : files) {
-            if (!ImageFileValidation.isValidImage(file, maxSizeBytes)) {
+            if (!FileValidation.isValidFile(file, maxSizeBytes, allowedTypes)) {
                 return false;
             }
         }

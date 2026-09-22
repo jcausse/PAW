@@ -22,14 +22,20 @@ public interface MailingService {
     /** Notify the seller that they received a new offer on their listing. */
     void sendNewOfferEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
 
-    /** Notify the buyer that their offer was accepted. */
-    void sendOfferAcceptedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale);
-
     /** Notify the buyer that their offer was rejected. */
     void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale);
 
     /** Notify the seller that an offer on their listing was withdrawn by the buyer. */
     void sendOfferWithdrawnEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
+
+    /** Notify the buyer that their offer was accepted and is pending payment. */
+    void sendOfferPendingPaymentEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale);
+
+    /** Notify the seller that their listing has a pending transaction. */
+    void sendPendingTransactionEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
+
+    /** Notify the seller that proof of payment was uploaded. */
+    void sendProofOfPaymentUploadedEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
 
     /** Send password recovery email containing the one-time password code. */
     void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale);

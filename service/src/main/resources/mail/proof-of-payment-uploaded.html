@@ -21,22 +21,22 @@
                     <!-- Header -->
                     <tr>
                         <td style="padding: 32px 40px 0; text-align: center;">
-                            <span th:text="#{email.offer.accepted.badge}" style="display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; background-color: #dcfce7; color: #16a34a;">Offer Accepted</span>
+                            <span th:text="#{email.proofOfPayment.uploaded.badge}" style="display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 9999px; background-color: #dcfce7; color: #16a34a;">Proof of Payment Uploaded</span>
                         </td>
                     </tr>
                     <!-- Greeting -->
                     <tr>
                         <td style="padding: 16px 40px 0; text-align: center;">
-                            <h1 th:text="#{email.offer.accepted.greeting(${buyer.displayName})}" style="margin: 0; font-size: 24px; font-weight: 800; color: #171717;">
-                                Great news!
+                            <h1 th:text="#{email.proofOfPayment.uploaded.greeting(${seller.displayName})}" style="margin: 0; font-size: 24px; font-weight: 800; color: #171717;">
+                                Hi!
                             </h1>
                         </td>
                     </tr>
                     <!-- Body -->
                     <tr>
                         <td style="padding: 16px 40px 0; text-align: center;">
-                            <p th:text="#{email.offer.accepted.body(${offer.amount}, ${listing.product.brand}, ${listing.product.model}, ${listing.product.year})}" style="margin: 0; font-size: 15px; line-height: 1.6; color: #525252;">
-                                Your offer was accepted.
+                            <p th:text="#{email.proofOfPayment.uploaded.body(${buyer.displayName}, ${listing.title}, ${offer.amount})}" style="margin: 0; font-size: 15px; line-height: 1.6; color: #525252;">
+                                Proof of payment uploaded.
                             </p>
                         </td>
                     </tr>
@@ -69,21 +69,8 @@
                                         <p style="margin: 0; font-size: 14px; font-weight: 700; color: #16a34a;">
                                             <span th:text="'$' + ${offer.amount}">$100</span>
                                         </p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <!-- Seller Contact -->
-                    <tr>
-                        <td style="padding: 20px 40px 0;">
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 16px 20px;">
-                                        <p style="margin: 0 0 4px; font-size: 12px; color: #a3a3a3;">Seller contact</p>
-                                        <p style="margin: 0; font-size: 15px; color: #171717;">
-                                            <span th:text="${seller.displayName}">Seller</span> &middot;
-                                            <a th:href="'mailto:' + ${seller.email}" th:text="${seller.email}" style="color: #0284c7; text-decoration: none;">seller@mail.com</a>
+                                        <p style="margin: 8px 0 0; font-size: 13px; color: #737373;">
+                                            <span th:text="#{email.proofOfPayment.uploaded.buyerLabel}">Buyer:</span> <span th:text="${buyer.displayName}">Buyer Name</span>
                                         </p>
                                     </td>
                                 </tr>
@@ -93,9 +80,9 @@
                     <!-- CTA Button -->
                     <tr>
                         <td style="padding: 28px 40px; text-align: center;">
-                            <a th:href="${actionUrl}" th:text="#{email.offer.accepted.cta}" target="_blank"
-                               style="display: inline-block; padding: 12px 28px; font-size: 14px; font-weight: 600; color: #ffffff; background-color: #0284c7; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                                View Listing
+                            <a th:href="${actionUrl}" th:text="#{email.proofOfPayment.uploaded.cta}" target="_blank"
+                               style="display: inline-block; padding: 12px 28px; font-size: 14px; font-weight: 600; color: #ffffff; background-color: #16a34a; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                Confirm Payment
                             </a>
                         </td>
                     </tr>
@@ -103,7 +90,7 @@
                     <tr>
                         <td style="padding: 20px 40px 32px; text-align: center; border-top: 1px solid rgba(0,0,0,0.06);">
                             <p style="margin: 0; font-size: 12px; color: #a3a3a3;">
-                                <span th:text="#{email.offer.accepted.footer}">You received this email because you made an offer on</span> <a th:href="${baseUrl + '/'}" th:text="#{email.shared.paw}" style="color: #0284c7; text-decoration: none;">Swappr</a>.
+                                <span th:text="#{email.proofOfPayment.uploaded.footer}">You received this email because you have a listing on</span> <a th:href="${baseUrl + '/'}" th:text="#{email.shared.paw}" style="color: #0284c7; text-decoration: none;">Swappr</a>.
                             </p>
                         </td>
                     </tr>

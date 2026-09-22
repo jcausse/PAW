@@ -5,18 +5,19 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-// Validates a single uploaded image (e.g. a user's profile picture).
-public class ValidImageValidator implements ConstraintValidator<ValidImages, MultipartFile> {
+public class ValidFileValidator implements ConstraintValidator<ValidFile, MultipartFile> {
 
     private long maxSizeBytes;
+    private String[] allowedTypes;
 
     @Override
-    public void initialize(ValidImages constraintAnnotation) {
+    public void initialize(ValidFile constraintAnnotation) {
         this.maxSizeBytes = constraintAnnotation.maxSizeBytes();
+        this.allowedTypes = constraintAnnotation.allowedTypes();
     }
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
-        return ImageFileValidation.isValidImage(file, maxSizeBytes);
+        return FileValidation.isValidFile(file, maxSizeBytes, allowedTypes);
     }
 }

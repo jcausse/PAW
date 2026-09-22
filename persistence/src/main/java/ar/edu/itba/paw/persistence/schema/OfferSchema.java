@@ -14,4 +14,8 @@ public final class OfferSchema {
     public static final String STATUS = "status";
     public static final String MESSAGE = "message";
     public static final String CREATED_AT = "created_at";
+    public static final String PROOF_OF_PAYMENT_ID = "proof_of_payment_id";
+    public static final String PROOF_OF_PAYMENT_FILENAME = "proof_of_payment_filename";
+    public static final String PROOF_OF_PAYMENT_CONTENT_TYPE = "proof_of_payment_content_type";
+    public static final String PROOF_OF_PAYMENT_SIZE = "proof_of_payment_size";
 }

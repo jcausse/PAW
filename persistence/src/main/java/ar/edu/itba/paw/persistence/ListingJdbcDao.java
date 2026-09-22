@@ -204,8 +204,19 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
+    public ListingStatus pendingTransaction(Long id, Long buyerId) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.PENDING_TRANSACTION.getStatus(), id);
+        return ListingStatus.PENDING_TRANSACTION;
+    }
+
+    @Override
     public void cancel(Long id) {
         jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.CANCELED.getStatus(), id);
+    }
+
+    @Override
+    public void updateStatus(Long id, ListingStatus status) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, status.getStatus(), id);
     }
 
     @Override

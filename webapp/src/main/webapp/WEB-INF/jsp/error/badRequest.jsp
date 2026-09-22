@@ -18,7 +18,14 @@
         </div>
 
         <p class="text-neutral-600 text-base">
-            <spring:message code="badRequest.message"/>
+            <c:choose>
+                <c:when test="${not empty messageCode}">
+                    <spring:message code="${messageCode}"/>
+                </c:when>
+                <c:otherwise>
+                    <spring:message code="badRequest.message"/>
+                </c:otherwise>
+            </c:choose>
         </p>
 
         <a href="<c:url value="/"/>"
