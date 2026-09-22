@@ -108,21 +108,6 @@ public class MailingServiceImpl implements MailingService {
 
     @Async
     @Override
-    public void sendOfferAcceptedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
-        context.setVariable("buyer", buyer);
-        context.setVariable("seller", seller);
-        context.setVariable("listing", listing);
-        context.setVariable("offer", offer);
-        context.setVariable("baseUrl", baseUrl);
-        context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
-
-        String subject = messageSource.getMessage("email.offer.accepted.subject", null, locale);
-        sendEmail(buyer.getEmail(), subject, "offer-accepted", context);
-    }
-
-    @Async
-    @Override
     public void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale) {
         var context = new Context(locale);
         context.setVariable("buyer", buyer);
@@ -147,6 +132,51 @@ public class MailingServiceImpl implements MailingService {
 
         String subject = messageSource.getMessage("email.offer.withdrawn.subject", null, locale);
         sendEmail(seller.getEmail(), subject, "offer-withdrawn", context);
+    }
+
+    @Async
+    @Override
+    public void sendOfferPendingPaymentEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("buyer", buyer);
+        context.setVariable("seller", seller);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
+
+        String subject = messageSource.getMessage("email.offer.pendingPayment.subject", null, locale);
+        sendEmail(buyer.getEmail(), subject, "offer-pending-payment", context);
+    }
+
+    @Async
+    @Override
+    public void sendPendingTransactionEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("seller", seller);
+        context.setVariable("buyer", buyer);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
+
+        String subject = messageSource.getMessage("email.pendingTransaction.subject", null, locale);
+        sendEmail(seller.getEmail(), subject, "pending-transaction", context);
+    }
+
+    @Async
+    @Override
+    public void sendProofOfPaymentUploadedEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("seller", seller);
+        context.setVariable("buyer", buyer);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
+
+        String subject = messageSource.getMessage("email.proofOfPayment.uploaded.subject", null, locale);
+        sendEmail(seller.getEmail(), subject, "proof-of-payment-uploaded", context);
     }
 
     @Async

@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.webapp.form.validation.ValidImages;
+import ar.edu.itba.paw.webapp.form.validation.ValidFile;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.validation.constraints.DecimalMin;
@@ -30,7 +30,7 @@ public class ListingDetailsForm {
     @Digits(integer = 9, fraction = 2)
     private BigDecimal price;
 
-    @ValidImages
+    @ValidFile(message = "{ValidFile.detailsForm.images}", allowedTypes = {"image/*"})
     private List<MultipartFile> images;
 
     @NotBlank

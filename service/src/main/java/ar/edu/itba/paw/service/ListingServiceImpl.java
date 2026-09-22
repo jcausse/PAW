@@ -165,6 +165,18 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
+    public Listing pendingTransaction(Long id, Long buyerId, String message) {
+        var listing = listingDao
+            .getById(id)
+            .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
+
+        listingDao.pendingTransaction(id, buyerId);
+
+        return listing;
+    }
+
+    @Override
+    @Transactional
     public Listing update(ListingUpdateDto dto) {
         Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
 
@@ -200,5 +212,11 @@ public class ListingServiceImpl implements ListingService {
         getById(id);
         offerService.rejectPendingOffersForListing(id, null);
         listingDao.cancel(id);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id, ListingStatus status) {
+        listingDao.updateStatus(id, status);
     }
 }

@@ -18,7 +18,7 @@
                 <paw:formInput path="displayName" label="${displayNameLabel}" variant="outline"/>
 
                 <spring:message code="profileEdit.profilePicture" var="profilePictureLabel"/>
-                <paw:imageUpload path="profilePicture" label="${profilePictureLabel}"/>
+                <paw:fileUpload path="profilePicture" label="${profilePictureLabel}" accept="image/*" />
 
                 <spring:message code="profileEdit.newPassword" var="newPasswordLabel"/>
                 <paw:formInput path="password" type="password" label="${newPasswordLabel}" variant="outline"/>

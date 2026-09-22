@@ -10,6 +10,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public enum OfferStatusGroup {
     PENDING("pending"),
+    PENDING_PAYMENT("pending_payment"),
     RESOLVED("resolved");
 
     @Getter
@@ -24,6 +25,7 @@ public enum OfferStatusGroup {
     public List<OfferStatus> toStatusList() {
         return switch (this) {
             case PENDING -> List.of(OfferStatus.PENDING);
+            case PENDING_PAYMENT -> List.of(OfferStatus.PENDING_PAYMENT);
             case RESOLVED -> List.of(OfferStatus.ACCEPTED, OfferStatus.REJECTED, OfferStatus.WITHDRAWN);
         };
     }

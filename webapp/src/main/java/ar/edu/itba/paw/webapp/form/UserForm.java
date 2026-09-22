@@ -4,7 +4,7 @@ import ar.edu.itba.paw.webapp.form.validation.FieldMatch;
 import ar.edu.itba.paw.webapp.form.validation.UniqueEmail;
 import ar.edu.itba.paw.webapp.form.validation.UniqueUsername;
 import ar.edu.itba.paw.webapp.form.validation.Username;
-import ar.edu.itba.paw.webapp.form.validation.ValidImages;
+import ar.edu.itba.paw.webapp.form.validation.ValidFile;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -43,6 +43,6 @@ public class UserForm {
     @Size(min = 8)
     private String confirmPassword;
 
-    @ValidImages
+    @ValidFile(message = "{ValidFile.userForm.profilePicture}", allowedTypes = {"image/*"})
     private MultipartFile profilePicture;
 }
