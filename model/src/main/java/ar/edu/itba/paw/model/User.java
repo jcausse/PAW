@@ -20,11 +20,19 @@ public final class User {
 
     // Nullable! Users without a profile picture will have this set to null
     private final Long imageId;
-
-    // Overrides Lombok's getter
-    public Optional<Long> getImageId() {
+    public Optional<Long> getImageId() {                    // Overrides Lombok's getter
         return Optional.ofNullable(imageId);
     }
 
     private final @NonNull Instant joinedAt;
+
+    // Nullable! Users without a verified email will have this set to null
+    private final Instant emailVerifiedAt;
+    public Optional<Instant> getEmailVerifiedAt() {         // Overrides Lombok's getter
+        return Optional.ofNullable(emailVerifiedAt);
+    }
+
+    public boolean isVerified() {
+        return emailVerifiedAt != null;
+    }
 }

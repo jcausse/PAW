@@ -84,11 +84,12 @@ public class UserJdbcDao implements UserDao {
                 .password(password)
                 .imageId(imageId)
                 .joinedAt(joinedAt)
+                .emailVerifiedAt(null)
                 .build();
     }
 
     @Override
-    public void update(Long userId, String displayName, String email, String password, Long imageId) {
+    public Optional<User> update(Long userId, String displayName, String email, String password, Long imageId) {
         var setClauses = new ArrayList<String>();
         var params = new ArrayList<>();
 
@@ -110,7 +111,7 @@ public class UserJdbcDao implements UserDao {
         }
 
         if (setClauses.isEmpty()) {
-            return;
+            return Optional.empty();
         }
 
         var sql = "UPDATE " + UserSchema.TABLE_NAME +
@@ -118,7 +119,20 @@ public class UserJdbcDao implements UserDao {
             " WHERE " + UserSchema.ID + " = ?";
         params.add(userId);
 
-        jdbcTemplate.update(sql, params.toArray());
+        var rowsAffected = jdbcTemplate.update(sql, params.toArray());
+
+        return rowsAffected == 0 ? Optional.empty() : getById(userId);
+    }
+
+    @Override
+    public Optional<User> verifyEmail(Long userId, Instant verifiedAt) {
+        var rowsAffected = jdbcTemplate.update(
+                Queries.VERIFY_EMAIL,
+                Timestamp.from(verifiedAt),
+                userId
+        );
+
+        return rowsAffected == 0 ? Optional.empty() : getById(userId);
     }
 
     @Override
@@ -153,6 +167,11 @@ public class UserJdbcDao implements UserDao {
                             .orElse(null)
             )
             .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
+            .emailVerifiedAt(
+                    Optional.ofNullable(rs.getTimestamp(UserSchema.EMAIL_VERIFIED_AT))
+                            .map(Timestamp::toInstant)
+                            .orElse(null)
+            )
             .build();
 
     private static final class Queries {
@@ -164,7 +183,8 @@ public class UserJdbcDao implements UserDao {
             UserSchema.EMAIL,
             UserSchema.PASSWORD,
             UserSchema.IMAGE_ID,
-            UserSchema.JOINED_AT
+            UserSchema.JOINED_AT,
+            UserSchema.EMAIL_VERIFIED_AT
         );
 
         private static final String GET_BY_ID =
@@ -181,6 +201,11 @@ public class UserJdbcDao implements UserDao {
             "SELECT " + FIELDS +
             " FROM " + UserSchema.TABLE_NAME +
             " WHERE " + UserSchema.EMAIL + " = ?";
+
+        private static final String VERIFY_EMAIL =
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + UserSchema.EMAIL_VERIFIED_AT + " = ?" +
+            " WHERE " + UserSchema.ID + " = ?";
 
         private static final String IS_USERNAME_TAKEN =
             "SELECT EXISTS(SELECT 1 FROM " + UserSchema.TABLE_NAME +

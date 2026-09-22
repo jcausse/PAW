@@ -3,15 +3,17 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.OneTimePassword;
 import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     private final UserService userService;
@@ -19,9 +21,8 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     private final MailingService mailingService;
 
     @Override
-    public Optional<OneTimePassword> startAndSendRecoveryEmail(String usernameOrEmail) {
-        Objects.requireNonNull(usernameOrEmail, "usernameOrEmail cannot be null");
-
+    @Transactional
+    public Optional<OneTimePassword> startAndSendRecoveryEmail(@NonNull String usernameOrEmail) {
         return userService.getByUsernameOrEmail(usernameOrEmail).map(user -> {
             final var otp = otpService.create(user);
             mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
@@ -30,26 +31,18 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
     @Override
+    @Transactional
     public OneTimePasswordVerificationResult verifyAndUpdatePassword(
-            String usernameOrEmail,
-            String password,
-            String otpValue
+            @NonNull String usernameOrEmail,
+            @NonNull String password,
+            @NonNull String otpValue
     ) {
-        Objects.requireNonNull(usernameOrEmail, "usernameOrEmail cannot be null");
-        Objects.requireNonNull(password, "password cannot be null");
-        Objects.requireNonNull(otpValue, "otpValue cannot be null");
-
         final var maybeUser = userService.getByUsernameOrEmail(usernameOrEmail);
         final var result = maybeUser.map(user -> otpService.verify(user, otpValue))
                 .orElse(OneTimePasswordVerificationResult.REJECTED);
 
         if (result == OneTimePasswordVerificationResult.ACCEPTED) {
-            userService.update(new UserEditDto(
-                    maybeUser.get(),
-                    null,
-                    password,
-                    null
-            ));
+            userService.update(new UserEditDto(maybeUser.get(), null, password, null));
         }
 
         return result;

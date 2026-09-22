@@ -3,23 +3,20 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.EmailVerificationService;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.webapp.auth.AuthHelper;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +25,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -36,7 +35,8 @@ public class UserController {
 
     private final UserService userService;
     private final ListingService listingService;
-    private final AuthenticationManager authenticationManager;
+    private final EmailVerificationService emailVerificationService;
+    private final AuthHelper authHelper;
 
     private static final int PROFILE_LISTINGS_PAGE_SIZE = 5;
 
@@ -117,7 +117,7 @@ public class UserController {
             imageData
         ));
 
-        updateAuthUserDetails(updatedUser);
+        authHelper.update(updatedUser);
 
         return new ModelAndView("redirect:/profile");
     }
@@ -150,7 +150,7 @@ public class UserController {
             }
         }
 
-        userService.create(new UserCreationDto(
+        User user = userService.create(new UserCreationDto(
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
@@ -158,9 +158,9 @@ public class UserController {
             imageData
         ));
 
-        loginAfterRegister(form.getUsername(), form.getPassword());
+        emailVerificationService.sendVerificationEmail(user);
 
-        return new ModelAndView("redirect:/");
+        return new ModelAndView("redirect:/verify?email=" + URLEncoder.encode(form.getEmail().trim().toLowerCase(), StandardCharsets.UTF_8));
     }
 
     /* LOGIN */
@@ -168,23 +168,5 @@ public class UserController {
     @GetMapping("/login")
     public ModelAndView loginForm() {
         return new ModelAndView("login");
-    }
-
-    private void loginAfterRegister(final String username, final String password) {
-        SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-        ));
-    }
-
-    private void updateAuthUserDetails(final User updatedUser) {
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth != null && currentAuth.getPrincipal() instanceof AuthUserDetails oldDetails) {
-            AuthUserDetails newDetails = new AuthUserDetails(updatedUser, oldDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                    newDetails,
-                    currentAuth.getCredentials(),
-                    newDetails.getAuthorities()
-            ));
-        }
     }
 }

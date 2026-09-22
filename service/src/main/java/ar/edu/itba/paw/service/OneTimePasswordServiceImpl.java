@@ -52,7 +52,7 @@ public class OneTimePasswordServiceImpl implements OneTimePasswordService {
         }
 
         // OTP did not expire yet, and user entered it correctly
-        if (passwordEncoder.matches(otpValue, otp.getOtpValue())) {
+        if (passwordEncoder.matches(otpValue.trim(), otp.getOtpValue())) {
             otpDao.deleteIfPresentByUser(user);
             return OneTimePasswordVerificationResult.ACCEPTED;
         }

@@ -17,7 +17,7 @@
                 <spring:message code="recovery.verification.subtitle"/>
             </p>
 
-            <spring:message code="field.otp" var="otpLabel"/>
+            <spring:message code="field.recoveryCode" var="otpLabel"/>
             <paw:formInput path="otp" label="${otpLabel}" variant="outline"/>
 
             <spring:message code="field.newPassword" var="passwordLabel"/>
