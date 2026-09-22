@@ -19,7 +19,7 @@
         <c:if test="${isCanceled}">
             <paw:banner text="${canceledMsg}" icon="circle-alert" role="danger" classname="mb-4" />
         </c:if>
-        <c:if test="${isSold or listing.status.name() == 'PENDING_TRANSACTION'}">
+        <c:if test="${isSold}">
             <paw:banner text="${soldMsg}" icon="info" role="secondary" classname="mb-4" />
         </c:if>
 

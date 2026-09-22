@@ -71,6 +71,8 @@
     </c:if>
 
     <c:if test="${offer.proofOfPaymentId != null}">
+        <spring:message code="offer.proofOfPayment.uploadedNotification" var="proofOfPaymentMsg"/>
+        <paw:banner text="${proofOfPaymentMsg}" icon="badge-check" />
         <paw:collapsible title="Proof of Payment">
             <paw:offerProofOfPayment offer="${offer}" />
         </paw:collapsible>
