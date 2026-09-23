@@ -43,6 +43,6 @@ public class UserForm {
     @Size(min = 8)
     private String confirmPassword;
 
-    @ValidFile(message = "{ValidFile.userForm.profilePicture}", allowedTypes = {"image/*"})
+    @ValidFile(message = "{ValidFiles.userForm.profilePicture}", allowedTypes = {"image/*"}, optional = true)
     private MultipartFile profilePicture;
 }

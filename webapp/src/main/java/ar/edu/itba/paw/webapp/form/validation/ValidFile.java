@@ -18,4 +18,5 @@ public @interface ValidFile {
     Class<? extends Payload>[] payload() default {};
     long maxSizeBytes() default 5 * 1024 * 1024;
     String[] allowedTypes() default {"image/*", "application/pdf"};
+    boolean optional() default false;
 }
