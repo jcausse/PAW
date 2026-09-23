@@ -30,7 +30,7 @@ public class ListingDetailsForm {
     @Digits(integer = 9, fraction = 2)
     private BigDecimal price;
 
-    @ValidFile(message = "{ValidFile.detailsForm.images}", allowedTypes = {"image/*"})
+    @ValidFile(message = "{ValidFiles.detailsForm.images}", allowedTypes = {"image/*"})
     private List<MultipartFile> images;
 
     @NotBlank
