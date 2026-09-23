@@ -19,9 +19,29 @@ public class AppInfoController {
     @Value("${git.branch:unknown}")
     private String branch;
 
+    @Value("${git.tags:unknown}")
+    private String tags;
+
+    @Value("${git.build.version:unknown}")
+    private String buildVersion;
+
+    @Value("${git.dirty:unknown}")
+    private String dirty;
+
+    @Value("${git.total.commit.count:unknown}")
+    private String totalCommitCount;
+
     @GetMapping(value = "/appinfo", produces = "text/plain;charset=UTF-8")
     @ResponseBody
     public String appInfo() {
-        return String.format("Branch: %s\nCommit: %s\nBuild Time: %s", branch, commitId, buildTime);
+        return String.join("\n",
+                "Build Time: " + buildTime,
+                "Build Version: " + buildVersion,
+                "Branch: " + branch,
+                "Commit: " + commitId,
+                "Tags: " + tags,
+                "Dirty: " + dirty,
+                "Total Commits: " + totalCommitCount
+        );
     }
 }
