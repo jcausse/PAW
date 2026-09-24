@@ -96,6 +96,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 /* Listings */
                 .antMatchers("/listing/**").permitAll()             // Listings
 
+                /* Images */
+                .antMatchers("/image/**").permitAll()               // Images
+
                 /* Landing */
                 .antMatchers("/").permitAll()                       // Landing page
 
