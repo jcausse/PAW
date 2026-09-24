@@ -56,6 +56,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Optional<Offer> getByListingAndBuyer(Listing listing, User buyer) {
+        if (buyer == null) return Optional.empty();
         return offerDao.getByListingAndBuyer(listing, buyer);
     }
 
