@@ -87,6 +87,12 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/profile/**").permitAll()             // Profiles of users other than the current user
                 .antMatchers("/account/**").authenticated()         // Current user account details and settings
 
+                /* Language Selector */
+                .antMatchers("/language/**").permitAll()            // Language selector in the navbar
+
+                /* Sell Page (create new listing) */
+                .antMatchers("/listing/new/**").authenticated()     // Listing creation
+
                 /* Listings */
                 .antMatchers("/listing/**").permitAll()             // Listings
 
