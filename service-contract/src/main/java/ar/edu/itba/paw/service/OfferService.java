@@ -33,7 +33,11 @@ public interface OfferService {
 
     Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data);
 
+    Offer uploadProofOfShipping(Long offerId, Long sellerId, String filename, String alt, String contentType, byte[] data, String trackingNumber);
+
     Offer confirmPayment(Long offerId, Long sellerId);
 
     Optional<File> getProofOfPaymentFile(Long offerId);
+
+    Optional<File> getProofOfShippingFile(Long offerId);
 }

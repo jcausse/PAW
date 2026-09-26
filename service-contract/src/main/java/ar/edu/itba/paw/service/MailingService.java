@@ -37,6 +37,9 @@ public interface MailingService {
     /** Notify the seller that proof of payment was uploaded. */
     void sendProofOfPaymentUploadedEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale);
 
+    /** Notify the buyer that proof of shipping was uploaded. */
+    void sendProofOfShippingUploadedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale);
+
     /** Send password recovery email containing the one-time password code. */
     void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale);
 

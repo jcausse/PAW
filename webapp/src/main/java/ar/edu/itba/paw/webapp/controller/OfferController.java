@@ -11,6 +11,7 @@ import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
+import ar.edu.itba.paw.webapp.form.ProofOfShippingUploadForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -138,22 +139,81 @@ public class OfferController {
         return new ModelAndView("redirect:/account/my-offers?statusGroup=pending_payment");
     }
 
-    @GetMapping("/{offerId}/proof-of-payment/download")
-    public ResponseEntity<Resource> downloadProofOfPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
+    @GetMapping("/{offerId}/proof-of-shipping")
+    public ModelAndView showProofOfShippingUpload(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
-        // Both buyer and seller can download the proof of payment
+        if (!offer.getListing().getCreator().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not authorized to upload proof of shipping");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new BadParameterException("Offer is not pending payment");
+        }
+
+        var mav = new ModelAndView("offer/proofOfShippingUpload");
+        mav.addObject("offer", offer);
+        mav.addObject("proofOfShippingUploadForm", new ProofOfShippingUploadForm());
+        return mav;
+    }
+
+    @PostMapping("/{offerId}/proof-of-shipping")
+    public ModelAndView uploadProofOfShipping(@PathVariable Long offerId,
+                                               @CurrentUser User currentUser,
+                                               @Valid @ModelAttribute("proofOfShippingUploadForm") ProofOfShippingUploadForm form,
+                                               BindingResult bindingResult) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        if (bindingResult.hasErrors()) {
+            var mav = new ModelAndView("offer/proofOfShippingUpload");
+            mav.addObject("offer", offer);
+            mav.addObject("currentUser", currentUser);
+            return mav;
+        }
+
+        try {
+            byte[] fileData = null;
+            String filename = null;
+            String contentType = null;
+            if (form.getFile() != null && !form.getFile().isEmpty()) {
+                fileData = form.getFile().getBytes();
+                filename = form.getFile().getOriginalFilename();
+                contentType = form.getFile().getContentType();
+            }
+            offerService.uploadProofOfShipping(
+                offerId,
+                currentUser.getId(),
+                filename,
+                "Proof of shipping for offer " + offerId,
+                contentType,
+                fileData,
+                form.getTrackingNumber()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read uploaded file", e);
+        }
+
+        return new ModelAndView("redirect:/account/incoming-offers?statusGroup=pending_payment");
+    }
+
+    @GetMapping("/{offerId}/proof-of-shipping/download")
+    public ResponseEntity<Resource> downloadProofOfShipping(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        // Both buyer and seller can download the proof of shipping
         final Long currentUserId = currentUser.getId();
         final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
         final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
 
         if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("Not authorized to download proof of payment");
+            throw new ForbiddenException("Not authorized to download proof of shipping");
         }
 
-        final File file = offerService.getProofOfPaymentFile(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Proof of payment not found"));
+        final File file = offerService.getProofOfShippingFile(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Proof of shipping not found"));
 
         final ByteArrayResource resource = new ByteArrayResource(file.getData());
 

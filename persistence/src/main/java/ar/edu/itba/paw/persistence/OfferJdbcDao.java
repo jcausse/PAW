@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
 import ar.edu.itba.paw.model.Condition;
+import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Offer;
@@ -217,6 +218,17 @@ public class OfferJdbcDao implements OfferDao {
                     Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_PAYMENT_SIZE, Integer.class))
                             .map(Integer::longValue)
                             .orElse(null))
+            .proofOfShippingId(
+                    Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_SHIPPING_ID, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null))
+            .proofOfShippingFilename(rs.getString(OfferSchema.PROOF_OF_SHIPPING_FILENAME))
+            .proofOfShippingContentType(rs.getString(OfferSchema.PROOF_OF_SHIPPING_CONTENT_TYPE))
+            .proofOfShippingSize(
+                    Optional.ofNullable(rs.getObject(OfferSchema.PROOF_OF_SHIPPING_SIZE, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null))
+            .trackingNumber(rs.getString(OfferSchema.TRACKING_NUMBER))
             .build();
     };
 
@@ -249,6 +261,11 @@ public class OfferJdbcDao implements OfferDao {
             ", f." + FileSchema.FILENAME + " as " + OfferSchema.PROOF_OF_PAYMENT_FILENAME +
             ", f." + FileSchema.CONTENT_TYPE + " as " + OfferSchema.PROOF_OF_PAYMENT_CONTENT_TYPE +
             ", OCTET_LENGTH(f." + FileSchema.DATA + ") as " + OfferSchema.PROOF_OF_PAYMENT_SIZE +
+            ", o." + OfferSchema.PROOF_OF_SHIPPING_ID +
+            ", fs." + FileSchema.FILENAME + " as " + OfferSchema.PROOF_OF_SHIPPING_FILENAME +
+            ", fs." + FileSchema.CONTENT_TYPE + " as " + OfferSchema.PROOF_OF_SHIPPING_CONTENT_TYPE +
+            ", OCTET_LENGTH(fs." + FileSchema.DATA + ") as " + OfferSchema.PROOF_OF_SHIPPING_SIZE +
+            ", o." + OfferSchema.TRACKING_NUMBER +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
@@ -273,7 +290,8 @@ public class OfferJdbcDao implements OfferDao {
             " AND o3." + OfferSchema.AMOUNT + " > o." + OfferSchema.AMOUNT +
             " AND o3." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') as has_better_offers" +
             BASE_FROM
-            + " LEFT JOIN " + FileSchema.TABLE_NAME + " f ON f." + FileSchema.ID + " = o." + OfferSchema.PROOF_OF_PAYMENT_ID;
+            + " LEFT JOIN " + FileSchema.TABLE_NAME + " f ON f." + FileSchema.ID + " = o." + OfferSchema.PROOF_OF_PAYMENT_ID
+            + " LEFT JOIN " + FileSchema.TABLE_NAME + " fs ON fs." + FileSchema.ID + " = o." + OfferSchema.PROOF_OF_SHIPPING_ID;
 
         private static final String GET_BY_ID =
             BASE_SELECT +
@@ -296,6 +314,12 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.PROOF_OF_PAYMENT_ID + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
 
+        private static final String UPDATE_PROOF_OF_SHIPPING =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.PROOF_OF_SHIPPING_ID + " = ?" +
+            ", " + OfferSchema.TRACKING_NUMBER + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?";
+
         private static final String WITHDRAW =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
@@ -315,6 +339,13 @@ public class OfferJdbcDao implements OfferDao {
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?" +
             " AND (?::bigint IS NULL OR " + OfferSchema.ID + " != ?)";
+
+        private static final String GET_PROOF_OF_SHIPPING_FILE =
+            "SELECT f." + FileSchema.ID + ", f." + FileSchema.FILENAME + ", f." + FileSchema.ALT +
+            ", f." + FileSchema.CONTENT_TYPE + ", f." + FileSchema.DATA +
+            " FROM " + FileSchema.TABLE_NAME + " f" +
+            " JOIN " + OfferSchema.TABLE_NAME + " o ON o." + OfferSchema.PROOF_OF_SHIPPING_ID + " = f." + FileSchema.ID +
+            " WHERE o." + OfferSchema.ID + " = ?";
     }
 
     @Override
@@ -361,5 +392,31 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId) {
         return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_PAYMENT_ID, proofOfPaymentId, offerId) > 0;
+    }
+
+    @Override
+    public boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber) {
+        return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_SHIPPING, proofOfShippingId, trackingNumber, offerId) > 0;
+    }
+
+    @Override
+    public Optional<File> getProofOfShippingFile(Long offerId) {
+        return jdbcTemplate
+            .query(Queries.GET_PROOF_OF_SHIPPING_FILE, new FileRowMapper(), offerId)
+            .stream()
+            .findFirst();
+    }
+
+    private static final class FileRowMapper implements RowMapper<File> {
+        @Override
+        public File mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
+            return File.builder()
+                .id(rs.getLong(FileSchema.ID))
+                .filename(rs.getString(FileSchema.FILENAME))
+                .alt(rs.getString(FileSchema.ALT))
+                .contentType(rs.getString(FileSchema.CONTENT_TYPE))
+                .data(rs.getBytes(FileSchema.DATA))
+                .build();
+        }
     }
 }

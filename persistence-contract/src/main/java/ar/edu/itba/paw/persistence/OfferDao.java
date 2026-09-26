@@ -31,4 +31,8 @@ public interface OfferDao {
     int countPendingBySeller(User seller);
 
     boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId);
+
+    boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber);
+
+    Optional<ar.edu.itba.paw.model.File> getProofOfShippingFile(Long offerId);
 }

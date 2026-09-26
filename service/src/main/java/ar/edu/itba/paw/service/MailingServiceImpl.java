@@ -181,6 +181,22 @@ public class MailingServiceImpl implements MailingService {
 
     @Async
     @Override
+    public void sendProofOfShippingUploadedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
+        var context = new Context(locale);
+        context.setVariable("buyer", buyer);
+        context.setVariable("seller", seller);
+        context.setVariable("listing", listing);
+        context.setVariable("offer", offer);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
+        context.setVariable("trackingNumber", offer.getTrackingNumber());
+
+        String subject = messageSource.getMessage("email.proofOfShipping.uploaded.subject", null, locale);
+        sendEmail(buyer.getEmail(), subject, "proof-of-shipping-uploaded", context);
+    }
+
+    @Async
+    @Override
     public void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale) {
         var context = new Context(locale);
         context.setVariable("user", user);
