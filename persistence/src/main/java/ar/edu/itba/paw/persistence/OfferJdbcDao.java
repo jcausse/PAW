@@ -2,7 +2,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
 import ar.edu.itba.paw.model.Condition;
-import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Offer;
@@ -339,13 +338,6 @@ public class OfferJdbcDao implements OfferDao {
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?" +
             " AND (?::bigint IS NULL OR " + OfferSchema.ID + " != ?)";
-
-        private static final String GET_PROOF_OF_SHIPPING_FILE =
-            "SELECT f." + FileSchema.ID + ", f." + FileSchema.FILENAME + ", f." + FileSchema.ALT +
-            ", f." + FileSchema.CONTENT_TYPE + ", f." + FileSchema.DATA +
-            " FROM " + FileSchema.TABLE_NAME + " f" +
-            " JOIN " + OfferSchema.TABLE_NAME + " o ON o." + OfferSchema.PROOF_OF_SHIPPING_ID + " = f." + FileSchema.ID +
-            " WHERE o." + OfferSchema.ID + " = ?";
     }
 
     @Override
@@ -397,26 +389,5 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber) {
         return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_SHIPPING, proofOfShippingId, trackingNumber, offerId) > 0;
-    }
-
-    @Override
-    public Optional<File> getProofOfShippingFile(Long offerId) {
-        return jdbcTemplate
-            .query(Queries.GET_PROOF_OF_SHIPPING_FILE, new FileRowMapper(), offerId)
-            .stream()
-            .findFirst();
-    }
-
-    private static final class FileRowMapper implements RowMapper<File> {
-        @Override
-        public File mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
-            return File.builder()
-                .id(rs.getLong(FileSchema.ID))
-                .filename(rs.getString(FileSchema.FILENAME))
-                .alt(rs.getString(FileSchema.ALT))
-                .contentType(rs.getString(FileSchema.CONTENT_TYPE))
-                .data(rs.getBytes(FileSchema.DATA))
-                .build();
-        }
     }
 }
