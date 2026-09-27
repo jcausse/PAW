@@ -32,24 +32,17 @@
             <div class="flex flex-col gap-4 mb-8">
                 <c:forEach var="offer" items="${offers}">
                     <account:offerCard offer="${offer}" user="seller">
-                        <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
-                            <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
-                            <paw:linkButton variant="outline" href="${proofUrl}" icon="upload" />
-                            <paw:menu buttonId="withdraw${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
-                                <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
-                                    <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${withdrawLabel}" classname="w-full justify-start" />
-                                </form>
-                            </paw:menu>
-                        </c:if>
-                        <c:if test="${offer.status.name() == 'PENDING'}">
-                            <paw:menu buttonId="withdraw${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
-                                <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
-                                    <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${withdrawLabel}" classname="w-full justify-start" />
-                                </form>
-                            </paw:menu>
-                        </c:if>
+                        <paw:menu id="my${offer.id}" variant="ghost" icon="more-horizontal" size="sm" panelWidth="w-56" panelAlign="right">
+                            <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                                <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
+                                <spring:message code="offer.proofOfPayment.uploadLabel" var="proofLabel"/>
+                                <paw:linkButton href="${proofUrl}" variant="ghost" icon="upload" role="secondary" text="${proofLabel}" classname="w-full justify-start" />
+                            </c:if>
+                            <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${withdrawLabel}" classname="w-full justify-start" />
+                            </form>
+                        </paw:menu>
                     </account:offerCard>
                 </c:forEach>
 
