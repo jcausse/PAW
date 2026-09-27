@@ -15,7 +15,7 @@
 <div class="relative" id="${id}Menu">
     <paw:button id="${id}Button" variant="${variant}" classname="${classname}" icon="${icon}" size="${size}" type="button" />
 
-    <div id="${id}Panel" class="hidden absolute ${panelAlignClass} top-full ${panelWidthClass} bg-white rounded-2xl border border-black/10 z-50 flex flex-col p-2 shadow-lg">
+    <div id="${id}Panel" class="hidden absolute ${panelAlignClass} top-full ${panelWidthClass} bg-white rounded-2xl border border-black/10 z-50 flex flex-col p-2">
         <jsp:doBody />
     </div>
 </div>
