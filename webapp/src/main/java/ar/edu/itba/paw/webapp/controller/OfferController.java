@@ -119,7 +119,7 @@ public class OfferController {
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("offer/proofOfPaymentUpload");
             mav.addObject("offer", offer);
-            mav.addObject("currentUser", currentUser);
+            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
             return mav;
         }
 
@@ -169,7 +169,7 @@ public class OfferController {
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("offer/proofOfShippingUpload");
             mav.addObject("offer", offer);
-            mav.addObject("currentUser", currentUser);
+            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
             return mav;
         }
 
