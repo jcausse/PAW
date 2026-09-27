@@ -35,13 +35,11 @@
                         <c:url value="/offer/${offer.id}" var="offerUrl"/>
                         <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
                         <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                            <c:url value="/offer/${offer.id}/proof-of-shipping" var="shippingUrl"/>
+                            <paw:linkButton variant="outline" href="${shippingUrl}" icon="truck" />
                             <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
                                 <paw:button type="submit" variant="outline" icon="check" />
                             </form>
-                            <c:if test="${offer.proofOfShippingId == null && empty offer.trackingNumber}">
-                                <c:url value="/offer/${offer.id}/proof-of-shipping" var="shippingUrl"/>
-                                <paw:linkButton variant="outline" href="${shippingUrl}" icon="truck" />
-                            </c:if>
                         </c:if>
                         <c:if test="${offer.status.name() == 'PENDING'}">
                             <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST">
