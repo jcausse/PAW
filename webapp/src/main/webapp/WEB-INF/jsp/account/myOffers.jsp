@@ -35,12 +35,20 @@
                         <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                             <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
                             <paw:linkButton variant="outline" href="${proofUrl}" icon="upload" />
+                            <paw:menu buttonId="withdraw${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
+                                <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
+                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                    <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${withdrawLabel}" classname="w-full justify-start" />
+                                </form>
+                            </paw:menu>
                         </c:if>
                         <c:if test="${offer.status.name() == 'PENDING'}">
-                            <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                            <paw:menu buttonId="withdraw${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
                                 <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
-                            </form>
+                                <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
+                                    <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${withdrawLabel}" classname="w-full justify-start" />
+                                </form>
+                            </paw:menu>
                         </c:if>
                     </account:offerCard>
                 </c:forEach>

@@ -37,18 +37,27 @@
                         <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                             <c:url value="/offer/${offer.id}/proof-of-shipping" var="shippingUrl"/>
                             <paw:linkButton variant="outline" href="${shippingUrl}" icon="truck" />
-                            <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
-                                <paw:button type="submit" variant="outline" icon="check" />
-                            </form>
+                            <paw:menu buttonId="confirmPayment${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
+                                <spring:message code="offer.action.confirmPayment" var="confirmLabel"/>
+                                <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
+                                    <paw:button type="submit" variant="ghost" icon="check" role="secondary" text="${confirmLabel}" classname="w-full justify-start" />
+                                </form>
+                            </paw:menu>
                         </c:if>
                         <c:if test="${offer.status.name() == 'PENDING'}">
-                            <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST">
-                                <paw:button type="submit" variant="outline" icon="check" />
-                            </form>
+                            <paw:menu buttonId="accept${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
+                                <spring:message code="offer.action.accept" var="acceptLabel"/>
+                                <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST">
+                                    <paw:button type="submit" variant="ghost" icon="check" role="secondary" text="${acceptLabel}" classname="w-full justify-start" />
+                                </form>
+                            </paw:menu>
                         </c:if>
-                        <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST">
-                            <paw:button type="submit" variant="outline" role="danger" icon="x" />
-                        </form>
+                        <paw:menu buttonId="reject${offer.id}" buttonVariant="ghost" buttonIcon="more-horizontal" panelWidth="w-48" panelAlign="right">
+                            <spring:message code="offer.action.reject" var="rejectLabel"/>
+                            <form action="<c:url value='/offer/${offer.id}/reject'/>" method="POST">
+                                <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${rejectLabel}" classname="w-full justify-start" />
+                            </form>
+                        </paw:menu>
                     </account:offerCard>
                 </c:forEach>
 
