@@ -78,7 +78,7 @@
         </paw:collapsible>
     </c:if>
 
-    <c:if test="${offer.proofOfShippingId != null || (offer.trackingNumber != null && !offer.trackingNumber.empty)}">
+    <c:if test="${offer.proofOfShippingId != null || not empty offer.trackingNumber}">
         <spring:message code="offer.proofOfShipping.uploadedNotification" var="proofOfShippingMsg"/>
         <paw:banner text="${proofOfShippingMsg}" icon="badge-check" />
         <paw:collapsible title="Proof of Shipping">

@@ -2,13 +2,13 @@
 <%@ attribute name="offer" required="true" type="ar.edu.itba.paw.model.Offer" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" />
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 
 <c:url value="/offer/${offer.id}/proof-of-shipping/download" var="downloadUrl"/>
 
 <div class="flex flex-col gap-2">
-    <c:if test="${offer.trackingNumber != null && !offer.trackingNumber.empty}">
+    <c:if test="${not empty offer.trackingNumber}">
         <spring:message code="offer.proofOfShipping.trackingNumberLabel" var="trackingLabel"/>
         <div class="flex items-center gap-2 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
             <paw:icon name="truck" classname="w-5 h-5 text-neutral-600" />
