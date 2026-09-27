@@ -15,6 +15,6 @@ public class ProofOfShippingUploadForm {
 
     private String trackingNumber;
 
-    @ValidFile
+    @ValidFile(optional = true)
     private MultipartFile file;
 }
