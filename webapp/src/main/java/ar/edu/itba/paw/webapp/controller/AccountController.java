@@ -8,14 +8,13 @@ import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.OfferFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
@@ -36,35 +34,21 @@ public class AccountController {
     private final OfferService offerService;
     private final MessageSource messageSource;
 
-    private Optional<User> getCurrentUser() {
-        final var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof AuthUserDetails) {
-            return Optional.of(((AuthUserDetails) auth.getPrincipal()).getDomainUser());
-        }
-        return Optional.empty();
-    }
-
     @GetMapping
-    public ModelAndView index() {
-        final var currentUser = getCurrentUser();
-        final var user = currentUser.orElseThrow();
-
+    public ModelAndView index(@CurrentUser User currentUser) {
         return new ModelAndView("account/index")
-                .addObject("user", user)
-                .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", getPendingOffersCount(user));
+                .addObject("user", currentUser)
+                .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
     @GetMapping("/listings")
-    public ModelAndView listings(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
-        final var currentUser = getCurrentUser();
-        final var user = currentUser.orElseThrow();
+    public ModelAndView listings(@CurrentUser User currentUser, @ModelAttribute("filterForm") ListingFilterForm filterForm) {
 
         final var filter = new ListingFilterDto(
             null, null, null, null, null, null,
             filterForm.getQuery(),
             filterForm.getSort(),
-            user.getId(),
+            currentUser.getId(),
             filterForm.getStatus(),
             filterForm.getPage(),
             ACCOUNT_LISTINGS_PAGE_SIZE
@@ -94,23 +78,19 @@ public class AccountController {
         return new ModelAndView("account/listings")
                 .addObject("listingPage", listingPage)
                 .addObject("listings", listings)
-                .addObject("user", user)
-                .addObject("currentUser", currentUser)
+                .addObject("user", currentUser)
                 .addObject("statusOptions", statusOptions)
                 .addObject("sortOptions", sortOptions)
-                .addObject("pendingOffersCount", getPendingOffersCount(user));
+                .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
     @GetMapping("/incoming-offers")
-    public ModelAndView incomingOffers(@ModelAttribute("filterForm") OfferFilterForm filterForm) {
-        final var currentUser = getCurrentUser();
-        final var user = currentUser.orElseThrow();
-
+    public ModelAndView incomingOffers(@CurrentUser User currentUser, @ModelAttribute("filterForm") OfferFilterForm filterForm) {
         if (filterForm.getStatusGroup() == null || filterForm.getStatusGroup().isBlank()) {
             filterForm.setStatusGroup(OfferStatusGroup.PENDING.getStatus());
         }
 
-        final var filter = new OfferFilterDto(user.getId(), null, filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var filter = new OfferFilterDto(currentUser.getId(), null, filterForm.getStatusGroup(), filterForm.getPage(), 5);
         final var offerPage = offerService.get(filter);
 
         final var locale = LocaleContextHolder.getLocale();
@@ -122,21 +102,17 @@ public class AccountController {
                 .addObject("offerPage", offerPage)
                 .addObject("offers", offerPage.getContent())
                 .addObject("statusGroupOptions", statusGroupOptions)
-                .addObject("user", user)
-                .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", getPendingOffersCount(user));
+                .addObject("user", currentUser)
+                .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
     @GetMapping("/my-offers")
-    public ModelAndView myOffers(@ModelAttribute("filterForm") OfferFilterForm filterForm) {
-        final var currentUser = getCurrentUser();
-        final var user = currentUser.orElseThrow();
-
+    public ModelAndView myOffers(@CurrentUser User currentUser, @ModelAttribute("filterForm") OfferFilterForm filterForm) {
         if (filterForm.getStatusGroup() == null || filterForm.getStatusGroup().isBlank()) {
             filterForm.setStatusGroup(OfferStatusGroup.PENDING.getStatus());
         }
 
-        final var filter = new OfferFilterDto(null, user.getId(), filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var filter = new OfferFilterDto(null, currentUser.getId(), filterForm.getStatusGroup(), filterForm.getPage(), 5);
         final var offerPage = offerService.get(filter);
 
         final var locale = LocaleContextHolder.getLocale();
@@ -148,9 +124,8 @@ public class AccountController {
                 .addObject("offerPage", offerPage)
                 .addObject("offers", offerPage.getContent())
                 .addObject("statusGroupOptions", statusGroupOptions)
-                .addObject("user", user)
-                .addObject("currentUser", currentUser)
-                .addObject("pendingOffersCount", getPendingOffersCount(user));
+                .addObject("user", currentUser)
+                .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
 	private int getPendingOffersCount(final User user) {
