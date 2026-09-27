@@ -50,7 +50,7 @@
                                 </div>
                             </paw:button>
 
-                            <div id="userPanel" class="hidden absolute right-0 top-full w-48 bg-white rounded-lg border border-black/10 z-50 flex flex-col p-2">
+                            <div id="userPanel" class="hidden absolute right-0 top-full w-48 bg-white rounded-2xl border border-black/10 z-50 flex flex-col p-2">
                                 <c:url value="/account" var="accountUrl"/>
                                 <c:url value="/profile" var="profileUrl"/>
                                 <spring:message code="navbar.account" var="accountLabel" />

@@ -32,7 +32,7 @@
             <div class="flex flex-col gap-4 mb-8">
                 <c:forEach var="offer" items="${offers}">
                     <account:offerCard offer="${offer}" user="seller">
-                        <paw:menu id="my${offer.id}" variant="ghost" icon="more-horizontal" size="sm" panelWidth="w-56" panelAlign="right">
+                        <paw:menu id="my${offer.id}" variant="outline" icon="ellipsis" panelWidth="w-56" panelAlign="right">
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                                 <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
                                 <spring:message code="offer.proofOfPayment.uploadLabel" var="proofLabel"/>

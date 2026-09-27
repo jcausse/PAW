@@ -34,7 +34,7 @@
                     <account:offerCard offer="${offer}" user="buyer">
                         <c:url value="/offer/${offer.id}" var="offerUrl"/>
                         <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
-                        <paw:menu id="incoming${offer.id}" variant="ghost" icon="more-horizontal" size="sm" panelWidth="w-56" panelAlign="right">
+                        <paw:menu id="incoming${offer.id}" variant="outline" icon="ellipsis" panelWidth="w-56" panelAlign="right">
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                                 <c:url value="/offer/${offer.id}/proof-of-shipping" var="shippingUrl"/>
                                 <spring:message code="offer.proofOfShipping.uploadLabel" var="shippingLabel"/>
