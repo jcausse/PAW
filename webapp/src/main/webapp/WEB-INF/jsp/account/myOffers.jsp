@@ -32,16 +32,17 @@
             <div class="flex flex-col gap-4 mb-8">
                 <c:forEach var="offer" items="${offers}">
                     <account:offerCard offer="${offer}" user="seller">
-                        <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
-                            <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
-                            <paw:linkButton variant="outline" href="${proofUrl}" icon="upload" />
-                        </c:if>
-                        <c:if test="${offer.status.name() == 'PENDING'}">
+                        <paw:menu id="my${offer.id}" variant="outline" icon="ellipsis" panelWidth="w-56" panelAlign="right">
+                            <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                                <c:url value="/account/my-offers/${offer.id}/payment" var="proofUrl"/>
+                                <spring:message code="offer.proofOfPayment.uploadLabel" var="proofLabel"/>
+                                <paw:linkButton href="${proofUrl}" variant="ghost" icon="upload" text="${proofLabel}" classname="w-full justify-start" />
+                            </c:if>
+                            <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
                             <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">
-                                <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
-                                <paw:button type="submit" variant="outline" role="danger" icon="x" text="${withdrawLabel}" />
+                                <paw:button type="submit" variant="ghost" icon="x" role="danger" text="${withdrawLabel}" classname="w-full justify-start" />
                             </form>
-                        </c:if>
+                        </paw:menu>
                     </account:offerCard>
                 </c:forEach>
 

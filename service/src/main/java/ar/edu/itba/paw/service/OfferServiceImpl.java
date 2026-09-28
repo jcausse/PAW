@@ -238,6 +238,44 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     @Transactional
+    public Offer uploadProofOfShipping(Long offerId, Long sellerId, String filename, String alt, String contentType, byte[] data, String trackingNumber) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (!offer.getListing().getCreator().getId().equals(sellerId)) {
+            throw new BadParameterException("Only the seller can upload proof of shipping");
+        }
+
+        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            throw new BadParameterException("Offer is not pending payment");
+        }
+
+        if ((data == null || data.length == 0) && (trackingNumber == null || trackingNumber.isBlank())) {
+            throw new BadParameterException("Either a file or a tracking number must be provided");
+        }
+
+        if (data != null && data.length > 0) {
+            if (contentType == null || (!contentType.startsWith("image/") && !"application/pdf".equals(contentType))) {
+                throw new BadParameterException("Only image and PDF files are allowed");
+            }
+        }
+
+        Long proofOfShippingId = null;
+        if (data != null && data.length > 0) {
+            final File file = fileDao.create(filename, alt, contentType, data);
+            proofOfShippingId = file.getId();
+        }
+
+        offerDao.updateProofOfShipping(offerId, proofOfShippingId, trackingNumber);
+
+        // Notify buyer that proof of shipping was uploaded
+        mailingService.sendProofOfShippingUploadedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+
+        return offerDao.getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Transactional
     public Offer confirmPayment(Long offerId, Long sellerId) {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
@@ -266,6 +304,18 @@ public class OfferServiceImpl implements OfferService {
         }
 
         return fileDao.getById(offer.getProofOfPaymentId());
+    }
+
+    @Override
+    public Optional<File> getProofOfShippingFile(Long offerId) {
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        if (offer.getProofOfShippingId() == null) {
+            return Optional.empty();
+        }
+
+        return fileDao.getById(offer.getProofOfShippingId());
     }
 
     @Override

@@ -70,11 +70,24 @@
         <paw:banner text="${warningMsg}" icon="triangle-alert" role="warning" />
     </c:if>
 
-    <c:if test="${offer.proofOfPaymentId != null}">
+    <c:if test="${offer.proofOfPaymentId != null && user == 'buyer'}">
         <spring:message code="offer.proofOfPayment.uploadedNotification" var="proofOfPaymentMsg"/>
         <paw:banner text="${proofOfPaymentMsg}" icon="badge-check" />
-        <paw:collapsible title="Proof of Payment">
-            <paw:offerProofOfPayment offer="${offer}" />
+    </c:if>
+    <c:if test="${(offer.proofOfShippingId != null || not empty offer.trackingNumber) && user == 'seller'}">
+        <spring:message code="offer.proofOfShipping.uploadedNotification" var="proofOfShippingMsg"/>
+        <paw:banner text="${proofOfShippingMsg}" icon="badge-check" />
+    </c:if>
+
+    <c:if test="${offer.proofOfPaymentId != null || offer.proofOfShippingId != null || not empty offer.trackingNumber}">
+        <spring:message code="offer.attachments" var="attachmentsLabel"/>
+        <paw:collapsible title="${attachmentsLabel}" classname="flex-1">
+            <c:if test="${offer.proofOfPaymentId != null}">
+                <paw:offerProofOfPayment offer="${offer}" />
+            </c:if>
+            <c:if test="${offer.proofOfShippingId != null || not empty offer.trackingNumber}">
+                <paw:offerProofOfShipping offer="${offer}" />
+            </c:if>
         </paw:collapsible>
     </c:if>
 

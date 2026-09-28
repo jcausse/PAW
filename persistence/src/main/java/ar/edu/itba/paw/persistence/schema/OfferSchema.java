@@ -18,4 +18,9 @@ public final class OfferSchema {
     public static final String PROOF_OF_PAYMENT_FILENAME = "proof_of_payment_filename";
     public static final String PROOF_OF_PAYMENT_CONTENT_TYPE = "proof_of_payment_content_type";
     public static final String PROOF_OF_PAYMENT_SIZE = "proof_of_payment_size";
+    public static final String PROOF_OF_SHIPPING_ID = "proof_of_shipping_id";
+    public static final String PROOF_OF_SHIPPING_FILENAME = "proof_of_shipping_filename";
+    public static final String PROOF_OF_SHIPPING_CONTENT_TYPE = "proof_of_shipping_content_type";
+    public static final String PROOF_OF_SHIPPING_SIZE = "proof_of_shipping_size";
+    public static final String TRACKING_NUMBER = "tracking_number";
 }

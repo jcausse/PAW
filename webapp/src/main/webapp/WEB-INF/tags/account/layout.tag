@@ -25,7 +25,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-10 gap-4">
             <div class="md:col-span-3">
-                <account:sidebar user="${user}" />
+                <account:sidebar user="${currentUser.get()}" />
             </div>
 
             <div class="md:col-span-7">
