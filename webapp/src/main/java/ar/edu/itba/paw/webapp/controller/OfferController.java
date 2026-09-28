@@ -198,6 +198,32 @@ public class OfferController {
         return new ModelAndView("redirect:/account/incoming-offers?statusGroup=pending_payment");
     }
 
+    @GetMapping("/{offerId}/proof-of-payment/download")
+    public ResponseEntity<Resource> downloadProofOfPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        final Offer offer = offerService.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        // Both buyer and seller can download the proof of payment
+        final Long currentUserId = currentUser.getId();
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
+        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
+
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenException("Not authorized to download proof of payment");
+        }
+
+        final File file = offerService.getProofOfPaymentFile(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Proof of payment not found"));
+
+        final ByteArrayResource resource = new ByteArrayResource(file.getData());
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(file.getContentType().orElse("application/octet-stream")))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+            .contentLength(file.getData().length)
+            .body(resource);
+    }
+
     @GetMapping("/{offerId}/proof-of-shipping/download")
     public ResponseEntity<Resource> downloadProofOfShipping(@PathVariable Long offerId, @CurrentUser User currentUser) {
         final Offer offer = offerService.getById(offerId)
