@@ -14,10 +14,11 @@
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <!-- Back link -->
     <div class="mb-4">
-        <paw:linkButton href="${incomingOffersUrl}" text="Back" variant="ghost" icon="chevron-left" classname="justify-start" />
+        <spring:message code="offer.proofOfShipping.back" var="backLabel"/>
+        <paw:linkButton href="${incomingOffersUrl}" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
     </div>
 
-    <div class="flex flex-col gap-4">
+    <paw:card classname="flex flex-col gap-4">
         <div class="text-center">
             <c:choose>
                 <c:when test="${offer.status.name() == 'PENDING'}">
@@ -198,5 +199,6 @@
             </c:otherwise>
         </c:choose>
     </div>
+</paw:card>
 </account:layout>
 </html>

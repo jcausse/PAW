@@ -159,6 +159,7 @@ public class AccountController {
 
         var mav = new ModelAndView("account/incomingOfferDetail");
         mav.addObject("offer", offer);
+        mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
         return mav;
     }
 
@@ -179,6 +180,7 @@ public class AccountController {
         var mav = new ModelAndView("account/proofOfPaymentUpload");
         mav.addObject("offer", offer);
         mav.addObject("proofOfPaymentUploadForm", new ProofOfPaymentUploadForm());
+        mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
         return mav;
     }
 
@@ -230,6 +232,7 @@ public class AccountController {
         var mav = new ModelAndView("account/proofOfShippingUpload");
         mav.addObject("offer", offer);
         mav.addObject("proofOfShippingUploadForm", new ProofOfShippingUploadForm());
+        mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
         return mav;
     }
 
