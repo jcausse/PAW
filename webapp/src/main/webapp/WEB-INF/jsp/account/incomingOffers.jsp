@@ -38,7 +38,7 @@
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                                 <c:url value="/offer/${offer.id}/proof-of-shipping" var="shippingUrl"/>
                                 <spring:message code="offer.proofOfShipping.uploadLabel" var="shippingLabel"/>
-                                <paw:linkButton href="${shippingUrl}" variant="ghost" icon="truck" text="${shippingLabel}" classname="w-full justify-start" />
+                                <paw:linkButton href="${shippingUrl}" variant="ghost" icon="van" text="${shippingLabel}" classname="w-full justify-start" />
                                 <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
                                     <spring:message code="offer.action.confirmPayment" var="confirmLabel"/>
                                     <paw:button type="submit" variant="ghost" icon="check" text="${confirmLabel}" classname="w-full justify-start" />

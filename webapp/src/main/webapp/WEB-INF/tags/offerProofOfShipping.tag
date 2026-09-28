@@ -10,16 +10,16 @@
 <div class="flex flex-col gap-2">
     <c:if test="${not empty offer.trackingNumber}">
         <spring:message code="offer.proofOfShipping.trackingNumberLabel" var="trackingLabel"/>
-        <div class="flex items-center gap-2 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-            <paw:icon name="truck" classname="w-5 h-5 text-neutral-600" />
-            <div class="flex-1 min-w-0">
-                <span class="text-sm text-neutral-500"><c:out value="${trackingLabel}"/></span>
-                <span class="text-sm font-medium text-neutral-900 truncate block"><c:out value="${offer.trackingNumber}"/></span>
+        <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-black/60"><c:out value="${trackingLabel}"/></p>
+            <div class="text-base font-mono font-semibold py-1 px-2 border border-black/10 rounded-md mt-2 self-start min-w-0 select-all">
+                <c:out value="${offer.trackingNumber}"/>
             </div>
         </div>
     </c:if>
     <c:if test="${offer.proofOfShippingId != null}">
-        <paw:linkButton variant="ghost" href="${downloadUrl}" icon="download" classname="w-full justify-start text-start px-3!">
+        <div class="text-xs font-medium text-black/60">Shipping information</div>
+        <paw:linkButton variant="outline" href="${downloadUrl}" icon="download" classname="w-full justify-start text-start px-3!">
             <div class="flex flex-col items-start ml-1">
                 <span class="text-black font-medium"><c:out value="${offer.proofOfShippingFilename}"/></span>
                 <span class="text-xs text-black/60 font-normal">

@@ -24,7 +24,7 @@
     : 'bg-lime-50 border-lime-200 text-lime-800'
 }"/>
 
-<div class="p-3 rounded-lg border mt-2 flex flex-row gap-2 items-center ${roleClassnames} ${bannerClass}">
+<div class="p-3 rounded-lg border flex flex-row gap-2 items-center ${roleClassnames} ${bannerClass}">
     <c:if test="${not empty icon}"><paw:icon name="${icon}" /></c:if>
     <p class="text-sm"><c:out value="${text}"/></p>
 </div>

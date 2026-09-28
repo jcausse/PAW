@@ -132,12 +132,17 @@
                 </c:if>
 
                 <!-- Proof of payment for pending payment state -->
-                <c:if test="${offer.status.name() == 'PENDING_PAYMENT' and offer.proofOfPaymentId != null}">
+                <c:if test="${offer.status.name() == 'PENDING_PAYMENT' and (offer.proofOfPaymentId != null or offer.proofOfShippingId != null or not empty offer.trackingNumber)}">
                     <paw:divider />
                     <spring:message code="offer.detail.proofOfPayment" var="proofLabel"/>
                     <div class="flex flex-col gap-2">
                         <span class="text-sm text-black/60"><c:out value="${proofLabel}"/></span>
-                        <paw:offerProofOfPayment offer="${offer}" />
+                        <c:if test="${offer.proofOfPaymentId != null}">
+                            <paw:offerProofOfPayment offer="${offer}" />
+                        </c:if>
+                        <c:if test="${offer.proofOfShippingId != null or not empty offer.trackingNumber}">
+                            <paw:offerProofOfShipping offer="${offer}" />
+                        </c:if>
                     </div>
                 </c:if>
 

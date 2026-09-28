@@ -7,7 +7,7 @@
 
 <c:set var="collapsibleClass" value="${not empty classname ? classname : ''}"/>
 
-<details class="group ${collapsibleClass} open:bg-lime-600/10 rounded-md">
+<details class="group ${collapsibleClass} border border-black/10 rounded-md">
     <summary class="
         flex items-center gap-2 px-2 py-1
         text-sm text-lime-600 font-medium rounded-md
