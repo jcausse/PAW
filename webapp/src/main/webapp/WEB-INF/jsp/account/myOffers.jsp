@@ -34,7 +34,7 @@
                     <account:offerCard offer="${offer}" user="seller">
                         <paw:menu id="my${offer.id}" variant="outline" icon="ellipsis" panelWidth="w-56" panelAlign="right">
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
-                                <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
+                                <c:url value="/account/my-offers/${offer.id}/payment" var="proofUrl"/>
                                 <spring:message code="offer.proofOfPayment.uploadLabel" var="proofLabel"/>
                                 <paw:linkButton href="${proofUrl}" variant="ghost" icon="upload" text="${proofLabel}" classname="w-full justify-start" />
                             </c:if>

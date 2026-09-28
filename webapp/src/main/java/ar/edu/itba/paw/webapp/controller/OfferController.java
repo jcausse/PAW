@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferStatus;
@@ -10,21 +9,13 @@ import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
-import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
-import ar.edu.itba.paw.webapp.form.ProofOfShippingUploadForm;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
@@ -32,24 +23,6 @@ import java.io.IOException;
 public class OfferController {
 
     private final OfferService offerService;
-
-    @GetMapping("/{offerId}")
-    public ModelAndView viewOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        // Verify the current user is the seller (listing creator)
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to view this offer");
-        }
-
-        var mav = new ModelAndView("offer/detail");
-        mav.addObject("offer", offer);
-        return mav;
-    }
 
     @PostMapping("/{offerId}/accept")
     public ModelAndView acceptOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
@@ -70,7 +43,7 @@ public class OfferController {
                                        @CurrentUser User currentUser,
                                        @RequestHeader(value = "Referer", required = false) String referer) {
         final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
         offerService.withdraw(offerId, currentUser.getId());
@@ -87,166 +60,5 @@ public class OfferController {
         offerService.confirmPayment(offerId, currentUser.getId());
 
         return new ModelAndView("redirect:/account/incoming-offers?statusGroup=resolved");
-    }
-
-    @GetMapping("/{offerId}/proof-of-payment")
-    public ModelAndView showProofOfPaymentUpload(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        if (!offer.getBuyer().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not authorized to upload proof of payment");
-        }
-
-        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
-            throw new BadParameterException("Offer is not pending payment");
-        }
-
-        var mav = new ModelAndView("offer/proofOfPaymentUpload");
-        mav.addObject("offer", offer);
-        mav.addObject("proofOfPaymentUploadForm", new ProofOfPaymentUploadForm());
-        return mav;
-    }
-
-    @PostMapping("/{offerId}/proof-of-payment")
-    public ModelAndView uploadProofOfPayment(@PathVariable Long offerId,
-                                              @CurrentUser User currentUser,
-                                              @Valid @ModelAttribute("proofOfPaymentUploadForm") ProofOfPaymentUploadForm form,
-                                              BindingResult bindingResult) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        if (bindingResult.hasErrors()) {
-            var mav = new ModelAndView("offer/proofOfPaymentUpload");
-            mav.addObject("offer", offer);
-            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
-            return mav;
-        }
-
-        try {
-            offerService.uploadProofOfPayment(
-                offerId,
-                currentUser.getId(),
-                form.getFile().getOriginalFilename(),
-                "Proof of payment for offer " + offerId,
-                form.getFile().getContentType(),
-                form.getFile().getBytes()
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read uploaded file", e);
-        }
-
-        return new ModelAndView("redirect:/account/my-offers?statusGroup=pending_payment");
-    }
-
-    @GetMapping("/{offerId}/proof-of-shipping")
-    public ModelAndView showProofOfShippingUpload(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        if (!offer.getListing().getCreator().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not authorized to upload proof of shipping");
-        }
-
-        if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
-            throw new BadParameterException("Offer is not pending payment");
-        }
-
-        var mav = new ModelAndView("offer/proofOfShippingUpload");
-        mav.addObject("offer", offer);
-        mav.addObject("proofOfShippingUploadForm", new ProofOfShippingUploadForm());
-        return mav;
-    }
-
-    @PostMapping("/{offerId}/proof-of-shipping")
-    public ModelAndView uploadProofOfShipping(@PathVariable Long offerId,
-                                               @CurrentUser User currentUser,
-                                               @Valid @ModelAttribute("proofOfShippingUploadForm") ProofOfShippingUploadForm form,
-                                               BindingResult bindingResult) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        if (bindingResult.hasErrors()) {
-            var mav = new ModelAndView("offer/proofOfShippingUpload");
-            mav.addObject("offer", offer);
-            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
-            return mav;
-        }
-
-        try {
-            byte[] fileData = null;
-            String filename = null;
-            String contentType = null;
-            if (form.getFile() != null && !form.getFile().isEmpty()) {
-                fileData = form.getFile().getBytes();
-                filename = form.getFile().getOriginalFilename();
-                contentType = form.getFile().getContentType();
-            }
-            offerService.uploadProofOfShipping(
-                offerId,
-                currentUser.getId(),
-                filename,
-                "Proof of shipping for offer " + offerId,
-                contentType,
-                fileData,
-                form.getTrackingNumber()
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read uploaded file", e);
-        }
-
-        return new ModelAndView("redirect:/account/incoming-offers?statusGroup=pending_payment");
-    }
-
-    @GetMapping("/{offerId}/proof-of-payment/download")
-    public ResponseEntity<Resource> downloadProofOfPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        // Both buyer and seller can download the proof of payment
-        final Long currentUserId = currentUser.getId();
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
-
-        if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("Not authorized to download proof of payment");
-        }
-
-        final File file = offerService.getProofOfPaymentFile(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Proof of payment not found"));
-
-        final ByteArrayResource resource = new ByteArrayResource(file.getData());
-
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(file.getContentType().orElse("application/octet-stream")))
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-            .contentLength(file.getData().length)
-            .body(resource);
-    }
-
-    @GetMapping("/{offerId}/proof-of-shipping/download")
-    public ResponseEntity<Resource> downloadProofOfShipping(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        // Both buyer and seller can download the proof of shipping
-        final Long currentUserId = currentUser.getId();
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
-
-        if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("Not authorized to download proof of shipping");
-        }
-
-        final File file = offerService.getProofOfShippingFile(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Proof of shipping not found"));
-
-        final ByteArrayResource resource = new ByteArrayResource(file.getData());
-
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(file.getContentType().orElse("application/octet-stream")))
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-            .contentLength(file.getData().length)
-            .body(resource);
     }
 }
