@@ -13,7 +13,7 @@
 <body class="pb-24 bg-neutral-50">
     <paw:navbar/>
 
-    <main class="px-4 py-8 flex flex-col gap-12">
+    <main class="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-12">
         <!-- Hot Items -->
         <c:if test="${not empty hotItems}">
             <c:url value="/listing?sort=most_offers" var="hotItemsSeeMoreUrl"/>
@@ -65,7 +65,7 @@
         <!-- Categories Grid -->
         <c:if test="${not empty categories}">
             <spring:message code="landing.categories.title" var="categoriesTitle"/>
-            <div class="max-w-6xl mx-auto">
+            <div>
                 <h2 class="text-xl font-bold mb-4"><c:out value="${categoriesTitle}"/></h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     <c:forEach var="category" items="${categories}">
