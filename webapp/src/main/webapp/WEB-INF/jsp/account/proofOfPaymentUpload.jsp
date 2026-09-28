@@ -23,8 +23,6 @@
     </div>
 
     <paw:card classname="flex flex-col gap-4">
-        <paw:divider />
-
         <div class="flex flex-row gap-4">
             <paw:listingImage listing="${offer.listing}" size="xl" />
 
