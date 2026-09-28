@@ -14,7 +14,7 @@
 <spring:message code="card.noImage" var="noImageLabel"/>
 
 <div class="w-full">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold"><c:out value="${title}"/></h2>
             <p class="text-sm text-black/60"><c:out value="${subtitle}"/></p>
@@ -31,13 +31,13 @@
             onclick="document.getElementById('${id}').scrollBy({left: -280, behavior: 'smooth'})"
             variant="outline"
             icon="chevron-left"
-            classname="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition"
+            classname="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition bg-white hover:bg-lime-50 active:bg-lime-100"
             ariaLabel="${prevLabel}"
         />
 
         <div
             id="${id}"
-            class="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory [scrollbar-width:none] pb-4"
+            class="flex gap-2 overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory [scrollbar-width:none] py-4"
         >
             <c:forEach var="listing" items="${listings}" varStatus="status">
                 <c:url value="/listing/${listing.id}" var="listingUrl"/>
@@ -45,7 +45,8 @@
                     listing="${listing}"
                     listingUrl="${listingUrl}"
                     noImageLabel="${noImageLabel}"
-                    linkClassname="snap-start shrink-0"
+                    linkClassname="snap-start w-56 shrink-0"
+                    variant="compact"
                 />
             </c:forEach>
         </div>
@@ -55,7 +56,7 @@
             onclick="document.getElementById('${id}').scrollBy({left: 280, behavior: 'smooth'})"
             variant="outline"
             icon="chevron-right"
-            classname="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition"
+            classname="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition bg-white hover:bg-lime-50 active:bg-lime-100"
             ariaLabel="${nextLabel}"
         />
     </div>

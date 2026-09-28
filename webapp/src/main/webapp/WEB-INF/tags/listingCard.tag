@@ -1,4 +1,5 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
+<%@ attribute name="variant" required="false" %>
 <%@ attribute name="listing" required="true" type="ar.edu.itba.paw.model.Listing" %>
 <%@ attribute name="listingUrl" required="true" %>
 <%@ attribute name="noImageLabel" required="false" %>
@@ -8,27 +9,63 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
-<c:set var="coverUrl" value=""/>
+
+<c:set var="listingCardVariant" value="${not empty variant ? variant : 'default'}"/>
+<c:set var="imageUrl" value=""/>
 <c:if test="${not empty listing.imageIds}">
-    <c:url value="/image/${listing.imageIds[0]}" var="coverUrl"/>
+    <c:url value="/image/${listing.imageIds[0]}" var="imageUrl"/>
 </c:if>
 <c:set var="subLabel" value=""/>
 <c:if test="${not empty listing.product and not empty listing.product.subcategory}">
     <spring:message code="subcategory.${listing.product.subcategory.name}" var="subLabel"/>
 </c:if>
+
+<c:set var="variantClassnames" value="${
+  listingCardVariant eq 'compact'
+    ? 'p-2!'
+    : ''
+}"/>
+
 <a href="${listingUrl}" class="block hover:-translate-y-0.5 transition ${linkClassname}">
-    <paw:card title="${listing.title}" subtitle="${subLabel}"
-              showImage="true" imageUrl="${coverUrl}"
-              imageAlt="${listing.title}" noImageLabel="${noImageLabel}"
-              classname="h-full relative ${cardClassname}">
-        <paw:listingHotBadge listing="${listing}" />
-        <div class="flex items-center gap-2 flex-wrap mt-auto">
-            <p class="text-xl font-bold">$<c:out value="${listing.price.amount}"/></p>
-            <c:if test="${listing.acceptsTrade}">
-                <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
-                    <spring:message code="discovery.acceptsTrade.badge"/>
-                </span>
-            </c:if>
+    <paw:card classname="h-full relative ${variantClassnames} ${cardClassname}">
+        <div class="w-full aspect-square rounded-lg overflow-hidden border border-black/10 mb-1 bg-neutral-200 relative">
+          <c:choose>
+            <c:when test="${not empty imageUrl}">
+              <img src="${imageUrl}" alt="<c:out value='${imageAlt}'/>" class="w-full h-full object-cover"/>
+            </c:when>
+            <c:otherwise>
+              <div class="w-full h-full grid place-items-center text-black/30 text-xs px-2 text-center">
+                <c:out value="${noImageLabel}"/>
+              </div>
+            </c:otherwise>
+          </c:choose>
         </div>
+        <c:choose>
+            <c:when test="${listingCardVariant == 'compact'}">
+                <paw:listingHotBadge listing="${listing}" classname="top-1! left-1!" />
+                <h3 class="text-sm font-medium"><c:out value="${listing.title}"/></h3>
+                <div class="flex items-center gap-2 flex-wrap mt-auto">
+                    <p class="text-lg font-bold">$<c:out value="${listing.price.amount}"/></p>
+                    <c:if test="${listing.acceptsTrade}">
+                        <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
+                            <spring:message code="discovery.acceptsTrade.badge"/>
+                        </span>
+                    </c:if>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <paw:listingHotBadge listing="${listing}" />
+                <h3 class="text-base font-semibold"><c:out value="${listing.title}"/></h3>
+                <p class="text-sm text-black/60 mb-2"><c:out value="${subLabel}"/></p>
+                <div class="flex items-center gap-2 flex-wrap mt-auto">
+                    <p class="text-xl font-bold">$<c:out value="${listing.price.amount}"/></p>
+                    <c:if test="${listing.acceptsTrade}">
+                        <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
+                            <spring:message code="discovery.acceptsTrade.badge"/>
+                        </span>
+                    </c:if>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </paw:card>
 </a>
