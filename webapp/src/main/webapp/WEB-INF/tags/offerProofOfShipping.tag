@@ -13,12 +13,13 @@
         <div class="flex-1 min-w-0">
             <p class="text-xs font-medium text-black/60"><c:out value="${trackingLabel}"/></p>
             <div class="flex items-center gap-2 mt-2">
-                <div class="text-base font-mono font-semibold py-1 px-2 border border-black/10 rounded-md self-start min-w-0 select-all flex-1">
+                <div class="text-base font-mono font-semibold p-1 pl-2 border border-black/10 rounded-md self-start min-w-0 select-all flex-1 flex flex-row gap-2 items-center">
                     <c:out value="${offer.trackingNumber}"/>
+                    <c:set value="${offer.trackingNumber}" var="trackingNumber" />
+                    <paw:button variant="ghost" icon="copy" classname="flex-shrink-0 ml-auto"
+                        onclick="navigator.clipboard.writeText('${trackingNumber}'); this.querySelector('i').className='icon-check'; setTimeout(() => this.querySelector('i').className='icon-copy', 2000);"
+                    />
                 </div>
-                <paw:button variant="ghost" icon="copy" size="sm" classname="flex-shrink-0"
-                    onclick="navigator.clipboard.writeText('<c:out value="${offer.trackingNumber}"/>'); this.querySelector('i').className='icon-check'; setTimeout(() => this.querySelector('i').className='icon-copy', 2000);" 
-                    type="button" aria-label="Copy tracking number" />
             </div>
         </div>
     </c:if>
