@@ -7,7 +7,7 @@ PYTHON := python3
 
 dev: clean db-start
 	$(MAVEN) install -DskipTests -Pdev
-	$(MAVEN) -pl webapp jetty:run -Pdev -Duser.timezone=UTC
+	$(MAVEN) -pl webapp jetty:run -Pdev
 
 db-start:
 	@./.script/db-start.sh
