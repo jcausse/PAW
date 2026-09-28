@@ -14,7 +14,7 @@
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <!-- Back link -->
     <div class="mb-4">
-        <spring:message code="offer.proofOfShipping.back" var="backLabel"/>
+        <spring:message code="offer.incoming.back" var="backLabel"/>
         <paw:linkButton href="${incomingOffersUrl}" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
     </div>
 
