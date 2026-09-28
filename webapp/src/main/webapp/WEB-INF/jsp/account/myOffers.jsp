@@ -36,7 +36,7 @@
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                                 <c:url value="/offer/${offer.id}/proof-of-payment" var="proofUrl"/>
                                 <spring:message code="offer.proofOfPayment.uploadLabel" var="proofLabel"/>
-                                <paw:linkButton href="${proofUrl}" variant="ghost" icon="upload" role="secondary" text="${proofLabel}" classname="w-full justify-start" />
+                                <paw:linkButton href="${proofUrl}" variant="ghost" icon="upload" text="${proofLabel}" classname="w-full justify-start" />
                             </c:if>
                             <spring:message code="account.myOffers.withdraw" var="withdrawLabel"/>
                             <form action="<c:url value='/offer/${offer.id}/withdraw'/>" method="POST">

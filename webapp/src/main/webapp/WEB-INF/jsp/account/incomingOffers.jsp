@@ -38,16 +38,16 @@
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                                 <c:url value="/offer/${offer.id}/proof-of-shipping" var="shippingUrl"/>
                                 <spring:message code="offer.proofOfShipping.uploadLabel" var="shippingLabel"/>
-                                <paw:linkButton href="${shippingUrl}" variant="ghost" icon="truck" role="secondary" text="${shippingLabel}" classname="w-full justify-start" />
+                                <paw:linkButton href="${shippingUrl}" variant="ghost" icon="truck" text="${shippingLabel}" classname="w-full justify-start" />
                                 <form action="<c:url value='/offer/${offer.id}/confirm-payment'/>" method="POST">
                                     <spring:message code="offer.action.confirmPayment" var="confirmLabel"/>
-                                    <paw:button type="submit" variant="ghost" icon="check" role="secondary" text="${confirmLabel}" classname="w-full justify-start" />
+                                    <paw:button type="submit" variant="ghost" icon="check" text="${confirmLabel}" classname="w-full justify-start" />
                                 </form>
                             </c:if>
                             <c:if test="${offer.status.name() == 'PENDING'}">
                                 <spring:message code="offer.action.accept" var="acceptLabel"/>
                                 <form action="<c:url value='/offer/${offer.id}/accept'/>" method="POST">
-                                    <paw:button type="submit" variant="ghost" icon="check" role="secondary" text="${acceptLabel}" classname="w-full justify-start" />
+                                    <paw:button type="submit" variant="ghost" icon="check" text="${acceptLabel}" classname="w-full justify-start" />
                                 </form>
                             </c:if>
                             <spring:message code="offer.action.reject" var="rejectLabel"/>
