@@ -8,12 +8,13 @@
 <c:url value="/account/incoming-offers" var="backUrl"/>
 <spring:message code="offer.proofOfShipping.title" var="titleMsg"/>
 <spring:message code="offer.proofOfShipping.subtitle" var="subtitleMsg"/>
-<spring:message code="offer.proofOfShipping.trackingNumberLabel" var="trackingNumberLabelMsg"/>
+<spring:message code="offer.proofOfShipping.trackingNumberLabelForm" var="trackingNumberLabelMsg"/>
 <spring:message code="offer.proofOfShipping.trackingNumberPlaceholder" var="trackingNumberPlaceholderMsg"/>
 <spring:message code="offer.proofOfShipping.uploadLabel" var="uploadLabelMsg"/>
 <spring:message code="offer.proofOfShipping.back" var="backLabelMsg"/>
 <spring:message code="offer.proofOfShipping.submit" var="submitLabelMsg"/>
 <spring:message code="offer.proofOfShipping.fileHint" var="fileHintMsg"/>
+<spring:message code="offer.proofOfShipping.fileLabelForm" var="fileLabelMsg"/>
 
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
@@ -64,11 +65,10 @@
                 <form:form method="POST" action="${uploadAction}" enctype="multipart/form-data" class="space-y-4" modelAttribute="proofOfShippingUploadForm">
                     <form:errors path="*" element="div" cssClass="text-xs text-red-600 mb-4" />
                     <div>
-                        <spring:message code="offer.proofOfShipping.trackingNumberLabel" var="trackingNumberLabelMsg"/>
+                        <spring:message code="offer.proofOfShipping.trackingNumberLabelForm" var="trackingNumberLabelMsg"/>
                         <paw:formInput path="trackingNumber" label="${trackingNumberLabelMsg}" placeholder="${trackingNumberPlaceholderMsg}" />
                     </div>
                     <div>
-                        <spring:message code="offer.proofOfShipping.fileLabel" var="fileLabelMsg"/>
                         <paw:fileUpload path="file" label="${fileLabelMsg}" accept="image/*,application/pdf" />
                         <p class="text-xs text-black/50 mt-1">
                             <c:out value="${fileHintMsg}"/>

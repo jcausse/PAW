@@ -8,7 +8,8 @@
 <c:url value="/offer/${offer.id}/proof-of-payment/download" var="downloadUrl"/>
 
 <div class="flex flex-col gap-2">
-    <div class="text-xs font-medium text-black/60">Proof of payment</div>
+    <spring:message code="offer.proofOfPayment.label" var="proofOfPaymentLabel"/>
+    <div class="text-xs font-medium text-black/60"><c:out value="${proofOfPaymentLabel}"/></div>
     <paw:linkButton variant="outline" href="${downloadUrl}" icon="download" classname="w-full justify-start text-start px-3!">
         <div class="flex flex-col items-start ml-1">
             <span class="text-black font-medium"><c:out value="${offer.proofOfPaymentFilename}"/></span>

@@ -80,7 +80,8 @@
     </c:if>
 
     <c:if test="${offer.proofOfPaymentId != null || offer.proofOfShippingId != null || not empty offer.trackingNumber}">
-        <paw:collapsible title="Attachments" classname="flex-1">
+        <spring:message code="offer.attachments" var="attachmentsLabel"/>
+        <paw:collapsible title="${attachmentsLabel}" classname="flex-1">
             <c:if test="${offer.proofOfPaymentId != null}">
                 <paw:offerProofOfPayment offer="${offer}" />
             </c:if>
