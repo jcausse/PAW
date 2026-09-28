@@ -12,8 +12,13 @@
         <spring:message code="offer.proofOfShipping.trackingNumberLabel" var="trackingLabel"/>
         <div class="flex-1 min-w-0">
             <p class="text-xs font-medium text-black/60"><c:out value="${trackingLabel}"/></p>
-            <div class="text-base font-mono font-semibold py-1 px-2 border border-black/10 rounded-md mt-2 self-start min-w-0 select-all">
-                <c:out value="${offer.trackingNumber}"/>
+            <div class="flex items-center gap-2 mt-2">
+                <div class="text-base font-mono font-semibold py-1 px-2 border border-black/10 rounded-md self-start min-w-0 select-all flex-1">
+                    <c:out value="${offer.trackingNumber}"/>
+                </div>
+                <paw:button variant="ghost" icon="copy" size="sm" classname="flex-shrink-0"
+                    onclick="navigator.clipboard.writeText('<c:out value="${offer.trackingNumber}"/>'); this.querySelector('i').className='icon-check'; setTimeout(() => this.querySelector('i').className='icon-copy', 2000);" 
+                    type="button" aria-label="Copy tracking number" />
             </div>
         </div>
     </c:if>
