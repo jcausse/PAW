@@ -11,7 +11,7 @@
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="offer.decision.title" />
 
-<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" user="${currentUser.get()}">
+<account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <!-- Back link -->
     <div class="mb-4">
         <paw:linkButton href="${incomingOffersUrl}" text="Back" variant="ghost" icon="chevron-left" classname="justify-start" />

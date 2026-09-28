@@ -20,7 +20,7 @@
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="offer.proofOfShipping.title" />
 
-<account:layout title="${titleMsg}" subtitle="${subtitleMsg}" user="${currentUser.get()}">
+<account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <div class="max-w-2xl mx-auto p-8 pb-24">
         <!-- Back link -->
         <div class="mb-4">
