@@ -65,7 +65,8 @@ public class ListingController {
             null,
             ListingStatus.ACTIVE.getStatus(),
             filterForm.getPage(),
-            DISCOVERY_PAGE_SIZE
+            DISCOVERY_PAGE_SIZE,
+            null
         );
 
         final var listingPage = listingService.search(filter);

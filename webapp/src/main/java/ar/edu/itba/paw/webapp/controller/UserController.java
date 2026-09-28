@@ -54,7 +54,8 @@ public class UserController {
                 user.getId(),
                 ListingStatus.ACTIVE.name(),
                 1,
-                PROFILE_LISTINGS_PAGE_SIZE
+                PROFILE_LISTINGS_PAGE_SIZE,
+                null
         );
 
         final var listingPage = listingService.search(filter);

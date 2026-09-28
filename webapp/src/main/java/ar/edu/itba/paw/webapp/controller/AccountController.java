@@ -65,7 +65,8 @@ public class AccountController {
             currentUser.getId(),
             filterForm.getStatus(),
             filterForm.getPage(),
-            ACCOUNT_LISTINGS_PAGE_SIZE
+            ACCOUNT_LISTINGS_PAGE_SIZE,
+            null
         );
 
         final var listingPage = listingService.search(filter);

@@ -96,6 +96,9 @@ public class ListingJdbcDao implements ListingDao {
             params.add(like);
             params.add(like);
         }
+        if (Boolean.TRUE.equals(filter.getHasActiveOffers())) {
+            conditions.add("EXISTS (SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "')");
+        }
 
         final String whereClause = " WHERE " + String.join(" AND ", conditions);
         final String orderBy = resolveOrderBy(filter.getSort());
@@ -147,6 +150,8 @@ public class ListingJdbcDao implements ListingDao {
             case PRICE_DESC -> priceCol + " DESC, " + idCol + " DESC";
             case NAME_ASC -> titleCol + " ASC, " + idCol + " DESC";
             case NAME_DESC -> titleCol + " DESC, " + idCol + " DESC";
+            case MOST_OFFERS -> "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') DESC, " + idCol + " DESC";
+            case RECENT_OFFERS -> "(SELECT MAX(o." + OfferSchema.CREATED_AT + ") FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') DESC NULLS LAST, " + idCol + " DESC";
             default -> idCol + " DESC";
         };
     }
