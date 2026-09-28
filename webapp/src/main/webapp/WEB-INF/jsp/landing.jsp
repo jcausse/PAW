@@ -73,10 +73,13 @@
                             <c:param name="categoryId" value="${category.id}"/>
                         </c:url>
                         <spring:message code="category.${category.name}" var="categoryLabel"/>
-                        <a href="${categoryUrl}"
-                           class="block p-4 rounded-xl border border-black/10 bg-white hover:bg-black/5 hover:border-black/20 transition text-center">
-                            <p class="font-medium"><c:out value="${categoryLabel}"/></p>
-                        </a>
+                        <paw:linkButton
+                            href="${categoryUrl}"
+                            text="${categoryLabel}"
+                            variant="outline"
+                            size="lg"
+                            classname="w-full justify-center"
+                        />
                     </c:forEach>
                 </div>
             </div>
