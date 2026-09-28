@@ -87,33 +87,14 @@
                 </c:when>
                 <c:otherwise>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <c:forEach var="listing" items="${listings}">
-                            <c:url value="/listing/${listing.id}" var="listingUrl"/>
-                            <c:set var="coverUrl" value=""/>
-                            <c:if test="${not empty listing.imageIds}">
-                                <c:url value="/image/${listing.imageIds[0]}" var="coverUrl"/>
-                            </c:if>
-                            <c:set var="subLabel" value=""/>
-                            <c:if test="${not empty listing.product and not empty listing.product.subcategory}">
-                                <spring:message code="subcategory.${listing.product.subcategory.name}" var="subLabel"/>
-                            </c:if>
-                            <a href="${listingUrl}" class="block hover:-translate-y-0.5 transition">
-                                <paw:card title="${listing.title}" subtitle="${subLabel}"
-                                          showImage="true" imageUrl="${coverUrl}"
-                                          imageAlt="${listing.title}" noImageLabel="${noImageLabel}"
-                                          classname="h-full relative">
-                                    <paw:listingHotBadge listing="${listing}" />
-                                    <div class="flex items-center gap-2 flex-wrap mt-auto">
-                                        <p class="text-xl font-bold">$<c:out value="${listing.price.amount}"/></p>
-                                        <c:if test="${listing.acceptsTrade}">
-                                            <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
-                                                <spring:message code="discovery.acceptsTrade.badge"/>
-                                            </span>
-                                        </c:if>
-                                    </div>
-                                </paw:card>
-                            </a>
-                        </c:forEach>
+<c:forEach var="listing" items="${listings}">
+    <c:url value="/listing/${listing.id}" var="listingUrl"/>
+    <paw:listingCard
+        listing="${listing}"
+        listingUrl="${listingUrl}"
+        noImageLabel="${noImageLabel}"
+    />
+</c:forEach>
                     </div>
                 </c:otherwise>
             </c:choose>
