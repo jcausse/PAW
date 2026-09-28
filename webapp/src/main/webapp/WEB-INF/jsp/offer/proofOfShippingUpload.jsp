@@ -11,7 +11,7 @@
 <spring:message code="offer.proofOfShipping.trackingNumberLabelForm" var="trackingNumberLabelMsg"/>
 <spring:message code="offer.proofOfShipping.trackingNumberPlaceholder" var="trackingNumberPlaceholderMsg"/>
 <spring:message code="offer.proofOfShipping.uploadLabel" var="uploadLabelMsg"/>
-<spring:message code="offer.proofOfShipping.back" var="backLabelMsg"/>
+<spring:message code="offer.incoming.back" var="backLabelMsg"/>
 <spring:message code="offer.proofOfShipping.submit" var="submitLabelMsg"/>
 <spring:message code="offer.proofOfShipping.fileHint" var="fileHintMsg"/>
 <spring:message code="offer.proofOfShipping.fileLabelForm" var="fileLabelMsg"/>
