@@ -1,0 +1,3 @@
+ALTER TABLE offers
+    ADD COLUMN IF NOT EXISTS proof_of_shipping_id INTEGER REFERENCES files(file_id) ON DELETE SET NULL,
+    ADD COLUMN IF NOT EXISTS tracking_number VARCHAR(255);

@@ -25,6 +25,11 @@ public final class Offer {
     private final String proofOfPaymentFilename;
     private final String proofOfPaymentContentType;
     private final Long proofOfPaymentSize;
+    private final Long proofOfShippingId;
+    private final String proofOfShippingFilename;
+    private final String proofOfShippingContentType;
+    private final Long proofOfShippingSize;
+    private final String trackingNumber;
 
     public String getProofOfPaymentExtension() {
         if (proofOfPaymentFilename == null || proofOfPaymentFilename.isBlank()) {
@@ -46,5 +51,27 @@ public final class Offer {
 
     public boolean proofOfPaymentIsImage() {
         return proofOfPaymentContentType != null && proofOfPaymentContentType.startsWith("image/");
+    }
+
+    public String getProofOfShippingExtension() {
+        if (proofOfShippingFilename == null || proofOfShippingFilename.isBlank()) {
+            return "";
+        }
+        int lastDot = proofOfShippingFilename.lastIndexOf('.');
+        if (lastDot == -1 || lastDot == proofOfShippingFilename.length() - 1) {
+            return "";
+        }
+        return proofOfShippingFilename.substring(lastDot + 1).toLowerCase();
+    }
+
+    public Long getProofOfShippingSizeKb() {
+        if (proofOfShippingSize == null || proofOfShippingSize <= 0) {
+            return 0L;
+        }
+        return proofOfShippingSize / 1024;
+    }
+
+    public boolean proofOfShippingIsImage() {
+        return proofOfShippingContentType != null && proofOfShippingContentType.startsWith("image/");
     }
 }

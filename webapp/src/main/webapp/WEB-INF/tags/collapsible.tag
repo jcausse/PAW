@@ -7,10 +7,10 @@
 
 <c:set var="collapsibleClass" value="${not empty classname ? classname : ''}"/>
 
-<details class="group ${collapsibleClass} open:bg-lime-600/10 rounded-md">
+<details class="group ${collapsibleClass} border border-black/10 rounded-lg">
     <summary class="
         flex items-center gap-2 px-2 py-1
-        text-sm text-lime-600 font-medium rounded-md
+        text-sm text-lime-600 font-medium rounded-lg
         cursor-pointer list-none transition duration-150
         focus-visible:outline outline-offset-0 outline-lime-600 focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
         hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10

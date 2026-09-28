@@ -44,8 +44,6 @@
                         <h1 class="text-2xl font-semibold"><c:out value="${listing.title}"/></h1>
                         <paw:product product="${listing.product}" />
 
-                        <paw:divider />
-
                         <spring:message code="condition.${listing.condition}" var="conditionLabel"/>
                         <spring:message code="condition.description.${listing.condition}" var="conditionDescription"/>
                         <paw:collapsible title="Condition: ${conditionLabel}" classname="w-full">
