@@ -52,7 +52,6 @@ public class AccountController {
     @GetMapping
     public ModelAndView index(@CurrentUser User currentUser) {
         return new ModelAndView("account/index")
-                .addObject("user", currentUser)
                 .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
@@ -93,7 +92,6 @@ public class AccountController {
         return new ModelAndView("account/listings")
                 .addObject("listingPage", listingPage)
                 .addObject("listings", listings)
-                .addObject("user", currentUser)
                 .addObject("statusOptions", statusOptions)
                 .addObject("sortOptions", sortOptions)
                 .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
@@ -117,7 +115,6 @@ public class AccountController {
                 .addObject("offerPage", offerPage)
                 .addObject("offers", offerPage.getContent())
                 .addObject("statusGroupOptions", statusGroupOptions)
-                .addObject("user", currentUser)
                 .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
@@ -139,7 +136,6 @@ public class AccountController {
                 .addObject("offerPage", offerPage)
                 .addObject("offers", offerPage.getContent())
                 .addObject("statusGroupOptions", statusGroupOptions)
-                .addObject("user", currentUser)
                 .addObject("pendingOffersCount", getPendingOffersCount(currentUser));
     }
 
