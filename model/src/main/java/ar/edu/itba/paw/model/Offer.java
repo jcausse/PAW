@@ -30,6 +30,21 @@ public final class Offer {
     private final String proofOfShippingContentType;
     private final Long proofOfShippingSize;
     private final String trackingNumber;
+    private final Instant acceptedAt;
+    private final String buyerRating;
+    private final String sellerRating;
+
+    public Optional<Instant> getAcceptedAt() {
+        return Optional.ofNullable(acceptedAt);
+    }
+
+    public Optional<OfferRating> getBuyerRating() {
+        return Optional.ofNullable(buyerRating).flatMap(OfferRating::fromString);
+    }
+
+    public Optional<OfferRating> getSellerRating() {
+        return Optional.ofNullable(sellerRating).flatMap(OfferRating::fromString);
+    }
 
     public String getProofOfPaymentExtension() {
         if (proofOfPaymentFilename == null || proofOfPaymentFilename.isBlank()) {

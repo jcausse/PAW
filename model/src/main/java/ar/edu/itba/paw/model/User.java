@@ -17,6 +17,12 @@ public final class User {
     private final @NonNull String displayName;
     private final @NonNull String email;
     private final @NonNull String password;
+    private final int sellerPositiveRatings;
+    private final int sellerNeutralRatings;
+    private final int sellerNegativeRatings;
+    private final int buyerPositiveRatings;
+    private final int buyerNeutralRatings;
+    private final int buyerNegativeRatings;
 
     // Nullable! Users without a profile picture will have this set to null
     private final Long imageId;
@@ -34,5 +40,13 @@ public final class User {
 
     public boolean isVerified() {
         return emailVerifiedAt != null;
+    }
+
+    public int getSellerTotalRatings() {
+        return sellerPositiveRatings + sellerNeutralRatings + sellerNegativeRatings;
+    }
+
+    public int getBuyerTotalRatings() {
+        return buyerPositiveRatings + buyerNeutralRatings + buyerNegativeRatings;
     }
 }
