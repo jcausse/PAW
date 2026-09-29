@@ -1,0 +1,49 @@
+Unfixed Issues from TP1 Feedback
+=================================
+
+Issues NOT addressed in the fix branches:
+
+1. Logging Configuration (Group 8)
+   - No logback.xml or logging configuration present
+   - Default Spring logging may be excessive (INFO level to STDOUT, many appender files)
+   - Should add production-appropriate logging config
+
+2. Test Coverage (Groups 5, 7, 8, 9, 10, 11, 12, 13, 14)
+   - No tests exist in any module (service/src/test, persistence/src/test, webapp/src/test are empty)
+   - Feedback criticized: non-unit tests, AtomicBoolean/AtomicReference misuse, poor coverage
+   - Need to add proper unit tests for services and persistence layer
+
+3. Email Template Spanish Variants
+   - All 13 email templates exist only in English (.html)
+   - Thymeleaf locale resolution expects _es.html variants for Spanish
+   - Should create Spanish versions or verify fallback behavior
+
+4. WebConfig ComponentScan Includes Persistence (Group 14)
+   - WebConfig scans ar.edu.itba.paw.persistence package
+   - Technically leaks persistence beans to web layer
+   - Should move Flyway/DataSource config to separate @Configuration
+
+5. Manual Normalization in Service Layer (Groups 5, 7, 9, 10)
+   - UserServiceImpl still uses trim()/toLowerCase() in multiple methods
+   - Should be moved to DAO layer or handled via Spring converters/formatters
+
+6. rememberMe.key Still in Repository (Groups 8, 11, 13)
+   - The key file is tracked in git (though a separate fix branch was created for the webapp dependency, the key itself wasn't removed from git)
+   - Should be added to .gitignore and externalized via environment variable
+
+7. Duplicate i18n Keys in Other Files (Partial Fix)
+   - Only fixed email.proofOfShipping.uploaded.* duplicates
+   - Should audit all messages.properties for other potential duplicates
+
+8. Price Model equals/hashCode
+   - Price.java uses @EqualsAndHashCode without onlyExplicitlyIncluded
+   - Since it only has one field (amount), it's technically fine but inconsistent with other entities
+
+---
+
+Fixed in Separate Branches (off new-landing-page):
+- fix/equals-hashcode-by-id: ID-based equals/hashCode on all model entities
+- fix/sensitive-data-tostring: Exclude password/emailVerifiedAt from User.toString()
+- fix/webapp-spring-jdbc-dependency: Remove spring-jdbc from webapp module
+- fix/duplicate-i18n-keys: Remove duplicate email.proofOfShipping.uploaded.* keys
+- fix/trim-tolowercase-controllers: Move normalization to form setters

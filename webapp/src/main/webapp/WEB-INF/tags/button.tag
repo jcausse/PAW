@@ -10,6 +10,7 @@
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="on" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="onclick" required="false" %>
+<%@ attribute name="ariaLabel" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
@@ -92,6 +93,7 @@
     <c:if test="${isDisabled}">disabled</c:if>
     <c:if test="${isOn}">data-state="on"</c:if>
     <c:if test="${not empty onclick}">onclick="${onclick}"</c:if>
+    <c:if test="${not empty ariaLabel}">aria-label="${ariaLabel}"</c:if>
 >
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />
