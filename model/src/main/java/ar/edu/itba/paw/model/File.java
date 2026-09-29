@@ -5,12 +5,13 @@ import lombok.*;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Builder
 @ToString
 public final class File {
 
+    @EqualsAndHashCode.Include
     private final @NonNull Long id;
     private final @NonNull String filename;
     private final @NonNull String alt;

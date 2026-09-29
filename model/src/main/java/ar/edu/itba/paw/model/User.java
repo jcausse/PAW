@@ -6,12 +6,13 @@ import java.time.Instant;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Builder
 @ToString(exclude = {"password", "emailVerifiedAt"})
 public final class User {
 
+    @EqualsAndHashCode.Include
     private final @NonNull Long id;
     private final @NonNull String username;
     private final @NonNull String displayName;

@@ -6,11 +6,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Builder
 @ToString
 public final class Offer {
+    @EqualsAndHashCode.Include
     private final @NonNull Long id;
     private final @NonNull Listing listing;
     private final @NonNull User buyer;
