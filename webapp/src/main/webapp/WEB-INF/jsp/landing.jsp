@@ -14,51 +14,51 @@
     <paw:navbar/>
 
     <!-- Hero Banner -->
-    <section class="relative w-full max-h-[80vh] min-h-[36rem] flex items-center justify-center overflow-hidden bg-gradient-to-b from-lime-500/20 via-neutral-50 to-neutral-50">
+    <section class="relative w-full max-h-[80vh] h-144 -mt-21.5 pt-24 pb-8 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-lime-500/20 via-neutral-50 to-neutral-50">
         <div class="absolute inset-0 bg-gradient-to-r from-lime-500/10 via-transparent to-lime-500/10"></div>
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-lime-500/20"></div>
 
-        <div class="relative z-10 max-w-6xl mx-auto px-6 py-16 text-center">
-            <div class="mb-8">
-                <img src="<c:url value='/static-image/logo.svg'/>" alt="Swappr" class="mx-auto h-20 w-auto" />
-            </div>
-
-            <div class="mb-10 font-montserrat">
-                <p class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-black leading-tight">
-                    <spring:message code="landing.hero.title.line1"/>
-                </p>
-                <p class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-lime-600 leading-tight">
-                    <spring:message code="landing.hero.title.line2"/>
-                </p>
-                <p class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-lime-600 leading-tight">
-                    <spring:message code="landing.hero.title.line3"/>
-                </p>
-            </div>
-
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                <c:url value="#hotItemsCarousel" var="exploreUrl"/>
-                <c:url value="/listing/new/choose-product" var="sellUrl"/>
-                <spring:message code="landing.hero.cta.explore" var="exploreCta"/>
-                <spring:message code="landing.hero.cta.sell" var="sellCta"/>
-                <paw:linkButton href="${exploreUrl}" variant="default" size="lg" text="${exploreCta}" />
-                <paw:linkButton href="${sellUrl}" variant="outline" size="lg" text="${sellCta}" />
-            </div>
-
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-black/60">
-                <div class="flex items-center gap-2">
-                    <paw:icon name="zap" classname="w-5 h-5 text-lime-600" />
-                    <span class="font-medium">
-                        <spring:message code="landing.hero.feature1.line1"/><br/>
-                        <spring:message code="landing.hero.feature1.line2"/>
-                    </span>
+        <div class="relative z-10 max-w-6xl w-full mx-auto px-6 pb-16 text-center flex flex-col md:flex-row gap-8 md:gap-16 md:justify-center lg:justify-between items-center">
+            <div>
+                <div class="mb-8 md:text-start">
+                    <p class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black leading-tight">
+                        <spring:message code="landing.hero.title.line1"/>
+                    </p>
+                    <p class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-lime-600 leading-tight">
+                        <spring:message code="landing.hero.title.line2"/>
+                    </p>
+                    <p class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-lime-600 leading-tight">
+                        <spring:message code="landing.hero.title.line3"/>
+                    </p>
                 </div>
-                <div class="w-px h-6 bg-black/10 hidden sm:block"></div>
-                <div class="flex items-center gap-2">
-                    <paw:icon name="map-pin" classname="w-5 h-5 text-lime-600" />
-                    <span class="font-medium">
-                        <spring:message code="landing.hero.feature2.line1"/><br/>
-                        <spring:message code="landing.hero.feature2.line2"/>
-                    </span>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-black/60">
+                    <div class="flex items-center gap-2">
+                        <paw:icon name="zap" classname="w-5 h-5 text-lime-600" />
+                        <span class="font-medium">
+                            <spring:message code="landing.hero.feature1.line1"/><br/>
+                            <spring:message code="landing.hero.feature1.line2"/>
+                        </span>
+                    </div>
+                    <div class="w-px h-6 bg-black/10 hidden sm:block"></div>
+                    <div class="flex items-center gap-2">
+                        <paw:icon name="map-pin" classname="w-5 h-5 text-lime-600" />
+                        <span class="font-medium">
+                            <spring:message code="landing.hero.feature2.line1"/><br/>
+                            <spring:message code="landing.hero.feature2.line2"/>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex flex-row md:flex-col items-center md:items-stretch md:w-80 justify-center gap-4">
+                    <c:url value="#hotItemsCarousel" var="exploreUrl"/>
+                    <c:url value="/listing/new/choose-product" var="sellUrl"/>
+                    <spring:message code="landing.hero.cta.explore" var="exploreCta"/>
+                    <spring:message code="landing.hero.cta.sell" var="sellCta"/>
+                    <paw:linkButton href="${exploreUrl}" variant="default" size="lg" text="${exploreCta}" />
+                    <paw:linkButton href="${sellUrl}" variant="outline" size="lg" text="${sellCta}" />
                 </div>
             </div>
         </div>
