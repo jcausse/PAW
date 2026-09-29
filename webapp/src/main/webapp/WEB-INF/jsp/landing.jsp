@@ -53,11 +53,11 @@
 
             <div>
                 <div class="flex flex-row md:flex-col items-center md:items-stretch md:w-80 justify-center gap-4">
-                    <c:url value="#hotItemsCarousel" var="exploreUrl"/>
                     <c:url value="/listing/new/choose-product" var="sellUrl"/>
                     <spring:message code="landing.hero.cta.explore" var="exploreCta"/>
                     <spring:message code="landing.hero.cta.sell" var="sellCta"/>
-                    <paw:linkButton href="${exploreUrl}" variant="default" size="lg" text="${exploreCta}" />
+                    <paw:linkButton href="javascript:void(0);" variant="default" size="lg" text="${exploreCta}"
+                        onclick="document.getElementById('hotItemsCarousel').scrollIntoView({behavior: 'smooth', block: 'start'}); setTimeout(() => window.scrollBy(0, -100), 500);" />
                     <paw:linkButton href="${sellUrl}" variant="outline" size="lg" text="${sellCta}" />
                 </div>
             </div>
