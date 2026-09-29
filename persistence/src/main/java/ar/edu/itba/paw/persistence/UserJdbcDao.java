@@ -73,6 +73,12 @@ public class UserJdbcDao implements UserDao {
         values.put(UserSchema.PASSWORD, password);
         values.put(UserSchema.IMAGE_ID, imageId);
         values.put(UserSchema.JOINED_AT, Timestamp.from(joinedAt));
+        values.put(UserSchema.SELLER_POSITIVE_RATINGS, 0);
+        values.put(UserSchema.SELLER_NEUTRAL_RATINGS, 0);
+        values.put(UserSchema.SELLER_NEGATIVE_RATINGS, 0);
+        values.put(UserSchema.BUYER_POSITIVE_RATINGS, 0);
+        values.put(UserSchema.BUYER_NEUTRAL_RATINGS, 0);
+        values.put(UserSchema.BUYER_NEGATIVE_RATINGS, 0);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -85,6 +91,12 @@ public class UserJdbcDao implements UserDao {
                 .imageId(imageId)
                 .joinedAt(joinedAt)
                 .emailVerifiedAt(null)
+                .sellerPositiveRatings(0)
+                .sellerNeutralRatings(0)
+                .sellerNegativeRatings(0)
+                .buyerPositiveRatings(0)
+                .buyerNeutralRatings(0)
+                .buyerNegativeRatings(0)
                 .build();
     }
 
@@ -172,6 +184,12 @@ public class UserJdbcDao implements UserDao {
                             .map(Timestamp::toInstant)
                             .orElse(null)
             )
+            .sellerPositiveRatings(rs.getInt(UserSchema.SELLER_POSITIVE_RATINGS))
+            .sellerNeutralRatings(rs.getInt(UserSchema.SELLER_NEUTRAL_RATINGS))
+            .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
+            .buyerPositiveRatings(rs.getInt(UserSchema.BUYER_POSITIVE_RATINGS))
+            .buyerNeutralRatings(rs.getInt(UserSchema.BUYER_NEUTRAL_RATINGS))
+            .buyerNegativeRatings(rs.getInt(UserSchema.BUYER_NEGATIVE_RATINGS))
             .build();
 
     private static final class Queries {
@@ -184,7 +202,13 @@ public class UserJdbcDao implements UserDao {
             UserSchema.PASSWORD,
             UserSchema.IMAGE_ID,
             UserSchema.JOINED_AT,
-            UserSchema.EMAIL_VERIFIED_AT
+            UserSchema.EMAIL_VERIFIED_AT,
+            UserSchema.SELLER_POSITIVE_RATINGS,
+            UserSchema.SELLER_NEUTRAL_RATINGS,
+            UserSchema.SELLER_NEGATIVE_RATINGS,
+            UserSchema.BUYER_POSITIVE_RATINGS,
+            UserSchema.BUYER_NEUTRAL_RATINGS,
+            UserSchema.BUYER_NEGATIVE_RATINGS
         );
 
         private static final String GET_BY_ID =
