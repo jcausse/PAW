@@ -25,19 +25,20 @@
         </paw:linkButton>
     </div>
 
-    <div class="relative group">
+    <div class="relative group -mx-6">
+        <div class="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-neutral-50 to-transparent z-5"></div>
         <paw:button
             type="button"
             onclick="document.getElementById('${id}').scrollBy({left: -280, behavior: 'smooth'})"
             variant="outline"
             icon="chevron-left"
-            classname="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition bg-white hover:bg-lime-50 active:bg-lime-100"
+            classname="absolute left-8 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition bg-white hover:bg-lime-50 active:bg-lime-100"
             ariaLabel="${prevLabel}"
         />
 
         <div
             id="${id}"
-            class="flex gap-2 overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory [scrollbar-width:none] py-4"
+            class="flex gap-2 overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-start snap-mandatory [scrollbar-width:none] py-4 px-6 scroll-px-6"
         >
             <c:forEach var="listing" items="${listings}" varStatus="status">
                 <c:url value="/listing/${listing.id}" var="listingUrl"/>
@@ -51,12 +52,13 @@
             </c:forEach>
         </div>
 
+        <div class="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-neutral-50 to-transparent z-5"></div>
         <paw:button
             type="button"
             onclick="document.getElementById('${id}').scrollBy({left: 280, behavior: 'smooth'})"
             variant="outline"
             icon="chevron-right"
-            classname="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition bg-white hover:bg-lime-50 active:bg-lime-100"
+            classname="absolute right-8 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition bg-white hover:bg-lime-50 active:bg-lime-100"
             ariaLabel="${nextLabel}"
         />
     </div>
