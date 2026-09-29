@@ -3,12 +3,13 @@ import lombok.*;
 import java.util.List;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Builder
 @ToString
 public final class Listing {
 
+    @EqualsAndHashCode.Include
     private final @NonNull Long id;
     private final @NonNull String title;
     private final @NonNull User creator;
