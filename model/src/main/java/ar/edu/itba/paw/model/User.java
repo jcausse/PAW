@@ -9,7 +9,7 @@ import java.util.Optional;
 @EqualsAndHashCode
 @Getter
 @Builder
-@ToString
+@ToString(exclude = {"password", "emailVerifiedAt"})
 public final class User {
 
     private final @NonNull Long id;
