@@ -64,9 +64,9 @@
                         </c:choose>
                     </h3>
                     <div class="flex gap-4 text-sm text-neutral-600">
-                        <span><c:out value="${ratingPositive}"/>: <c:out value="${user.sellerPositiveRatings}"/></span>
+                        <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.sellerPositiveRatings}"/></span></span>
                         <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.sellerNeutralRatings}"/></span>
-                        <span><c:out value="${ratingNegative}"/>: <c:out value="${user.sellerNegativeRatings}"/></span>
+                        <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.sellerNegativeRatings}"/></span></span>
                     </div>
                 </div>
 
