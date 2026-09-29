@@ -19,7 +19,7 @@
             <spring:message code="navbar.sell" var="linkSell"/>
             <spring:message code="navbar.categories" var="linkCategories"/>
             <paw:linkButton href="${buyUrl}" variant="ghost" text="${linkDiscover}" />
-            <paw:menu id="categoriesMenu" variant="ghost" icon="menu" size="sm" panelWidth="w-64">
+            <paw:menu id="categoriesMenu" variant="ghost" text="${linkCategories}" panelWidth="w-64" panelAlign="left">
                 <c:forEach var="category" items="${categories}">
                     <c:url value="/listing" var="categoryUrl">
                         <c:param name="categoryId" value="${category.id}"/>

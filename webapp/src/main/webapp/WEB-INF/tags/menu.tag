@@ -3,6 +3,7 @@
 <%@ attribute name="variant" required="false" rtexprvalue="true" type="java.lang.String" description="Button variant (ghost, outline, etc.)" %>
 <%@ attribute name="classname" required="false" rtexprvalue="true" type="java.lang.String" description="Additional CSS classes for the button" %>
 <%@ attribute name="icon" required="false" rtexprvalue="true" type="java.lang.String" description="Icon name for the button" %>
+<%@ attribute name="text" required="false" rtexprvalue="true" type="java.lang.String" description="Text for the button" %>
 <%@ attribute name="size" required="false" rtexprvalue="true" type="java.lang.String" description="Button size (sm, md, lg)" %>
 <%@ attribute name="panelWidth" required="false" rtexprvalue="true" type="java.lang.String" description="Width of the panel (e.g., w-48)" %>
 <%@ attribute name="panelAlign" required="false" rtexprvalue="true" type="java.lang.String" description="Panel alignment (left, right)" %>
@@ -13,7 +14,7 @@
 <c:set var="panelWidthClass" value="${empty panelWidth ? 'w-48' : panelWidth}"/>
 
 <div class="relative" id="${id}Menu">
-    <paw:button id="${id}Button" variant="${variant}" classname="${classname}" icon="${icon}" size="${size}" type="button" />
+    <paw:button id="${id}Button" variant="${variant}" classname="${classname}" icon="${icon}" text="${text}" size="${size}" type="button" />
 
     <div id="${id}Panel" class="hidden absolute ${panelAlignClass} top-full ${panelWidthClass} bg-white rounded-2xl border border-black/10 z-50 flex flex-col p-2">
         <jsp:doBody />
