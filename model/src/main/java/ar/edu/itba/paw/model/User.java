@@ -49,4 +49,12 @@ public final class User {
     public int getBuyerTotalRatings() {
         return buyerPositiveRatings + buyerNeutralRatings + buyerNegativeRatings;
     }
+
+    public int getSellerRatingBalance() {
+        return sellerPositiveRatings - sellerNegativeRatings;
+    }
+
+    public int getBuyerRatingBalance() {
+        return buyerPositiveRatings - buyerNegativeRatings;
+    }
 }
