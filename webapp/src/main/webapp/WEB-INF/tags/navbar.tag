@@ -15,9 +15,19 @@
                 <img src="<c:url value='/static-image/logo.svg'/>" class="min-w-24" alt="Swappr Logo" />
             </paw:linkButton>
 
-            <spring:message code="navbar.buy" var="linkBuy"/>
+            <spring:message code="navbar.discover" var="linkDiscover"/>
             <spring:message code="navbar.sell" var="linkSell"/>
-            <paw:linkButton href="${buyUrl}" variant="ghost" text="${linkBuy}" />
+            <spring:message code="navbar.categories" var="linkCategories"/>
+            <paw:linkButton href="${buyUrl}" variant="ghost" text="${linkDiscover}" />
+            <paw:menu id="categoriesMenu" variant="ghost" icon="menu" size="sm" panelWidth="w-64">
+                <c:forEach var="category" items="${categories}">
+                    <c:url value="/listing" var="categoryUrl">
+                        <c:param name="categoryId" value="${category.id}"/>
+                    </c:url>
+                    <spring:message code="category.${category.name}" var="categoryLabel"/>
+                    <paw:linkButton href="${categoryUrl}" text="${categoryLabel}" variant="ghost" role="secondary" classname="w-full justify-start text-sm" />
+                </c:forEach>
+            </paw:menu>
             <paw:linkButton href="${sellUrl}" variant="ghost" text="${linkSell}" />
 
             <div class="ml-auto flex flex-row items-center gap-3">
