@@ -18,7 +18,7 @@
         <div class="absolute inset-0 bg-gradient-to-r from-lime-500/10 via-transparent to-lime-500/10"></div>
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-lime-500/20"></div>
 
-        <div class="relative z-10 max-w-6xl w-full mx-auto px-6 pb-16 text-center flex flex-col md:flex-row gap-8 md:gap-16 md:justify-center lg:justify-between items-center">
+        <div class="relative z-10 max-w-6xl w-full mx-auto px-6 text-center flex flex-col md:flex-row gap-8 md:gap-16 md:justify-center lg:justify-between items-center">
             <div>
                 <div class="mb-8 md:text-start">
                     <p class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black leading-tight">
