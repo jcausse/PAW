@@ -14,7 +14,7 @@
     <paw:navbar/>
 
     <!-- Hero Banner -->
-    <section class="relative w-full max-h-[80vh] h-144 -mt-21.5 pt-24 pb-8 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-lime-500/20 via-neutral-50 to-neutral-50">
+    <section class="relative w-full max-h-[80vh] h-144 -mt-21.5 pt-24 pb-8 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-lime-500/20 via-neutral-50 to-neutral-50" id="heroBanner">
         <div class="absolute inset-0 bg-gradient-to-r from-lime-500/10 via-transparent to-lime-500/10"></div>
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-lime-500/20"></div>
 
@@ -57,7 +57,7 @@
                     <spring:message code="landing.hero.cta.explore" var="exploreCta"/>
                     <spring:message code="landing.hero.cta.sell" var="sellCta"/>
                     <paw:linkButton href="javascript:void(0);" variant="default" size="lg" text="${exploreCta}"
-                        onclick="document.getElementById('hotItemsCarousel').scrollIntoView({behavior: 'smooth', block: 'start'}); setTimeout(() => window.scrollBy(0, -100), 500);" />
+                        onclick="window.scrollTo({behavior: 'smooth', top: document.getElementById('heroBanner').offsetHeight - 100});" />
                     <paw:linkButton href="${sellUrl}" variant="outline" size="lg" text="${sellCta}" />
                 </div>
             </div>
