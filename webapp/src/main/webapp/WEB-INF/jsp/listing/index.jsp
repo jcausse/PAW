@@ -53,6 +53,21 @@
                         <paw:divider />
 
                         <paw:user user="${listing.creator}" />
+                        <c:set var="sellerBalance" value="${listing.creator.sellerRatingBalance}"/>
+                        <p class="text-sm text-black/60">
+                            <spring:message code="listing.detail.sellerRating"/>:
+                            <c:choose>
+                                <c:when test="${sellerBalance > 0}">
+                                    <span class="text-green-600">+<c:out value="${sellerBalance}"/></span>
+                                </c:when>
+                                <c:when test="${sellerBalance < 0}">
+                                    <span class="text-red-600"><c:out value="${sellerBalance}"/></span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="text-neutral-500">0</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>
