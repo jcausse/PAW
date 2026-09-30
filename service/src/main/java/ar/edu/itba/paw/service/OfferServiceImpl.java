@@ -9,8 +9,10 @@ import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.FileDao;
+import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
@@ -35,15 +37,17 @@ public class OfferServiceImpl implements OfferService {
 
     private final OfferDao offerDao;
     private final FileDao fileDao;
+    private final UserDao userDao;
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
 
     @Autowired
-    public OfferServiceImpl(OfferDao offerDao, FileDao fileDao, UserService userService,
-                             @Lazy ListingService listingService, MailingService mailingService) {
+    public OfferServiceImpl(OfferDao offerDao, FileDao fileDao, UserDao userDao,
+                            UserService userService, @Lazy ListingService listingService, MailingService mailingService) {
         this.offerDao = offerDao;
         this.fileDao = fileDao;
+        this.userDao = userDao;
         this.userService = userService;
         this.listingService = listingService;
         this.mailingService = mailingService;
@@ -321,5 +325,39 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public int getPendingOffersCount(User seller) {
         return offerDao.countPendingBySeller(seller);
+    }
+
+    @Override
+    @Transactional
+    public Offer rate(Long offerId, User currentUser, OfferRating rating) {
+        final Offer offer = getById(offerId)
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        if (offer.getStatus() != OfferStatus.ACCEPTED) {
+            throw new BadParameterException("Solo se pueden calificar ofertas aceptadas");
+        }
+
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUser.getId());
+        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUser.getId());
+
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenException("No participaste en esta oferta");
+        }
+
+        if (isBuyer) {
+            final boolean updated = offerDao.setSellerRating(offerId, rating);
+            if (!updated) {
+                throw new BadParameterException("Ya calificaste esta oferta");
+            }
+            userDao.incrementSellerRatingCounter(offer.getListing().getCreator().getId(), rating);
+        } else {
+            final boolean updated = offerDao.setBuyerRating(offerId, rating);
+            if (!updated) {
+                throw new BadParameterException("Ya calificaste esta oferta");
+            }
+            userDao.incrementBuyerRatingCounter(offer.getBuyer().getId(), rating);
+        }
+
+        return getById(offerId).orElseThrow();
     }
 }

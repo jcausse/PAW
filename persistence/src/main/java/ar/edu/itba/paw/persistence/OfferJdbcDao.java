@@ -12,6 +12,7 @@ import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.FileSchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
@@ -344,6 +345,18 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.STATUS + " = ?" +
             ", " + OfferSchema.ACCEPTED_AT + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?";
+
+        private static final String SET_SELLER_RATING =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.SELLER_RATING + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.SELLER_RATING + " IS NULL";
+
+        private static final String SET_BUYER_RATING =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.BUYER_RATING + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.BUYER_RATING + " IS NULL";
     }
 
     @Override
@@ -405,5 +418,15 @@ public class OfferJdbcDao implements OfferDao {
             Timestamp.from(acceptedAt),
             offerId
         ) > 0;
+    }
+
+    @Override
+    public boolean setSellerRating(Long offerId, OfferRating rating) {
+        return jdbcTemplate.update(Queries.SET_SELLER_RATING, rating.getRating(), offerId) > 0;
+    }
+
+    @Override
+    public boolean setBuyerRating(Long offerId, OfferRating rating) {
+        return jdbcTemplate.update(Queries.SET_BUYER_RATING, rating.getRating(), offerId) > 0;
     }
 }

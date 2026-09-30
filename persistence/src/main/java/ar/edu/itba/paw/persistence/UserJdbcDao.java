@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 
 import java.sql.Timestamp;
@@ -162,6 +163,44 @@ public class UserJdbcDao implements UserDao {
                 Queries.IS_EMAIL_TAKEN,
                 Boolean.class,
                 email
+        );
+    }
+
+    private static String sellerCounterColumn(OfferRating rating) {
+        return switch (rating) {
+            case POSITIVE -> UserSchema.SELLER_POSITIVE_RATINGS;
+            case NEUTRAL -> UserSchema.SELLER_NEUTRAL_RATINGS;
+            case NEGATIVE -> UserSchema.SELLER_NEGATIVE_RATINGS;
+        };
+    }
+
+    private static String buyerCounterColumn(OfferRating rating) {
+        return switch (rating) {
+            case POSITIVE -> UserSchema.BUYER_POSITIVE_RATINGS;
+            case NEUTRAL -> UserSchema.BUYER_NEUTRAL_RATINGS;
+            case NEGATIVE -> UserSchema.BUYER_NEGATIVE_RATINGS;
+        };
+    }
+
+    @Override
+    public void incrementSellerRatingCounter(Long userId, OfferRating rating) {
+        final String column = sellerCounterColumn(rating);
+        jdbcTemplate.update(
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + column + " = " + column + " + 1" +
+            " WHERE " + UserSchema.ID + " = ?",
+            userId
+        );
+    }
+
+    @Override
+    public void incrementBuyerRatingCounter(Long userId, OfferRating rating) {
+        final String column = buyerCounterColumn(rating);
+        jdbcTemplate.update(
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + column + " = " + column + " + 1" +
+            " WHERE " + UserSchema.ID + " = ?",
+            userId
         );
     }
 
