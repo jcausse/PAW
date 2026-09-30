@@ -233,6 +233,7 @@ public class OfferJdbcDao implements OfferDao {
                     Optional.ofNullable(rs.getObject(OfferSchema.OFFERED_LISTING_ID, Integer.class))
                             .map(Integer::longValue)
                             .orElse(null))
+            .offeredListing(buildOfferedListing(rs))
             .build();
     };
 
@@ -248,14 +249,79 @@ public class OfferJdbcDao implements OfferDao {
         return ids;
     }
 
+    private static Listing buildOfferedListing(java.sql.ResultSet rs) throws java.sql.SQLException {
+        Long offeredListingId = rs.getObject("offered_listing_id", Integer.class) != null
+                ? rs.getLong("offered_listing_id")
+                : null;
+        if (offeredListingId == null) {
+            return null;
+        }
+
+        String offeredListingTitle = rs.getString("offered_listing_title");
+        BigDecimal offeredListingPrice = rs.getBigDecimal("offered_listing_price");
+        String offeredListingStatus = rs.getString("offered_listing_status");
+        String offeredListingCondition = rs.getString("offered_listing_condition");
+        Boolean offeredListingAcceptsTrade = rs.getBoolean("offered_listing_accepts_trade");
+        Long offeredListingCreatorId = rs.getObject("offered_listing_creator_id", Integer.class) != null
+                ? rs.getLong("offered_listing_creator_id")
+                : null;
+        Long offeredListingProductId = rs.getObject("offered_listing_product_id", Integer.class) != null
+                ? rs.getLong("offered_listing_product_id")
+                : null;
+
+        String offeredListingImageIdStr = rs.getString("offered_listing_image_id");
+        List<Long> offeredListingImageIds = parseImageIds(offeredListingImageIdStr);
+
+        Long offeredProductId = rs.getObject("offered_product_id", Integer.class) != null
+                ? rs.getLong("offered_product_id")
+                : null;
+        String offeredProductBrand = rs.getString("offered_product_brand");
+        String offeredProductModel = rs.getString("offered_product_model");
+        Integer offeredProductYear = rs.getObject("offered_product_year", Integer.class);
+        String offeredSubcategoryName = rs.getString("offered_subcategory_name");
+        String offeredCategoryName = rs.getString("offered_category_name");
+
+        return Listing.builder()
+                .id(offeredListingId)
+                .title(offeredListingTitle)
+                .price(offeredListingPrice != null ? new Price(offeredListingPrice) : null)
+                .status(offeredListingStatus != null ? ListingStatus.fromString(offeredListingStatus).orElse(ListingStatus.ACTIVE) : ListingStatus.ACTIVE)
+                .condition(offeredListingCondition != null ? Condition.fromString(offeredListingCondition).orElse(Condition.GOOD) : Condition.GOOD)
+                .acceptsTrade(offeredListingAcceptsTrade)
+                .imageIds(offeredListingImageIds)
+                .product(
+                        Product.builder()
+                                .id(offeredProductId)
+                                .brand(offeredProductBrand)
+                                .model(offeredProductModel)
+                                .year(offeredProductYear)
+                                .subcategory(
+                                        Subcategory.builder()
+                                                .name(offeredSubcategoryName)
+                                                .category(
+                                                        Category.builder()
+                                                                .name(offeredCategoryName)
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+    }
+
     private static final class Queries {
-        private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o" +
-		            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
-		            " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
-		            " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
-		            " JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
-		            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
-		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
+private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o" +
+ 		            " JOIN " + UserSchema.TABLE_NAME + " u ON u." + UserSchema.ID + " = o." + OfferSchema.BUYER_ID +
+ 		            " JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
+ 		            " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+ 		            " JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
+ 		            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
+ 		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID +
+ 		            " LEFT JOIN " + ListingSchema.TABLE_NAME + " ol ON ol." + ListingSchema.ID + " = o." + OfferSchema.OFFERED_LISTING_ID +
+ 		            " LEFT JOIN " + ProductSchema.TABLE_NAME + " op ON op." + ProductSchema.ID + " = ol." + ListingSchema.PRODUCT_ID +
+ 		            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " os ON os." + SubcategorySchema.ID + " = op." + ProductSchema.SUBCATEGORY_ID +
+ 		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ocat ON ocat." + CategorySchema.ID + " = os." + SubcategorySchema.CATEGORY_ID;
 
 		private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
@@ -283,8 +349,24 @@ public class OfferJdbcDao implements OfferDao {
             ", p." + ProductSchema.YEAR + ", p." + ProductSchema.SUBCATEGORY_ID +
             ", s." + SubcategorySchema.ID + ", s." + SubcategorySchema.NAME +
             ", cat." + CategorySchema.ID + ", cat." + CategorySchema.NAME + " as category_name" +
+            ", ol." + ListingSchema.ID + " as offered_listing_id" +
+            ", ol." + ListingSchema.TITLE + " as offered_listing_title" +
+            ", ol." + ListingSchema.PRICE + " as offered_listing_price" +
+            ", ol." + ListingSchema.STATUS + " as offered_listing_status" +
+            ", ol." + ListingSchema.CONDITION + " as offered_listing_condition" +
+            ", ol." + ListingSchema.ACCEPTS_TRADE + " as offered_listing_accepts_trade" +
+            ", ol." + ListingSchema.CREATOR_ID + " as offered_listing_creator_id" +
+            ", ol." + ListingSchema.PRODUCT_ID + " as offered_listing_product_id" +
+            ", op." + ProductSchema.ID + " as offered_product_id" +
+            ", op." + ProductSchema.BRAND + " as offered_product_brand" +
+            ", op." + ProductSchema.MODEL + " as offered_product_model" +
+            ", op." + ProductSchema.YEAR + " as offered_product_year" +
+            ", os." + SubcategorySchema.NAME + " as offered_subcategory_name" +
+            ", ocat." + CategorySchema.NAME + " as offered_category_name" +
             ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
             " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
+            ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
+            " WHERE li.listing_id = ol." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as offered_listing_image_id" +
             ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o2 " +
             " WHERE o2." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
             " AND o2." + OfferSchema.ID + " != o." + OfferSchema.ID +

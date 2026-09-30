@@ -32,6 +32,7 @@ public final class Offer {
     private final Long proofOfShippingSize;
     private final String trackingNumber;
     private final Long offeredListingId;
+    private final Listing offeredListing;
 
     public String getProofOfPaymentExtension() {
         if (proofOfPaymentFilename == null || proofOfPaymentFilename.isBlank()) {

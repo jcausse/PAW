@@ -20,38 +20,92 @@
 
     <paw:card classname="flex flex-col gap-4">
         <div class="text-center">
-            <c:choose>
-                <c:when test="${offer.status.name() == 'PENDING'}">
-                    <spring:message code="offer.decision.title"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
-                </c:when>
-                <c:when test="${offer.status.name() == 'PENDING_PAYMENT'}">
-                    <spring:message code="offer.detail.title.pendingPayment"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
-                </c:when>
-                <c:when test="${offer.status.name() == 'ACCEPTED'}">
-                    <spring:message code="offer.detail.title.accepted"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
-                </c:when>
-                <c:when test="${offer.status.name() == 'REJECTED'}">
-                    <spring:message code="offer.detail.title.rejected"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
-                </c:when>
-                <c:when test="${offer.status.name() == 'WITHDRAWN'}">
-                    <spring:message code="offer.detail.title.withdrawn"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
-                </c:when>
-                <c:otherwise>
-                    <spring:message code="offer.decision.title"
-                                    arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
-                                    var="title"/>
-                </c:otherwise>
-            </c:choose>
+<c:choose>
+            <c:when test="${offer.status.name() == 'PENDING'}">
+                <c:choose>
+                    <c:when test="${offer.offeredListing != null}">
+                        <spring:message code="offer.detail.title.pendingPayment.trade"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="offer.decision.title"
+                                        arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+            <c:when test="${offer.status.name() == 'PENDING_PAYMENT'}">
+                <c:choose>
+                    <c:when test="${offer.offeredListing != null}">
+                        <spring:message code="offer.detail.title.pendingPayment.trade"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="offer.detail.title.pendingPayment"
+                                        arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+            <c:when test="${offer.status.name() == 'ACCEPTED'}">
+                <c:choose>
+                    <c:when test="${offer.offeredListing != null}">
+                        <spring:message code="offer.detail.title.accepted.trade"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="offer.detail.title.accepted"
+                                        arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+            <c:when test="${offer.status.name() == 'REJECTED'}">
+                <c:choose>
+                    <c:when test="${offer.offeredListing != null}">
+                        <spring:message code="offer.detail.title.rejected.trade"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="offer.detail.title.rejected"
+                                        arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+            <c:when test="${offer.status.name() == 'WITHDRAWN'}">
+                <c:choose>
+                    <c:when test="${offer.offeredListing != null}">
+                        <spring:message code="offer.detail.title.withdrawn.trade"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="offer.detail.title.withdrawn"
+                                        arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+            <c:otherwise>
+                <c:choose>
+                    <c:when test="${offer.offeredListing != null}">
+                        <spring:message code="offer.detail.title.pendingPayment.trade"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="offer.decision.title"
+                                        arguments="${offer.buyer.displayName},${offer.amount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        var="title"/>
+                    </c:otherwise>
+                </c:choose>
+            </c:otherwise>
+        </c:choose>
             <h1 class="text-xl font-medium text-balance"><c:out value="${title}"/></h1>
 
             <c:choose>
@@ -106,20 +160,41 @@
         </div>
 
         <div class="flex flex-col">
-            <c:if test="${not offer.isFullPrice}">
-                <p class="text-lg font-medium line-through text-black/60">
-                    $<c:out value="${offer.listing.price.getAmount()}"/>
+            <c:if test="${offer.offeredListing != null}">
+                <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
+                <paw:linkButton variant="ghost" href="${offeredListingUrl}" classname="w-full justify-start flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50" size="sm">
+                    <paw:listingImage listing="${offer.offeredListing}" size="sm" />
+                    <div class="flex-1 min-w-0">
+                        <p class="text-base font-semibold truncate"><c:out value="${offer.offeredListing.title}"/></p>
+                        <p class="text-sm text-black/60">
+                            <c:out value="${offer.offeredListing.product.brand}"/>
+                            <c:out value="${offer.offeredListing.product.model}"/>
+                            (<c:out value="${offer.offeredListing.product.year}"/>)
+                        </p>
+                        <p class="text-sm font-medium text-black/70">$<c:out value="${offer.offeredListing.price.amount}"/></p>
+                    </div>
+                    <c:if test="${offer.amount != null and offer.amount.compareTo(0) > 0}">
+                        <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
+                        <span class="text-lg font-bold text-lime-600"><c:out value="${plusAmountLabel}"/></span>
+                    </c:if>
+                </paw:linkButton>
+            </c:if>
+            <c:if test="${offer.offeredListing == null}">
+                <c:if test="${not offer.isFullPrice}">
+                    <p class="text-lg font-medium line-through text-black/60">
+                        $<c:out value="${offer.listing.price.getAmount()}"/>
+                    </p>
+                </c:if>
+                <p class="text-3xl font-bold">
+                    $<c:out value="${offer.amount}"/>
+                    <c:if test="${not offer.isFullPrice}">
+                        <c:set var="listingPrice" value="${offer.listing.price.getAmount()}"/>
+                        <c:set var="offerAmount" value="${offer.amount}"/>
+                        <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
+                        <span class="text-red-600 text-xl"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
+                    </c:if>
                 </p>
             </c:if>
-            <p class="text-3xl font-bold">
-                $<c:out value="${offer.amount}"/>
-                <c:if test="${not offer.isFullPrice}">
-                    <c:set var="listingPrice" value="${offer.listing.price.getAmount()}"/>
-                    <c:set var="offerAmount" value="${offer.amount}"/>
-                    <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                    <span class="text-red-600 text-xl"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
-                </c:if>
-            </p>
         </div>
 
         <c:if test="${not empty offer.message}">
