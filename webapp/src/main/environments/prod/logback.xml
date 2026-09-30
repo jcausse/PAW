@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="defaultPattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
+
+    <appender name="warnings-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>5</maxHistory>
+            <fileNamePattern>logs/paw-2026b-08.warnings.%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <encoder>
+            <pattern>${defaultPattern:-}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="info-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>5</maxHistory>
+            <fileNamePattern>logs/paw-2026b-08.info.%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>${defaultPattern:-}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="WARN">
+        <appender-ref ref="warnings-appender" />
+    </root>
+
+    <logger name="ar.edu.itba" level="INFO" additivity="false">
+        <appender-ref ref="info-appender" />
+        <appender-ref ref="warnings-appender" />
+    </logger>
+</configuration>
