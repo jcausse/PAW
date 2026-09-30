@@ -25,7 +25,7 @@
         <paw:badge text="${statusLabel}" classname="ml-auto ${statusClass}" />
         <c:if test="${offer.offeredListing != null}">
             <spring:message code="offer.tradeBadge" var="tradeBadgeLabel"/>
-            <paw:badge text="${tradeBadgeLabel}" classname="ml-2 text-purple-600" />
+            <paw:badge text="${tradeBadgeLabel}" classname="text-purple-600" />
         </c:if>
     </div>
 
@@ -39,17 +39,19 @@
                 <div>
                     <c:if test="${offer.offeredListing != null}">
                         <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
-                        <paw:linkButton variant="ghost" href="${offeredListingUrl}" classname="w-full justify-start flex items-center gap-2 p-2 rounded-lg hover:bg-purple-50" size="sm">
-                            <paw:listingImage listing="${offer.offeredListing}" size="xs" />
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium truncate"><c:out value="${offer.offeredListing.title}"/></p>
-                                <p class="text-xs text-black/60">$<c:out value="${offer.offeredListing.price.amount}"/></p>
-                            </div>
-                            <c:if test="${offer.amount != null and offer.amount.compareTo(new java.math.BigDecimal(0)) > 0}">
+                        <div class="flex flex-row items-center gap-2">
+                            <paw:linkButton variant="ghost" href="${offeredListingUrl}" size="sm" classname="p-1!">
+                                <paw:listingImage listing="${offer.offeredListing}" size="sm" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-black truncate"><c:out value="${offer.offeredListing.title}"/></p>
+                                    <p class="text-xs text-black/60 font-normal">$<c:out value="${offer.offeredListing.price.amount}"/></p>
+                                </div>
+                            </paw:linkButton>
+                            <c:if test="${offer.amount != null}">
                                 <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
-                                <span class="text-sm font-medium text-lime-600"><c:out value="${plusAmountLabel}"/></span>
+                                <span class="text-lg font-bold"><c:out value="${plusAmountLabel}"/></span>
                             </c:if>
-                        </paw:linkButton>
+                        </div>
                     </c:if>
                     <c:if test="${offer.offeredListing == null}">
                         <c:if test="${not offer.isFullPrice}">

@@ -20,7 +20,7 @@
 
     <paw:card classname="flex flex-col gap-4">
         <div class="text-center">
-<c:choose>
+        <c:choose>
             <c:when test="${offer.status.name() == 'PENDING'}">
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
@@ -173,7 +173,7 @@
                         </p>
                         <p class="text-sm font-medium text-black/70">$<c:out value="${offer.offeredListing.price.amount}"/></p>
                     </div>
-                    <c:if test="${offer.amount != null and offer.amount.compareTo(0) > 0}">
+                    <c:if test="${offer.amount != null}">
                         <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
                         <span class="text-lg font-bold text-lime-600"><c:out value="${plusAmountLabel}"/></span>
                     </c:if>

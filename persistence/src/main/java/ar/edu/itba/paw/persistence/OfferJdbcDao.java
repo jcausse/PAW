@@ -257,42 +257,18 @@ public class OfferJdbcDao implements OfferDao {
             return null;
         }
 
-        String offeredListingTitle = rs.getString("offered_listing_title");
-        BigDecimal offeredListingPrice = rs.getBigDecimal("offered_listing_price");
-        String offeredListingStatus = rs.getString("offered_listing_status");
-        String offeredListingCondition = rs.getString("offered_listing_condition");
-        Boolean offeredListingAcceptsTrade = rs.getBoolean("offered_listing_accepts_trade");
-        Long offeredListingCreatorId = rs.getObject("offered_listing_creator_id", Integer.class) != null
-                ? rs.getLong("offered_listing_creator_id")
-                : null;
-        Long offeredListingProductId = rs.getObject("offered_listing_product_id", Integer.class) != null
-                ? rs.getLong("offered_listing_product_id")
-                : null;
-
-        String offeredListingImageIdStr = rs.getString("offered_listing_image_id");
-        List<Long> offeredListingImageIds = parseImageIds(offeredListingImageIdStr);
-
         Long offeredProductId = rs.getObject("offered_product_id", Integer.class) != null
                 ? rs.getLong("offered_product_id")
                 : null;
-        String offeredProductBrand = rs.getString("offered_product_brand");
-        String offeredProductModel = rs.getString("offered_product_model");
-        Integer offeredProductYear = rs.getObject("offered_product_year", Integer.class);
         Long offeredSubcategoryId = rs.getObject("offered_subcategory_id", Integer.class) != null
                 ? rs.getLong("offered_subcategory_id")
                 : null;
-        String offeredSubcategoryName = rs.getString("offered_subcategory_name");
         Long offeredCategoryId = rs.getObject("offered_category_id", Integer.class) != null
                 ? rs.getLong("offered_category_id")
                 : null;
-        String offeredCategoryName = rs.getString("offered_category_name");
-
         Long offeredCreatorId = rs.getObject("offered_creator_id", Integer.class) != null
                 ? rs.getLong("offered_creator_id")
                 : null;
-        String offeredCreatorUsername = rs.getString("offered_creator_username");
-        String offeredCreatorDisplayName = rs.getString("offered_creator_display_name");
-        String offeredCreatorEmail = rs.getString("offered_creator_email");
         Long offeredCreatorImageId = rs.getObject("offered_creator_image_id", Integer.class) != null
                 ? rs.getLong("offered_creator_image_id")
                 : null;
@@ -302,18 +278,18 @@ public class OfferJdbcDao implements OfferDao {
 
         return Listing.builder()
                 .id(offeredListingId)
-                .title(offeredListingTitle)
-                .price(offeredListingPrice != null ? new Price(offeredListingPrice) : null)
-                .status(offeredListingStatus != null ? ListingStatus.fromString(offeredListingStatus).orElse(ListingStatus.ACTIVE) : ListingStatus.ACTIVE)
-                .condition(offeredListingCondition != null ? Condition.fromString(offeredListingCondition).orElse(Condition.GOOD) : Condition.GOOD)
-                .acceptsTrade(offeredListingAcceptsTrade)
-                .imageIds(offeredListingImageIds)
+                .title(rs.getString("offered_listing_title"))
+                .price(new Price(rs.getBigDecimal("offered_listing_price")))
+                .status(ListingStatus.fromString(rs.getString("offered_listing_status")).orElse(ListingStatus.ACTIVE))
+                .condition(Condition.fromString(rs.getString("offered_listing_condition")).orElse(Condition.GOOD))
+                .acceptsTrade(rs.getBoolean("offered_listing_accepts_trade"))
+                .imageIds(parseImageIds(rs.getString("offered_listing_image_id")))
                 .creator(
                         User.builder()
                                 .id(offeredCreatorId)
-                                .username(offeredCreatorUsername)
-                                .displayName(offeredCreatorDisplayName)
-                                .email(offeredCreatorEmail)
+                                .username(rs.getString("offered_creator_username"))
+                                .displayName(rs.getString("offered_creator_display_name"))
+                                .email(rs.getString("offered_creator_email"))
                                 .password("<redacted>")
                                 .imageId(offeredCreatorImageId)
                                 .joinedAt(offeredCreatorJoinedAt)
@@ -322,17 +298,17 @@ public class OfferJdbcDao implements OfferDao {
                 .product(
                         Product.builder()
                                 .id(offeredProductId)
-                                .brand(offeredProductBrand)
-                                .model(offeredProductModel)
-                                .year(offeredProductYear)
+                                .brand(rs.getString("offered_product_brand"))
+                                .model(rs.getString("offered_product_model"))
+                                .year(rs.getObject("offered_product_year", Integer.class))
                                 .subcategory(
                                         Subcategory.builder()
                                                 .id(offeredSubcategoryId)
-                                                .name(offeredSubcategoryName)
+                                                .name(rs.getString("offered_subcategory_name"))
                                                 .category(
                                                         Category.builder()
                                                                 .id(offeredCategoryId)
-                                                                .name(offeredCategoryName)
+                                                                .name(rs.getString("offered_category_name"))
                                                                 .build()
                                                 )
                                                 .build()
