@@ -287,6 +287,19 @@ public class OfferJdbcDao implements OfferDao {
                 : null;
         String offeredCategoryName = rs.getString("offered_category_name");
 
+        Long offeredCreatorId = rs.getObject("offered_creator_id", Integer.class) != null
+                ? rs.getLong("offered_creator_id")
+                : null;
+        String offeredCreatorUsername = rs.getString("offered_creator_username");
+        String offeredCreatorDisplayName = rs.getString("offered_creator_display_name");
+        String offeredCreatorEmail = rs.getString("offered_creator_email");
+        Long offeredCreatorImageId = rs.getObject("offered_creator_image_id", Integer.class) != null
+                ? rs.getLong("offered_creator_image_id")
+                : null;
+        java.time.Instant offeredCreatorJoinedAt = rs.getTimestamp("offered_creator_joined_at") != null
+                ? rs.getTimestamp("offered_creator_joined_at").toInstant()
+                : null;
+
         return Listing.builder()
                 .id(offeredListingId)
                 .title(offeredListingTitle)
@@ -295,6 +308,17 @@ public class OfferJdbcDao implements OfferDao {
                 .condition(offeredListingCondition != null ? Condition.fromString(offeredListingCondition).orElse(Condition.GOOD) : Condition.GOOD)
                 .acceptsTrade(offeredListingAcceptsTrade)
                 .imageIds(offeredListingImageIds)
+                .creator(
+                        User.builder()
+                                .id(offeredCreatorId)
+                                .username(offeredCreatorUsername)
+                                .displayName(offeredCreatorDisplayName)
+                                .email(offeredCreatorEmail)
+                                .password("<redacted>")
+                                .imageId(offeredCreatorImageId)
+                                .joinedAt(offeredCreatorJoinedAt)
+                                .build()
+                )
                 .product(
                         Product.builder()
                                 .id(offeredProductId)
@@ -329,7 +353,8 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
  		            " LEFT JOIN " + ListingSchema.TABLE_NAME + " ol ON ol." + ListingSchema.ID + " = o." + OfferSchema.OFFERED_LISTING_ID +
  		            " LEFT JOIN " + ProductSchema.TABLE_NAME + " op ON op." + ProductSchema.ID + " = ol." + ListingSchema.PRODUCT_ID +
  		            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " os ON os." + SubcategorySchema.ID + " = op." + ProductSchema.SUBCATEGORY_ID +
- 		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ocat ON ocat." + CategorySchema.ID + " = os." + SubcategorySchema.CATEGORY_ID;
+ 		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ocat ON ocat." + CategorySchema.ID + " = os." + SubcategorySchema.CATEGORY_ID +
+ 		            " LEFT JOIN " + UserSchema.TABLE_NAME + " ocl ON ocl." + UserSchema.ID + " = ol." + ListingSchema.CREATOR_ID;
 
 		private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
@@ -373,6 +398,12 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", os." + SubcategorySchema.NAME + " as offered_subcategory_name" +
             ", ocat." + CategorySchema.ID + " as offered_category_id" +
             ", ocat." + CategorySchema.NAME + " as offered_category_name" +
+            ", ocl." + UserSchema.ID + " as offered_creator_id" +
+            ", ocl." + UserSchema.USERNAME + " as offered_creator_username" +
+            ", ocl." + UserSchema.DISPLAY_NAME + " as offered_creator_display_name" +
+            ", ocl." + UserSchema.EMAIL + " as offered_creator_email" +
+            ", ocl." + UserSchema.IMAGE_ID + " as offered_creator_image_id" +
+            ", ocl." + UserSchema.JOINED_AT + " as offered_creator_joined_at" +
             ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
             " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
             ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
