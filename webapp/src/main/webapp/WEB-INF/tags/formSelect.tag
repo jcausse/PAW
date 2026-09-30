@@ -2,7 +2,8 @@
 <%@ attribute name="path" required="true" %>
 <%@ attribute name="items" required="true" type="java.lang.Object" %>
 <%@ attribute name="plainStrings" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="stringOptions" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="itemLabel" required="false" type="java.lang.String" %>
+<%@ attribute name="itemValue" required="false" type="java.lang.String" %>
 <%@ attribute name="label" required="false" %>
 <%@ attribute name="placeholder" required="true" %>
 <%@ attribute name="variant" required="false" %>
@@ -32,6 +33,9 @@
 <c:set var="otherVal" value="${not empty otherValue ? otherValue : '__OTHER__'}"/>
 <c:set var="otherLbl" value="${not empty otherLabel ? otherLabel : 'Other...'}"/>
 
+<c:set var="resolvedItemLabel" value="${not empty itemLabel ? itemLabel : 'name'}"/>
+<c:set var="resolvedItemValue" value="${not empty itemValue ? itemValue : 'id'}"/>
+
 <%-- Define the markup in reverse order so we can use errors to conditionally style the input --%>
 <div class="flex flex-col-reverse gap-1 ${inputClass}">
   <form:errors path="${path}" element="div" cssClass="text-xs text-red-600 peer/errors errors"/>
@@ -49,11 +53,8 @@
       <c:when test="${not empty plainStrings}">
         <form:options items="${items}" />
       </c:when>
-      <c:when test="${not empty stringOptions}">
-        <form:options items="${items}" itemValue="value" itemLabel="label" />
-      </c:when>
       <c:otherwise>
-        <form:options items="${items}" itemValue="id" itemLabel="name" />
+        <form:options items="${items}" itemValue="${resolvedItemValue}" itemLabel="${resolvedItemLabel}" />
       </c:otherwise>
     </c:choose>
 

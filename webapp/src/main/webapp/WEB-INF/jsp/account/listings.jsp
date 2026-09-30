@@ -34,10 +34,10 @@
         <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
             <div class="flex items-center justify-between gap-4 mb-4">
                 <div class="flex gap-2">
-                    <paw:formSelect path="status" label="${statusLabel}" placeholder="${allLabel}" items="${statusOptions}" stringOptions="true" classname="w-auto" />
+                    <paw:formSelect path="status" label="${statusLabel}" placeholder="${allLabel}" items="${statusOptions}" itemLabel="label" itemValue="value" classname="w-auto" />
                 </div>
                 <div class="flex items-center gap-2">
-                    <paw:formSelect path="sort" label="${sortLabel}" placeholder="${defaultLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
+                    <paw:formSelect path="sort" label="${sortLabel}" placeholder="${defaultLabel}" items="${sortOptions}" itemLabel="label" itemValue="value" classname="w-auto" />
                 </div>
             </div>
         </form:form>
