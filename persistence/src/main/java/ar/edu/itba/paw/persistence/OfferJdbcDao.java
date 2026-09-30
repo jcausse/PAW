@@ -278,7 +278,13 @@ public class OfferJdbcDao implements OfferDao {
         String offeredProductBrand = rs.getString("offered_product_brand");
         String offeredProductModel = rs.getString("offered_product_model");
         Integer offeredProductYear = rs.getObject("offered_product_year", Integer.class);
+        Long offeredSubcategoryId = rs.getObject("offered_subcategory_id", Integer.class) != null
+                ? rs.getLong("offered_subcategory_id")
+                : null;
         String offeredSubcategoryName = rs.getString("offered_subcategory_name");
+        Long offeredCategoryId = rs.getObject("offered_category_id", Integer.class) != null
+                ? rs.getLong("offered_category_id")
+                : null;
         String offeredCategoryName = rs.getString("offered_category_name");
 
         return Listing.builder()
@@ -297,9 +303,11 @@ public class OfferJdbcDao implements OfferDao {
                                 .year(offeredProductYear)
                                 .subcategory(
                                         Subcategory.builder()
+                                                .id(offeredSubcategoryId)
                                                 .name(offeredSubcategoryName)
                                                 .category(
                                                         Category.builder()
+                                                                .id(offeredCategoryId)
                                                                 .name(offeredCategoryName)
                                                                 .build()
                                                 )
@@ -361,7 +369,9 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", op." + ProductSchema.BRAND + " as offered_product_brand" +
             ", op." + ProductSchema.MODEL + " as offered_product_model" +
             ", op." + ProductSchema.YEAR + " as offered_product_year" +
+            ", os." + SubcategorySchema.ID + " as offered_subcategory_id" +
             ", os." + SubcategorySchema.NAME + " as offered_subcategory_name" +
+            ", ocat." + CategorySchema.ID + " as offered_category_id" +
             ", ocat." + CategorySchema.NAME + " as offered_category_name" +
             ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
             " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
