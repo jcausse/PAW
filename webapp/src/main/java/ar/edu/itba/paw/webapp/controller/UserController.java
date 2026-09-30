@@ -17,6 +17,8 @@ import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,8 @@ import java.util.Objects;
 @Controller
 public class UserController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
     private final UserService userService;
     private final ListingService listingService;
     private final EmailVerificationService emailVerificationService;
@@ -44,6 +48,7 @@ public class UserController {
 
     @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
+        LOGGER.debug("Accessing profile for user id: {}", id);
         final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
         final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
 
@@ -111,6 +116,7 @@ public class UserController {
             }
         }
 
+        LOGGER.debug("User {} updating profile", currentUser.getUsername());
         User updatedUser = userService.update(new UserEditDto(
             currentUser,
             form.getDisplayName(),
@@ -135,6 +141,8 @@ public class UserController {
         if (errors.hasErrors()) {
             return registerForm(form);
         }
+
+        LOGGER.debug("Registering new user with username: {}", form.getUsername());
 
         // Extract image from form
         ImageData imageData = null;
