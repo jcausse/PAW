@@ -33,4 +33,6 @@ public interface OfferDao {
     boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId);
 
     boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber);
+
+    boolean markAccepted(Long offerId, Instant acceptedAt);
 }

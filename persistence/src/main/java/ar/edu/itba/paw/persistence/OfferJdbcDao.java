@@ -338,6 +338,12 @@ public class OfferJdbcDao implements OfferDao {
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?" +
             " AND (?::bigint IS NULL OR " + OfferSchema.ID + " != ?)";
+
+        private static final String MARK_ACCEPTED =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            ", " + OfferSchema.ACCEPTED_AT + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?";
     }
 
     @Override
@@ -389,5 +395,15 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber) {
         return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_SHIPPING, proofOfShippingId, trackingNumber, offerId) > 0;
+    }
+
+    @Override
+    public boolean markAccepted(Long offerId, Instant acceptedAt) {
+        return jdbcTemplate.update(
+            Queries.MARK_ACCEPTED,
+            OfferStatus.ACCEPTED.getStatus(),
+            Timestamp.from(acceptedAt),
+            offerId
+        ) > 0;
     }
 }

@@ -289,7 +289,7 @@ public class OfferServiceImpl implements OfferService {
         }
 
         listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
-        offerDao.updateStatus(offerId, OfferStatus.ACCEPTED);
+        offerDao.markAccepted(offerId, Instant.now());
 
         return offerDao.getById(offerId).orElseThrow();
     }
