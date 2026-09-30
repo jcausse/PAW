@@ -83,11 +83,8 @@
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${conditionPlaceholder}"
                                         items="${conditionOptions}" stringOptions="true" />
 
-                        <%-- TODO trades --%>
-                        <div class="flex items-center h-full pt-5 hidden">
-                            <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
-                            <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
-                        </div>
+                        <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
+                        <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
                     </div>
 
                     <spring:message code="listing.new.descriptionLabel" var="descriptionLabel"/>

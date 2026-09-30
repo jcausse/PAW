@@ -70,6 +70,10 @@
                                     <c:set var="statusClass" value="text-blue-600"/>
                                     <spring:message code="listing.status.PENDING_TRANSACTION" var="statusLabel"/>
                                 </c:when>
+                                <c:when test="${listing.status.name() == 'OFFERED_IN_TRADE'}">
+                                    <c:set var="statusClass" value="text-purple-600"/>
+                                    <spring:message code="listing.status.OFFERED_IN_TRADE" var="statusLabel"/>
+                                </c:when>
                                 <c:when test="${listing.status.name() == 'CANCELED'}">
                                     <c:set var="statusClass" value="text-red-600"/>
                                     <spring:message code="listing.status.CANCELED" var="statusLabel"/>

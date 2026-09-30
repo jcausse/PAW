@@ -119,7 +119,7 @@ public class OfferJdbcDao implements OfferDao {
     }
 
     @Override
-    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt) {
+    public Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt, Long offeredListingId) {
         final Map<String, Object> values = new java.util.HashMap<>();
         values.put(OfferSchema.LISTING_ID, listingId);
         values.put(OfferSchema.BUYER_ID, buyer.getId());
@@ -128,6 +128,7 @@ public class OfferJdbcDao implements OfferDao {
         values.put(OfferSchema.STATUS, status.getStatus());
         values.put(OfferSchema.MESSAGE, message);
         values.put(OfferSchema.CREATED_AT, Timestamp.from(createdAt));
+        values.put(OfferSchema.OFFERED_LISTING_ID, offeredListingId);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -228,6 +229,10 @@ public class OfferJdbcDao implements OfferDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .trackingNumber(rs.getString(OfferSchema.TRACKING_NUMBER))
+            .offeredListingId(
+                    Optional.ofNullable(rs.getObject(OfferSchema.OFFERED_LISTING_ID, Integer.class))
+                            .map(Integer::longValue)
+                            .orElse(null))
             .build();
     };
 
@@ -265,6 +270,7 @@ public class OfferJdbcDao implements OfferDao {
             ", fs." + FileSchema.CONTENT_TYPE + " as " + OfferSchema.PROOF_OF_SHIPPING_CONTENT_TYPE +
             ", OCTET_LENGTH(fs." + FileSchema.DATA + ") as " + OfferSchema.PROOF_OF_SHIPPING_SIZE +
             ", o." + OfferSchema.TRACKING_NUMBER +
+            ", o." + OfferSchema.OFFERED_LISTING_ID +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +

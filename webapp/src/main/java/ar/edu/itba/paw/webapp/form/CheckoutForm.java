@@ -11,7 +11,9 @@ import lombok.Setter;
 public class CheckoutForm {
 
     private Long listingId;
-    private String offerType; // "full" or "custom"
+    private String offerType; // "full", "custom", or "trade"
     private BigDecimal customAmount;
+    private Long offeredListingId;
+    private BigDecimal tradeAmount;
     private String message;
 }
