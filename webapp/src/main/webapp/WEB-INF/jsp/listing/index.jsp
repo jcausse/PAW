@@ -105,7 +105,7 @@
                                     </c:if>
                                     <c:if test="${listing.acceptsTrade}">
                                         <spring:message code="listing.detail.acceptsTrade" var="acceptsTradeMsg"/>
-                                        <p class="text-lime-600 text-sm flex items-center gap-1"><paw:icon name="repeat" size="14"/><c:out value="${acceptsTradeMsg}"/></p>
+                                        <p class="text-lime-600 text-sm flex items-center gap-1"><paw:icon name="repeat" /><c:out value="${acceptsTradeMsg}"/></p>
                                     </c:if>
                                     <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
                                     <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
