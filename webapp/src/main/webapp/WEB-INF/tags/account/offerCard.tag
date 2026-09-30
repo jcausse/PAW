@@ -2,6 +2,7 @@
 <%@ attribute name="offer" required="true" type="ar.edu.itba.paw.model.Offer" %>
 <%@ attribute name="user" required="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
@@ -47,7 +48,7 @@
                                     <p class="text-xs text-black/60 font-normal">$<c:out value="${offer.offeredListing.price.amount}"/></p>
                                 </div>
                             </paw:linkButton>
-                            <c:if test="${offer.amount != null}">
+                            <c:if test="${offer.amount != null and offer.amount.compareTo(new java.math.BigDecimal(0)) > 0}">
                                 <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
                                 <span class="text-lg font-bold"><c:out value="${plusAmountLabel}"/></span>
                             </c:if>
@@ -59,12 +60,12 @@
                         </c:if>
                         <p class="text-2xl font-bold">
                             $<c:out value="${offer.amount}"/>
-                            <c:if test="${not offer.isFullPrice}">
-                                <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
-                                <c:set var="offerAmount" value="${offer.amount}"/>
-                                <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                                <span class="text-red-600 text-lg"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
-                            </c:if>
+<c:if test="${not offer.isFullPrice}">
+                                 <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
+                                 <c:set var="offerAmount" value="${offer.amount}"/>
+                                 <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
+                                 <span class="text-red-600 text-lg"> -<fmt:formatNumber value="${discountPercent}" maxFractionDigits="0"/>%</span>
+                             </c:if>
                         </p>
                     </c:if>
                 </div>
