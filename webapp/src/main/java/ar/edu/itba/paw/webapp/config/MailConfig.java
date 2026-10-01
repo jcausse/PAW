@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -16,6 +17,7 @@ import java.util.Objects;
 
 @Configuration
 @EnableAsync
+@PropertySource("classpath:mail.properties")
 public class MailConfig {
 
     private final Environment env;

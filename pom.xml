@@ -54,6 +54,9 @@
     <javax.mail.version>1.6.2</javax.mail.version>
     <flyway.version>13.5.0</flyway.version>
     <environment>prod</environment>
+    <org.slf4j.version>1.7.5</org.slf4j.version>
+    <logback.version>1.1.2</logback.version>
+    <logback-ext-spring.version>0.1.1</logback-ext-spring.version>
   </properties>
 
   <dependencyManagement>
@@ -160,6 +163,47 @@
         <artifactId>flyway-database-postgresql</artifactId>
         <version>${flyway.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${org.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${org.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.logback-extensions</groupId>
+        <artifactId>logback-ext-spring</artifactId>
+        <version>${logback-ext-spring.version}</version>
+        <scope>runtime</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <!-- Environment selection depending on Maven profile -->
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>env/**</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources/env/${environment}</directory>
+      </resource>
+    </resources>
+  </build>
 </project>
