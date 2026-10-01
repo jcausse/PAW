@@ -10,7 +10,7 @@
 <spring:message code="offer.proofOfPayment.title" var="titleMsg"/>
 <spring:message code="offer.proofOfPayment.subtitle" var="subtitleMsg"/>
 <spring:message code="offer.proofOfPayment.uploadLabel" var="uploadLabelMsg"/>
-<spring:message code="offer.proofOfPayment.back" var="backLabelMsg"/>
+<spring:message code="offer.detail.back" var="backLabelMsg"/>
 <spring:message code="offer.proofOfPayment.submit" var="submitLabelMsg"/>
 
 <html lang="${pageContext.response.locale.language}">
@@ -37,13 +37,13 @@
         </div>
 
         <div class="flex flex-col gap-4">
-            <div class="flex flex-col">
-                <spring:message code="offer.decision.amount" var="amountLabel"/>
-                <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
-                <p class="text-3xl font-bold">
-                    $<c:out value="${offer.amount}"/>
-                </p>
-            </div>
+<div class="flex flex-col">
+            <spring:message code="offer.detail.amount" var="amountLabel"/>
+            <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
+            <p class="text-3xl font-bold">
+                $<c:out value="${offer.amount}"/>
+            </p>
+        </div>
         </div>
 
         <paw:divider />

@@ -12,7 +12,7 @@
 <spring:message code="offer.proofOfShipping.trackingNumberLabelForm" var="trackingNumberLabelMsg"/>
 <spring:message code="offer.proofOfShipping.trackingNumberPlaceholder" var="trackingNumberPlaceholderMsg"/>
 <spring:message code="offer.proofOfShipping.uploadLabel" var="uploadLabelMsg"/>
-<spring:message code="offer.incoming.back" var="backLabelMsg"/>
+<spring:message code="offer.detail.back" var="backLabelMsg"/>
 <spring:message code="offer.proofOfShipping.submit" var="submitLabelMsg"/>
 <spring:message code="offer.proofOfShipping.fileHint" var="fileHintMsg"/>
 <spring:message code="offer.proofOfShipping.fileLabelForm" var="fileLabelMsg"/>
@@ -42,7 +42,7 @@
 
         <div class="flex flex-col gap-4">
             <div class="flex flex-col">
-                <spring:message code="offer.decision.amount" var="amountLabel"/>
+                <spring:message code="offer.detail.amount" var="amountLabel"/>
                 <span class="text-sm text-black/60"><c:out value="${amountLabel}"/></span>
                 <p class="text-3xl font-bold">
                     $<c:out value="${offer.amount}"/>
