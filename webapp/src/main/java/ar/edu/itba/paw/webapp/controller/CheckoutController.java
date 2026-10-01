@@ -34,6 +34,7 @@ public class CheckoutController {
         Listing listing = listingService.getById(listingId);
         form.setListingId(listingId);
         form.setOfferType("full");
+        form.setListingPrice(listing.getPrice().getAmount());
 
         return withUserListings(listing, currentUser);
     }
@@ -60,35 +61,12 @@ public class CheckoutController {
             amount = listing.getPrice().getAmount();
             isFullPrice = true;
         } else if ("custom".equals(form.getOfferType())) {
-            if (form.getCustomAmount() == null || form.getCustomAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                bindingResult.rejectValue("customAmount", "NotNull.checkoutForm.customAmount");
-                return withUserListings(listing, currentUser);
-            }
-            if (form.getCustomAmount().compareTo(listing.getPrice().getAmount()) > 0) {
-                bindingResult.rejectValue("customAmount", "Max.checkoutForm.customAmount", new Object[]{listing.getPrice().getAmount()}, "Offer amount cannot exceed listing price");
-                return withUserListings(listing, currentUser);
-            }
             amount = form.getCustomAmount();
             isFullPrice = false;
-        } else if ("trade".equals(form.getOfferType())) {
-            if (form.getOfferedListingId() == null) {
-                bindingResult.rejectValue("offeredListingId", "NotNull.checkoutForm.offeredListingId");
-                return withUserListings(listing, currentUser);
-            }
-            if (form.getTradeAmount() == null || form.getTradeAmount().compareTo(BigDecimal.ZERO) < 0) {
-                bindingResult.rejectValue("tradeAmount", "NotNull.checkoutForm.tradeAmount");
-                return withUserListings(listing, currentUser);
-            }
-            if (form.getTradeAmount().compareTo(listing.getPrice().getAmount()) > 0) {
-                bindingResult.rejectValue("tradeAmount", "Max.checkoutForm.tradeAmount", new Object[]{listing.getPrice().getAmount()}, "Trade amount cannot exceed listing price");
-                return withUserListings(listing, currentUser);
-            }
+        } else { // "trade"
             amount = form.getTradeAmount();
             isFullPrice = false;
             offeredListingId = form.getOfferedListingId();
-        } else {
-            bindingResult.rejectValue("offerType", "Invalid.checkoutForm.offerType");
-            return withUserListings(listing, currentUser);
         }
 
         OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage(), offeredListingId);
