@@ -3,4 +3,4 @@ app.baseUrl=https://pawserver.it.itba.edu.ar/paw-2026b-08
 
 database.jdbc.url=jdbc:postgresql://localhost/paw-2026b-08
 database.jdbc.username=paw-2026b-08
-database.jdbc.password=B84ioRlyy
+database.jdbc.password=your_production_db_password_here

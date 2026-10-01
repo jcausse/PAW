@@ -1,0 +1,5 @@
+# Mail configuration (Production)
+mail.host=smtp.gmail.com
+mail.port=587
+mail.username=your_email@gmail.com
+mail.password=your_app_password

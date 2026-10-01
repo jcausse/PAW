@@ -1,5 +1,15 @@
 # deploy.py Secrets File
 deploy_secrets.properties
+
+# Environment secrets and keys
+**/src/main/resources/env/**/app.properties
+**/src/main/resources/env/**/mail.properties
+**/rememberMe.key
+!**/app.properties.sample
+!**/mail.properties.sample
+!**/rememberMe.key.sample
+
+# deploy.py build log
 build.log
 
 # Python Cache
