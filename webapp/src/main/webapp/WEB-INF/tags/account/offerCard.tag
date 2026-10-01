@@ -48,7 +48,7 @@
                                     <p class="text-xs text-black/60 font-normal">$<c:out value="${offer.offeredListing.price.amount}"/></p>
                                 </div>
                             </paw:linkButton>
-                            <c:if test="${offer.amount != null and offer.amount.compareTo(new java.math.BigDecimal(0)) > 0}">
+                            <c:if test="${offer.amount != null and offer.amount > 0.0}">
                                 <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
                                 <span class="text-lg font-bold"><c:out value="${plusAmountLabel}"/></span>
                             </c:if>

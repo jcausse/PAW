@@ -23,7 +23,7 @@
         <div class="text-center">
         <c:set var="offerAmount" value="${offer.amount}"/>
         <c:set var="offerAmountStr" value="${offerAmount}"/>
-        <c:set var="hasCashAmount" value="${offerAmount != null and offerAmount.compareTo(new java.math.BigDecimal(0)) > 0}"/>
+        <c:set var="hasCashAmount" value="${offerAmount != null and offerAmount > 0.0}"/>
         <c:set var="tradeAndAmount" value="${hasCashAmount ? ' and $' + offerAmountStr : ''}"/>
 
         <c:choose>
@@ -179,7 +179,7 @@
                         </p>
                         <p class="text-sm font-medium text-black/70">$<c:out value="${offer.offeredListing.price.amount}"/></p>
                     </div>
-                    <c:if test="${offer.amount != null and offer.amount.compareTo(new java.math.BigDecimal(0)) > 0}">
+                    <c:if test="${offer.amount != null and offer.amount > 0.0}">
                         <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
                         <span class="text-lg font-bold text-lime-600"><c:out value="${plusAmountLabel}"/></span>
                     </c:if>
