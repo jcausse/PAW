@@ -40,7 +40,8 @@
                 <div class="flex-1">
                     <c:if test="${offer.offeredListing != null}">
                         <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
-                        <p class="text-black/60 text-xs font-semibold">Offered item</p>
+                        <spring:message code="offer.detail.offeredItem" var="offeredItemLabel"/>
+                        <p class="text-black/60 text-xs font-semibold"><c:out value="${offeredItemLabel}"/></p>
                         <div class="flex flex-row items-end gap-2">
                             <paw:linkButton variant="ghost" href="${offeredListingUrl}" size="sm" classname="p-1! flex-1">
                                 <paw:listingImage listing="${offer.offeredListing}" size="sm" />

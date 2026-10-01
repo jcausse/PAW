@@ -95,7 +95,8 @@
         <div class="flex flex-col">
             <c:if test="${offer.offeredListing != null}">
                 <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
-                <p class="text-black/60 text-sm font-semibold mb-1">Offered item</p>
+                <spring:message code="offer.detail.offeredItem" var="offeredItemLabel"/>
+                <p class="text-black/60 text-sm font-semibold mb-1"><c:out value="${offeredItemLabel}"/></p>
                 <div class="flex flex-row gap-4">
                     <paw:listingImage listing="${offer.offeredListing}" size="xl" />
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
