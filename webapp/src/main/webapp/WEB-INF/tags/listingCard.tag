@@ -47,8 +47,8 @@
                 <div class="flex items-center gap-2 flex-wrap mt-auto">
                     <p class="text-lg font-bold">$<c:out value="${listing.price.amount}"/></p>
                     <c:if test="${listing.acceptsTrade}">
-                        <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
-                            <spring:message code="discovery.acceptsTrade.badge"/>
+                        <span class="text-sm text-lime-600 bg-lime-50 border border-lime-200 rounded-full w-5 h-5 flex items-center justify-center">
+                            <paw:icon name="arrow-right-left" />
                         </span>
                     </c:if>
                 </div>
@@ -60,8 +60,8 @@
                 <div class="flex items-center gap-2 flex-wrap mt-auto">
                     <p class="text-xl font-bold">$<c:out value="${listing.price.amount}"/></p>
                     <c:if test="${listing.acceptsTrade}">
-                        <span class="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5">
-                            <spring:message code="discovery.acceptsTrade.badge"/>
+                        <span class="text-sm text-lime-600 bg-lime-50 border border-lime-200 rounded-full w-5 h-5 flex items-center justify-center">
+                            <paw:icon name="arrow-right-left" />
                         </span>
                     </c:if>
                 </div>
