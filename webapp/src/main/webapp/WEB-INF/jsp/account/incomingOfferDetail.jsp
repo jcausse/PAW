@@ -24,7 +24,7 @@
         <c:set var="offerAmount" value="${offer.amount}"/>
         <c:set var="tradeAndAmount" value=""/>
         <c:if test="${offerAmount != null and offerAmount > 0.0}">
-            <c:set var="tradeAndAmount" value=" and $${offerAmount}"/>
+            <spring:message var="tradeAndAmount" code="offer.detail.tradeAndAmount" arguments="${offerAmount}"/>
         </c:if>
 
         <c:choose>
@@ -95,22 +95,27 @@
         <div class="flex flex-col">
             <c:if test="${offer.offeredListing != null}">
                 <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
-                <paw:linkButton variant="ghost" href="${offeredListingUrl}" classname="w-full justify-start flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50" size="sm">
-                    <paw:listingImage listing="${offer.offeredListing}" size="sm" />
-                    <div class="flex-1 min-w-0">
-                        <p class="text-base font-semibold truncate"><c:out value="${offer.offeredListing.title}"/></p>
-                        <p class="text-sm text-black/60">
+                <p class="text-black/60 text-sm font-semibold mb-1">Offered item</p>
+                <div class="flex flex-row gap-4">
+                    <paw:listingImage listing="${offer.offeredListing}" size="xl" />
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <a href="${offeredListingUrl}" class="text-xl font-semibold hover:text-lime-600 transition">
+                            <c:out value="${offer.offeredListing.title}"/>
+                        </a>
+                        <p class="text-sm text-black/60 mt-1">
                             <c:out value="${offer.offeredListing.product.brand}"/>
                             <c:out value="${offer.offeredListing.product.model}"/>
                             (<c:out value="${offer.offeredListing.product.year}"/>)
                         </p>
-                        <p class="text-sm font-medium text-black/70">$<c:out value="${offer.offeredListing.price.amount}"/></p>
+                        <p class="text-sm text-black/60 mt-1">
+                            $<c:out value="${offer.offeredListing.price.amount}"/>
+                        </p>
                     </div>
-                    <c:if test="${offer.amount != null and offer.amount > 0.0}">
-                        <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
-                        <span class="text-lg font-bold text-lime-600"><c:out value="${plusAmountLabel}"/></span>
-                    </c:if>
-                </paw:linkButton>
+                </div>
+                <c:if test="${offer.amount != null and offer.amount > 0.0}">
+                    <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
+                    <span class="text-2xl text-end font-bold mt-2"><c:out value="${plusAmountLabel}"/></span>
+                </c:if>
             </c:if>
             <c:if test="${offer.offeredListing == null}">
                 <c:if test="${not offer.isFullPrice}">
