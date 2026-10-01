@@ -1,6 +1,6 @@
 # Production environment properties
 app.baseUrl=https://pawserver.it.itba.edu.ar/paw-2026b-08
 
-database.jdbc.url=jdbc:postgresql://localhost/paw-2026b-08
-database.jdbc.username=paw-2026b-08
+database.jdbc.url=your_production_db_url_here
+database.jdbc.username=your_production_db_user_here
 database.jdbc.password=your_production_db_password_here
