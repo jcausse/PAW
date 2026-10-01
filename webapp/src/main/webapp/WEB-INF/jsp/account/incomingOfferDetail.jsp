@@ -22,9 +22,10 @@
     <paw:card classname="flex flex-col gap-4">
         <div class="text-center">
         <c:set var="offerAmount" value="${offer.amount}"/>
-        <c:set var="offerAmountStr" value="${offerAmount}"/>
-        <c:set var="hasCashAmount" value="${offerAmount != null and offerAmount > 0.0}"/>
-        <c:set var="tradeAndAmount" value="${hasCashAmount ? ' and $' + offerAmountStr : ''}"/>
+        <c:set var="tradeAndAmount" value=""/>
+        <c:if test="${offerAmount != null and offerAmount > 0.0}">
+            <c:set var="tradeAndAmount" value=" and $${offerAmount}"/>
+        </c:if>
 
         <c:choose>
             <c:when test="${offer.status.name() == 'PENDING'}">
