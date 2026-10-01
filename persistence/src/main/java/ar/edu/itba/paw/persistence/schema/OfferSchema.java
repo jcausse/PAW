@@ -23,4 +23,5 @@ public final class OfferSchema {
     public static final String PROOF_OF_SHIPPING_CONTENT_TYPE = "proof_of_shipping_content_type";
     public static final String PROOF_OF_SHIPPING_SIZE = "proof_of_shipping_size";
     public static final String TRACKING_NUMBER = "tracking_number";
+    public static final String OFFERED_LISTING_ID = "offered_listing_id";
 }

@@ -100,6 +100,24 @@ public class OfferServiceImpl implements OfferService {
         final User buyer = userService.getById(dto.buyerId())
                 .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
 
+        Long offeredListingId = dto.offeredListingId();
+        boolean isTrade = offeredListingId != null;
+
+        if (isTrade) {
+            if (!listing.isAcceptsTrade()) {
+                throw BadParameterException.create("listingId", "This listing does not accept trades");
+            }
+            final Listing offeredListing = listingService.getById(offeredListingId);
+            if (!Objects.equals(offeredListing.getCreator().getId(), buyer.getId())) {
+                throw BadParameterException.create("offeredListingId", "Offered listing must belong to the buyer");
+            }
+            if (offeredListing.getStatus() != ListingStatus.ACTIVE) {
+                throw BadParameterException.create("offeredListingId", "Offered listing must be active");
+            }
+            // Set offered listing to OFFERED_IN_TRADE
+            listingService.updateStatus(offeredListingId, ListingStatus.OFFERED_IN_TRADE);
+        }
+
         final Offer offer = offerDao.create(
             dto.listingId(),
             buyer,
@@ -107,7 +125,8 @@ public class OfferServiceImpl implements OfferService {
             dto.isFullPrice(),
             OfferStatus.PENDING,
             dto.message(),
-            Instant.now()
+            Instant.now(),
+            offeredListingId
         );
 
         // Send email notification to seller about the new offer
@@ -128,6 +147,11 @@ public class OfferServiceImpl implements OfferService {
 
         if (offer.getStatus() != OfferStatus.PENDING) {
             throw new BadParameterException("Offer is not pending");
+        }
+
+        // Handle trade offer: set offered listing to SOLD
+        if (offer.getOfferedListingId() != null) {
+            listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.SOLD);
         }
 
         listingService.pendingTransaction(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
@@ -162,6 +186,11 @@ public class OfferServiceImpl implements OfferService {
             default -> throw new BadParameterException("Offer cannot be rejected in its current state");
         };
 
+        // Handle trade offer: reset offered listing to ACTIVE
+        if (offer.getOfferedListingId() != null) {
+            listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.ACTIVE);
+        }
+
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
 
         // Send email notification to buyer about offer rejection
@@ -185,6 +214,11 @@ public class OfferServiceImpl implements OfferService {
             throw new BadParameterException("Offer is not pending");
         }
 
+        // Handle trade offer: reset offered listing to ACTIVE
+        if (offer.getOfferedListingId() != null) {
+            listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.ACTIVE);
+        }
+
         offerDao.withdraw(offerId, currentUserId);
 
         // Send email notification to seller about offer withdrawal
@@ -200,6 +234,10 @@ public class OfferServiceImpl implements OfferService {
         final List<Offer> rejected = offerDao.rejectPendingOffers(listingId, exceptOfferId);
         final Locale locale = LocaleContextHolder.getLocale();
         for (Offer offer : rejected) {
+            // Handle trade offer: reset offered listing to ACTIVE
+            if (offer.getOfferedListingId() != null) {
+                listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.ACTIVE);
+            }
             mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, locale);
         }
         return rejected;

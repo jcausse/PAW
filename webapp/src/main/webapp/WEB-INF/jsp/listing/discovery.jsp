@@ -45,7 +45,7 @@
                             <paw:formSelect path="subcategoryId" label="${subcategoryLabel}" placeholder="${allLabel}" items="${subcategoryOptions}" />
                         </c:if>
 
-                        <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" stringOptions="true" />
+                        <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" itemLabel="label" itemValue="value" />
 
                         <div class="flex flex-row gap-2">
                             <paw:formInput path="minPrice" type="number" step="0.01" min="0" label="${minPriceLabel}" classname="min-w-0" />
@@ -75,7 +75,7 @@
                     <spring:message code="discovery.results.count" arguments="${fn:length(listings)}"/>
                 </span>
                 <div class="flex items-center gap-2">
-                    <paw:formSelect path="sort" label="${sortLabel}" placeholder="${allLabel}" items="${sortOptions}" stringOptions="true" classname="w-auto" />
+                    <paw:formSelect path="sort" label="${sortLabel}" placeholder="${allLabel}" items="${sortOptions}" itemLabel="label" itemValue="value" classname="w-auto" />
                 </div>
             </div>
 
