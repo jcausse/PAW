@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="account" tagdir="/WEB-INF/tags/account" %>
@@ -20,12 +21,17 @@
 
     <paw:card classname="flex flex-col gap-4">
         <div class="text-center">
+        <c:set var="offerAmount" value="${offer.amount}"/>
+        <c:set var="offerAmountStr" value="${offerAmount}"/>
+        <c:set var="hasCashAmount" value="${offerAmount != null and offerAmount > 0.0}"/>
+        <c:set var="tradeAndAmount" value="${hasCashAmount ? ' and $' + offerAmountStr : ''}"/>
+
         <c:choose>
             <c:when test="${offer.status.name() == 'PENDING'}">
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
                         <spring:message code="offer.detail.title.pendingPayment.trade"
-                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${tradeAndAmount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
                                         var="title"/>
                     </c:when>
                     <c:otherwise>
@@ -39,7 +45,7 @@
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
                         <spring:message code="offer.detail.title.pendingPayment.trade"
-                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${tradeAndAmount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
                                         var="title"/>
                     </c:when>
                     <c:otherwise>
@@ -53,7 +59,7 @@
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
                         <spring:message code="offer.detail.title.accepted.trade"
-                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${tradeAndAmount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
                                         var="title"/>
                     </c:when>
                     <c:otherwise>
@@ -67,7 +73,7 @@
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
                         <spring:message code="offer.detail.title.rejected.trade"
-                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${tradeAndAmount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
                                         var="title"/>
                     </c:when>
                     <c:otherwise>
@@ -81,7 +87,7 @@
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
                         <spring:message code="offer.detail.title.withdrawn.trade"
-                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${tradeAndAmount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
                                         var="title"/>
                     </c:when>
                     <c:otherwise>
@@ -95,7 +101,7 @@
                 <c:choose>
                     <c:when test="${offer.offeredListing != null}">
                         <spring:message code="offer.detail.title.pendingPayment.trade"
-                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${offer.amount gt 0 ? ' and $' + offer.amount : ''},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
+                                        arguments="${offer.buyer.displayName},${offer.offeredListing.product.brand},${offer.offeredListing.product.model},${offer.offeredListing.product.year},${tradeAndAmount},${offer.listing.product.brand},${offer.listing.product.model},${offer.listing.product.year}"
                                         var="title"/>
                     </c:when>
                     <c:otherwise>
@@ -173,7 +179,7 @@
                         </p>
                         <p class="text-sm font-medium text-black/70">$<c:out value="${offer.offeredListing.price.amount}"/></p>
                     </div>
-                    <c:if test="${offer.amount != null}">
+                    <c:if test="${offer.amount != null and offer.amount > 0.0}">
                         <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
                         <span class="text-lg font-bold text-lime-600"><c:out value="${plusAmountLabel}"/></span>
                     </c:if>
@@ -191,7 +197,7 @@
                         <c:set var="listingPrice" value="${offer.listing.price.getAmount()}"/>
                         <c:set var="offerAmount" value="${offer.amount}"/>
                         <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                        <span class="text-red-600 text-xl"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
+                        <span class="text-red-600 text-xl"> -<fmt:formatNumber value="${discountPercent}" maxFractionDigits="0"/>%</span>
                     </c:if>
                 </p>
             </c:if>
