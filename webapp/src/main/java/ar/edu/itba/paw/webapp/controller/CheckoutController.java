@@ -35,24 +35,7 @@ public class CheckoutController {
         form.setListingId(listingId);
         form.setOfferType("full");
 
-        var mav = new ModelAndView("checkout/index");
-        mav.addObject("listing", listing);
-
-        if (currentUser != null && listing.isAcceptsTrade()) {
-            var filter = new ListingFilterDto(
-                null, null, null, null, null, null,
-                null, null,
-                currentUser.getId(),
-                ListingStatus.ACTIVE.name(),
-                1,
-                100,
-                null
-            );
-            var userListings = listingService.search(filter).getContent();
-            mav.addObject("userListings", userListings);
-        }
-
-        return mav;
+        return withUserListings(listing, currentUser);
     }
 
     @PostMapping
@@ -64,23 +47,7 @@ public class CheckoutController {
         Listing listing = listingService.getById(form.getListingId());
 
         if (bindingResult.hasErrors()) {
-            if (currentUser != null && listing.isAcceptsTrade()) {
-                var filter = new ListingFilterDto(
-                    null, null, null, null, null, null,
-                    null, null,
-                    currentUser.getId(),
-                    ListingStatus.ACTIVE.name(),
-                    1,
-                    100,
-                    null
-                );
-                var userListings = listingService.search(filter).getContent();
-                return new ModelAndView("checkout/index")
-                        .addObject("listing", listing)
-                        .addObject("userListings", userListings);
-            }
-            return new ModelAndView("checkout/index")
-                    .addObject("listing", listing);
+            return withUserListings(listing, currentUser);
         }
 
         Long buyerId = currentUser.getId();
