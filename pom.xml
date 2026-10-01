@@ -191,4 +191,19 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <!-- Environment selection depending on Maven profile -->
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>env/**</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources/env/${environment}</directory>
+      </resource>
+    </resources>
+  </build>
 </project>
