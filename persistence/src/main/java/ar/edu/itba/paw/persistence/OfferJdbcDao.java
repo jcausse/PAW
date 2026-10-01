@@ -229,6 +229,8 @@ public class OfferJdbcDao implements OfferDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .trackingNumber(rs.getString(OfferSchema.TRACKING_NUMBER))
+            .sellerRating(rs.getString(OfferSchema.SELLER_RATING))
+            .buyerRating(rs.getString(OfferSchema.BUYER_RATING))
             .build();
     };
 
@@ -266,6 +268,8 @@ public class OfferJdbcDao implements OfferDao {
             ", fs." + FileSchema.CONTENT_TYPE + " as " + OfferSchema.PROOF_OF_SHIPPING_CONTENT_TYPE +
             ", OCTET_LENGTH(fs." + FileSchema.DATA + ") as " + OfferSchema.PROOF_OF_SHIPPING_SIZE +
             ", o." + OfferSchema.TRACKING_NUMBER +
+            ", o." + OfferSchema.SELLER_RATING +
+            ", o." + OfferSchema.BUYER_RATING +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
