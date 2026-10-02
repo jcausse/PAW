@@ -7,11 +7,12 @@ import java.time.Instant;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Builder
 @ToString
 public final class Offer {
+    @EqualsAndHashCode.Include
     private final @NonNull Long id;
     private final @NonNull Listing listing;
     private final @NonNull User buyer;
@@ -34,6 +35,8 @@ public final class Offer {
     private final Instant acceptedAt;
     private final String buyerRating;
     private final String sellerRating;
+    private final Long offeredListingId;
+    private final Listing offeredListing;
 
     public Optional<Instant> getAcceptedAt() {
         return Optional.ofNullable(acceptedAt);

@@ -20,4 +20,5 @@ public final class ListingFilter {
     private final ListingStatus status;
     private final int page;
     private final int pageSize;
+    private final Boolean hasActiveOffers;
 }

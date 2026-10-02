@@ -35,6 +35,11 @@
                         <c:url value="/account/incoming-offers/${offer.id}" var="offerUrl"/>
                         <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
                         <paw:menu id="incoming${offer.id}" variant="outline" icon="ellipsis" panelWidth="w-66" panelAlign="right">
+                            <c:if test="${offer.offeredListing != null}">
+                                <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
+                                <spring:message code="offer.viewOfferedListing" var="viewOfferedListingLabel"/>
+                                <paw:linkButton href="${offeredListingUrl}" variant="ghost" icon="eye" text="${viewOfferedListingLabel}" classname="w-full justify-start" />
+                            </c:if>
                             <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
                                 <c:url value="/account/my-offers/${offer.id}/shipping" var="shippingUrl"/>
                                 <spring:message code="offer.proofOfShipping.uploadLabel" var="shippingLabel"/>

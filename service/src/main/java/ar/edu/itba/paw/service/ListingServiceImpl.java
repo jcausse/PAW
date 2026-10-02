@@ -63,6 +63,7 @@ public class ListingServiceImpl implements ListingService {
             .pageSize(dto.pageSize())
             .creatorId(dto.creatorId())
             .status(parseStatus(dto.status()))
+            .hasActiveOffers(dto.hasActiveOffers())
             .build();
 
         return listingDao.search(filter);

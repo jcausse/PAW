@@ -2,6 +2,7 @@
 <%@ attribute name="offer" required="true" type="ar.edu.itba.paw.model.Offer" %>
 <%@ attribute name="user" required="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
@@ -23,6 +24,10 @@
             </c:when>
         </c:choose>
         <paw:badge text="${statusLabel}" classname="ml-auto ${statusClass}" />
+        <c:if test="${offer.offeredListing != null}">
+            <spring:message code="offer.tradeBadge" var="tradeBadgeLabel"/>
+            <paw:badge text="${tradeBadgeLabel}" classname="text-purple-600" />
+        </c:if>
     </div>
 
     <div class="flex gap-3 mt-2">
@@ -32,19 +37,44 @@
             <paw:product product="${offer.listing.product}" size="sm" />
 
             <div class="mt-2 flex flex-row gap-4 items-end">
-                <div>
-                    <c:if test="${not offer.isFullPrice}">
-                        <p class="text-base font-medium line-through text-black/60"> $<c:out value="${offer.listing.price.amount}"/> </p>
+                <div class="flex-1">
+                    <c:if test="${offer.offeredListing != null}">
+                        <c:url value="/listing/${offer.offeredListing.id}" var="offeredListingUrl"/>
+                        <spring:message code="offer.detail.offeredItem" var="offeredItemLabel"/>
+                        <p class="text-black/60 text-xs font-semibold"><c:out value="${offeredItemLabel}"/></p>
+                        <div class="flex flex-row items-end gap-2">
+                            <paw:linkButton variant="ghost" href="${offeredListingUrl}" size="sm" classname="p-1! flex-1">
+                                <paw:listingImage listing="${offer.offeredListing}" size="sm" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-black truncate"><c:out value="${offer.offeredListing.title}"/></p>
+                                    <p class="text-xs text-black/60 font-normal">
+                                        <c:out value="${offer.offeredListing.product.brand}"/>
+                                        <c:out value="${offer.offeredListing.product.model}"/>
+                                        (<c:out value="${offer.offeredListing.product.year}"/>)
+                                    </p>
+                                    <p class="text-xs text-black/60 font-normal">$<c:out value="${offer.offeredListing.price.amount}"/></p>
+                                </div>
+                            </paw:linkButton>
+                            <c:if test="${offer.amount != null and offer.amount > 0.0}">
+                                <spring:message code="offer.tradePlusAmount" arguments="${offer.amount}" var="plusAmountLabel"/>
+                                <span class="text-2xl font-bold"><c:out value="${plusAmountLabel}"/></span>
+                            </c:if>
+                        </div>
                     </c:if>
-                    <p class="text-2xl font-bold">
-                        $<c:out value="${offer.amount}"/>
+                    <c:if test="${offer.offeredListing == null}">
                         <c:if test="${not offer.isFullPrice}">
-                            <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
-                            <c:set var="offerAmount" value="${offer.amount}"/>
-                            <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
-                            <span class="text-red-600 text-lg"> -<c:out value="${String.format('%.0f', discountPercent)}"/>%</span>
+                            <p class="text-base font-medium line-through text-black/60"> $<c:out value="${offer.listing.price.amount}"/> </p>
                         </c:if>
-                    </p>
+                        <p class="text-2xl font-bold">
+                            $<c:out value="${offer.amount}"/>
+                            <c:if test="${not offer.isFullPrice}">
+                                 <c:set var="listingPrice" value="${offer.listing.price.amount}"/>
+                                 <c:set var="offerAmount" value="${offer.amount}"/>
+                                 <c:set var="discountPercent" value="${((listingPrice - offerAmount) / listingPrice) * 100}"/>
+                                 <span class="text-red-600 text-lg"> -<fmt:formatNumber value="${discountPercent}" maxFractionDigits="0"/>%</span>
+                             </c:if>
+                        </p>
+                    </c:if>
                 </div>
 
                 <div class="max-w-48 ml-auto">
@@ -93,7 +123,7 @@
 
     <c:if test="${not empty offer.message}">
         <paw:divider />
-        <spring:message code="offer.decision.message" var="messageLabel"/>
+        <spring:message code="offer.detail.message" var="messageLabel"/>
         <paw:collapsible title="${messageLabel}">
             <p class="text-sm whitespace-pre-wrap"><c:out value="${offer.message}"/></p>
         </paw:collapsible>

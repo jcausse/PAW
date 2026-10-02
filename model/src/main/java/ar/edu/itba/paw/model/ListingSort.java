@@ -10,7 +10,9 @@ public enum ListingSort {
     PRICE_ASC("price_asc"),
     PRICE_DESC("price_desc"),
     NAME_ASC("name_asc"),
-    NAME_DESC("name_desc");
+    NAME_DESC("name_desc"),
+    MOST_OFFERS("most_offers"),
+    RECENT_OFFERS("recent_offers");
 
     @Getter private final String key;
 

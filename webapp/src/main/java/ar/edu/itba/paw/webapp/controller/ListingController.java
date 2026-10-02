@@ -65,7 +65,8 @@ public class ListingController {
             null,
             ListingStatus.ACTIVE.getStatus(),
             filterForm.getPage(),
-            DISCOVERY_PAGE_SIZE
+            DISCOVERY_PAGE_SIZE,
+            null
         );
 
         final var listingPage = listingService.search(filter);
@@ -119,8 +120,10 @@ public class ListingController {
         var listing = listingService.getById(id);
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
         var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
-        // Pending transaction listings count as sold for public viewing purposes
-        var isSold = listing.getStatus() == ListingStatus.SOLD || listing.getStatus() == ListingStatus.PENDING_TRANSACTION;
+        // Pending transaction and offered in trade listings count as sold for public viewing purposes
+        var isSold = listing.getStatus() == ListingStatus.SOLD
+                || listing.getStatus() == ListingStatus.PENDING_TRANSACTION
+                || listing.getStatus() == ListingStatus.OFFERED_IN_TRADE;
 
         var userPendingOffer = offerService.getByListingAndBuyer(listing, currentUser);
 

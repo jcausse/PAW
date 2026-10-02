@@ -26,4 +26,5 @@ public final class OfferSchema {
     public static final String ACCEPTED_AT = "accepted_at";
     public static final String BUYER_RATING = "buyer_rating";
     public static final String SELLER_RATING = "seller_rating";
+    public static final String OFFERED_LISTING_ID = "offered_listing_id";
 }

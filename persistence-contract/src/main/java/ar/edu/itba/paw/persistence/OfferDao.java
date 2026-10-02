@@ -21,7 +21,7 @@ public interface OfferDao {
 
     Page<Offer> search(OfferFilter filter);
 
-    Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt);
+    Offer create(Long listingId, User buyer, BigDecimal amount, Boolean isFullPrice, OfferStatus status, String message, Instant createdAt, Long offeredListingId);
 
     boolean updateStatus(Long offerId, OfferStatus status);
 

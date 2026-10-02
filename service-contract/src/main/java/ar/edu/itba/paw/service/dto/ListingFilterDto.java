@@ -13,5 +13,6 @@ public record ListingFilterDto(
     Long creatorId,
     String status,
     Integer page,
-    Integer pageSize
+    Integer pageSize,
+    Boolean hasActiveOffers
 ) {}
