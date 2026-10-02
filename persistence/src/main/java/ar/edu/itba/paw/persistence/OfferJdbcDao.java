@@ -361,6 +361,13 @@ public class OfferJdbcDao implements OfferDao {
             " SET " + OfferSchema.BUYER_RATING + " = ?" +
             " WHERE " + OfferSchema.ID + " = ?" +
             " AND " + OfferSchema.BUYER_RATING + " IS NULL";
+        
+        private static final String GET_ACCEPTED_UNRATED_BEFORE =
+            BASE_SELECT +
+            " WHERE o." + OfferSchema.STATUS + " = ?" +
+            " AND o." + OfferSchema.ACCEPTED_AT + " IS NOT NULL" +
+            " AND o." + OfferSchema.ACCEPTED_AT + " < ?" +
+            " AND (o." + OfferSchema.SELLER_RATING + " IS NULL OR o." + OfferSchema.BUYER_RATING + " IS NULL)";
     }
 
     @Override
@@ -432,5 +439,15 @@ public class OfferJdbcDao implements OfferDao {
     @Override
     public boolean setBuyerRating(Long offerId, OfferRating rating) {
         return jdbcTemplate.update(Queries.SET_BUYER_RATING, rating.getRating(), offerId) > 0;
+    }
+
+    @Override
+    public List<Offer> getAcceptedUnratedBefore(Instant cutoff) {
+        return jdbcTemplate.query(
+            Queries.GET_ACCEPTED_UNRATED_BEFORE,
+            ROW_MAPPER,
+            OfferStatus.ACCEPTED.getStatus(),
+            Timestamp.from(cutoff)
+        );
     }
 }

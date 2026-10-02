@@ -20,6 +20,7 @@ import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 
 import java.time.Instant;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
 
 
 @Service
@@ -41,6 +43,7 @@ public class OfferServiceImpl implements OfferService {
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
+    private static final Duration RATING_AUTO_ASSIGN_DELAY = Duration.ofDays(14);
 
     @Autowired
     public OfferServiceImpl(OfferDao offerDao, FileDao fileDao, UserDao userDao,
@@ -359,5 +362,28 @@ public class OfferServiceImpl implements OfferService {
         }
 
         return getById(offerId).orElseThrow();
+    }
+
+    @Override
+    @Scheduled(cron = "0 0 * * * ?")
+    @Transactional
+    public void autoRatePendingOffers() {
+        final Instant cutoff = Instant.now().minus(RATING_AUTO_ASSIGN_DELAY);
+        final List<Offer> pending = offerDao.getAcceptedUnratedBefore(cutoff);
+
+        for (Offer offer : pending) {
+            if (offer.getSellerRating().isEmpty()) {
+                final boolean updated = offerDao.setSellerRating(offer.getId(), OfferRating.POSITIVE);
+                if (updated) {
+                    userDao.incrementSellerRatingCounter(offer.getListing().getCreator().getId(), OfferRating.POSITIVE);
+                }
+            }
+            if (offer.getBuyerRating().isEmpty()) {
+                final boolean updated = offerDao.setBuyerRating(offer.getId(), OfferRating.POSITIVE);
+                if (updated) {
+                    userDao.incrementBuyerRatingCounter(offer.getBuyer().getId(), OfferRating.POSITIVE);
+                }
+            }
+        }
     }
 }
