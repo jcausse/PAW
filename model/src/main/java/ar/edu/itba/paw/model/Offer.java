@@ -33,8 +33,8 @@ public final class Offer {
     private final Long proofOfShippingSize;
     private final String trackingNumber;
     private final Instant acceptedAt;
-    private final String buyerRating;
-    private final String sellerRating;
+    private final OfferRating buyerRating;
+    private final OfferRating sellerRating;
     private final Long offeredListingId;
     private final Listing offeredListing;
 
@@ -43,11 +43,11 @@ public final class Offer {
     }
 
     public Optional<OfferRating> getBuyerRating() {
-        return Optional.ofNullable(buyerRating).flatMap(OfferRating::fromString);
+        return Optional.ofNullable(buyerRating);
     }
 
     public Optional<OfferRating> getSellerRating() {
-        return Optional.ofNullable(sellerRating).flatMap(OfferRating::fromString);
+        return Optional.ofNullable(sellerRating);
     }
 
     public String getProofOfPaymentExtension() {

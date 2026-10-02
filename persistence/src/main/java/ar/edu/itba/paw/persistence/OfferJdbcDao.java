@@ -230,8 +230,14 @@ public class OfferJdbcDao implements OfferDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .trackingNumber(rs.getString(OfferSchema.TRACKING_NUMBER))
-            .sellerRating(rs.getString(OfferSchema.SELLER_RATING))
-            .buyerRating(rs.getString(OfferSchema.BUYER_RATING))
+            .sellerRating(
+                    Optional.ofNullable(rs.getString(OfferSchema.SELLER_RATING))
+                            .flatMap(OfferRating::fromString)
+                            .orElse(null))
+            .buyerRating(
+                    Optional.ofNullable(rs.getString(OfferSchema.BUYER_RATING))
+                            .flatMap(OfferRating::fromString)
+                            .orElse(null))
             .offeredListingId(
                     Optional.ofNullable(rs.getObject(OfferSchema.OFFERED_LISTING_ID, Integer.class))
                             .map(Integer::longValue)

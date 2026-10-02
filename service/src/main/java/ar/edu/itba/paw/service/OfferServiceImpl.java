@@ -375,26 +375,26 @@ public class OfferServiceImpl implements OfferService {
                 .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         if (offer.getStatus() != OfferStatus.ACCEPTED) {
-            throw new BadParameterException("Solo se pueden calificar ofertas aceptadas");
+            throw new BadParameterException("Only accepted offers can be rated");
         }
 
         final boolean isBuyer = offer.getBuyer().getId().equals(currentUser.getId());
         final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUser.getId());
 
         if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("No participaste en esta oferta");
+            throw new ForbiddenException("You did not participate in this offer");
         }
 
         if (isBuyer) {
             final boolean updated = offerDao.setSellerRating(offerId, rating);
             if (!updated) {
-                throw new BadParameterException("Ya calificaste esta oferta");
+                throw new BadParameterException("You have already rated this offer");
             }
             userDao.incrementSellerRatingCounter(offer.getListing().getCreator().getId(), rating);
         } else {
             final boolean updated = offerDao.setBuyerRating(offerId, rating);
             if (!updated) {
-                throw new BadParameterException("Ya calificaste esta oferta");
+                throw new BadParameterException("You have already rated this offer");
             }
             userDao.incrementBuyerRatingCounter(offer.getBuyer().getId(), rating);
         }
