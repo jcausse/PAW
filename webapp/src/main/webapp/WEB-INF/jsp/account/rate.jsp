@@ -27,12 +27,6 @@
 <spring:message code="account.rate.reviewPlaceholder" var="reviewPlaceholder"/>
 <spring:message code="account.rate.reviewHint" var="reviewHint"/>
 
-<c:set var="ratingOptions" value="#{T(java.util.Arrays).asList(
-    new java.util.AbstractMap.SimpleEntry('POSITIVE', positiveLabel),
-    new java.util.AbstractMap.SimpleEntry('NEUTRAL', neutralLabel),
-    new java.util.AbstractMap.SimpleEntry('NEGATIVE', negativeLabel)
-)}"/>
-
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="account.rate.title" />
 
@@ -85,7 +79,25 @@
             <!-- Rating selection -->
             <div>
                 <label class="block text-sm font-medium text-black/60 mb-2"><c:out value="${ratingLabel}"/></label>
-                <paw:ratingToggle path="rating" items="${ratingOptions}" selectedOption="${rateForm.rating}" />
+                <div class="flex flex-row gap-2" id="rating_base">
+                    <form:radiobutton path="rating" id="rating_POSITIVE" value="POSITIVE" cssClass="hidden" />
+                    <label for="rating_POSITIVE" class="grow flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'POSITIVE' ? 'border-lime-500 bg-lime-50' : 'border-black/10 hover:border-black/10'}" >
+                        <paw:icon name="arrow-up" classname="text-3xl text-lime-600" />
+                        <span class="text-sm font-medium text-lime-600"><c:out value="${positiveLabel}"/></span>
+                    </label>
+
+                    <form:radiobutton path="rating" id="rating_NEUTRAL" value="NEUTRAL" cssClass="hidden" />
+                    <label for="rating_NEUTRAL" class="grow flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEUTRAL' ? 'border-stone-500 bg-stone-50' : 'border-black/10 hover:border-black/10'}" >
+                        <paw:icon name="minus" classname="text-3xl text-stone-500" />
+                        <span class="text-sm font-medium text-black/60"><c:out value="${neutralLabel}"/></span>
+                    </label>
+
+                    <form:radiobutton path="rating" id="rating_NEGATIVE" value="NEGATIVE" cssClass="hidden" />
+                    <label for="rating_NEGATIVE" class="grow flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEGATIVE' ? 'border-red-500 bg-red-50' : 'border-black/10 hover:border-black/10'}" >
+                        <paw:icon name="arrow-down" classname="text-3xl text-red-600" />
+                        <span class="text-sm font-medium text-red-600"><c:out value="${negativeLabel}"/></span>
+                    </label>
+                </div>
                 <form:errors path="rating" cssClass="text-red-600 text-sm mt-1" element="div"/>
             </div>
 
