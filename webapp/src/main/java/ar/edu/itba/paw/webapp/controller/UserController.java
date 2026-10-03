@@ -2,9 +2,11 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.RatingRole;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EmailVerificationService;
 import ar.edu.itba.paw.service.ListingService;
+import ar.edu.itba.paw.service.RatingService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
@@ -13,6 +15,7 @@ import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.webapp.auth.AuthHelper;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.RatingFilterForm;
 import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
@@ -39,15 +42,18 @@ public class UserController {
 
     private final UserService userService;
     private final ListingService listingService;
+    private final RatingService ratingService;
     private final EmailVerificationService emailVerificationService;
     private final AuthHelper authHelper;
 
     private static final int PROFILE_LISTINGS_PAGE_SIZE = 5;
+    private static final int PROFILE_RATINGS_PAGE_SIZE = 5;
 
     /* PROFILE */
 
     @GetMapping("/profile/{id}")
-    public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
+    public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser,
+                                @ModelAttribute("ratingFilterForm") RatingFilterForm ratingFilterForm) {
         LOGGER.debug("Accessing profile for user id: {}", id);
         final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
         final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
@@ -66,11 +72,39 @@ public class UserController {
         final var listingPage = listingService.search(filter);
         final var listings = listingPage.getContent();
 
+        // Default role to SELLER if not provided
+        String role = ratingFilterForm.getRole();
+        if (role == null || role.isBlank()) {
+            role = RatingRole.SELLER.getRole();
+            ratingFilterForm.setRole(role);
+        }
+
+        // Default type to null (all) if not provided
+        String type = ratingFilterForm.getType();
+        if (type != null && type.isBlank()) {
+            type = null;
+        }
+
+        int page = ratingFilterForm.getPage() != null ? ratingFilterForm.getPage() : 1;
+
+        var ratingFilter = ar.edu.itba.paw.model.RatingFilter.builder()
+                .ratedId(user.getId())
+                .roles(role != null ? java.util.List.of(RatingRole.fromString(role).orElse(RatingRole.SELLER)) : null)
+                .types(type != null ? java.util.List.of(ar.edu.itba.paw.model.OfferRating.fromString(type).orElse(null)) : null)
+                .page(page)
+                .pageSize(PROFILE_RATINGS_PAGE_SIZE)
+                .build();
+
+        final var ratingPage = ratingService.get(ratingFilter);
+        final var ratings = ratingPage.getContent();
+
         return new ModelAndView("profile")
                 .addObject("user", user)
                 .addObject("allowEdit", isSelfRequest)
                 .addObject("listings", listings)
-                .addObject("listingPage", listingPage);
+                .addObject("listingPage", listingPage)
+                .addObject("ratingPage", ratingPage)
+                .addObject("ratings", ratings);
     }
 
     @GetMapping("/profile")

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -15,6 +16,31 @@
 <spring:message code="profile.ratings.neutral" var="ratingNeutral"/>
 <spring:message code="profile.ratings.negative" var="ratingNegative"/>
 <spring:message code="profile.ratings.total" var="ratingTotal"/>
+<spring:message code="profile.ratings.filter.role" var="ratingFilterRole"/>
+<spring:message code="profile.ratings.filter.type" var="ratingFilterType"/>
+<spring:message code="profile.ratings.filter.all" var="ratingFilterAll"/>
+<spring:message code="profile.ratings.filter.seller" var="ratingFilterSeller"/>
+<spring:message code="profile.ratings.filter.buyer" var="ratingFilterBuyer"/>
+<spring:message code="profile.ratings.filter.positive" var="ratingFilterPositive"/>
+<spring:message code="profile.ratings.filter.neutral" var="ratingFilterNeutral"/>
+<spring:message code="profile.ratings.filter.negative" var="ratingFilterNegative"/>
+<spring:message code="profile.ratings.empty" var="ratingEmpty"/>
+
+<c:url value="/profile/${user.id}" var="profileUrl"/>
+<c:url value="/profile/${user.id}" var="filterAction"/>
+<c:url value="/profile/${user.id}" var="listingsBaseUrl"/>
+
+<c:set var="roleOptions" value="#{T(java.util.Arrays).asList(
+    new java.util.AbstractMap.SimpleEntry('seller', ratingFilterSeller),
+    new java.util.AbstractMap.SimpleEntry('buyer', ratingFilterBuyer)
+)}"/>
+
+<c:set var="typeOptions" value="#{T(java.util.Arrays).asList(
+    new java.util.AbstractMap.SimpleEntry('', ratingFilterAll),
+    new java.util.AbstractMap.SimpleEntry('positive', ratingFilterPositive),
+    new java.util.AbstractMap.SimpleEntry('neutral', ratingFilterNeutral),
+    new java.util.AbstractMap.SimpleEntry('negative', ratingFilterNegative)
+)}"/>
 
 <html lang="${pageContext.response.locale.language}">
 <paw:head title="${user.displayName}"/>
@@ -92,6 +118,87 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Ratings list with filters -->
+            <paw:divider />
+
+            <form:form modelAttribute="ratingFilterForm" action="${filterAction}" method="get" id="ratingFilterForm" class="mt-4">
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterRole}"/></label>
+                        <paw:formButtonToggle path="role" items="${roleOptions}" selectedOption="${ratingFilterForm.role}" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterType}"/></label>
+                        <paw:formButtonToggle path="type" items="${typeOptions}" selectedOption="${ratingFilterForm.type}" />
+                    </div>
+                </div>
+            </form:form>
+
+            <c:choose>
+                <c:when test="${empty ratings}">
+                    <div class="text-center py-8">
+                        <p class="text-black/50"><c:out value="${ratingEmpty}"/></p>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="flex flex-col gap-4">
+                        <c:forEach var="rating" items="${ratings}" varStatus="loop">
+                            <div class="p-4 bg-white border border-black/10 rounded-lg">
+                                <div class="flex flex-row gap-4 mb-2">
+                                    <c:choose>
+                                        <c:when test="${rating.type.name() == 'POSITIVE'}">
+                                            <paw:icon name="arrow-up" classname="text-2xl text-lime-600 mt-1" />
+                                        </c:when>
+                                        <c:when test="${rating.type.name() == 'NEUTRAL'}">
+                                            <paw:icon name="minus" classname="text-2xl text-stone-500 mt-1" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <paw:icon name="arrow-down" classname="text-2xl text-red-600 mt-1" />
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <div class="flex-1">
+                                        <div class="flex flex-row gap-2 items-center mb-1">
+                                            <span class="font-medium text-black"><c:out value="${rating.listing.title}"/></span>
+                                            <c:choose>
+                                                <c:when test="${rating.type.name() == 'POSITIVE'}">
+                                                    <span class="text-xs text-lime-600 font-medium px-2 py-0.5 bg-lime-50 rounded"><c:out value="${ratingFilterPositive}"/></span>
+                                                </c:when>
+                                                <c:when test="${rating.type.name() == 'NEUTRAL'}">
+                                                    <span class="text-xs text-stone-500 font-medium px-2 py-0.5 bg-stone-50 rounded"><c:out value="${ratingFilterNeutral}"/></span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="text-xs text-red-600 font-medium px-2 py-0.5 bg-red-50 rounded"><c:out value="${ratingFilterNegative}"/></span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                            <c:choose>
+                                                <c:when test="${rating.role.name() == 'SELLER'}">
+                                                    <span class="text-xs text-black/50 px-2 py-0.5 bg-black/5 rounded"><c:out value="${ratingFilterSeller}"/></span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="text-xs text-black/50 px-2 py-0.5 bg-black/5 rounded"><c:out value="${ratingFilterBuyer}"/></span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <p class="text-sm text-black/60 mt-1 whitespace-pre-wrap"><c:out value="${rating.reviewText}"/></p>
+                                    </div>
+                                    <div class="flex flex-col items-end">
+                                        <paw:user user="${rating.creator}" variant="compact" />
+                                        <span class="text-xs text-black/50">
+                                            <spring:message code="profile.memberSince" arguments="${rating.createdAt.toEpochMilli()}"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                <c:if test="${!loop.last}">
+                                    <paw:divider />
+                                </c:if>
+                            </div>
+                        </c:forEach>
+
+                        <paw:pagination page="${ratingPage}" baseUrl="/profile/${user.id}"/>
+                    </div>
+                </c:otherwise>
+            </c:choose>
         </paw:card>
 
         <paw:card title="${listingsTitle}">
