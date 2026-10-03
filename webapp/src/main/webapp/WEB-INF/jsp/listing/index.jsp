@@ -53,6 +53,19 @@
                         <paw:divider />
 
                         <paw:user user="${listing.creator}" showSellerRating="true" />
+
+                        <p class="text-sm text-black/60 flex items-center gap-1">
+                            <paw:icon name="map-pin" />
+                            <c:choose>
+                                <c:when test="${listing.creator.province.present}">
+                                    <spring:message code="province.${listing.creator.province.get().name}" var="sellerProvinceLabel"/>
+                                    <c:out value="${sellerProvinceLabel}"/><c:if test="${listing.creator.locationDetail.present}">, <c:out value="${listing.creator.locationDetail.get()}"/></c:if>
+                                </c:when>
+                                <c:otherwise>
+                                    <spring:message code="profile.location.notSpecified"/>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
                         
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 

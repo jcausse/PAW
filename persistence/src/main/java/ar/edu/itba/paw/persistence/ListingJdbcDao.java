@@ -9,6 +9,7 @@ import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
@@ -16,6 +17,7 @@ import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
+import ar.edu.itba.paw.persistence.schema.ProvinceSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.util.ArrayList;
@@ -273,6 +275,8 @@ public class ListingJdbcDao implements ListingDao {
                     .sellerPositiveRatings(rs.getInt(UserSchema.SELLER_POSITIVE_RATINGS))
                     .sellerNeutralRatings(rs.getInt(UserSchema.SELLER_NEUTRAL_RATINGS))
                     .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
+                    .province(mapCreatorProvince(rs))
+                    .locationDetail(rs.getString("creator_location_detail"))
                     .build()
             )
             .product(
@@ -298,6 +302,17 @@ public class ListingJdbcDao implements ListingDao {
             .imageIds(parseImageIds(rs.getString("image_ids")))
             .pendingOffersCount(rs.getInt("pending_offers_count"))
             .build();
+
+    private static Province mapCreatorProvince(final java.sql.ResultSet rs) throws java.sql.SQLException {
+        final Integer provinceId = rs.getObject("creator_province_id", Integer.class);
+        if (provinceId == null) {
+            return null;
+        }
+        return Province.builder()
+            .id(provinceId.longValue())
+            .name(rs.getString("creator_province_name"))
+            .build();
+    }
 
     private static List<Long> parseImageIds(String imageIdsStr) {
         if (imageIdsStr == null || imageIdsStr.isEmpty()) {
@@ -332,6 +347,9 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.SELLER_POSITIVE_RATINGS,
             "c." + UserSchema.SELLER_NEUTRAL_RATINGS,
             "c." + UserSchema.SELLER_NEGATIVE_RATINGS,
+            "c." + UserSchema.PROVINCE_ID + " as creator_province_id",
+            "c." + UserSchema.LOCATION_DETAIL + " as creator_location_detail",
+            "cpr." + ProvinceSchema.NAME + " as creator_province_name",
             "p." + ProductSchema.ID,
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,
@@ -352,6 +370,7 @@ public class ListingJdbcDao implements ListingDao {
         private static final String BASE_FROM =
             " FROM " + ListingSchema.TABLE_NAME + " AS l" +
             " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+            " LEFT JOIN " + ProvinceSchema.TABLE_NAME + " AS cpr ON cpr." + ProvinceSchema.ID + " = c." + UserSchema.PROVINCE_ID +
             " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
             " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID;

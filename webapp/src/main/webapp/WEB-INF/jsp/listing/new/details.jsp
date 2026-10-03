@@ -82,7 +82,9 @@
                         <spring:message code="listing.new.condition.select" var="conditionPlaceholder"/>
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${conditionPlaceholder}"
                                         items="${conditionOptions}" itemLabel="label" itemValue="value" />
+                    </div>
 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4 items-start">
                         <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
                         <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
 
