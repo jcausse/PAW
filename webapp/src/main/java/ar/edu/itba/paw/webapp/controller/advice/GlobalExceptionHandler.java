@@ -82,4 +82,11 @@ public class GlobalExceptionHandler {
         return new ModelAndView("error/badRequest")
             .addObject("messageCode", "fileSizeExceeded");
     }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ModelAndView handleException(Exception ex) {
+        LOGGER.error("Unexpected error", ex);
+        return new ModelAndView("error/internalServerError");
+    }
 }
