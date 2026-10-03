@@ -18,9 +18,7 @@
     <div class="flex flex-row w-full gap-2 relative" id="${path}_base">
         <c:forEach var="option" items="${items}">
             <form:radiobutton path="${path}" id="${path}_${option.getValue()}" value="${option.getValue()}" cssClass="hidden" />
-            <label for="${path}_${option.getValue()}" class="grow flex flex-col" >
-                <paw:fakeButton text="${option.getLabel()}" variant="ghost" on="${option.getValue() == selectedOption ? 'true' : 'false'}" />
-            </label>
+            <paw:fakeButton htmlFor="${path}_${option.getValue()}" text="${option.getLabel()}" variant="ghost" classname="grow" on="${option.getValue() == selectedOption ? 'true' : 'false'}" />
         </c:forEach>
     </div>
 

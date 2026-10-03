@@ -31,16 +31,13 @@
 <paw:head titleKey="account.rate.title" />
 
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
-    <!-- Back link -->
     <div class="mb-4">
         <spring:message code="${isBuyer ? 'account.incomingOffers.title' : 'account.myOffers.title'}" var="backLabel"/>
         <paw:linkButton href="${backUrlResolved}" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
     </div>
 
     <paw:card classname="flex flex-col gap-4 max-w-2xl mx-auto">
-        <!-- Offer information section -->
         <div class="flex flex-col gap-4">
-            <!-- Listing info -->
             <div class="flex flex-row gap-4">
                 <paw:listingImage listing="${offer.listing}" size="lg" />
                 <div class="flex-1 min-w-0 flex flex-col justify-center">
@@ -57,58 +54,35 @@
                 </div>
             </div>
 
-            <!-- Buyer/Seller info (user being rated) -->
             <div class="flex flex-row gap-4">
                 <paw:user user="${ratedUser}" variant="compact" />
-                <div class="flex-1 flex flex-col justify-center">
-                    <spring:message code="${ratingTargetLabel}" var="ratingUserLabel"/>
-                    <p class="text-sm font-medium text-black"><c:out value="${ratingUserLabel}"/></p>
-                    <p class="text-sm text-black/60">
-                        <spring:message code="account.rate.userJoined" arguments="${ratedUser.joinedAt}" var="joinedLabel"/>
-                        <c:out value="${joinedLabel}"/>
-                    </p>
-                </div>
             </div>
         </div>
 
         <paw:divider />
 
-        <!-- Rating form -->
         <form:form modelAttribute="rateForm" action="${rateFormUrl}" method="POST" class="flex flex-col gap-4">
-
-            <!-- Rating selection -->
             <div>
                 <label class="block text-sm font-medium text-black/60 mb-2"><c:out value="${ratingLabel}"/></label>
-                <div class="flex flex-row gap-2" id="rating_base">
-                    <form:radiobutton path="rating" id="rating_POSITIVE" value="POSITIVE" cssClass="hidden" />
-                    <label for="rating_POSITIVE" class="grow flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'POSITIVE' ? 'border-lime-500 bg-lime-50' : 'border-black/10 hover:border-black/10'}" >
-                        <paw:icon name="arrow-up" classname="text-3xl text-lime-600" />
-                        <span class="text-sm font-medium text-lime-600"><c:out value="${positiveLabel}"/></span>
-                    </label>
+                <div class="flex flex-row w-full gap-2 relative" id="${path}_base">
+                    <form:radiobutton path="rating" id="rating_POSITIVE" value="POSITIVE" cssClass="sr-only peer/rating_POSITIVE" />
+                    <paw:fakeButton htmlFor="rating_POSITIVE" text="${positiveLabel}" icon="arrow-up" variant="ghost" classname="grow" />
 
-                    <form:radiobutton path="rating" id="rating_NEUTRAL" value="NEUTRAL" cssClass="hidden" />
-                    <label for="rating_NEUTRAL" class="grow flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEUTRAL' ? 'border-stone-500 bg-stone-50' : 'border-black/10 hover:border-black/10'}" >
-                        <paw:icon name="minus" classname="text-3xl text-stone-500" />
-                        <span class="text-sm font-medium text-black/60"><c:out value="${neutralLabel}"/></span>
-                    </label>
+                    <form:radiobutton path="rating" id="rating_NEUTRAL" value="NEUTRAL" cssClass="sr-only peer/rating_NEUTRAL" />
+                    <paw:fakeButton htmlFor="rating_NEUTRAL" text="${neutralLabel}" icon="minus" variant="ghost" role="secondary" classname="grow" />
 
-                    <form:radiobutton path="rating" id="rating_NEGATIVE" value="NEGATIVE" cssClass="hidden" />
-                    <label for="rating_NEGATIVE" class="grow flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEGATIVE' ? 'border-red-500 bg-red-50' : 'border-black/10 hover:border-black/10'}" >
-                        <paw:icon name="arrow-down" classname="text-3xl text-red-600" />
-                        <span class="text-sm font-medium text-red-600"><c:out value="${negativeLabel}"/></span>
-                    </label>
+                    <form:radiobutton path="rating" id="rating_NEGATIVE" value="NEGATIVE" cssClass="sr-only peer/rating_NEGATIVE" />
+                    <paw:fakeButton htmlFor="rating_NEGATIVE" text="${negativeLabel}" icon="arrow-down" variant="ghost" role="danger" classname="grow" />
                 </div>
                 <form:errors path="rating" cssClass="text-red-600 text-sm mt-1" element="div"/>
             </div>
 
-            <!-- Review text -->
             <div>
-                <paw:formInput path="reviewText" type="textarea" label="${reviewLabel}" placeholder="${reviewPlaceholder}" />
+                <paw:formInput path="reviewText" type="textarea" label="${reviewLabel}" placeholder="${reviewPlaceholder}" inputClassname="min-h-40 resize-none" />
                 <p class="text-xs text-black/60 mt-1"><c:out value="${reviewHint}"/></p>
                 <form:errors path="reviewText" cssClass="text-red-600 text-sm mt-1" element="div"/>
             </div>
 
-            <!-- Submit button -->
             <div class="pt-4">
                 <spring:message code="account.rate.submit" var="submitLabel"/>
                 <paw:button type="submit" variant="default" size="lg" classname="w-full" text="${submitLabel}"/>
