@@ -113,6 +113,26 @@
                                             <c:out value="${acceptsTradeMsg}"/>
                                         </p>
                                     </c:if>
+                                    <c:choose>
+                                        <c:when test="${listing.acceptsShipping}">
+                                            <spring:message code="listing.detail.ships" var="shippingMsg"/>
+                                            <p class="text-lime-600 text-sm flex items-center gap-2">
+                                                <span class="text-sm text-lime-600 bg-lime-50 border border-lime-200 rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                                                    <paw:icon name="truck" />
+                                                </span>
+                                                <c:out value="${shippingMsg}"/>
+                                            </p>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <spring:message code="listing.detail.doesNotShip" var="shippingMsg"/>
+                                            <p class="text-black/50 text-sm flex items-center gap-2">
+                                                <span class="text-sm text-black/40 bg-black/5 border border-black/10 rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                                                    <paw:icon name="truck" />
+                                                </span>
+                                                <c:out value="${shippingMsg}"/>
+                                            </p>
+                                        </c:otherwise>
+                                    </c:choose>
                                     <spring:message code="listing.detail.makeOffer" var="makeOfferLabel"/>
                                     <c:url value="/checkout?listingId=${listing.id}" var="checkoutUrl"/>
                                     <paw:linkButton href="${checkoutUrl}" size="lg" classname="w-full" text="${makeOfferLabel}"/>

@@ -85,6 +85,9 @@
 
                         <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
                         <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
+
+                        <spring:message code="listing.new.acceptsShippingLabel" var="acceptsShippingLabel"/>
+                        <paw:formCheckbox path="acceptsShipping" label="${acceptsShippingLabel}" />
                     </div>
 
                     <spring:message code="listing.new.descriptionLabel" var="descriptionLabel"/>
