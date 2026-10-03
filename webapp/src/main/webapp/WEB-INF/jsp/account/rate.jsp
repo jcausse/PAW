@@ -57,20 +57,12 @@
             <!-- Buyer/Seller info (user being rated) -->
             <div class="flex flex-row gap-4">
                 <paw:user user="${ratedUser}" variant="compact" />
-                <div class="flex-1 flex flex-col justify-center">
-                    <spring:message code="${ratingTargetLabel}" var="ratingUserLabel"/>
-                    <p class="text-sm font-medium text-black"><c:out value="${ratingUserLabel}"/></p>
-                    <p class="text-sm text-black/60">
-                        <spring:message code="account.rate.userJoined" arguments="${ratedUser.joinedAt}" var="joinedLabel"/>
-                        <c:out value="${joinedLabel}"/>
-                    </p>
-                </div>
             </div>
         </div>
 
         <!-- Rating form -->
         <form:form modelAttribute="rateForm" action="${rateFormUrl}" method="POST" class="flex flex-col gap-4">
-            
+
             <!-- Rating selection -->
             <div>
                 <spring:message code="account.rate.ratingLabel" var="ratingLabel"/>
@@ -79,25 +71,25 @@
                     <spring:message code="account.rate.positive" var="positiveLabel"/>
                     <spring:message code="account.rate.neutral" var="neutralLabel"/>
                     <spring:message code="account.rate.negative" var="negativeLabel"/>
-                    
+
                     <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'POSITIVE' ? 'border-lime-500 bg-lime-50' : 'border-black/10 hover:border-black/10'}">
-                        <input type="radio" name="rating" value="POSITIVE" 
+                        <input type="radio" name="rating" value="POSITIVE"
                                <c:if test="${rateForm.rating == 'POSITIVE'}">checked</c:if>
                                class="sr-only" required/>
                         <paw:icon name="arrow-up" classname="text-3xl text-lime-600" />
                         <span class="text-sm font-medium text-lime-600"><c:out value="${positiveLabel}"/></span>
                     </label>
-                    
+
                     <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEUTRAL' ? 'border-stone-500 bg-stone-50' : 'border-black/10 hover:border-black/10'}">
-                        <input type="radio" name="rating" value="NEUTRAL" 
+                        <input type="radio" name="rating" value="NEUTRAL"
                                <c:if test="${rateForm.rating == 'NEUTRAL'}">checked</c:if>
                                class="sr-only" required/>
                         <paw:icon name="minus" classname="text-3xl text-stone-500" />
                         <span class="text-sm font-medium text-black/60"><c:out value="${neutralLabel}"/></span>
                     </label>
-                    
+
                     <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEGATIVE' ? 'border-red-500 bg-red-50' : 'border-black/10 hover:border-black/10'}">
-                        <input type="radio" name="rating" value="NEGATIVE" 
+                        <input type="radio" name="rating" value="NEGATIVE"
                                <c:if test="${rateForm.rating == 'NEGATIVE'}">checked</c:if>
                                class="sr-only" required/>
                         <paw:icon name="arrow-down" classname="text-3xl text-red-600" />
