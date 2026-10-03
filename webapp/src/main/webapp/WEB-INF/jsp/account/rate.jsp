@@ -12,22 +12,21 @@
 <spring:message code="account.rate.title" var="titleMsg"/>
 <spring:message code="account.rate.subtitle" var="subtitleMsg"/>
 
+<c:set var="isBuyer" value="${currentUser.isPresent() and offer.buyer.id == currentUser.get().id}"/>
+<c:set var="ratedUser" value="${isBuyer ? offer.listing.creator : offer.buyer}"/>
+<c:set var="ratingTargetLabel" value="${isBuyer ? 'account.rate.ratingSeller' : 'account.rate.ratingBuyer'}"/>
+
+<c:url value="${isBuyer ? incomingOffersUrl : myOffersUrl}" var="backUrl"/>
+<c:url value="${isBuyer ? incomingOffersUrl : myOffersUrl}?statusGroup=resolved" var="backUrlResolved"/>
+
 <html lang="${pageContext.response.locale.language}">
 <paw:head titleKey="account.rate.title" />
 
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <!-- Back link -->
     <div class="mb-4">
-        <c:choose>
-            <c:when test="${rateForm.role == 'SELLER'}">
-                <spring:message code="account.incomingOffers.title" var="backLabel"/>
-                <paw:linkButton href="${incomingOffersUrl}?statusGroup=resolved" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
-            </c:when>
-            <c:otherwise>
-                <spring:message code="account.myOffers.title" var="backLabel"/>
-                <paw:linkButton href="${myOffersUrl}?statusGroup=resolved" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
-            </c:otherwise>
-        </c:choose>
+        <spring:message code="${isBuyer ? 'account.incomingOffers.title' : 'account.myOffers.title'}" var="backLabel"/>
+        <paw:linkButton href="${backUrlResolved}" text="${backLabel}" variant="ghost" icon="chevron-left" classname="justify-start" />
     </div>
 
     <paw:card classname="flex flex-col gap-4 max-w-2xl mx-auto">
@@ -57,19 +56,12 @@
 
             <!-- Buyer/Seller info (user being rated) -->
             <div class="flex flex-row gap-4">
-                <paw:user user="${rateForm.role == 'SELLER' ? offer.listing.creator : offer.buyer}" variant="compact" />
+                <paw:user user="${ratedUser}" variant="compact" />
                 <div class="flex-1 flex flex-col justify-center">
-                    <c:choose>
-                        <c:when test="${rateForm.role == 'SELLER'}">
-                            <spring:message code="account.rate.ratingSeller" var="ratingUserLabel"/>
-                        </c:when>
-                        <c:otherwise>
-                            <spring:message code="account.rate.ratingBuyer" var="ratingUserLabel"/>
-                        </c:otherwise>
-                    </c:choose>
+                    <spring:message code="${ratingTargetLabel}" var="ratingUserLabel"/>
                     <p class="text-sm font-medium text-stone-700"><c:out value="${ratingUserLabel}"/></p>
                     <p class="text-sm text-stone-500">
-                        <spring:message code="account.rate.userJoined" arguments="${(rateForm.role == 'SELLER' ? offer.listing.creator : offer.buyer).joinedAt}" var="joinedLabel"/>
+                        <spring:message code="account.rate.userJoined" arguments="${ratedUser.joinedAt}" var="joinedLabel"/>
                         <c:out value="${joinedLabel}"/>
                     </p>
                 </div>
@@ -78,24 +70,39 @@
 
         <!-- Rating form -->
         <form:form modelAttribute="rateForm" action="${rateFormUrl}" method="POST" class="flex flex-col gap-4">
-            <!-- Hidden fields -->
-            <form:hidden path="role"/>
             
             <!-- Rating selection -->
             <div>
                 <spring:message code="account.rate.ratingLabel" var="ratingLabel"/>
                 <label class="block text-sm font-medium text-stone-700 mb-2"><c:out value="${ratingLabel}"/></label>
                 <div class="flex flex-row gap-4" role="radiogroup" aria-label="${ratingLabel}">
-                    <c:forEach var="ratingOption" items="${ratingOptions}">
-                        <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == ratingOption.value ? 'border-lime-500 bg-lime-50' : 'border-stone-200 hover:border-stone-300'}">
-                            <input type="radio" name="rating" value="${ratingOption.value}" 
-                                   <c:if test="${rateForm.rating == ratingOption.value}">checked</c:if>
-                                   class="sr-only" required/>
-                            <paw:icon name="${ratingOption.icon}" classname="text-3xl ${ratingOption.iconColor}" />
-                            <spring:message code="account.rate.${ratingOption.value.toLowerCase()}" var="ratingOptionLabel"/>
-                            <span class="text-sm font-medium ${ratingOption.textColor}"><c:out value="${ratingOptionLabel}"/></span>
-                        </label>
-                    </c:forEach>
+                    <spring:message code="account.rate.positive" var="positiveLabel"/>
+                    <spring:message code="account.rate.neutral" var="neutralLabel"/>
+                    <spring:message code="account.rate.negative" var="negativeLabel"/>
+                    
+                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == 'POSITIVE' ? 'border-lime-500 bg-lime-50' : 'border-stone-200 hover:border-stone-300'}">
+                        <input type="radio" name="rating" value="POSITIVE" 
+                               <c:if test="${rateForm.rating == 'POSITIVE'}">checked</c:if>
+                               class="sr-only" required/>
+                        <paw:icon name="arrow-up" classname="text-3xl text-lime-600" />
+                        <span class="text-sm font-medium text-lime-700"><c:out value="${positiveLabel}"/></span>
+                    </label>
+                    
+                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == 'NEUTRAL' ? 'border-stone-500 bg-stone-50' : 'border-stone-200 hover:border-stone-300'}">
+                        <input type="radio" name="rating" value="NEUTRAL" 
+                               <c:if test="${rateForm.rating == 'NEUTRAL'}">checked</c:if>
+                               class="sr-only" required/>
+                        <paw:icon name="minus" classname="text-3xl text-stone-500" />
+                        <span class="text-sm font-medium text-stone-600"><c:out value="${neutralLabel}"/></span>
+                    </label>
+                    
+                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == 'NEGATIVE' ? 'border-red-500 bg-red-50' : 'border-stone-200 hover:border-stone-300'}">
+                        <input type="radio" name="rating" value="NEGATIVE" 
+                               <c:if test="${rateForm.rating == 'NEGATIVE'}">checked</c:if>
+                               class="sr-only" required/>
+                        <paw:icon name="arrow-down" classname="text-3xl text-red-600" />
+                        <span class="text-sm font-medium text-red-700"><c:out value="${negativeLabel}"/></span>
+                    </label>
                 </div>
                 <form:errors path="rating" cssClass="text-red-600 text-sm mt-1" element="div"/>
             </div>

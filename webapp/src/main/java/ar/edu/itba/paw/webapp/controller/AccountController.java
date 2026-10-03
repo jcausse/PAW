@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.OfferRating;
-import ar.edu.itba.paw.model.RatingRole;
 import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingSort;
@@ -42,8 +41,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-record RatingOption(String value, String icon, String iconColor, String textColor) {}
 
 @RequiredArgsConstructor
 @Controller
@@ -342,7 +339,7 @@ public class AccountController {
     // Rate offer page
     @GetMapping("/rate/{offerId}")
     public ModelAndView showRateForm(@PathVariable Long offerId, @CurrentUser User currentUser,
-                                      @RequestParam(required = false) RatingRole role,
+                                      @ModelAttribute("rateForm") RateForm rateForm,
                                       @RequestParam(required = false) OfferRating rating) {
         final Offer offer = offerService.getById(offerId)
                 .orElseThrow(() -> NotFoundException.createFor("Offer"));
@@ -359,39 +356,18 @@ public class AccountController {
             throw new ForbiddenException("You did not participate in this offer");
         }
 
-        // Determine the role if not provided
-        if (role == null) {
-            role = isBuyer ? RatingRole.SELLER : RatingRole.BUYER;
-        }
-
-        // Verify the role matches the user's position in the offer
-        if ((isBuyer && role != RatingRole.SELLER) || (isSeller && role != RatingRole.BUYER)) {
-            throw new BadParameterException("Invalid role for this offer");
-        }
-
         // Check if already rated
         boolean alreadyRated = isBuyer ? offer.getSellerRating().isPresent() : offer.getBuyerRating().isPresent();
         if (alreadyRated) {
             throw new BadParameterException("You have already rated this offer");
         }
 
-        RateForm rateForm = new RateForm();
-        rateForm.setRole(role);
         if (rating != null) {
             rateForm.setRating(rating);
         }
 
-        final var locale = LocaleContextHolder.getLocale();
-        final var ratingOptions = List.of(
-                new RatingOption("POSITIVE", "arrow-up", "text-lime-600", "text-lime-700"),
-                new RatingOption("NEUTRAL", "minus", "text-stone-500", "text-stone-600"),
-                new RatingOption("NEGATIVE", "arrow-down", "text-red-600", "text-red-700")
-        );
-
         var mav = new ModelAndView("account/rate");
         mav.addObject("offer", offer);
-        mav.addObject("rateForm", rateForm);
-        mav.addObject("ratingOptions", ratingOptions);
         mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
         return mav;
     }
@@ -401,39 +377,20 @@ public class AccountController {
                                         @CurrentUser User currentUser,
                                         @Valid @ModelAttribute("rateForm") RateForm rateForm,
                                         BindingResult bindingResult) {
-        final Offer offer = offerService.getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        if (offer.getStatus() != OfferStatus.ACCEPTED) {
-            throw new BadParameterException("Only accepted offers can be rated");
-        }
-
-        final Long currentUserId = currentUser.getId();
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
-
-        if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("You did not participate in this offer");
-        }
-
-        // Verify the role matches the user's position in the offer
-        if ((isBuyer && rateForm.getRole() != RatingRole.SELLER) || (isSeller && rateForm.getRole() != RatingRole.BUYER)) {
-            throw new BadParameterException("Invalid role for this offer");
-        }
-
-        // Check if already rated
-        boolean alreadyRated = isBuyer ? offer.getSellerRating().isPresent() : offer.getBuyerRating().isPresent();
-        if (alreadyRated) {
-            throw new BadParameterException("You have already rated this offer");
-        }
-
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("account/rate");
+            final Offer offer = offerService.getById(offerId)
+                    .orElseThrow(() -> NotFoundException.createFor("Offer"));
             mav.addObject("offer", offer);
             return mav;
         }
 
         offerService.rate(offerId, currentUser, rateForm.getRating(), rateForm.getReviewText());
+
+        final Offer offer = offerService.getById(offerId)
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+        final Long currentUserId = currentUser.getId();
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
 
         String redirectUrl = isBuyer ? "/account/incoming-offers?statusGroup=resolved" : "/account/my-offers?statusGroup=resolved";
         return new ModelAndView("redirect:" + redirectUrl);
