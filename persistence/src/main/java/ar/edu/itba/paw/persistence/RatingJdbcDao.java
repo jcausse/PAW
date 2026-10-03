@@ -185,6 +185,28 @@ public class RatingJdbcDao implements RatingDao {
         Long categoryId = rs.getObject("category_id", Integer.class) != null
                 ? rs.getLong("category_id")
                 : null;
+        Long creatorId = rs.getObject("listing_creator_id", Integer.class) != null
+                ? rs.getLong("listing_creator_id")
+                : null;
+        Long creatorImageId = rs.getObject("listing_creator_image_id", Integer.class) != null
+                ? rs.getLong("listing_creator_image_id")
+                : null;
+        java.time.Instant creatorJoinedAt = rs.getTimestamp("listing_creator_joined_at") != null
+                ? rs.getTimestamp("listing_creator_joined_at").toInstant()
+                : null;
+
+        User creator = null;
+        if (creatorId != null) {
+            creator = User.builder()
+                    .id(creatorId)
+                    .username(rs.getString("listing_creator_username"))
+                    .displayName(rs.getString("listing_creator_display_name"))
+                    .email(rs.getString("listing_creator_email"))
+                    .password("<redacted>")
+                    .imageId(creatorImageId)
+                    .joinedAt(creatorJoinedAt)
+                    .build();
+        }
 
         return Listing.builder()
                 .id(listingId)
@@ -194,6 +216,7 @@ public class RatingJdbcDao implements RatingDao {
                 .status(ListingStatus.fromString(rs.getString("listing_status")).orElse(ListingStatus.ACTIVE))
                 .condition(Condition.fromString(rs.getString("listing_condition")).orElse(Condition.GOOD))
                 .acceptsTrade(rs.getBoolean("listing_accepts_trade"))
+                .creator(creator)
                 .product(
                         Product.builder()
                                 .id(productId)
@@ -236,6 +259,7 @@ public class RatingJdbcDao implements RatingDao {
             ", l." + ListingSchema.CONDITION + " as listing_condition" +
             ", l." + ListingSchema.ACCEPTS_TRADE + " as listing_accepts_trade" +
             ", l." + ListingSchema.PRODUCT_ID + " as product_id" +
+            ", l." + ListingSchema.CREATOR_ID + " as listing_creator_id" +
             ", p." + ProductSchema.ID + " as product_id" +
             ", p." + ProductSchema.BRAND + " as product_brand" +
             ", p." + ProductSchema.MODEL + " as product_model" +
@@ -246,11 +270,18 @@ public class RatingJdbcDao implements RatingDao {
             ", s." + SubcategorySchema.CATEGORY_ID + " as category_id" +
             ", cat." + CategorySchema.ID + " as category_id" +
             ", cat." + CategorySchema.NAME + " as category_name" +
+            ", lc." + UserSchema.ID + " as listing_creator_id" +
+            ", lc." + UserSchema.USERNAME + " as listing_creator_username" +
+            ", lc." + UserSchema.DISPLAY_NAME + " as listing_creator_display_name" +
+            ", lc." + UserSchema.EMAIL + " as listing_creator_email" +
+            ", lc." + UserSchema.IMAGE_ID + " as listing_creator_image_id" +
+            ", lc." + UserSchema.JOINED_AT + " as listing_creator_joined_at" +
             " FROM " + RatingSchema.TABLE_NAME + " r" +
             " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = r." + RatingSchema.CREATOR_ID +
             " JOIN " + UserSchema.TABLE_NAME + " rt ON rt." + UserSchema.ID + " = r." + RatingSchema.RATED_ID +
             " LEFT JOIN " + OfferSchema.TABLE_NAME + " o ON o." + OfferSchema.ID + " = r." + RatingSchema.OFFER_ID +
             " LEFT JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
+            " LEFT JOIN " + UserSchema.TABLE_NAME + " lc ON lc." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
             " LEFT JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
             " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
