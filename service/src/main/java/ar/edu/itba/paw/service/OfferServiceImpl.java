@@ -14,7 +14,6 @@ import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.FileDao;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.model.RatingRole;
-import ar.edu.itba.paw.service.RatingService;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
