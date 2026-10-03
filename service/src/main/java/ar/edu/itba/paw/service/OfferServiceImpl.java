@@ -13,6 +13,8 @@ import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.FileDao;
 import ar.edu.itba.paw.persistence.UserDao;
+import ar.edu.itba.paw.model.RatingRole;
+import ar.edu.itba.paw.service.RatingService;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
@@ -43,17 +45,20 @@ public class OfferServiceImpl implements OfferService {
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
+    private final RatingService ratingService;
     private static final Duration RATING_AUTO_ASSIGN_DELAY = Duration.ofDays(14);
 
     @Autowired
     public OfferServiceImpl(OfferDao offerDao, FileDao fileDao, UserDao userDao,
-                            UserService userService, @Lazy ListingService listingService, MailingService mailingService) {
+                            UserService userService, @Lazy ListingService listingService,
+                            MailingService mailingService, RatingService ratingService) {
         this.offerDao = offerDao;
         this.fileDao = fileDao;
         this.userDao = userDao;
         this.userService = userService;
         this.listingService = listingService;
         this.mailingService = mailingService;
+        this.ratingService = ratingService;
     }
 
     @Override
@@ -371,6 +376,12 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer rate(Long offerId, User currentUser, OfferRating rating) {
+        return rate(offerId, currentUser, rating, null);
+    }
+
+    @Override
+    @Transactional
+    public Offer rate(Long offerId, User currentUser, OfferRating rating, String reviewText) {
         final Offer offer = getById(offerId)
                 .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
@@ -383,6 +394,12 @@ public class OfferServiceImpl implements OfferService {
 
         if (!isBuyer && !isSeller) {
             throw new ForbiddenException("You did not participate in this offer");
+        }
+
+        final RatingRole role = isBuyer ? RatingRole.SELLER : RatingRole.BUYER;
+
+        if (reviewText != null && !reviewText.isBlank()) {
+            ratingService.create(currentUser.getId(), offer.getListing().getCreator().getId(), offerId, role, rating, reviewText.trim());
         }
 
         if (isBuyer) {
