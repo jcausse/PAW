@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.Rating;
@@ -15,5 +16,5 @@ public interface RatingService {
 
     Page<Rating> get(RatingFilter filter);
 
-    Rating create(Long creatorId, Long ratedId, Long offerId, RatingRole role, OfferRating type, String reviewText);
+    Rating create(User creator, User rated, Offer offer, RatingRole role, OfferRating type, String reviewText);
 }

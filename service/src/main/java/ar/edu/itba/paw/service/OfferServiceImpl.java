@@ -396,7 +396,7 @@ public class OfferServiceImpl implements OfferService {
         final RatingRole role = isBuyer ? RatingRole.SELLER : RatingRole.BUYER;
 
         if (reviewText != null && !reviewText.isBlank()) {
-            ratingService.create(currentUser.getId(), offer.getListing().getCreator().getId(), offer.getId(), role, rating, reviewText.trim());
+            ratingService.create(currentUser, offer.getListing().getCreator(), offer, role, rating, reviewText.trim());
         }
 
         if (isBuyer) {
