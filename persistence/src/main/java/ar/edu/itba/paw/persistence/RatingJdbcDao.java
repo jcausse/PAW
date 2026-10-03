@@ -1,14 +1,24 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Condition;
+import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.model.Page;
+import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Rating;
 import ar.edu.itba.paw.model.RatingFilter;
 import ar.edu.itba.paw.model.RatingRole;
+import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.persistence.schema.CategorySchema;
+import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
+import ar.edu.itba.paw.persistence.schema.ProductSchema;
 import ar.edu.itba.paw.persistence.schema.RatingSchema;
+import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 
 import java.sql.Timestamp;
@@ -144,19 +154,68 @@ public class RatingJdbcDao implements RatingDao {
             .joinedAt(rs.getTimestamp("rated_joined_at").toInstant())
             .build();
 
+        Listing listing = buildListing(rs);
+
         return Rating.builder()
             .id(rs.getLong(RatingSchema.ID))
             .creator(creator)
             .rated(rated)
-            .offer(Offer.builder()
-                .id(rs.getLong(OfferSchema.ID))
-                .build())
+            .listing(listing)
             .role(RatingRole.fromString(rs.getString(RatingSchema.ROLE)).orElseThrow())
             .type(OfferRating.fromString(rs.getString(RatingSchema.TYPE)).orElseThrow())
             .reviewText(rs.getString(RatingSchema.REVIEW_TEXT))
             .createdAt(rs.getTimestamp(RatingSchema.CREATED_AT).toInstant())
             .build();
     };
+
+    private static Listing buildListing(java.sql.ResultSet rs) throws java.sql.SQLException {
+        Long listingId = rs.getObject("listing_id", Integer.class) != null
+                ? rs.getLong("listing_id")
+                : null;
+        if (listingId == null) {
+            return null;
+        }
+
+        Long productId = rs.getObject("product_id", Integer.class) != null
+                ? rs.getLong("product_id")
+                : null;
+        Long subcategoryId = rs.getObject("subcategory_id", Integer.class) != null
+                ? rs.getLong("subcategory_id")
+                : null;
+        Long categoryId = rs.getObject("category_id", Integer.class) != null
+                ? rs.getLong("category_id")
+                : null;
+
+        return Listing.builder()
+                .id(listingId)
+                .title(rs.getString("listing_title"))
+                .price(new Price(rs.getBigDecimal("listing_price")))
+                .description(rs.getString("listing_description"))
+                .status(ListingStatus.fromString(rs.getString("listing_status")).orElse(ListingStatus.ACTIVE))
+                .condition(Condition.fromString(rs.getString("listing_condition")).orElse(Condition.GOOD))
+                .acceptsTrade(rs.getBoolean("listing_accepts_trade"))
+                .product(
+                        Product.builder()
+                                .id(productId)
+                                .brand(rs.getString("product_brand"))
+                                .model(rs.getString("product_model"))
+                                .year(rs.getObject("product_year", Integer.class))
+                                .subcategory(
+                                        Subcategory.builder()
+                                                .id(subcategoryId)
+                                                .name(rs.getString("subcategory_name"))
+                                                .category(
+                                                        Category.builder()
+                                                                .id(categoryId)
+                                                                .name(rs.getString("category_name"))
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+    }
 
     private static final class Queries {
         private static final String BASE_SELECT =
@@ -169,11 +228,32 @@ public class RatingJdbcDao implements RatingDao {
             ", rt." + UserSchema.ID + " as rated_id, rt." + UserSchema.USERNAME + " as rated_username" +
             ", rt." + UserSchema.DISPLAY_NAME + " as rated_display_name, rt." + UserSchema.EMAIL + " as rated_email" +
             ", rt." + UserSchema.IMAGE_ID + " as rated_image_id, rt." + UserSchema.JOINED_AT + " as rated_joined_at" +
-            ", o." + OfferSchema.ID +
+            ", l." + ListingSchema.ID + " as listing_id" +
+            ", l." + ListingSchema.TITLE + " as listing_title" +
+            ", l." + ListingSchema.DESCRIPTION + " as listing_description" +
+            ", l." + ListingSchema.PRICE + " as listing_price" +
+            ", l." + ListingSchema.STATUS + " as listing_status" +
+            ", l." + ListingSchema.CONDITION + " as listing_condition" +
+            ", l." + ListingSchema.ACCEPTS_TRADE + " as listing_accepts_trade" +
+            ", l." + ListingSchema.PRODUCT_ID + " as product_id" +
+            ", p." + ProductSchema.ID + " as product_id" +
+            ", p." + ProductSchema.BRAND + " as product_brand" +
+            ", p." + ProductSchema.MODEL + " as product_model" +
+            ", p." + ProductSchema.YEAR + " as product_year" +
+            ", p." + ProductSchema.SUBCATEGORY_ID + " as subcategory_id" +
+            ", s." + SubcategorySchema.ID + " as subcategory_id" +
+            ", s." + SubcategorySchema.NAME + " as subcategory_name" +
+            ", s." + SubcategorySchema.CATEGORY_ID + " as category_id" +
+            ", cat." + CategorySchema.ID + " as category_id" +
+            ", cat." + CategorySchema.NAME + " as category_name" +
             " FROM " + RatingSchema.TABLE_NAME + " r" +
             " JOIN " + UserSchema.TABLE_NAME + " c ON c." + UserSchema.ID + " = r." + RatingSchema.CREATOR_ID +
             " JOIN " + UserSchema.TABLE_NAME + " rt ON rt." + UserSchema.ID + " = r." + RatingSchema.RATED_ID +
-            " LEFT JOIN " + OfferSchema.TABLE_NAME + " o ON o." + OfferSchema.ID + " = r." + RatingSchema.OFFER_ID;
+            " LEFT JOIN " + OfferSchema.TABLE_NAME + " o ON o." + OfferSchema.ID + " = r." + RatingSchema.OFFER_ID +
+            " LEFT JOIN " + ListingSchema.TABLE_NAME + " l ON l." + ListingSchema.ID + " = o." + OfferSchema.LISTING_ID +
+            " LEFT JOIN " + ProductSchema.TABLE_NAME + " p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
+            " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " s ON s." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
+            " LEFT JOIN " + CategorySchema.TABLE_NAME + " cat ON cat." + CategorySchema.ID + " = s." + SubcategorySchema.CATEGORY_ID;
 
         private static final String GET_BY_ID =
             BASE_SELECT +
