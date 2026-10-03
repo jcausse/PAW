@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS ratings (
     offer_id BIGINT NOT NULL REFERENCES offers(offer_id),
     role VARCHAR(10) NOT NULL CHECK (role IN ('buyer', 'seller')),
     type VARCHAR(10) NOT NULL CHECK (type IN ('positive', 'neutral', 'negative')),
-    review_text TEXT,
+    review_text TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
