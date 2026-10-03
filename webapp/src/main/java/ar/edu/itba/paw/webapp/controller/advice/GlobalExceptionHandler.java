@@ -16,56 +16,69 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /* Routes that do not have a mapping fall here */
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNoHandlerFound() {
+    public ModelAndView handleNoHandlerFound(NoHandlerFoundException ex) {
+        LOGGER.warn("No handler found: {}", ex.getMessage());
         return new ModelAndView("error/notFound");
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleGenericNotFound() {
+    public ModelAndView handleGenericNotFound(NotFoundException ex) {
+        LOGGER.warn("Resource not found: {}", ex.getMessage());
         return new ModelAndView("error/notFound");
     }
 
     @ExceptionHandler(BadParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleBadParameter() {
+    public ModelAndView handleBadParameter(BadParameterException ex) {
+        LOGGER.warn("Bad parameter: {}", ex.getMessage());
         return new ModelAndView("error/badRequest");
     }
 
     @ExceptionHandler({BindException.class, MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleBadRequestBinding() {
+    public ModelAndView handleBadRequestBinding(Exception ex) {
+        LOGGER.warn("Bad request binding: {}", ex.getMessage());
         return new ModelAndView("error/badRequest");
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleUserNotFound() {
+    public ModelAndView handleUserNotFound(UserNotFoundException ex) {
+        LOGGER.warn("User not found: {}", ex.getMessage());
         return new ModelAndView("error/notFound")
             .addObject("messageCode", "userNotFound");
     }
 
     @ExceptionHandler(UserNotAuthenticatedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ModelAndView handleUserNotAuthenticated() {
+    public ModelAndView handleUserNotAuthenticated(UserNotAuthenticatedException ex) {
+        LOGGER.warn("Unauthenticated access attempt");
         return new ModelAndView("error/unauthorized");
     }
 
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ModelAndView handleForbidden() {
+    public ModelAndView handleForbidden(ForbiddenException ex) {
+        LOGGER.warn("Forbidden access: {}", ex.getMessage());
         return new ModelAndView("error/forbidden");
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
-    public ModelAndView handleMaxUploadSizeExceeded() {
+    public ModelAndView handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        LOGGER.warn("Upload size exceeded: {}", ex.getMessage());
         return new ModelAndView("error/badRequest")
             .addObject("messageCode", "fileSizeExceeded");
     }

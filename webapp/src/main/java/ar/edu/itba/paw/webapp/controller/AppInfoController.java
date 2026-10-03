@@ -3,12 +3,16 @@ package ar.edu.itba.paw.webapp.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @PropertySource(value = "classpath:git.properties", ignoreResourceNotFound = true)
 public class AppInfoController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppInfoController.class);
 
     @Value("${git.commit.id:unknown}")
     private String commitId;
@@ -34,6 +38,7 @@ public class AppInfoController {
     @GetMapping(value = "/appinfo", produces = "text/plain;charset=UTF-8")
     @ResponseBody
     public String appInfo() {
+        LOGGER.debug("Accessing app info");
         return String.join("\n",
                 "Build Time: " + buildTime,
                 "Build Version: " + buildVersion,

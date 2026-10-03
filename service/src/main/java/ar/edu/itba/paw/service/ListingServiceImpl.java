@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class ListingServiceImpl implements ListingService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListingServiceImpl.class);
 
     private final ListingDao listingDao;
 
@@ -49,6 +53,8 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public Page<Listing> search(ListingFilterDto dto) {
         Objects.requireNonNull(dto, "ListingFilterDto cannot be null");
+        LOGGER.debug("Searching listings: query='{}', categoryId={}, status={}, sort={}, page={}",
+                dto.query(), dto.categoryId(), dto.status(), dto.sort(), dto.page());
 
         final var filter = ListingFilter.builder()
             .categoryId(dto.categoryId())
@@ -99,6 +105,7 @@ public class ListingServiceImpl implements ListingService {
     @Transactional
     public Listing create(ListingCreationDto dto) {
         Objects.requireNonNull(dto, "ListingCreationDto cannot be null");
+        LOGGER.debug("Creating listing: title='{}', creatorId={}, productId={}", dto.title(), dto.creatorId(), dto.productId());
 
         User creator = userService.getById(dto.creatorId())
                 .orElseThrow(() -> new BadParameterException("Invalid creatorId"));
@@ -139,6 +146,9 @@ public class ListingServiceImpl implements ListingService {
             imageIds
         );
 
+        LOGGER.info("Listing created: id={}, title='{}', creatorId={}, price={}, images={}",
+                listing.getId(), listing.getTitle(), creator.getId(), dto.price(), imageIds.size());
+
         mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
 
         return listing;
@@ -147,6 +157,7 @@ public class ListingServiceImpl implements ListingService {
     @Override
     @Transactional
     public Listing purchase(Long id, Long buyerId, String message) {
+        LOGGER.info("Processing purchase: listingId={}, buyerId={}", id, buyerId);
         var listing = listingDao
             .getById(id)
             .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
@@ -161,12 +172,14 @@ public class ListingServiceImpl implements ListingService {
         mailingService.sendPurchaseSellerEmail(seller, buyer, listing, message, locale);
         mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
 
+        LOGGER.info("Listing purchased: id={}, buyerId={}, sellerId={}", id, buyerId, seller.getId());
         return listing;
     }
 
     @Override
     @Transactional
     public Listing pendingTransaction(Long id, Long buyerId, String message) {
+        LOGGER.debug("Setting listing to pending transaction: listingId={}, buyerId={}", id, buyerId);
         var listing = listingDao
             .getById(id)
             .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
@@ -180,6 +193,7 @@ public class ListingServiceImpl implements ListingService {
     @Transactional
     public Listing update(ListingUpdateDto dto) {
         Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
+        LOGGER.debug("Updating listing id={}", dto.listingId());
 
         var existing = getById(dto.listingId());
 
@@ -196,7 +210,7 @@ public class ListingServiceImpl implements ListingService {
         final Condition condition = Condition.fromString(dto.condition())
             .orElseThrow(() -> BadParameterException.create("condition", "Invalid condition value"));
 
-        return listingDao.update(
+        var updated = listingDao.update(
             existing.getId(),
             dto.title(),
             dto.price(),
@@ -205,19 +219,24 @@ public class ListingServiceImpl implements ListingService {
             dto.acceptsTrade(),
             dto.description()
         );
+        LOGGER.info("Listing updated: id={}, title='{}'", updated.getId(), updated.getTitle());
+        return updated;
     }
 
     @Override
     @Transactional
     public void cancel(Long id) {
+        LOGGER.info("Canceling listing id={}", id);
         getById(id);
         offerService.rejectPendingOffersForListing(id, null);
         listingDao.cancel(id);
+        LOGGER.info("Listing canceled: id={}", id);
     }
 
     @Override
     @Transactional
     public void updateStatus(Long id, ListingStatus status) {
+        LOGGER.debug("Updating listing status: id={}, newStatus={}", id, status);
         listingDao.updateStatus(id, status);
     }
 }

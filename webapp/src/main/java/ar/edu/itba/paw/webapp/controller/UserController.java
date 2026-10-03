@@ -75,6 +75,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ModelAndView currentUserProfile(@CurrentUser User currentUser) {
+        LOGGER.debug("Accessing current user profile for user {}", currentUser.getId());
         return new ModelAndView("profile")
                 .addObject("user", currentUser)
                 .addObject("allowEdit", true);
@@ -84,6 +85,7 @@ public class UserController {
 
     @GetMapping("/profile/edit")
     public ModelAndView editProfileForm(@CurrentUser User currentUser, @ModelAttribute("userEditForm") UserEditForm form) {
+        LOGGER.debug("Accessing profile edit form for user {}", currentUser.getId());
         form.setDisplayName(currentUser.getDisplayName());
         return new ModelAndView("profileEdit")
                 .addObject("user", currentUser);
@@ -96,6 +98,7 @@ public class UserController {
             BindingResult errors
     ) {
         if (errors.hasErrors()) {
+            LOGGER.debug("Validation failed for user {} profile edit", currentUser.getId());
             return new ModelAndView("profileEdit")
                     .addObject("user", currentUser);
         }
@@ -110,12 +113,14 @@ public class UserController {
                     form.getProfilePicture().getContentType()
                 );
             } catch (java.io.IOException e) {
+                LOGGER.error("Failed to read profile picture for user {}", currentUser.getId(), e);
                 errors.rejectValue("profilePicture", "error.image.upload");
                 return new ModelAndView("profileEdit")
                         .addObject("user", currentUser);
             }
         }
 
+        LOGGER.info("User {} profile edit submitted", currentUser.getId());
         LOGGER.debug("User {} updating profile", currentUser.getUsername());
         User updatedUser = userService.update(new UserEditDto(
             currentUser,
@@ -133,15 +138,18 @@ public class UserController {
 
     @GetMapping("/register")
     public ModelAndView registerForm(@ModelAttribute("userForm") UserForm form) {
+        LOGGER.debug("Accessing register form");
         return new ModelAndView("register");
     }
 
     @PostMapping("/register")
     public ModelAndView register(@Valid @ModelAttribute("userForm") UserForm form, BindingResult errors) {
         if (errors.hasErrors()) {
+            LOGGER.debug("Validation failed for registration form");
             return registerForm(form);
         }
 
+        LOGGER.info("User registration submitted: {}", form.getUsername());
         LOGGER.debug("Registering new user with username: {}", form.getUsername());
 
         // Extract image from form
@@ -154,6 +162,7 @@ public class UserController {
                     form.getProfilePicture().getContentType()
                 );
             } catch (java.io.IOException e) {
+                LOGGER.error("Failed to read profile picture for registration of username {}", form.getUsername(), e);
                 errors.rejectValue("profilePicture", "error.image.upload");
                 return registerForm(form);
             }
@@ -176,6 +185,7 @@ public class UserController {
 
     @GetMapping("/login")
     public ModelAndView loginForm() {
+        LOGGER.debug("Accessing login form");
         return new ModelAndView("login");
     }
 }
