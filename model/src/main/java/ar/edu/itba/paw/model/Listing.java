@@ -19,6 +19,7 @@ public final class Listing {
     private final @NonNull ListingStatus status;
     private final @NonNull Condition condition;
     private final boolean acceptsTrade;
+    private final boolean acceptsShipping;
     private final List<Long> imageIds;
     private final int pendingOffersCount;
 }
