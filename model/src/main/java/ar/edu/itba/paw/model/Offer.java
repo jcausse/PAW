@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -31,8 +32,23 @@ public final class Offer {
     private final String proofOfShippingContentType;
     private final Long proofOfShippingSize;
     private final String trackingNumber;
+    private final Instant acceptedAt;
+    private final OfferRating buyerRating;
+    private final OfferRating sellerRating;
     private final Long offeredListingId;
     private final Listing offeredListing;
+
+    public Optional<Instant> getAcceptedAt() {
+        return Optional.ofNullable(acceptedAt);
+    }
+
+    public Optional<OfferRating> getBuyerRating() {
+        return Optional.ofNullable(buyerRating);
+    }
+
+    public Optional<OfferRating> getSellerRating() {
+        return Optional.ofNullable(sellerRating);
+    }
 
     public String getProofOfPaymentExtension() {
         if (proofOfPaymentFilename == null || proofOfPaymentFilename.isBlank()) {

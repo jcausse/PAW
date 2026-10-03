@@ -265,6 +265,9 @@ public class ListingJdbcDao implements ListingDao {
                                     .orElse(null)
                     )
                     .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
+                    .sellerPositiveRatings(rs.getInt(UserSchema.SELLER_POSITIVE_RATINGS))
+                    .sellerNeutralRatings(rs.getInt(UserSchema.SELLER_NEUTRAL_RATINGS))
+                    .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
                     .build()
             )
             .product(
@@ -320,6 +323,9 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.EMAIL,
             "c." + UserSchema.IMAGE_ID,
             "c." + UserSchema.JOINED_AT,
+            "c." + UserSchema.SELLER_POSITIVE_RATINGS,
+            "c." + UserSchema.SELLER_NEUTRAL_RATINGS,
+            "c." + UserSchema.SELLER_NEGATIVE_RATINGS,
             "p." + ProductSchema.ID,
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,

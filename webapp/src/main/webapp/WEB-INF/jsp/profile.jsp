@@ -8,6 +8,13 @@
 <spring:message code="profile.listings.title" var="listingsTitle"/>
 <spring:message code="profile.listings.empty" var="listingsEmpty"/>
 <spring:message code="profile.listings.view" var="viewListingLabel"/>
+<spring:message code="profile.ratings.title" var="ratingsTitle"/>
+<spring:message code="profile.ratings.asSeller" var="ratingsAsSeller"/>
+<spring:message code="profile.ratings.asBuyer" var="ratingsAsBuyer"/>
+<spring:message code="profile.ratings.positive" var="ratingPositive"/>
+<spring:message code="profile.ratings.neutral" var="ratingNeutral"/>
+<spring:message code="profile.ratings.negative" var="ratingNegative"/>
+<spring:message code="profile.ratings.total" var="ratingTotal"/>
 
 <html lang="${pageContext.response.locale.language}">
 <paw:head title="${user.displayName}"/>
@@ -32,6 +39,57 @@
                             <paw:linkButton href="${editUrl}" text="${editLabel}" size="sm" variant="outline"/>
                         </div>
                     </c:if>
+                </div>
+            </div>
+        </paw:card>
+
+        <paw:card title="${ratingsTitle}">
+            <c:set var="sellerBalance" value="${user.sellerRatingBalance}"/>
+            <c:set var="buyerBalance" value="${user.buyerRatingBalance}"/>
+
+            <div class="flex flex-col sm:flex-row gap-8 mt-2">
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">
+                        <c:out value="${ratingsAsSeller}"/>:
+                        <c:choose>
+                            <c:when test="${sellerBalance > 0}">
+                                <span class="text-green-600 font-bold">+<c:out value="${sellerBalance}"/></span>
+                            </c:when>
+                            <c:when test="${sellerBalance < 0}">
+                                <span class="text-red-600 font-bold"><c:out value="${sellerBalance}"/></span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="text-neutral-500 font-bold">0</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </h3>
+                    <div class="flex gap-4 text-sm text-neutral-600">
+                        <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.sellerPositiveRatings}"/></span></span>
+                        <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.sellerNeutralRatings}"/></span>
+                        <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.sellerNegativeRatings}"/></span></span>
+                    </div>
+                </div>
+
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">
+                        <c:out value="${ratingsAsBuyer}"/>:
+                        <c:choose>
+                            <c:when test="${buyerBalance > 0}">
+                                <span class="text-green-600 font-bold">+<c:out value="${buyerBalance}"/></span>
+                            </c:when>
+                            <c:when test="${buyerBalance < 0}">
+                                <span class="text-red-600 font-bold"><c:out value="${buyerBalance}"/></span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="text-neutral-500 font-bold">0</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </h3>
+                    <div class="flex gap-4 text-sm text-neutral-600">
+                        <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.buyerPositiveRatings}"/></span></span>
+                        <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.buyerNeutralRatings}"/></span>
+                        <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.buyerNegativeRatings}"/></span></span>
+                    </div>
                 </div>
             </div>
         </paw:card>

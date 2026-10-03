@@ -12,6 +12,7 @@ import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.FileSchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
@@ -229,6 +230,14 @@ public class OfferJdbcDao implements OfferDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .trackingNumber(rs.getString(OfferSchema.TRACKING_NUMBER))
+            .sellerRating(
+                    Optional.ofNullable(rs.getString(OfferSchema.SELLER_RATING))
+                            .flatMap(OfferRating::fromString)
+                            .orElse(null))
+            .buyerRating(
+                    Optional.ofNullable(rs.getString(OfferSchema.BUYER_RATING))
+                            .flatMap(OfferRating::fromString)
+                            .orElse(null))
             .offeredListingId(
                     Optional.ofNullable(rs.getObject(OfferSchema.OFFERED_LISTING_ID, Integer.class))
                             .map(Integer::longValue)
@@ -345,6 +354,8 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", fs." + FileSchema.CONTENT_TYPE + " as " + OfferSchema.PROOF_OF_SHIPPING_CONTENT_TYPE +
             ", OCTET_LENGTH(fs." + FileSchema.DATA + ") as " + OfferSchema.PROOF_OF_SHIPPING_SIZE +
             ", o." + OfferSchema.TRACKING_NUMBER +
+            ", o." + OfferSchema.SELLER_RATING +
+            ", o." + OfferSchema.BUYER_RATING +
             ", o." + OfferSchema.OFFERED_LISTING_ID +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
@@ -443,6 +454,31 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?" +
             " AND (?::bigint IS NULL OR " + OfferSchema.ID + " != ?)";
+
+        private static final String MARK_ACCEPTED =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.STATUS + " = ?" +
+            ", " + OfferSchema.ACCEPTED_AT + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?";
+
+        private static final String SET_SELLER_RATING =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.SELLER_RATING + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.SELLER_RATING + " IS NULL";
+
+        private static final String SET_BUYER_RATING =
+            "UPDATE " + OfferSchema.TABLE_NAME +
+            " SET " + OfferSchema.BUYER_RATING + " = ?" +
+            " WHERE " + OfferSchema.ID + " = ?" +
+            " AND " + OfferSchema.BUYER_RATING + " IS NULL";
+        
+        private static final String GET_ACCEPTED_UNRATED_BEFORE =
+            BASE_SELECT +
+            " WHERE o." + OfferSchema.STATUS + " = ?" +
+            " AND o." + OfferSchema.ACCEPTED_AT + " IS NOT NULL" +
+            " AND o." + OfferSchema.ACCEPTED_AT + " < ?" +
+            " AND (o." + OfferSchema.SELLER_RATING + " IS NULL OR o." + OfferSchema.BUYER_RATING + " IS NULL)";
     }
 
     @Override
@@ -494,5 +530,35 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
     @Override
     public boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber) {
         return jdbcTemplate.update(Queries.UPDATE_PROOF_OF_SHIPPING, proofOfShippingId, trackingNumber, offerId) > 0;
+    }
+
+    @Override
+    public boolean markAccepted(Long offerId, Instant acceptedAt) {
+        return jdbcTemplate.update(
+            Queries.MARK_ACCEPTED,
+            OfferStatus.ACCEPTED.getStatus(),
+            Timestamp.from(acceptedAt),
+            offerId
+        ) > 0;
+    }
+
+    @Override
+    public boolean setSellerRating(Long offerId, OfferRating rating) {
+        return jdbcTemplate.update(Queries.SET_SELLER_RATING, rating.getRating(), offerId) > 0;
+    }
+
+    @Override
+    public boolean setBuyerRating(Long offerId, OfferRating rating) {
+        return jdbcTemplate.update(Queries.SET_BUYER_RATING, rating.getRating(), offerId) > 0;
+    }
+
+    @Override
+    public List<Offer> getAcceptedUnratedBefore(Instant cutoff) {
+        return jdbcTemplate.query(
+            Queries.GET_ACCEPTED_UNRATED_BEFORE,
+            ROW_MAPPER,
+            OfferStatus.ACCEPTED.getStatus(),
+            Timestamp.from(cutoff)
+        );
     }
 }

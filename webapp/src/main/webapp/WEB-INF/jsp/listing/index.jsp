@@ -52,7 +52,8 @@
 
                         <paw:divider />
 
-                        <paw:user user="${listing.creator}" />
+                        <paw:user user="${listing.creator}" showSellerRating="true" />
+                        
                         <p class="text-3xl font-bold">$<c:out value="${listing.price.getAmount()}"/></p>
 
                         <c:choose>

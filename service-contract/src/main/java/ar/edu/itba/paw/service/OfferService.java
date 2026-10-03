@@ -7,6 +7,7 @@ import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
+import ar.edu.itba.paw.model.OfferRating;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,9 @@ public interface OfferService {
     Optional<File> getProofOfPaymentFile(Long offerId);
 
     Optional<File> getProofOfShippingFile(Long offerId);
+
+    Offer rate(Long offerId, User currentUser, OfferRating rating);
+
+    @SuppressWarnings("unused") 
+    void autoRatePendingOffers();
 }
