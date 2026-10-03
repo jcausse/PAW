@@ -142,6 +142,7 @@ public class ListingServiceImpl implements ListingService {
             product,
             condition,
             dto.acceptsTrade(),
+            dto.acceptsShipping(),
             dto.description(),
             imageIds
         );
@@ -217,6 +218,7 @@ public class ListingServiceImpl implements ListingService {
             product,
             condition,
             dto.acceptsTrade(),
+            dto.acceptsShipping(),
             dto.description()
         );
         LOGGER.info("Listing updated: id={}, title='{}'", updated.getId(), updated.getTitle());

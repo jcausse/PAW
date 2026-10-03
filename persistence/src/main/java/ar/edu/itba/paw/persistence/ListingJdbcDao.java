@@ -164,6 +164,7 @@ public class ListingJdbcDao implements ListingDao {
         Product product,
         Condition condition,
         boolean acceptsTrade,
+        boolean acceptsShipping,
         String description,
         List<Long> imageIds
     ) {
@@ -176,6 +177,7 @@ public class ListingJdbcDao implements ListingDao {
         values.put(ListingSchema.STATUS, ListingStatus.ACTIVE.getStatus());
         values.put(ListingSchema.CONDITION, condition.getCondition());
         values.put(ListingSchema.ACCEPTS_TRADE, acceptsTrade);
+        values.put(ListingSchema.ACCEPTS_SHIPPING, acceptsShipping);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -197,6 +199,7 @@ public class ListingJdbcDao implements ListingDao {
             .status(ListingStatus.ACTIVE)
             .condition(condition)
             .acceptsTrade(acceptsTrade)
+            .acceptsShipping(acceptsShipping)
             .imageIds(imageIds != null ? imageIds : List.of())
             .pendingOffersCount(0)
             .build();
@@ -232,11 +235,12 @@ public class ListingJdbcDao implements ListingDao {
         Product product,
         Condition condition,
         boolean acceptsTrade,
+        boolean acceptsShipping,
         String description
     ) {
         jdbcTemplate.update(
             Queries.UPDATE_BY_ID,
-            title, description, product.getId(), price.getAmount(), condition.getCondition(),acceptsTrade, id
+            title, description, product.getId(), price.getAmount(), condition.getCondition(), acceptsTrade, acceptsShipping, id
         );
         return getById(id).orElseThrow();
     }
@@ -252,6 +256,7 @@ public class ListingJdbcDao implements ListingDao {
             .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
             .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
             .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
+            .acceptsShipping(rs.getBoolean(ListingSchema.ACCEPTS_SHIPPING))
             .creator(
                 User.builder()
                     .id(rs.getLong(UserSchema.ID))
@@ -317,6 +322,7 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.STATUS,
             ListingSchema.CONDITION,
             ListingSchema.ACCEPTS_TRADE,
+            ListingSchema.ACCEPTS_SHIPPING,
             "c." + UserSchema.ID,
             "c." + UserSchema.USERNAME,
             "c." + UserSchema.DISPLAY_NAME,
@@ -374,7 +380,8 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.PRODUCT_ID + " = ?, " +
             ListingSchema.PRICE + " = ?, " +
             ListingSchema.CONDITION + " = ?, " +
-            ListingSchema.ACCEPTS_TRADE + " = ? " +
+            ListingSchema.ACCEPTS_TRADE + " = ?, " +
+            ListingSchema.ACCEPTS_SHIPPING + " = ? " +
             "WHERE " + ListingSchema.ID + " = ?";
         
         private static final String DELETE_BY_ID =

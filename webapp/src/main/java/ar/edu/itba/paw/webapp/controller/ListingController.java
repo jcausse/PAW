@@ -319,6 +319,7 @@ public class ListingController {
                 form.getProductId(),
                 form.getCondition(),
                 form.isAcceptsTrade(),
+                form.isAcceptsShipping(),
                 form.getDescription()
             ));
             return new ModelAndView("redirect:/listing/" + updated.getId());
@@ -331,6 +332,7 @@ public class ListingController {
                 form.getProductId(),
                 form.getCondition(),
                 form.isAcceptsTrade(),
+                form.isAcceptsShipping(),
                 form.getDescription(),
                 imageDataList
         ));
