@@ -63,13 +63,15 @@ public class OfferController {
         return new ModelAndView("redirect:/account/incoming-offers?statusGroup=resolved");
     }
 
-    @PostMapping("/{offerId}/rate")
+@PostMapping("/{offerId}/rate")
     public ModelAndView rate(@PathVariable Long offerId,
                               @CurrentUser User currentUser,
                               @RequestParam OfferRating rating,
                               @RequestHeader(value = "Referer", required = false) String referer) {
-        offerService.rate(offerId, currentUser, rating);
- 
+        final Offer offer = offerService.getById(offerId)
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+        offerService.rate(offer, currentUser, rating);
+  
         String redirectUrl = "/account/incoming-offers?statusGroup=resolved";
         if (referer != null && referer.contains("/account/my-offers")) {
             redirectUrl = "/account/my-offers?statusGroup=resolved";

@@ -377,18 +377,17 @@ public class AccountController {
                                         @CurrentUser User currentUser,
                                         @Valid @ModelAttribute("rateForm") RateForm rateForm,
                                         BindingResult bindingResult) {
+        final Offer offer = offerService.getById(offerId)
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("account/rate");
-            final Offer offer = offerService.getById(offerId)
-                    .orElseThrow(() -> NotFoundException.createFor("Offer"));
             mav.addObject("offer", offer);
             return mav;
         }
 
-        offerService.rate(offerId, currentUser, rateForm.getRating(), rateForm.getReviewText());
+        offerService.rate(offer, currentUser, rateForm.getRating(), rateForm.getReviewText());
 
-        final Offer offer = offerService.getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
         final Long currentUserId = currentUser.getId();
         final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
 
