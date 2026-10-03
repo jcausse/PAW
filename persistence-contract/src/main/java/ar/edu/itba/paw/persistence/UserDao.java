@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -25,4 +26,7 @@ public interface UserDao {
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
+
+    void incrementSellerRatingCounter(Long userId, OfferRating rating);
+    void incrementBuyerRatingCounter(Long userId, OfferRating rating);
 }

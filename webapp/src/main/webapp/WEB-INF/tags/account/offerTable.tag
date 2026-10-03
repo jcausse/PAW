@@ -14,9 +14,7 @@
                 <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.${user}"/></th>
                 <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.amount"/></th>
                 <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.status"/></th>
-                <c:if test="${user == 'buyer'}">
-                    <th class="pb-2 font-medium text-black/60"></th>
-                </c:if>
+                <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.review"/></th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +38,7 @@
                     </c:otherwise>
                 </c:choose>
 
+                <c:set var="myRating" value="${user == 'buyer' ? offer.buyerRating : offer.sellerRating}"/>
                 <tr class="border-b border-black/5 last:border-0">
                     <td class="py-1">
                         <c:url value="/listing/${offer.listing.id}" var="listingUrl"/>
@@ -64,14 +63,41 @@
                             <paw:badge text="${statusLabel}" classname="${statusClass}" size="sm" />
                         </div>
                     </td>
-                    <c:if test="${user == 'buyer'}">
-                        <td class="py-1">
-                            <div class="flex flex-row gap-1 justify-end">
-                                <c:url value="/offer/${offer.id}" var="offerUrl"/>
-                                <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
-                            </div>
-                        </td>
-                    </c:if>
+                    <td class="py-1">
+                        <c:choose>
+                            <c:when test="${offer.status.name() == 'ACCEPTED' and not myRating.isPresent()}">
+                                <div class="flex flex-row gap-1 justify-start">
+                                    <form action="<c:url value='/offer/${offer.id}/rate'/>" method="POST">
+                                        <input type="hidden" name="rating" value="POSITIVE"/>
+                                        <paw:button type="submit" variant="outline" size="sm" icon="arrow-up" classname="text-lime-600 border-lime-300 hover:bg-lime-50"/>
+                                    </form>
+                                    <form action="<c:url value='/offer/${offer.id}/rate'/>" method="POST">
+                                        <input type="hidden" name="rating" value="NEUTRAL"/>
+                                        <paw:button type="submit" variant="outline" size="sm" icon="minus" classname="text-stone-500 border-stone-300 hover:bg-stone-50"/>
+                                    </form>
+                                    <form action="<c:url value='/offer/${offer.id}/rate'/>" method="POST">
+                                        <input type="hidden" name="rating" value="NEGATIVE"/>
+                                        <paw:button type="submit" variant="outline" size="sm" icon="arrow-down" classname="text-red-600 border-red-300 hover:bg-red-50"/>
+                                    </form>
+                                </div>
+                            </c:when>
+                            <c:when test="${offer.status.name() == 'ACCEPTED' and myRating.isPresent()}">
+                                <div class="flex flex-row justify-start">
+                                    <c:choose>
+                                        <c:when test="${myRating.get().name() == 'POSITIVE'}">
+                                            <paw:icon name="arrow-up" classname="text-lime-600"/>
+                                        </c:when>
+                                        <c:when test="${myRating.get().name() == 'NEUTRAL'}">
+                                            <paw:icon name="minus" classname="text-stone-500"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <paw:icon name="arrow-down" classname="text-red-600"/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </c:when>
+                        </c:choose>
+                    </td>
                 </tr>
             </c:forEach>
         </tbody>
