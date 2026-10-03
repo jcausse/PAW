@@ -31,8 +31,8 @@
 
     <paw:card classname="flex flex-col gap-4 max-w-2xl mx-auto">
         <!-- Offer information section -->
-        <div class="p-4 bg-stone-50 rounded-lg border border-stone-200">
-            <h2 class="text-lg font-semibold text-stone-900 mb-4">
+        <div class="p-4 rounded-lg border border-black/10">
+            <h2 class="text-lg font-semibold text-black mb-4">
                 <spring:message code="account.rate.offerInfo" var="offerInfoLabel"/>
                 <c:out value="${offerInfoLabel}"/>
             </h2>
@@ -42,15 +42,15 @@
                 <paw:listingImage listing="${offer.listing}" size="lg" />
                 <div class="flex-1 min-w-0 flex flex-col justify-center">
                     <h3 class="text-base font-semibold truncate"><c:out value="${offer.listing.title}"/></h3>
-                    <p class="text-sm text-stone-600 mt-1">
+                    <p class="text-sm text-black/60 mt-1">
                         <c:out value="${offer.listing.product.brand}"/>
                         <c:out value="${offer.listing.product.model}"/>
                         (<c:out value="${offer.listing.product.year}"/>)
                     </p>
                     <c:if test="${not offer.isFullPrice}">
-                        <p class="text-sm line-through text-stone-500 mt-1">$<c:out value="${offer.listing.price.amount}"/></p>
+                        <p class="text-sm line-through text-black/40 mt-1">$<c:out value="${offer.listing.price.amount}"/></p>
                     </c:if>
-                    <p class="text-lg font-bold text-stone-900 mt-1">$<c:out value="${offer.amount}"/></p>
+                    <p class="text-lg font-bold text-black mt-1">$<c:out value="${offer.amount}"/></p>
                 </div>
             </div>
 
@@ -59,8 +59,8 @@
                 <paw:user user="${ratedUser}" variant="compact" />
                 <div class="flex-1 flex flex-col justify-center">
                     <spring:message code="${ratingTargetLabel}" var="ratingUserLabel"/>
-                    <p class="text-sm font-medium text-stone-700"><c:out value="${ratingUserLabel}"/></p>
-                    <p class="text-sm text-stone-500">
+                    <p class="text-sm font-medium text-black"><c:out value="${ratingUserLabel}"/></p>
+                    <p class="text-sm text-black/50">
                         <spring:message code="account.rate.userJoined" arguments="${ratedUser.joinedAt}" var="joinedLabel"/>
                         <c:out value="${joinedLabel}"/>
                     </p>
@@ -74,13 +74,13 @@
             <!-- Rating selection -->
             <div>
                 <spring:message code="account.rate.ratingLabel" var="ratingLabel"/>
-                <label class="block text-sm font-medium text-stone-700 mb-2"><c:out value="${ratingLabel}"/></label>
+                <label class="block text-sm font-medium text-black/70 mb-2"><c:out value="${ratingLabel}"/></label>
                 <div class="flex flex-row gap-4" role="radiogroup" aria-label="${ratingLabel}">
                     <spring:message code="account.rate.positive" var="positiveLabel"/>
                     <spring:message code="account.rate.neutral" var="neutralLabel"/>
                     <spring:message code="account.rate.negative" var="negativeLabel"/>
                     
-                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == 'POSITIVE' ? 'border-lime-500 bg-lime-50' : 'border-stone-200 hover:border-stone-300'}">
+                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'POSITIVE' ? 'border-lime-500 bg-lime-50' : 'border-black/10 hover:border-black/20'}">
                         <input type="radio" name="rating" value="POSITIVE" 
                                <c:if test="${rateForm.rating == 'POSITIVE'}">checked</c:if>
                                class="sr-only" required/>
@@ -88,15 +88,15 @@
                         <span class="text-sm font-medium text-lime-700"><c:out value="${positiveLabel}"/></span>
                     </label>
                     
-                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == 'NEUTRAL' ? 'border-stone-500 bg-stone-50' : 'border-stone-200 hover:border-stone-300'}">
+                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEUTRAL' ? 'border-stone-500 bg-stone-50' : 'border-black/10 hover:border-black/20'}">
                         <input type="radio" name="rating" value="NEUTRAL" 
                                <c:if test="${rateForm.rating == 'NEUTRAL'}">checked</c:if>
                                class="sr-only" required/>
                         <paw:icon name="minus" classname="text-3xl text-stone-500" />
-                        <span class="text-sm font-medium text-stone-600"><c:out value="${neutralLabel}"/></span>
+                        <span class="text-sm font-medium text-black/60"><c:out value="${neutralLabel}"/></span>
                     </label>
                     
-                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-stone-50 ${rateForm.rating == 'NEGATIVE' ? 'border-red-500 bg-red-50' : 'border-stone-200 hover:border-stone-300'}">
+                    <label class="flex flex-col items-center gap-2 cursor-pointer p-4 border-2 rounded-lg transition hover:bg-black/5 ${rateForm.rating == 'NEGATIVE' ? 'border-red-500 bg-red-50' : 'border-black/10 hover:border-black/20'}">
                         <input type="radio" name="rating" value="NEGATIVE" 
                                <c:if test="${rateForm.rating == 'NEGATIVE'}">checked</c:if>
                                class="sr-only" required/>
@@ -111,9 +111,9 @@
             <div>
                 <spring:message code="account.rate.reviewLabel" var="reviewLabel"/>
                 <spring:message code="account.rate.reviewPlaceholder" var="reviewPlaceholder"/>
-                <label class="block text-sm font-medium text-stone-700 mb-2"><c:out value="${reviewLabel}"/></label>
-                <form:textarea path="reviewText" rows="4" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent transition" placeholder="${reviewPlaceholder}"/>
-                <p class="text-xs text-stone-500 mt-1">
+                <label class="block text-sm font-medium text-black/70 mb-2"><c:out value="${reviewLabel}"/></label>
+                <form:textarea path="reviewText" rows="4" class="w-full px-3 py-2 border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent transition" placeholder="${reviewPlaceholder}"/>
+                <p class="text-xs text-black/40 mt-1">
                     <spring:message code="account.rate.reviewHint" var="reviewHint"/>
                     <c:out value="${reviewHint}"/>
                 </p>

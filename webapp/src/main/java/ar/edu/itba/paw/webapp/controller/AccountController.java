@@ -339,8 +339,7 @@ public class AccountController {
     // Rate offer page
     @GetMapping("/rate/{offerId}")
     public ModelAndView showRateForm(@PathVariable Long offerId, @CurrentUser User currentUser,
-                                      @ModelAttribute("rateForm") RateForm rateForm,
-                                      @RequestParam(required = false) OfferRating rating) {
+                                      @ModelAttribute("rateForm") RateForm rateForm) {
         final Offer offer = offerService.getById(offerId)
                 .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
@@ -360,10 +359,6 @@ public class AccountController {
         boolean alreadyRated = isBuyer ? offer.getSellerRating().isPresent() : offer.getBuyerRating().isPresent();
         if (alreadyRated) {
             throw new BadParameterException("You have already rated this offer");
-        }
-
-        if (rating != null) {
-            rateForm.setRating(rating);
         }
 
         var mav = new ModelAndView("account/rate");

@@ -80,9 +80,9 @@
                                             <c:url value="${rateUrl}?role=BUYER&rating=NEGATIVE" var="negativeUrl"/>
                                         </c:otherwise>
                                     </c:choose>
-                                    <paw:linkButton href="${positiveUrl}" variant="outline" size="sm" icon="arrow-up" classname="text-lime-600 border-lime-300 hover:bg-lime-50" />
-                                    <paw:linkButton href="${neutralUrl}" variant="outline" size="sm" icon="minus" classname="text-stone-500 border-stone-300 hover:bg-stone-50" />
-                                    <paw:linkButton href="${negativeUrl}" variant="outline" size="sm" icon="arrow-down" classname="text-red-600 border-red-300 hover:bg-red-50" />
+                                    <paw:linkButton href="${positiveUrl}" variant="outline" size="sm" icon="arrow-up" />
+                                    <paw:linkButton href="${neutralUrl}" variant="outline" size="sm" icon="minus" role="secondary" />
+                                    <paw:linkButton href="${negativeUrl}" variant="outline" size="sm" icon="arrow-down" role="danger" />
                                 </div>
                             </c:when>
                             <c:when test="${offer.status.name() == 'ACCEPTED' and myRating.isPresent()}">
