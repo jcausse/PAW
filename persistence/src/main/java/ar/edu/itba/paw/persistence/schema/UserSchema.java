@@ -11,4 +11,11 @@ public final class UserSchema {
     public static final String PASSWORD = "password";
     public static final String IMAGE_ID = "image_id";
     public static final String JOINED_AT = "joined_at";
+    public static final String EMAIL_VERIFIED_AT = "email_verified_at";
+    public static final String SELLER_POSITIVE_RATINGS = "seller_positive_ratings";
+    public static final String SELLER_NEUTRAL_RATINGS = "seller_neutral_ratings";
+    public static final String SELLER_NEGATIVE_RATINGS = "seller_negative_ratings";
+    public static final String BUYER_POSITIVE_RATINGS = "buyer_positive_ratings";
+    public static final String BUYER_NEUTRAL_RATINGS = "buyer_neutral_ratings";
+    public static final String BUYER_NEGATIVE_RATINGS = "buyer_negative_ratings";
 }

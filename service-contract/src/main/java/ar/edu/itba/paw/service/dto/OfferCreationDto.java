@@ -7,5 +7,6 @@ public record OfferCreationDto(
     Long buyerId,
     BigDecimal amount,
     Boolean isFullPrice,
-    String message
+    String message,
+    Long offeredListingId
 ) {}

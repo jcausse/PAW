@@ -3,7 +3,9 @@
 <%@ attribute name="href" required="false" %>
 <%@ attribute name="user" required="true" type="ar.edu.itba.paw.model.User" %>
 <%@ attribute name="classname" required="false" %>
+<%@ attribute name="showSellerRating" required="false" type="java.lang.Boolean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 
@@ -26,10 +28,31 @@
             </div>
         </c:if>
         <c:if test="${userVariant eq 'basic'}">
-            <p>
-                <span class="text-black font-normal"><c:out value="${user.displayName}"/></span>
-                <span class="text-black/60 font-normal">(<c:out value="${user.username}"/>)</span>
-            </p>
+            <div class="flex flex-col">
+                <p>
+                    <span class="text-black font-normal"><c:out value="${user.displayName}"/></span>
+                    <span class="text-black/60 font-normal">(<c:out value="${user.username}"/>)</span>
+                </p>
+                <c:if test="${showSellerRating}">
+                    <c:set var="sellerBalance" value="${user.sellerRatingBalance}"/>
+                    <spring:message code="listing.detail.sellerReviewsCount" arguments="${user.sellerTotalRatings}" var="sellerReviewsMsg"/>
+                    <p class="text-xs text-black/60">
+                        <spring:message code="listing.detail.sellerRating"/>
+                        <c:choose>
+                            <c:when test="${sellerBalance > 0}">
+                                <span class="text-green-600">+<c:out value="${sellerBalance}"/></span>
+                            </c:when>
+                            <c:when test="${sellerBalance < 0}">
+                                <span class="text-red-600"><c:out value="${sellerBalance}"/></span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="text-neutral-500">0</span>
+                            </c:otherwise>
+                        </c:choose>
+                        (<c:out value="${sellerReviewsMsg}"/>)
+                    </p>
+                </c:if>
+            </div>
         </c:if>
         <c:if test="${userVariant eq 'detailed'}">
             <div class="flex flex-col">

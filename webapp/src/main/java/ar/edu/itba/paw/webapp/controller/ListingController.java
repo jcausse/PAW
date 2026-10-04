@@ -3,8 +3,6 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
-import ar.edu.itba.paw.model.Offer;
-import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
@@ -14,7 +12,7 @@ import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.ListingUpdateDto;
-import ar.edu.itba.paw.webapp.exception.ForbiddenException;
+import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ChooseProductForm;
 import ar.edu.itba.paw.webapp.form.ListingDetailsForm;
@@ -38,11 +36,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/listing")
 public class ListingController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListingController.class);
 
     private static final int DISCOVERY_PAGE_SIZE = 12;
 
@@ -55,6 +57,7 @@ public class ListingController {
 
     @GetMapping
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
+        LOGGER.debug("Accessing discovery page with query '{}', category {}", filterForm.getQuery(), filterForm.getCategoryId());
         final var filter = new ListingFilterDto(
             filterForm.getCategoryId(),
             filterForm.getSubcategoryId(),
@@ -67,7 +70,8 @@ public class ListingController {
             null,
             ListingStatus.ACTIVE.getStatus(),
             filterForm.getPage(),
-            DISCOVERY_PAGE_SIZE
+            DISCOVERY_PAGE_SIZE,
+            null
         );
 
         final var listingPage = listingService.search(filter);
@@ -118,20 +122,16 @@ public class ListingController {
 
     @GetMapping("/{id}")
     public ModelAndView listing(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
+        LOGGER.debug("Accessing listing {}", id);
         var listing = listingService.getById(id);
         var isCreator = currentUser != null && currentUser.getId().equals(listing.getCreator().getId());
-        var isSold = listing.getStatus() == ListingStatus.SOLD;
         var isCanceled = listing.getStatus() == ListingStatus.CANCELED;
+        // Pending transaction and offered in trade listings count as sold for public viewing purposes
+        var isSold = listing.getStatus() == ListingStatus.SOLD
+                || listing.getStatus() == ListingStatus.PENDING_TRANSACTION
+                || listing.getStatus() == ListingStatus.OFFERED_IN_TRADE;
 
-        Offer userPendingOffer = null;
-        if (currentUser != null && !isCreator && !isSold) {
-            var offers = offerService.getByListingId(id);
-            userPendingOffer = offers.stream()
-                    .filter(o -> o.getBuyer().getId().equals(currentUser.getId()))
-                    .filter(o -> o.getStatus() == OfferStatus.PENDING)
-                    .findFirst()
-                    .orElse(null);
-        }
+        var userPendingOffer = offerService.getByListingAndBuyer(listing, currentUser);
 
         return new ModelAndView("listing/index")
                 .addObject("listing", listing)
@@ -144,6 +144,7 @@ public class ListingController {
     @GetMapping("/new/choose-product")
     public ModelAndView chooseProduct(@ModelAttribute("chooseProductForm") ChooseProductForm form,
                                       @RequestParam(value = "productId", required = false) Long productId) {
+        LOGGER.debug("Accessing choose product page");
         var mav = new ModelAndView("listing/new/chooseProduct");
         // Coming back from step 2: rehydrate the form from the already chosen product
         // so the user sees and can change their selection instead of starting over.
@@ -166,6 +167,7 @@ public class ListingController {
 
     @PostMapping("/new/choose-product")
     public ModelAndView chooseProductPost(@Valid @ModelAttribute("chooseProductForm") ChooseProductForm form, BindingResult bindingResult) {
+        LOGGER.debug("Submitted choose product form, step {}", form.getStep());
         var mav = new ModelAndView("listing/new/chooseProduct");
 
         // Skip validation for auto-submits (triggered by field changes during form filling)
@@ -197,6 +199,7 @@ public class ListingController {
         }
 
         if (bindingResult.hasErrors()) {
+            LOGGER.debug("Validation failed for choose product form");
             form.updatePreviousValues();
             populateModel(mav, form);
             return mav;
@@ -250,6 +253,7 @@ public class ListingController {
                                 @RequestParam(value = "editListingId", required = false) Long editListingId,
                                 @ModelAttribute("detailsForm") ListingDetailsForm form,
                                 @CurrentUser User currentUser) {
+        LOGGER.debug("Accessing new listing details page for product {}", productId);
         var product = productService.getById(productId);
         var mav = new ModelAndView("listing/new/details");
 
@@ -278,7 +282,9 @@ public class ListingController {
             BindingResult bindingResult,
             @CurrentUser User currentUser
     ) {
+        LOGGER.info("User {} submitted listing creation/edit for product {}", currentUser.getId(), form.getProductId());
         if (bindingResult.hasErrors()) {
+            LOGGER.debug("Validation failed for listing creation/edit for product {}", form.getProductId());
             return detailsWithErrors();
         }
 
@@ -293,6 +299,7 @@ public class ListingController {
                             imageFile.getContentType()
                         ));
                     } catch (IOException e) {
+                        LOGGER.error("Failed to read uploaded image", e);
                         bindingResult.rejectValue("images", "error.image.upload");
                         return detailsWithErrors();
                     }
@@ -372,6 +379,7 @@ public class ListingController {
 
     @GetMapping("/{id}/edit")
     public ModelAndView editListing(@PathVariable Long id, @CurrentUser User currentUser) {
+        LOGGER.debug("User {} accessing edit page for listing {}", currentUser.getId(), id);
         var listing = listingService.getById(id);
         if (!listing.getCreator().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Not authorized to edit this listing");
@@ -385,6 +393,7 @@ public class ListingController {
 
     @PostMapping("/{id}/cancel")
     public ModelAndView cancelListing(@PathVariable Long id, @CurrentUser User currentUser) {
+        LOGGER.info("User {} canceled listing {}", currentUser.getId(), id);
         var listing = listingService.getById(id);
         if (!listing.getCreator().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Not authorized to cancel this listing");

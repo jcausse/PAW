@@ -27,4 +27,10 @@ public class PasswordRecoveryVerificationForm {
     @NotEmpty
     @Size(min = 8)
     private String repeatPassword;
+
+    public void setEmail(String email) {
+        if (this.usernameOrEmail == null || this.usernameOrEmail.isBlank()) {
+            this.usernameOrEmail = email;
+        }
+    }
 }

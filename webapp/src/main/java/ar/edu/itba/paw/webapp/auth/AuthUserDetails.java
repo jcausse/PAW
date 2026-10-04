@@ -11,7 +11,15 @@ public class AuthUserDetails extends org.springframework.security.core.userdetai
     @Getter private final User domainUser;
 
     public AuthUserDetails(User domainUser, Collection<? extends GrantedAuthority> authorities) {
-        super(domainUser.getUsername(), domainUser.getPassword(), authorities);
+        super(
+                domainUser.getUsername(),
+                domainUser.getPassword(),
+                domainUser.isVerified(),
+                true,
+                true,
+                true,
+                authorities
+        );
         this.domainUser = domainUser;
     }
 }

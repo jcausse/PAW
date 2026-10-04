@@ -9,8 +9,11 @@ import ar.edu.itba.paw.persistence.SubcategoryDao;
 import ar.edu.itba.paw.service.dto.ProductCreationDto;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.util.List;
-import java.util.Objects;
+
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductDao productDao;
     private final CategoryDao categoryDao;
@@ -69,25 +74,41 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product findOrCreateByBrandModelYear(String brand, String model, Integer year, Long subcategoryId) {
-        Objects.requireNonNull(brand, "Brand cannot be null");
-        Objects.requireNonNull(model, "Model cannot be null");
-        Objects.requireNonNull(year, "Year cannot be null");
-        Objects.requireNonNull(subcategoryId, "SubcategoryId cannot be null");
+    public Product findOrCreateByBrandModelYear(
+            @NonNull String brand,
+            @NonNull String model,
+            @NonNull Integer year,
+            @NonNull Long subcategoryId
+    ) {
+        LOGGER.debug("Finding or creating product: brand='{}', model='{}', year={}, subcategoryId={}",
+                brand, model, year, subcategoryId);
 
         var subcategory = subcategoryDao.getById(subcategoryId)
             .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + subcategoryId));
 
         return productDao.getByBrandModelYearSubcategory(brand, model, year, subcategoryId)
-            .orElseGet(() -> productDao.create(brand, model, year, subcategory));
+            .map(product -> {
+                LOGGER.debug("Found existing product with id={}", product.getId());
+                return product;
+            })
+            .orElseGet(() -> {
+                var created = productDao.create(brand, model, year, subcategory);
+                LOGGER.info("Created new product: id={}, brand='{}', model='{}', year={}",
+                        created.getId(), brand, model, year);
+                return created;
+            });
     }
 
     @Override
     @Transactional
-    public Product create(ProductCreationDto dto) {
-        Objects.requireNonNull(dto, "ProductCreationDto cannot be null");
+    public Product create(@NonNull ProductCreationDto dto) {
+        LOGGER.debug("Creating product: brand='{}', model='{}', year={}, subcategoryId={}",
+                dto.brand(), dto.model(), dto.year(), dto.subcategoryId());
         var subcategory = subcategoryDao.getById(dto.subcategoryId())
             .orElseThrow(() -> NotFoundException.createFor("Subcategory with ID " + dto.subcategoryId()));
-        return productDao.create(dto.brand(), dto.model(), dto.year(), subcategory);
+        var product = productDao.create(dto.brand(), dto.model(), dto.year(), subcategory);
+        LOGGER.info("Created product: id={}, brand='{}', model='{}', year={}",
+                product.getId(), product.getBrand(), product.getModel(), product.getYear());
+        return product;
     }
 }

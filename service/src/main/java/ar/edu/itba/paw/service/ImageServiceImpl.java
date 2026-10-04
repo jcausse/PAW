@@ -5,6 +5,8 @@ import ar.edu.itba.paw.persistence.ImageDao;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class ImageServiceImpl implements ImageService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
 
     private final ImageDao imageDao;
 
@@ -23,12 +27,17 @@ public class ImageServiceImpl implements ImageService {
     @Override
     @Transactional
     public Image create(String filename, String alt, String contentType, byte[] data) {
-        return imageDao.create(filename, alt, contentType, data);
+        LOGGER.debug("Creating image: filename='{}', contentType='{}', size={} bytes",
+                filename, contentType, data != null ? data.length : 0);
+        Image image = imageDao.create(filename, alt, contentType, data);
+        LOGGER.info("Image created with id={}", image.getId());
+        return image;
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
+        LOGGER.info("Deleting image with id={}", id);
         imageDao.delete(id);
     }
 }

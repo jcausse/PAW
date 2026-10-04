@@ -1,9 +1,11 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Listing;
+import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.CheckoutForm;
@@ -18,24 +20,28 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/checkout")
 public class CheckoutController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckoutController.class);
+
     private final ListingService listingService;
     private final OfferService offerService;
 
     @GetMapping
-    public ModelAndView checkout(@RequestParam("listingId") Long listingId, @ModelAttribute("checkoutForm") CheckoutForm form) {
+    public ModelAndView checkout(@RequestParam("listingId") Long listingId, @ModelAttribute("checkoutForm") CheckoutForm form, @CurrentUser(required = false) User currentUser) {
+        LOGGER.debug("User accessing checkout page for listing {}", listingId);
         Listing listing = listingService.getById(listingId);
         form.setListingId(listingId);
         form.setOfferType("full");
+        form.setListingPrice(listing.getPrice().getAmount());
 
-        var mav = new ModelAndView("checkout/index");
-        mav.addObject("listing", listing);
-        return mav;
+        return withUserListings(listing, currentUser);
     }
 
     @PostMapping
@@ -47,34 +53,51 @@ public class CheckoutController {
         Listing listing = listingService.getById(form.getListingId());
 
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("checkout/index")
-                    .addObject("listing", listing);
+            LOGGER.debug("Validation failed for checkout on listing {}", form.getListingId());
+            return withUserListings(listing, currentUser);
         }
 
         Long buyerId = currentUser.getId();
 
         BigDecimal amount;
         boolean isFullPrice;
+        Long offeredListingId = null;
 
         if ("full".equals(form.getOfferType())) {
             amount = listing.getPrice().getAmount();
             isFullPrice = true;
-        } else {
-            if (form.getCustomAmount() == null || form.getCustomAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                bindingResult.rejectValue("customAmount", "NotNull.checkoutForm.customAmount");
-                return new ModelAndView("checkout/index").addObject("listing", listing);
-            }
-            if (form.getCustomAmount().compareTo(listing.getPrice().getAmount()) > 0) {
-                bindingResult.rejectValue("customAmount", "Max.checkoutForm.customAmount", new Object[]{listing.getPrice().getAmount()}, "Offer amount cannot exceed listing price");
-                return new ModelAndView("checkout/index").addObject("listing", listing);
-            }
+        } else if ("custom".equals(form.getOfferType())) {
             amount = form.getCustomAmount();
             isFullPrice = false;
+        } else { // "trade"
+            amount = form.getTradeAmount();
+            isFullPrice = false;
+            offeredListingId = form.getOfferedListingId();
         }
 
-        OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage());
+        OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage(), offeredListingId);
         offerService.create(offerDto);
+        LOGGER.info("User {} submitted {} offer for listing {}", buyerId, form.getOfferType(), form.getListingId());
 
         return new ModelAndView("redirect:/listing/" + form.getListingId());
+    }
+
+    private ModelAndView withUserListings(Listing listing, User currentUser) {
+        if (currentUser != null && listing.isAcceptsTrade()) {
+            var filter = new ListingFilterDto(
+                null, null, null, null, null, null,
+                null, null,
+                currentUser.getId(),
+                ListingStatus.ACTIVE.name(),
+                1,
+                100,
+                null
+            );
+            var userListings = listingService.search(filter).getContent();
+            return new ModelAndView("checkout/index")
+                    .addObject("listing", listing)
+                    .addObject("userListings", userListings);
+        }
+        return new ModelAndView("checkout/index").addObject("listing", listing);
     }
 }

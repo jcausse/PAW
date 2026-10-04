@@ -28,6 +28,7 @@
 
     <%-- Tailwind CDN to prevent needing a full recompile on JSP classname changes --%>
     <%-- FOR DEV ONLY -- DO NOT DEPLOY TO PROD! --%>
+    <%-- TODO: REMOVE BEFORE PUSHING TO PROD! --%>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <jsp:doBody/>

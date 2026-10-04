@@ -81,20 +81,17 @@
                         <spring:message code="listing.new.conditionLabel" var="conditionLabel"/>
                         <spring:message code="listing.new.condition.select" var="conditionPlaceholder"/>
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${conditionPlaceholder}"
-                                        items="${conditionOptions}" stringOptions="true" />
+                                        items="${conditionOptions}" itemLabel="label" itemValue="value" />
 
-                        <%-- TODO trades --%>
-                        <div class="flex items-center h-full pt-5 hidden">
-                            <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
-                            <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
-                        </div>
+                        <spring:message code="listing.new.acceptsTradeLabel" var="acceptsTradeLabel"/>
+                        <paw:formCheckbox path="acceptsTrade" label="${acceptsTradeLabel}" />
                     </div>
 
                     <spring:message code="listing.new.descriptionLabel" var="descriptionLabel"/>
                     <paw:formInput type="textarea" path="description" label="${descriptionLabel}" inputClassname="min-h-40 resize-none" />
 
                     <spring:message code="listing.new.imagesLabel" var="imagesLabel"/>
-                    <paw:imageUpload path="images" label="${imagesLabel}" multiple="true" />
+                    <paw:fileUpload path="images" label="${imagesLabel}" multiple="true" accept="image/*" />
 
                     <div class="mt-2 flex justify-center gap-4">
                         <c:if test="${empty detailsForm.editListingId}">

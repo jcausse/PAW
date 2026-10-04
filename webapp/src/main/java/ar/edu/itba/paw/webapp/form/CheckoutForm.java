@@ -1,6 +1,10 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.form.validation.ValidCheckout;
 import java.math.BigDecimal;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,10 +12,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@ValidCheckout
 public class CheckoutForm {
 
+    @NotNull
     private Long listingId;
-    private String offerType; // "full" or "custom"
+
+    @NotNull
+    private String offerType; // "full", "custom", or "trade"
+
+    @DecimalMin(value = "0.01", message = "{NotNull.checkoutForm.customAmount}")
+    @Digits(integer = 9, fraction = 2)
     private BigDecimal customAmount;
+
+    private Long offeredListingId;
+
+    @DecimalMin(value = "0.0", message = "{NotNull.checkoutForm.tradeAmount}")
+    @Digits(integer = 9, fraction = 2)
+    private BigDecimal tradeAmount;
+
+    private BigDecimal listingPrice;
+
     private String message;
 }

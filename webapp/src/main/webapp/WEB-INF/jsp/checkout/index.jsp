@@ -41,6 +41,27 @@
                                             <paw:formInput path="customAmount" type="number" step="0.01" placeholder="${customAmountPlaceholder}" variant="outline"/>
                                         </div>
                                     </div>
+
+                                    <c:if test="${listing.acceptsTrade and not empty userListings}">
+                                        <div class="flex flex-col gap-2">
+                                            <label class="flex items-center gap-2 min-h-8 cursor-pointer">
+                                                <form:radiobutton path="offerType" value="trade" class="w-4 h-4 text-lime-600 border-black/20 focus:ring-lime-500"/>
+                                                <spring:message code="checkout.form.tradePrice" var="tradePriceLabel"/>
+                                                <span class="text-sm text-black/90"><c:out value="${tradePriceLabel}"/></span>
+                                            </label>
+
+                                            <div id="tradeFields" class="hidden">
+                                                <spring:message code="checkout.form.tradeSelectListing" var="tradeSelectListingLabel"/>
+                                                <paw:formSelect path="offeredListingId" label="${tradeSelectListingLabel}" items="${userListings}" itemValue="id" itemLabel="title" placeholder="${tradeSelectListingLabel}" variant="outline" classname="w-full max-w-md" />
+
+                                                <spring:message code="checkout.form.tradeAmount" var="tradeAmountLabel"/>
+                                                <spring:message code="checkout.form.tradeAmount.placeholder" var="tradeAmountPlaceholder"/>
+                                                <div class="w-full max-w-md">
+                                                    <paw:formInput path="tradeAmount" type="number" step="0.01" min="0" placeholder="${tradeAmountPlaceholder}" label="${tradeAmountLabel}" variant="outline"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:if>
                                 </div>
                             </div>
 
@@ -101,10 +122,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const fullRadio = document.querySelector('input[name="offerType"][value="full"]');
             const customRadio = document.querySelector('input[name="offerType"][value="custom"]');
+            const tradeRadio = document.querySelector('input[name="offerType"][value="trade"]');
             const customField = document.getElementById('customAmountField');
             const customInput = document.querySelector('input[name="customAmount"]');
+            const tradeFields = document.getElementById('tradeFields');
+            const tradeListingSelect = document.querySelector('select[name="offeredListingId"]');
+            const tradeAmountInput = document.querySelector('input[name="tradeAmount"]');
 
-            function toggleCustomField() {
+            function toggleFields() {
                 if (customRadio.checked) {
                     customField.classList.remove('hidden');
                     customInput.required = true;
@@ -112,12 +137,25 @@
                     customField.classList.add('hidden');
                     customInput.required = false;
                 }
+
+                if (tradeRadio && tradeRadio.checked) {
+                    tradeFields.classList.remove('hidden');
+                    if (tradeListingSelect) tradeListingSelect.required = true;
+                    if (tradeAmountInput) tradeAmountInput.required = true;
+                } else {
+                    tradeFields.classList.add('hidden');
+                    if (tradeListingSelect) tradeListingSelect.required = false;
+                    if (tradeAmountInput) tradeAmountInput.required = false;
+                }
             }
 
-            fullRadio.addEventListener('change', toggleCustomField);
-            customRadio.addEventListener('change', toggleCustomField);
+            fullRadio.addEventListener('change', toggleFields);
+            customRadio.addEventListener('change', toggleFields);
+            if (tradeRadio) {
+                tradeRadio.addEventListener('change', toggleFields);
+            }
 
-            toggleCustomField();
+            toggleFields();
         });
     </script>
 </body>

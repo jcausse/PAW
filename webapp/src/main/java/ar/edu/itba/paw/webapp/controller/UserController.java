@@ -3,23 +3,22 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.EmailVerificationService;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
-import ar.edu.itba.paw.webapp.auth.AuthUserDetails;
+import ar.edu.itba.paw.webapp.auth.AuthHelper;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,15 +27,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @RequiredArgsConstructor
 @Controller
 public class UserController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
     private final UserService userService;
     private final ListingService listingService;
-    private final AuthenticationManager authenticationManager;
+    private final EmailVerificationService emailVerificationService;
+    private final AuthHelper authHelper;
 
     private static final int PROFILE_LISTINGS_PAGE_SIZE = 5;
 
@@ -44,6 +48,7 @@ public class UserController {
 
     @GetMapping("/profile/{id}")
     public ModelAndView profile(@PathVariable Long id, @CurrentUser(required = false) User currentUser) {
+        LOGGER.debug("Accessing profile for user id: {}", id);
         final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
         final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
 
@@ -54,7 +59,8 @@ public class UserController {
                 user.getId(),
                 ListingStatus.ACTIVE.name(),
                 1,
-                PROFILE_LISTINGS_PAGE_SIZE
+                PROFILE_LISTINGS_PAGE_SIZE,
+                null
         );
 
         final var listingPage = listingService.search(filter);
@@ -69,6 +75,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ModelAndView currentUserProfile(@CurrentUser User currentUser) {
+        LOGGER.debug("Accessing current user profile for user {}", currentUser.getId());
         return new ModelAndView("profile")
                 .addObject("user", currentUser)
                 .addObject("allowEdit", true);
@@ -78,6 +85,7 @@ public class UserController {
 
     @GetMapping("/profile/edit")
     public ModelAndView editProfileForm(@CurrentUser User currentUser, @ModelAttribute("userEditForm") UserEditForm form) {
+        LOGGER.debug("Accessing profile edit form for user {}", currentUser.getId());
         form.setDisplayName(currentUser.getDisplayName());
         return new ModelAndView("profileEdit")
                 .addObject("user", currentUser);
@@ -90,6 +98,7 @@ public class UserController {
             BindingResult errors
     ) {
         if (errors.hasErrors()) {
+            LOGGER.debug("Validation failed for user {} profile edit", currentUser.getId());
             return new ModelAndView("profileEdit")
                     .addObject("user", currentUser);
         }
@@ -104,12 +113,15 @@ public class UserController {
                     form.getProfilePicture().getContentType()
                 );
             } catch (java.io.IOException e) {
+                LOGGER.error("Failed to read profile picture for user {}", currentUser.getId(), e);
                 errors.rejectValue("profilePicture", "error.image.upload");
                 return new ModelAndView("profileEdit")
                         .addObject("user", currentUser);
             }
         }
 
+        LOGGER.info("User {} profile edit submitted", currentUser.getId());
+        LOGGER.debug("User {} updating profile", currentUser.getUsername());
         User updatedUser = userService.update(new UserEditDto(
             currentUser,
             form.getDisplayName(),
@@ -117,7 +129,7 @@ public class UserController {
             imageData
         ));
 
-        updateAuthUserDetails(updatedUser);
+        authHelper.update(updatedUser);
 
         return new ModelAndView("redirect:/profile");
     }
@@ -126,14 +138,19 @@ public class UserController {
 
     @GetMapping("/register")
     public ModelAndView registerForm(@ModelAttribute("userForm") UserForm form) {
+        LOGGER.debug("Accessing register form");
         return new ModelAndView("register");
     }
 
     @PostMapping("/register")
     public ModelAndView register(@Valid @ModelAttribute("userForm") UserForm form, BindingResult errors) {
         if (errors.hasErrors()) {
+            LOGGER.debug("Validation failed for registration form");
             return registerForm(form);
         }
+
+        LOGGER.info("User registration submitted: {}", form.getUsername());
+        LOGGER.debug("Registering new user with username: {}", form.getUsername());
 
         // Extract image from form
         ImageData imageData = null;
@@ -145,12 +162,13 @@ public class UserController {
                     form.getProfilePicture().getContentType()
                 );
             } catch (java.io.IOException e) {
+                LOGGER.error("Failed to read profile picture for registration of username {}", form.getUsername(), e);
                 errors.rejectValue("profilePicture", "error.image.upload");
                 return registerForm(form);
             }
         }
 
-        userService.create(new UserCreationDto(
+        User user = userService.create(new UserCreationDto(
             form.getUsername(),
             form.getDisplayName(),
             form.getEmail(),
@@ -158,33 +176,16 @@ public class UserController {
             imageData
         ));
 
-        loginAfterRegister(form.getUsername(), form.getPassword());
+        emailVerificationService.sendVerificationEmail(user);
 
-        return new ModelAndView("redirect:/");
+        return new ModelAndView("redirect:/verify?email=" + URLEncoder.encode(form.getEmail().trim().toLowerCase(), StandardCharsets.UTF_8));
     }
 
     /* LOGIN */
 
     @GetMapping("/login")
     public ModelAndView loginForm() {
+        LOGGER.debug("Accessing login form");
         return new ModelAndView("login");
-    }
-
-    private void loginAfterRegister(final String username, final String password) {
-        SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-        ));
-    }
-
-    private void updateAuthUserDetails(final User updatedUser) {
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth != null && currentAuth.getPrincipal() instanceof AuthUserDetails oldDetails) {
-            AuthUserDetails newDetails = new AuthUserDetails(updatedUser, oldDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                    newDetails,
-                    currentAuth.getCredentials(),
-                    newDetails.getAuthorities()
-            ));
-        }
     }
 }

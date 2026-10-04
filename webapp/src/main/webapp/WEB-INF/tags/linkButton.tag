@@ -7,6 +7,7 @@
 <%@ attribute name="role" required="false" %>
 <%@ attribute name="classname" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="onclick" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
@@ -85,6 +86,7 @@
     "
     <c:if test="${isDisabled}">aria-disabled="true"</c:if>
     <c:if test="${isDisabled}">inert</c:if>
+    <c:if test="${not empty onclick}">onclick="${onclick}"</c:if>
 >
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />

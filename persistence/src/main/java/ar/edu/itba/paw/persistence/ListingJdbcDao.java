@@ -96,6 +96,9 @@ public class ListingJdbcDao implements ListingDao {
             params.add(like);
             params.add(like);
         }
+        if (Boolean.TRUE.equals(filter.getHasActiveOffers())) {
+            conditions.add("EXISTS (SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "')");
+        }
 
         final String whereClause = " WHERE " + String.join(" AND ", conditions);
         final String orderBy = resolveOrderBy(filter.getSort());
@@ -147,6 +150,8 @@ public class ListingJdbcDao implements ListingDao {
             case PRICE_DESC -> priceCol + " DESC, " + idCol + " DESC";
             case NAME_ASC -> titleCol + " ASC, " + idCol + " DESC";
             case NAME_DESC -> titleCol + " DESC, " + idCol + " DESC";
+            case MOST_OFFERS -> "(SELECT COUNT(*) FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') DESC, " + idCol + " DESC";
+            case RECENT_OFFERS -> "(SELECT MAX(o." + OfferSchema.CREATED_AT + ") FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "') DESC NULLS LAST, " + idCol + " DESC";
             default -> idCol + " DESC";
         };
     }
@@ -204,8 +209,19 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
+    public ListingStatus pendingTransaction(Long id, Long buyerId) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.PENDING_TRANSACTION.getStatus(), id);
+        return ListingStatus.PENDING_TRANSACTION;
+    }
+
+    @Override
     public void cancel(Long id) {
         jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, ListingStatus.CANCELED.getStatus(), id);
+    }
+
+    @Override
+    public void updateStatus(Long id, ListingStatus status) {
+        jdbcTemplate.update(Queries.UPDATE_STATUS_BY_ID, status.getStatus(), id);
     }
 
     @Override
@@ -249,6 +265,9 @@ public class ListingJdbcDao implements ListingDao {
                                     .orElse(null)
                     )
                     .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
+                    .sellerPositiveRatings(rs.getInt(UserSchema.SELLER_POSITIVE_RATINGS))
+                    .sellerNeutralRatings(rs.getInt(UserSchema.SELLER_NEUTRAL_RATINGS))
+                    .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
                     .build()
             )
             .product(
@@ -304,6 +323,9 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.EMAIL,
             "c." + UserSchema.IMAGE_ID,
             "c." + UserSchema.JOINED_AT,
+            "c." + UserSchema.SELLER_POSITIVE_RATINGS,
+            "c." + UserSchema.SELLER_NEUTRAL_RATINGS,
+            "c." + UserSchema.SELLER_NEGATIVE_RATINGS,
             "p." + ProductSchema.ID,
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,

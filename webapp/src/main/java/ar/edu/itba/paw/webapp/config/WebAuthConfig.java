@@ -79,6 +79,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/register").anonymous()               // User registration page
                 .antMatchers("/logout").authenticated()             // User logout endpoint (Spring-managed)
                 .antMatchers("/recovery/**").permitAll()            // Password recovery page
+                .antMatchers("/verify/**").permitAll()              // Email verification page
 
                 /* Profiles and User Accounts */
                 .antMatchers("/profile").authenticated()            // Current user's profile
@@ -86,8 +87,20 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/profile/**").permitAll()             // Profiles of users other than the current user
                 .antMatchers("/account/**").authenticated()         // Current user account details and settings
 
+                /* Language Selector */
+                .antMatchers("/language/**").permitAll()            // Language selector in the navbar
+
+                /* Sell Page (create new listing) */
+                .antMatchers("/listing/new/**").authenticated()     // Listing creation
+
                 /* Listings */
                 .antMatchers("/listing/**").permitAll()             // Listings
+
+                /* Images */
+                .antMatchers("/image/**").permitAll()               // Images
+
+                /* Landing */
+                .antMatchers("/").permitAll()                       // Landing page
 
                 /* Miscellaneous */
                 .antMatchers("/appinfo").permitAll()                // Deploy info

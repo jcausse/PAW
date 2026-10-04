@@ -1,5 +1,6 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="listing" required="true" type="ar.edu.itba.paw.model.Listing" %>
+<%@ attribute name="classname" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
@@ -14,7 +15,7 @@
             <spring:message code="listing.detail.hotItemBadge1" arguments="${listing.pendingOffersCount}" var="badgeText"/>
         </c:otherwise>
     </c:choose>
-    <div class="bg-white rounded-full absolute top-2 left-2">
+    <div class="bg-white rounded-full absolute top-2 left-2 ${classname}">
         <paw:badge text="${badgeText}" classname="text-red-600"/>
     </div>
 </c:if>

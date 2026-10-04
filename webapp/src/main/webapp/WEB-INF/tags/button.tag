@@ -8,7 +8,9 @@
 <%@ attribute name="id" required="false" %>
 <%@ attribute name="classname" required="false" %>
 <%@ attribute name="disabled" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="on" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="onclick" required="false" %>
+<%@ attribute name="ariaLabel" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
@@ -19,12 +21,13 @@
 <c:set var="btnClass" value="${not empty classname ? classname : ''}"/>
 
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
+<c:set var="isOn" value="${on ne null ? on : false}"/>
 
 <c:set var="variantClassnames" value="${
   btnVariant eq 'outline'
-    ? 'border border-current/15 hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10'
+    ? 'border border-current/15 hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10 data-[state=on]:bg-current/10'
     : btnVariant eq 'ghost'
-    ? 'hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10'
+    ? 'hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10 data-[state=on]:bg-current/10'
     : '[background-position:-1px_-1px] [background-size:calc(100%+2px)_calc(100%+2px)] bg-gradient-to-b from-current/3 to-current/7 border-t border-b border-t-white/30 border-b-black/20
        hover:from-current/5 hover:to-current/10 active:border-t-black/15 active:border-b-white/30 active:translate-y-px'
 }"/>
@@ -77,7 +80,7 @@
     class="
         font-semibold rounded-lg
         flex flex-row flex-shrink-0 items-center justify-center gap-2
-        cursor-pointer transition duration-150 data-[state=on]:text-lime-500
+        cursor-pointer transition duration-150
         focus-visible:outline outline-offset-0 outline-lime-600
         focus-visible:shadow-[0_0_0_3px] shadow-lime-600/30
         disabled:text-black/40 disabled:cursor-default
@@ -88,7 +91,9 @@
     "
     <c:if test="${btnType eq 'submit'}">data-submit-guard</c:if>
     <c:if test="${isDisabled}">disabled</c:if>
+    <c:if test="${isOn}">data-state="on"</c:if>
     <c:if test="${not empty onclick}">onclick="${onclick}"</c:if>
+    <c:if test="${not empty ariaLabel}">aria-label="${ariaLabel}"</c:if>
 >
     <c:if test="${not empty icon}">
         <paw:icon name="${icon}" />

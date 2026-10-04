@@ -3,98 +3,79 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
-import ar.edu.itba.paw.webapp.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/offer")
 public class OfferController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OfferController.class);
+
     private final OfferService offerService;
-    private final MessageSource messageSource;
-
-    @GetMapping("/{offerId}")
-    public ModelAndView viewOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        // Verify the current user is the seller (listing creator)
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to view this offer");
-        }
-
-        var mav = new ModelAndView("offer/decision");
-        mav.addObject("offer", offer);
-        mav.addObject("currentUser", currentUser);
-        return mav;
-    }
 
     @PostMapping("/{offerId}/accept")
     public ModelAndView acceptOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+        LOGGER.info("User {} accepted offer {}", currentUser.getId(), offerId);
+        offerService.accept(offerId, currentUser.getId());
 
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to accept this offer");
-        }
-
-        offerService.accept(offerId);
-
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("offer.accepted", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/account/incoming-offers?statusGroup=pending_payment");
     }
 
     @PostMapping("/{offerId}/reject")
     public ModelAndView rejectOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
-        final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+        LOGGER.info("User {} rejected offer {}", currentUser.getId(), offerId);
+        offerService.reject(offerId, currentUser.getId());
 
-        final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
-
-        if (!listing.getCreator().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to reject this offer");
-        }
-
-        offerService.reject(offerId);
-
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("offer.rejected", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/account/incoming-offers?statusGroup=resolved");
     }
 
     @PostMapping("/{offerId}/withdraw")
-    public ModelAndView withdrawOffer(@PathVariable Long offerId, @CurrentUser User currentUser) {
+    public ModelAndView withdrawOffer(@PathVariable Long offerId,
+                                       @CurrentUser User currentUser,
+                                       @RequestHeader(value = "Referer", required = false) String referer) {
+        LOGGER.info("User {} withdrew offer {}", currentUser.getId(), offerId);
         final Offer offer = offerService.getById(offerId)
-            .orElseThrow(() -> NotFoundException.createFor("Offer"));
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
 
         final Listing listing = offer.getListing();
-        final Long currentUserId = currentUser.getId();
+        offerService.withdraw(offerId, currentUser.getId());
 
-        if (!offer.getBuyer().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Not authorized to withdraw this offer");
+        String redirectUrl = "/listing/" + listing.getId();
+        if (referer != null && (referer.contains("/account/my-offers") || referer.contains("/account/incoming-offers"))) {
+            redirectUrl = referer;
         }
+        return new ModelAndView("redirect:" + redirectUrl);
+    }
 
-        offerService.withdraw(offerId, currentUserId);
+    @PostMapping("/{offerId}/confirm-payment")
+    public ModelAndView confirmPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
+        LOGGER.info("User {} confirmed payment for offer {}", currentUser.getId(), offerId);
+        offerService.confirmPayment(offerId, currentUser.getId());
 
-        var locale = LocaleContextHolder.getLocale();
-        var successMessage = messageSource.getMessage("offer.withdrawn", null, locale);
-        return new ModelAndView("redirect:/listing/" + listing.getId() + "?success=" + successMessage);
+        return new ModelAndView("redirect:/account/incoming-offers?statusGroup=resolved");
+    }
+
+    @PostMapping("/{offerId}/rate")
+    public ModelAndView rate(@PathVariable Long offerId,
+                              @CurrentUser User currentUser,
+                              @RequestParam OfferRating rating,
+                              @RequestHeader(value = "Referer", required = false) String referer) {
+        offerService.rate(offerId, currentUser, rating);
+ 
+        String redirectUrl = "/account/incoming-offers?statusGroup=resolved";
+        if (referer != null && referer.contains("/account/my-offers")) {
+            redirectUrl = "/account/my-offers?statusGroup=resolved";
+        }
+        return new ModelAndView("redirect:" + redirectUrl);
     }
 }

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.form.validation.EmptyOrSize;
 import ar.edu.itba.paw.webapp.form.validation.FieldMatch;
+import ar.edu.itba.paw.webapp.form.validation.ValidFile;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,5 +25,6 @@ public class UserEditForm {
     @EmptyOrSize(min = 8)
     private String confirmPassword;
 
+    @ValidFile(message = "{ValidFiles.userForm.profilePicture}", allowedTypes = {"image/*"}, optional = true)
     private MultipartFile profilePicture;
 }
