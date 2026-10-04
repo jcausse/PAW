@@ -30,18 +30,6 @@
 <c:url value="/profile/${user.id}" var="filterAction"/>
 <c:url value="/profile/${user.id}" var="listingsBaseUrl"/>
 
-<c:set var="roleOptions" value="#{T(java.util.Arrays).asList(
-    new java.util.AbstractMap.SimpleEntry('seller', ratingFilterSeller),
-    new java.util.AbstractMap.SimpleEntry('buyer', ratingFilterBuyer)
-)}"/>
-
-<c:set var="typeOptions" value="#{T(java.util.Arrays).asList(
-    new java.util.AbstractMap.SimpleEntry('', ratingFilterAll),
-    new java.util.AbstractMap.SimpleEntry('positive', ratingFilterPositive),
-    new java.util.AbstractMap.SimpleEntry('neutral', ratingFilterNeutral),
-    new java.util.AbstractMap.SimpleEntry('negative', ratingFilterNegative)
-)}"/>
-
 <html lang="${pageContext.response.locale.language}">
 <paw:head title="${user.displayName}"/>
 <body class="min-h-screen bg-neutral-50 flex flex-col">
