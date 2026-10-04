@@ -72,7 +72,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
             .and().authorizeRequests()
 
                 /* Administrator Back-office */
-                .antMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
+                .antMatchers("/admin")                              // Administrator panel root
+                    .hasRole(Role.ADMIN.getRoleName())
+                .antMatchers("/admin/**")                           // Administrator panel subpages
+                    .hasRole(Role.ADMIN.getRoleName())
 
                 /* Login, Register, Logout and Password Recovery */
                 .antMatchers("/login").anonymous()                  // User login page
