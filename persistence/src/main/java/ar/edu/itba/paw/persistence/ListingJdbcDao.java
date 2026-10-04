@@ -100,7 +100,7 @@ public class ListingJdbcDao implements ListingDao {
             conditions.add("EXISTS (SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "')");
         }
 
-        final String whereClause = " WHERE " + String.join(" AND ", conditions);
+        final String whereClause = conditions.isEmpty() ? "" : " WHERE " + String.join(" AND ", conditions);
         final String orderBy = resolveOrderBy(filter.getSort());
 
         final long totalCount = jdbcTemplate.queryForObject(
