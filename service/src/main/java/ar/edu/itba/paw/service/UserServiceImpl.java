@@ -1,13 +1,16 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Image;
+import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
+import ar.edu.itba.paw.persistence.UserRoleDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserDao userDao;
+    private final UserRoleDao userRoleDao;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
 
@@ -69,6 +73,7 @@ public class UserServiceImpl implements UserService {
             saveUserImage(dto.image(), dto.username()),
             Instant.now()
         );
+        userRoleDao.addRole(user, Role.USER);
         LOGGER.info("User created: id={}, username='{}'", user.getId(), user.getUsername());
         return user;
     }
@@ -138,6 +143,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isEmailTaken(@NonNull String email) {
         return userDao.isEmailTaken(email.trim().toLowerCase());
+    }
+
+    @Override
+    @Transactional
+    public void addRole(@NonNull User user, @NonNull Role role) {
+        LOGGER.info("Adding role '{}' to user id={}", role.getRoleName(), user.getId());
+        userRoleDao.addRole(user, role);
+    }
+
+    @Override
+    public List<Role> getRoles(@NonNull User user) {
+        return userRoleDao.getRoles(user);
     }
 
     private Image saveUserImage(ImageData imageData, String username) {

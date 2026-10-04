@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.auth;
 
-import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,9 +22,9 @@ public class AuthUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final User domainUser = us.getByUsernameOrEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        final Collection<? extends GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_" + Role.USER.getRoleName())
-        );
+        final Collection<? extends GrantedAuthority> authorities = us.getRoles(domainUser).stream()
+                .map(role -> new SimpleGrantedAuthority(role.getSpringRoleName()))
+                .toList();
         return new AuthUserDetails(domainUser, authorities);
     }
 }

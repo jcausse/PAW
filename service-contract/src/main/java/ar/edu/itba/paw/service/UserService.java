@@ -1,9 +1,11 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -21,4 +23,7 @@ public interface UserService {
 
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
+
+    void addRole(User user, Role role);
+    List<Role> getRoles(User user);
 }
