@@ -132,55 +132,32 @@
                 <c:otherwise>
                     <div class="flex flex-col gap-4">
                         <c:forEach var="rating" items="${ratings}" varStatus="loop">
-                            <div class="p-4 bg-white border border-black/10 rounded-lg">
-                                <div class="flex flex-row gap-4 mb-2">
-                                    <c:choose>
-                                        <c:when test="${rating.type.name() == 'POSITIVE'}">
-                                            <paw:icon name="arrow-up" classname="text-2xl text-lime-600 mt-1" />
-                                        </c:when>
-                                        <c:when test="${rating.type.name() == 'NEUTRAL'}">
-                                            <paw:icon name="minus" classname="text-2xl text-stone-500 mt-1" />
-                                        </c:when>
-                                        <c:otherwise>
-                                            <paw:icon name="arrow-down" classname="text-2xl text-red-600 mt-1" />
-                                        </c:otherwise>
-                                    </c:choose>
-                                    <div class="flex-1">
-                                        <div class="flex flex-row gap-2 items-center mb-1">
-                                            <span class="font-medium text-black"><c:out value="${rating.listing.title}"/></span>
-                                            <c:choose>
-                                                <c:when test="${rating.type.name() == 'POSITIVE'}">
-                                                    <span class="text-xs text-lime-600 font-medium px-2 py-0.5 bg-lime-50 rounded"><c:out value="${ratingFilterPositive}"/></span>
-                                                </c:when>
-                                                <c:when test="${rating.type.name() == 'NEUTRAL'}">
-                                                    <span class="text-xs text-stone-500 font-medium px-2 py-0.5 bg-stone-50 rounded"><c:out value="${ratingFilterNeutral}"/></span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-xs text-red-600 font-medium px-2 py-0.5 bg-red-50 rounded"><c:out value="${ratingFilterNegative}"/></span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                            <c:choose>
-                                                <c:when test="${rating.role.name() == 'SELLER'}">
-                                                    <span class="text-xs text-black/50 px-2 py-0.5 bg-black/5 rounded"><c:out value="${ratingFilterSeller}"/></span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-xs text-black/50 px-2 py-0.5 bg-black/5 rounded"><c:out value="${ratingFilterBuyer}"/></span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                        <p class="text-sm text-black/60 mt-1 whitespace-pre-wrap"><c:out value="${rating.reviewText}"/></p>
+                            <div class="flex flex-row gap-4">
+                                <c:choose>
+                                    <c:when test="${rating.type.name() == 'POSITIVE'}">
+                                        <paw:icon name="arrow-up" classname="text-2xl text-lime-600 mt-1" />
+                                    </c:when>
+                                    <c:when test="${rating.type.name() == 'NEUTRAL'}">
+                                        <paw:icon name="minus" classname="text-2xl text-stone-500 mt-1" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <paw:icon name="arrow-down" classname="text-2xl text-red-600 mt-1" />
+                                    </c:otherwise>
+                                </c:choose>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-row gap-2 items-center mb-1">
+                                        <span class="font-medium text-black truncate"><c:out value="${rating.listing.title}"/></span>
+                                        <paw:badge text="${rating.type.name() == 'POSITIVE' ? ratingFilterPositive : (rating.type.name() == 'NEUTRAL' ? ratingFilterNeutral : ratingFilterNegative)}" classname="${rating.type.name() == 'POSITIVE' ? 'text-lime-600' : (rating.type.name() == 'NEUTRAL' ? 'text-stone-500' : 'text-red-600')}" size="sm" />
                                     </div>
-                                    <div class="flex flex-col items-end">
-                                        <paw:user user="${rating.creator}" variant="compact" />
-                                        <span class="text-xs text-black/50">
-                                            <spring:message code="profile.memberSince" arguments="${rating.createdAt.toEpochMilli()}"/>
-                                        </span>
-                                    </div>
+                                    <p class="text-sm text-black/60 mt-1 whitespace-pre-wrap"><c:out value="${rating.reviewText}"/></p>
                                 </div>
-                                <c:if test="${!loop.last}">
-                                    <paw:divider />
-                                </c:if>
+                                <div class="flex flex-col items-end">
+                                    <paw:user user="${rating.creator}" variant="compact" />
+                                </div>
                             </div>
+                            <c:if test="${!loop.last}">
+                                <paw:divider />
+                            </c:if>
                         </c:forEach>
 
                         <paw:pagination page="${ratingPage}" baseUrl="/profile/${user.id}"/>
