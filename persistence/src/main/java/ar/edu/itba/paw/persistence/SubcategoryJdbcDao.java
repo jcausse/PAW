@@ -62,11 +62,8 @@ public class SubcategoryJdbcDao implements SubcategoryDao {
         values.put(SubcategorySchema.CATEGORY_ID, categoryId);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
-        return Subcategory.builder()
-            .id(key)
-            .name(name)
-            .category(Category.builder().id(categoryId).build())
-            .build();
+        return getById(key).orElseThrow(() ->
+            new IllegalStateException("Subcategory " + key + " was inserted but could not be read back"));
     }
 
     /* ---------------------------------------------------------------------------------------------- */

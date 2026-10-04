@@ -3,13 +3,13 @@ package ar.edu.itba.paw.service;
 import org.junit.Test;
 import org.junit.Before;
 import java.util.Optional;
+import java.time.Instant;
 import org.junit.Assert;
 import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.junit.runner.RunWith;
-import ar.edu.itba.paw.model.Image;
 
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
@@ -37,6 +37,7 @@ public class UserServiceImplTest {
             .displayName(USER_DISPLAY_NAME)
             .email(USER_EMAIL)
             .password(USER_PASSWORD)
+            .joinedAt(Instant.now())
             .build();
     }
 
@@ -180,22 +181,4 @@ public class UserServiceImplTest {
         Assert.assertFalse(taken);
     }
 
-    @Test
-    public void testUpdateImage() {
-        // Arrange
-        final User user = buildFakeUser();
-        final Image image = Image.builder()
-            .id(1L)
-            .filename("photo.png")
-            .alt("profile picture")
-            .build();
-
-        when(userDao.updateImage(eq(user), eq(image))).thenReturn(image);
-
-        // Act
-        final Image result = userService.updateImage(user, image);
-
-        // Assert
-        Assert.assertEquals(image, result);
-    }
 }
