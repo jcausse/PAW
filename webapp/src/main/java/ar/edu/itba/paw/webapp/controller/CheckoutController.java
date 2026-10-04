@@ -92,6 +92,7 @@ public class CheckoutController {
                 1,
                 100,
                 null,
+                null,
                 null
             );
             var userListings = listingService.search(filter).getContent();

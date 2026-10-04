@@ -24,6 +24,7 @@
 <spring:message code="discovery.filter.minPrice" var="minPriceLabel"/>
 <spring:message code="discovery.filter.maxPrice" var="maxPriceLabel"/>
 <spring:message code="discovery.filter.acceptsTrade" var="acceptsTradeLabel"/>
+<spring:message code="discovery.filter.acceptsShipping" var="acceptsShippingLabel"/>
 <spring:message code="discovery.filter.apply" var="applyLabel"/>
 <spring:message code="discovery.filter.clear" var="clearLabel"/>
 <spring:message code="discovery.sort.label" var="sortLabel"/>
@@ -59,6 +60,10 @@
                             <label class="flex items-center gap-2 text-sm">
                                 <form:checkbox path="acceptsTrade" value="true" class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"/>
                                 <c:out value="${acceptsTradeLabel}"/>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm">
+                                <form:checkbox path="acceptsShipping" value="true" class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"/>
+                                <c:out value="${acceptsShippingLabel}"/>
                             </label>
                         </div>
 

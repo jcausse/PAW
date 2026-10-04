@@ -74,7 +74,8 @@ public class ListingController {
             filterForm.getPage(),
             DISCOVERY_PAGE_SIZE,
             null,
-            filterForm.getProvinceId()
+            filterForm.getProvinceId(),
+            filterForm.getAcceptsShipping()
         );
 
         final var listingPage = listingService.search(filter);

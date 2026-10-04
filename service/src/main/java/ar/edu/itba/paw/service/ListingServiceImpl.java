@@ -71,6 +71,7 @@ public class ListingServiceImpl implements ListingService {
             .status(parseStatus(dto.status()))
             .hasActiveOffers(dto.hasActiveOffers())
             .provinceId(dto.provinceId())
+            .acceptsShipping(Boolean.TRUE.equals(dto.acceptsShipping()) ? Boolean.TRUE : null)
             .build();
 
         return listingDao.search(filter);

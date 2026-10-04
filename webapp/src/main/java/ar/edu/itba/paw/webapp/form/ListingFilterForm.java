@@ -21,4 +21,5 @@ public class ListingFilterForm {
     private String status;
     private Integer page;
     private Long provinceId;
+    private Boolean acceptsShipping;
 }

@@ -83,6 +83,10 @@ public class ListingJdbcDao implements ListingDao {
             conditions.add("l." + ListingSchema.ACCEPTS_TRADE + " = ?");
             params.add(filter.getAcceptsTrade());
         }
+        if (filter.getAcceptsShipping() != null) {
+            conditions.add("l." + ListingSchema.ACCEPTS_SHIPPING + " = ?");
+            params.add(filter.getAcceptsShipping());
+        }
         if (filter.getStatus() != null) {
             conditions.add("l." + ListingSchema.STATUS + " = ?");
             params.add(filter.getStatus().getStatus());

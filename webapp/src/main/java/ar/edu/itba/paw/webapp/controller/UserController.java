@@ -69,6 +69,7 @@ public class UserController {
                 1,
                 PROFILE_LISTINGS_PAGE_SIZE,
                 null,
+                null,
                 null
         );
 
