@@ -19,6 +19,7 @@ import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import lombok.NonNull;
 
 import java.time.Instant;
 import java.time.Duration;
@@ -385,17 +386,21 @@ public class OfferServiceImpl implements OfferService {
             throw new BadParameterException("Only accepted offers can be rated");
         }
 
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUser.getId());
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUser.getId());
+		final var buyer = offer.getBuyer();
+		final var seller = offer.getListing().getCreator();
+
+		final boolean isBuyer = buyer.getId().equals(currentUser.getId());
+		final boolean isSeller = seller.getId().equals(currentUser.getId());
 
         if (!isBuyer && !isSeller) {
             throw new ForbiddenException("You did not participate in this offer");
         }
 
-        final RatingRole role = isBuyer ? RatingRole.SELLER : RatingRole.BUYER;
+        final var role = isBuyer ? RatingRole.SELLER : RatingRole.BUYER;
+        final var ratedUser = isBuyer ? seller : buyer;
 
         if (reviewText != null && !reviewText.isBlank()) {
-            ratingService.create(currentUser, offer.getListing().getCreator(), offer, role, rating, reviewText.trim());
+            ratingService.create(currentUser, ratedUser, offer, role, rating, reviewText.trim());
         }
 
         if (isBuyer) {
@@ -403,13 +408,13 @@ public class OfferServiceImpl implements OfferService {
             if (!updated) {
                 throw new BadParameterException("You have already rated this offer");
             }
-            userDao.incrementSellerRatingCounter(offer.getListing().getCreator().getId(), rating);
+            userDao.incrementSellerRatingCounter(seller.getId(), rating);
         } else {
             final boolean updated = offerDao.setBuyerRating(offer.getId(), rating);
             if (!updated) {
                 throw new BadParameterException("You have already rated this offer");
             }
-            userDao.incrementBuyerRatingCounter(offer.getBuyer().getId(), rating);
+            userDao.incrementBuyerRatingCounter(buyer.getId(), rating);
         }
 
         return getById(offer.getId()).orElseThrow();

@@ -110,7 +110,7 @@
             <!-- Ratings list with filters -->
             <paw:divider />
 
-            <form:form modelAttribute="ratingFilterForm" action="${filterAction}" method="get" id="ratingFilterForm" class="mt-4">
+            <form:form modelAttribute="ratingFilterForm" action="${filterAction}" method="get" id="filterForm" class="mt-4">
                 <div class="flex flex-wrap gap-4 mb-4">
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterRole}"/></label>
