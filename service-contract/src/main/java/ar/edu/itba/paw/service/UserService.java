@@ -16,6 +16,8 @@ public interface UserService {
 
     User create(UserCreationDto dto);
     User update(UserEditDto dto);
+
+    User updateLocation(User user, Long provinceId, String locationDetail);
     User updateEmail(User user, String email);
     User markEmailAsVerified(User user);
 

@@ -9,6 +9,7 @@ import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Price;
+import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.Product;
 import ar.edu.itba.paw.model.Subcategory;
 import ar.edu.itba.paw.model.User;
@@ -16,6 +17,7 @@ import ar.edu.itba.paw.persistence.schema.CategorySchema;
 import ar.edu.itba.paw.persistence.schema.ListingSchema;
 import ar.edu.itba.paw.persistence.schema.OfferSchema;
 import ar.edu.itba.paw.persistence.schema.ProductSchema;
+import ar.edu.itba.paw.persistence.schema.ProvinceSchema;
 import ar.edu.itba.paw.persistence.schema.SubcategorySchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 import java.util.ArrayList;
@@ -81,6 +83,10 @@ public class ListingJdbcDao implements ListingDao {
             conditions.add("l." + ListingSchema.ACCEPTS_TRADE + " = ?");
             params.add(filter.getAcceptsTrade());
         }
+        if (filter.getAcceptsShipping() != null) {
+            conditions.add("l." + ListingSchema.ACCEPTS_SHIPPING + " = ?");
+            params.add(filter.getAcceptsShipping());
+        }
         if (filter.getStatus() != null) {
             conditions.add("l." + ListingSchema.STATUS + " = ?");
             params.add(filter.getStatus().getStatus());
@@ -88,6 +94,10 @@ public class ListingJdbcDao implements ListingDao {
         if (filter.getCreatorId() != null) {
             conditions.add("l." + ListingSchema.CREATOR_ID + " = ?");
             params.add(filter.getCreatorId());
+        }
+        if (filter.getProvinceId() != null) {
+            conditions.add("c." + UserSchema.PROVINCE_ID + " = ?");
+            params.add(filter.getProvinceId());
         }
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add("(LOWER(" + "l." + ListingSchema.TITLE + ") LIKE ?"
@@ -164,6 +174,7 @@ public class ListingJdbcDao implements ListingDao {
         Product product,
         Condition condition,
         boolean acceptsTrade,
+        boolean acceptsShipping,
         String description,
         List<Long> imageIds
     ) {
@@ -176,6 +187,7 @@ public class ListingJdbcDao implements ListingDao {
         values.put(ListingSchema.STATUS, ListingStatus.ACTIVE.getStatus());
         values.put(ListingSchema.CONDITION, condition.getCondition());
         values.put(ListingSchema.ACCEPTS_TRADE, acceptsTrade);
+        values.put(ListingSchema.ACCEPTS_SHIPPING, acceptsShipping);
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -197,6 +209,7 @@ public class ListingJdbcDao implements ListingDao {
             .status(ListingStatus.ACTIVE)
             .condition(condition)
             .acceptsTrade(acceptsTrade)
+            .acceptsShipping(acceptsShipping)
             .imageIds(imageIds != null ? imageIds : List.of())
             .pendingOffersCount(0)
             .build();
@@ -232,11 +245,12 @@ public class ListingJdbcDao implements ListingDao {
         Product product,
         Condition condition,
         boolean acceptsTrade,
+        boolean acceptsShipping,
         String description
     ) {
         jdbcTemplate.update(
             Queries.UPDATE_BY_ID,
-            title, description, product.getId(), price.getAmount(), condition.getCondition(),acceptsTrade, id
+            title, description, product.getId(), price.getAmount(), condition.getCondition(), acceptsTrade, acceptsShipping, id
         );
         return getById(id).orElseThrow();
     }
@@ -252,6 +266,7 @@ public class ListingJdbcDao implements ListingDao {
             .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
             .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
             .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
+            .acceptsShipping(rs.getBoolean(ListingSchema.ACCEPTS_SHIPPING))
             .creator(
                 User.builder()
                     .id(rs.getLong(UserSchema.ID))
@@ -268,6 +283,8 @@ public class ListingJdbcDao implements ListingDao {
                     .sellerPositiveRatings(rs.getInt(UserSchema.SELLER_POSITIVE_RATINGS))
                     .sellerNeutralRatings(rs.getInt(UserSchema.SELLER_NEUTRAL_RATINGS))
                     .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
+                    .province(mapCreatorProvince(rs))
+                    .locationDetail(rs.getString("creator_location_detail"))
                     .build()
             )
             .product(
@@ -294,6 +311,17 @@ public class ListingJdbcDao implements ListingDao {
             .pendingOffersCount(rs.getInt("pending_offers_count"))
             .build();
 
+    private static Province mapCreatorProvince(final java.sql.ResultSet rs) throws java.sql.SQLException {
+        final Integer provinceId = rs.getObject("creator_province_id", Integer.class);
+        if (provinceId == null) {
+            return null;
+        }
+        return Province.builder()
+            .id(provinceId.longValue())
+            .name(rs.getString("creator_province_name"))
+            .build();
+    }
+
     private static List<Long> parseImageIds(String imageIdsStr) {
         if (imageIdsStr == null || imageIdsStr.isEmpty()) {
             return List.of();
@@ -317,6 +345,7 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.STATUS,
             ListingSchema.CONDITION,
             ListingSchema.ACCEPTS_TRADE,
+            ListingSchema.ACCEPTS_SHIPPING,
             "c." + UserSchema.ID,
             "c." + UserSchema.USERNAME,
             "c." + UserSchema.DISPLAY_NAME,
@@ -326,6 +355,9 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.SELLER_POSITIVE_RATINGS,
             "c." + UserSchema.SELLER_NEUTRAL_RATINGS,
             "c." + UserSchema.SELLER_NEGATIVE_RATINGS,
+            "c." + UserSchema.PROVINCE_ID + " as creator_province_id",
+            "c." + UserSchema.LOCATION_DETAIL + " as creator_location_detail",
+            "cpr." + ProvinceSchema.NAME + " as creator_province_name",
             "p." + ProductSchema.ID,
             "p." + ProductSchema.BRAND,
             "p." + ProductSchema.MODEL,
@@ -346,6 +378,7 @@ public class ListingJdbcDao implements ListingDao {
         private static final String BASE_FROM =
             " FROM " + ListingSchema.TABLE_NAME + " AS l" +
             " JOIN " + UserSchema.TABLE_NAME + " AS c ON c." + UserSchema.ID + " = l." + ListingSchema.CREATOR_ID +
+            " LEFT JOIN " + ProvinceSchema.TABLE_NAME + " AS cpr ON cpr." + ProvinceSchema.ID + " = c." + UserSchema.PROVINCE_ID +
             " JOIN " + ProductSchema.TABLE_NAME + " AS p ON p." + ProductSchema.ID + " = l." + ListingSchema.PRODUCT_ID +
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
             " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID;
@@ -374,7 +407,8 @@ public class ListingJdbcDao implements ListingDao {
             ListingSchema.PRODUCT_ID + " = ?, " +
             ListingSchema.PRICE + " = ?, " +
             ListingSchema.CONDITION + " = ?, " +
-            ListingSchema.ACCEPTS_TRADE + " = ? " +
+            ListingSchema.ACCEPTS_TRADE + " = ?, " +
+            ListingSchema.ACCEPTS_SHIPPING + " = ? " +
             "WHERE " + ListingSchema.ID + " = ?";
         
         private static final String DELETE_BY_ID =
