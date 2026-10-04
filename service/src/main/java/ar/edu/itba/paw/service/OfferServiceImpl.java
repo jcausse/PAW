@@ -467,4 +467,38 @@ public class OfferServiceImpl implements OfferService {
             }
         }
     }
+
+    @Override
+    @Transactional
+    public void cancel(Long offerId) {
+        LOGGER.info("Canceling offer by admin: offerId={}", offerId);
+
+        /* Get offer */
+        final Offer offer = offerDao.getById(offerId)
+            .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        /* Reset listing status to ACTIVE if the current offer is holding it PENDING_TRANSACTION */
+        switch (offer.getStatus()) {
+            case OfferStatus.PENDING -> {}  // Listings with pending offers are still ACTIVE
+            case OfferStatus.PENDING_PAYMENT ->
+                listingService.updateStatus(offer.getListing().getId(), ListingStatus.ACTIVE);
+            default -> {
+                LOGGER.warn("Cannot cancel offer {} in status {}", offerId, offer.getStatus());
+                throw new BadParameterException("Offer cannot be canceled in its current state");
+            }
+        }
+
+        /* If there is an offered listing, reset it to ACTIVE */
+        if (offer.getOfferedListingId() != null) {
+            listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.ACTIVE);
+        }
+
+        /* Reject the offer */
+        offerDao.updateStatus(offerId, OfferStatus.REJECTED);
+
+        LOGGER.info("Offer canceled by admin: offerId={}, listingId={}", offerId, offer.getListing().getId());
+
+        /* Send the buyer an email telling them the offer has been rejected */
+        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+    }
 }

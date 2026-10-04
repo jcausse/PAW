@@ -46,4 +46,6 @@ public interface OfferService {
 
     @SuppressWarnings("unused") 
     void autoRatePendingOffers();
+
+    void cancel(Long offerId);
 }
