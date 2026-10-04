@@ -91,6 +91,7 @@ public class CheckoutController {
                 ListingStatus.ACTIVE.name(),
                 1,
                 100,
+                null,
                 null
             );
             var userListings = listingService.search(filter).getContent();

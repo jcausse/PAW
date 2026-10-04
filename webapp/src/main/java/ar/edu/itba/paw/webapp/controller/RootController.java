@@ -39,7 +39,7 @@ public class RootController {
             null, null, null, null, null, null, null,
             ListingSort.MOST_OFFERS.getKey(),
             null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, true
+            1, LANDING_LIST_SIZE, true, null
         );
         Page<Listing> hotItemsPage = listingService.search(hotItemsFilter);
 
@@ -48,7 +48,7 @@ public class RootController {
             null, null, null, null, null, null, null,
             ListingSort.RECENT_OFFERS.getKey(),
             null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, true
+            1, LANDING_LIST_SIZE, true, null
         );
         Page<Listing> trendingItemsPage = listingService.search(trendingItemsFilter);
 
@@ -57,7 +57,7 @@ public class RootController {
             null, null, null, null, null, null, null,
             ListingSort.RECENT.getKey(),
             null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, null
+            1, LANDING_LIST_SIZE, null, null
         );
         Page<Listing> newItemsPage = listingService.search(newItemsFilter);
 

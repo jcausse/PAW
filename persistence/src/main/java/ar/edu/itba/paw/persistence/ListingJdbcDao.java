@@ -91,6 +91,10 @@ public class ListingJdbcDao implements ListingDao {
             conditions.add("l." + ListingSchema.CREATOR_ID + " = ?");
             params.add(filter.getCreatorId());
         }
+        if (filter.getProvinceId() != null) {
+            conditions.add("c." + UserSchema.PROVINCE_ID + " = ?");
+            params.add(filter.getProvinceId());
+        }
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add("(LOWER(" + "l." + ListingSchema.TITLE + ") LIKE ?"
                 + " OR LOWER(" + "l." + ListingSchema.DESCRIPTION + ") LIKE ?)");

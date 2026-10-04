@@ -68,6 +68,7 @@ public class UserController {
                 ListingStatus.ACTIVE.name(),
                 1,
                 PROFILE_LISTINGS_PAGE_SIZE,
+                null,
                 null
         );
 

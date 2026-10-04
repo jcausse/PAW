@@ -8,6 +8,7 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.ProductService;
+import ar.edu.itba.paw.service.ProvinceService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
@@ -53,6 +54,7 @@ public class ListingController {
     private final ListingService listingService;
     private final OfferService offerService;
     private final ProductService productService;
+    private final ProvinceService provinceService;
     private final MessageSource messageSource;
 
     @GetMapping
@@ -71,7 +73,8 @@ public class ListingController {
             ListingStatus.ACTIVE.getStatus(),
             filterForm.getPage(),
             DISCOVERY_PAGE_SIZE,
-            null
+            null,
+            filterForm.getProvinceId()
         );
 
         final var listingPage = listingService.search(filter);
@@ -107,6 +110,13 @@ public class ListingController {
             categoryOptions.add(new SelectOption(cat.getId(), messageSource.getMessage("category." + cat.getName(), null, LocaleContextHolder.getLocale())));
         }
         mav.addObject("categoryOptions", categoryOptions);
+
+        // Create translated province options for paw:formSelect
+        var provinceOptions = new java.util.ArrayList<SelectOption>();
+        for (var province : provinceService.getAll()) {
+            provinceOptions.add(new SelectOption(province.getId(), messageSource.getMessage("province." + province.getName(), null, LocaleContextHolder.getLocale())));
+        }
+        mav.addObject("provinceOptions", provinceOptions);
 
         if (filterForm.getCategoryId() != null) {
             // Create translated subcategory options for paw:formSelect

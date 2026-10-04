@@ -70,6 +70,7 @@ public class ListingServiceImpl implements ListingService {
             .creatorId(dto.creatorId())
             .status(parseStatus(dto.status()))
             .hasActiveOffers(dto.hasActiveOffers())
+            .provinceId(dto.provinceId())
             .build();
 
         return listingDao.search(filter);

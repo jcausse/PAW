@@ -21,4 +21,5 @@ public final class ListingFilter {
     private final int page;
     private final int pageSize;
     private final Boolean hasActiveOffers;
+    private final Long provinceId;
 }

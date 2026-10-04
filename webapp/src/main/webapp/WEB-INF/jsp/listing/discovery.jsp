@@ -20,6 +20,7 @@
 <spring:message code="discovery.filter.category" var="categoryLabel"/>
 <spring:message code="discovery.filter.subcategory" var="subcategoryLabel"/>
 <spring:message code="discovery.filter.condition" var="conditionLabel"/>
+<spring:message code="discovery.filter.province" var="provinceLabel"/>
 <spring:message code="discovery.filter.minPrice" var="minPriceLabel"/>
 <spring:message code="discovery.filter.maxPrice" var="maxPriceLabel"/>
 <spring:message code="discovery.filter.acceptsTrade" var="acceptsTradeLabel"/>
@@ -46,6 +47,8 @@
                         </c:if>
 
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" itemLabel="label" itemValue="value" />
+
+                        <paw:formSelect path="provinceId" label="${provinceLabel}" placeholder="${allLabel}" items="${provinceOptions}" />
 
                         <div class="flex flex-row gap-2">
                             <paw:formInput path="minPrice" type="number" step="0.01" min="0" label="${minPriceLabel}" classname="min-w-0" />
