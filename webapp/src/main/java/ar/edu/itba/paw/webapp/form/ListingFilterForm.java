@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
 import java.math.BigDecimal;
+import javax.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class ListingFilterForm {
     private String query;
     private String sort;
     private String status;
+    @Min(1)
     private Integer page;
     private Long provinceId;
     private Boolean acceptsShipping;
