@@ -248,6 +248,19 @@ public class ListingJdbcDao implements ListingDao {
     }
 
     @Override
+    public void updateStatusBulk(List<Long> ids, ListingStatus status) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        String placeholders = String.join(",", ids.stream().map(i -> "?").toArray(String[]::new));
+        String sql = "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? WHERE " + ListingSchema.ID + " IN (" + placeholders + ")";
+        List<Object> params = new ArrayList<>();
+        params.add(status.getStatus());
+        params.addAll(ids);
+        jdbcTemplate.update(sql, params.toArray());
+    }
+
+    @Override
     public Listing update(
         Long id,
         String title,

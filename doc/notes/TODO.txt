@@ -1,49 +1,14 @@
 MINOR CHANGES
 
-[x] auto-login despues de cambiar la contraseña
-
-[x] auto-login despues de verificar el mail
-
-[x] cambiar que si no existe una cuenta en el password recovery no muestre un error para no hacer disclosure
-
-[x] hacer que el modal de /recovery/request sea igual de grande que el formulario que queda atras, con un title mas grande
-
-[x] hacer que cuando cliqueas reset password en el mail de recovery y en el de verification ya te autocomplete el otp para no tener que copiarlo
-
 [ ] poner un href	al codigo de error que se muestra al poner un otp expirado que te vuelva a llevar a /recovery/request
-
-[x] hacer que no se pueda cambiar el mail en /profile/edit
-
-[ ] cuando no tenes listings activos en el profile, que tenga un cta para agregar uno
 
 [ ] account > my offers tiene que tener un cta que lleve a /listings
 
-[x] remover el email (y el boton de send email) del perfil publico
-
-[x] agregar a las paginas de login / register algun logo de swappr y un fondo que contraste con el formulario (tipo imagen difuminada)
-
-[x] falta un c:out para ir a /account
-
 [ ] hacer que los forms tengan un .todto() para evitar instanciar todo el tiempo los dtos para pasar a los servicios
-
-[x] sacar la seccion de skills de agents.md. es redundante y ya alcanza con tener las skills en la carpeta .agents.
 
 [ ] la validación de imágenes @ValidFile en el listing create pierde el param productId en el redirect
 
-[ ] Tooltips o texto en los buttons de pending y pending payment offers en account
-
 MAJOR CHANGES
-
-[x] mejora ux que permita ingresar email o username en el mismo text field al hacer login o password recovery
-
-[x] account verification
-
-[ ] hacer un hub unificado /offers de offers que tenga dos tabs verticales u horizontales de forma tal que haya un hub con todo lo que tiene que ver con offers
-todo junto.
-- agregar ese acceso a esa pagina /offers en la navbar
-- hacer que desde /account vayas a esa pagina cuando tocas en my offers o incomming offers
-
-[ ] volar la home y que vayas directo a /listings porque el flujo de venta ya esta en la navbar
 
 [ ] Doble `LocaleResolver`
 

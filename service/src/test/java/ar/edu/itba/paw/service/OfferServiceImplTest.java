@@ -658,9 +658,9 @@ public class OfferServiceImplTest {
         // Act
         offerService.rejectPendingOffersForListing(LISTING_ID, null);
 
-        // Assert
-        verify(listingService, times(1)).updateStatus(any(), any());
-        verify(listingService).updateStatus(eq(OFFERED_LISTING_ID), eq(ListingStatus.ACTIVE));
+        // Assert: only traded listings are reactivated, in a single bulk update
+        verify(listingService, times(1)).updateStatusBulk(any(), any());
+        verify(listingService).updateStatusBulk(eq(List.of(OFFERED_LISTING_ID)), eq(ListingStatus.ACTIVE));
     }
 
     /* ---------------------------------------------------------------------------------------------- */
