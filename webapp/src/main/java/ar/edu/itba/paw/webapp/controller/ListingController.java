@@ -296,7 +296,7 @@ public class ListingController {
         LOGGER.info("User {} submitted listing creation/edit for product {}", currentUser.getId(), form.getProductId());
         if (bindingResult.hasErrors()) {
             LOGGER.debug("Validation failed for listing creation/edit for product {}", form.getProductId());
-            return detailsWithErrors();
+            return detailsWithErrors(form);
         }
 
         List<ImageData> imageDataList = new ArrayList<>();
@@ -312,7 +312,7 @@ public class ListingController {
                     } catch (IOException e) {
                         LOGGER.error("Failed to read uploaded image", e);
                         bindingResult.rejectValue("images", "error.image.upload");
-                        return detailsWithErrors();
+                        return detailsWithErrors(form);
                     }
                 }
             }
@@ -346,8 +346,10 @@ public class ListingController {
         return new ModelAndView("redirect:/listing/" + newListing.getId());
     }
 
-    private ModelAndView detailsWithErrors() {
+    private ModelAndView detailsWithErrors(ListingDetailsForm form) {
+        var product = productService.getById(form.getProductId());
         return new ModelAndView("listing/new/details")
+                .addObject("product", product)
                 .addObject("conditionOptions", buildConditionOptions());
     }
 

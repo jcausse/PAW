@@ -33,7 +33,6 @@ import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
-import ar.edu.itba.paw.service.RatingService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
@@ -59,7 +58,6 @@ public class AccountController {
 
     private final ListingService listingService;
     private final OfferService offerService;
-    private final RatingService ratingService;
     private final MessageSource messageSource;
 
     @GetMapping
@@ -375,6 +373,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("account/rate");
             mav.addObject("offer", offer);
+            mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
 
