@@ -53,6 +53,8 @@ public final class User {
         return Optional.ofNullable(locationDetail);
     }
 
+    private final @NonNull String preferredLanguage;
+
     public int getSellerTotalRatings() {
         return sellerPositiveRatings + sellerNeutralRatings + sellerNegativeRatings;
     }
