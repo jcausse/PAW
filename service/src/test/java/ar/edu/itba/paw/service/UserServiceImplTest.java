@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
+import ar.edu.itba.paw.persistence.UserRoleDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
 import ar.edu.itba.paw.service.dto.UserEditDto;
@@ -40,6 +41,8 @@ public class UserServiceImplTest {
 
     @Mock
     private UserDao userDao;
+    @Mock
+    private UserRoleDao userRoleDao;
     @Mock
     private ImageService imageService;
     @Mock

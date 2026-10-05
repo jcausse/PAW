@@ -55,11 +55,15 @@
                         </label>
                         <select id="admin-listing-status" name="status" class="w-full px-3 py-2 rounded-lg text-sm border border-black/20 focus-visible:border-lime-600 focus-visible:outline-2 bg-white">
                             <spring:message code="admin.listings.status.all" var="allStatusText"/>
+                            <spring:message code="listing.status.ACTIVE" var="statusActiveText"/>
+                            <spring:message code="listing.status.SOLD" var="statusSoldText"/>
+                            <spring:message code="listing.status.PENDING_TRANSACTION" var="statusPendingTxText"/>
+                            <spring:message code="listing.status.CANCELED" var="statusCanceledText"/>
                             <option value="" ${empty currentStatus ? 'selected' : ''}><c:out value="${allStatusText}"/></option>
-                            <option value="ACTIVE" ${currentStatus eq 'ACTIVE' ? 'selected' : ''}>Active</option>
-                            <option value="SOLD" ${currentStatus eq 'SOLD' ? 'selected' : ''}>Sold</option>
-                            <option value="PENDING_TRANSACTION" ${currentStatus eq 'PENDING_TRANSACTION' ? 'selected' : ''}>Pending Transaction</option>
-                            <option value="CANCELED" ${currentStatus eq 'CANCELED' ? 'selected' : ''}>Canceled</option>
+                            <option value="ACTIVE" ${currentStatus eq 'ACTIVE' ? 'selected' : ''}><c:out value="${statusActiveText}"/></option>
+                            <option value="SOLD" ${currentStatus eq 'SOLD' ? 'selected' : ''}><c:out value="${statusSoldText}"/></option>
+                            <option value="PENDING_TRANSACTION" ${currentStatus eq 'PENDING_TRANSACTION' ? 'selected' : ''}><c:out value="${statusPendingTxText}"/></option>
+                            <option value="CANCELED" ${currentStatus eq 'CANCELED' ? 'selected' : ''}><c:out value="${statusCanceledText}"/></option>
                         </select>
                     </div>
                 </div>
