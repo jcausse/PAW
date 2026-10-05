@@ -112,13 +112,17 @@
 
             <form:form modelAttribute="ratingFilterForm" action="${filterAction}" method="get" id="filterForm" class="mt-4">
                 <div class="flex flex-wrap gap-4 mb-4">
-                    <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1 grow">
                         <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterRole}"/></label>
-                        <paw:formButtonToggle path="role" items="${roleOptions}" selectedOption="${ratingFilterForm.role}" />
+                        <div class="border border-black/10 rounded-xl p-1">
+                            <paw:formButtonToggle path="role" items="${roleOptions}" selectedOption="${ratingFilterForm.role}" />
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterType}"/></label>
-                        <paw:formButtonToggle path="type" items="${typeOptions}" selectedOption="${ratingFilterForm.type}" />
+                        <div class="border border-black/10 rounded-xl p-1">
+                            <paw:formButtonToggle path="type" items="${typeOptions}" selectedOption="${ratingFilterForm.type}" />
+                        </div>
                     </div>
                 </div>
             </form:form>
@@ -132,22 +136,21 @@
                 <c:otherwise>
                     <div class="flex flex-col gap-4">
                         <c:forEach var="rating" items="${ratings}" varStatus="loop">
-                            <div class="flex flex-row gap-4">
+                            <div class="flex flex-row gap-4 items-center">
                                 <c:choose>
                                     <c:when test="${rating.type.name() == 'POSITIVE'}">
-                                        <paw:icon name="arrow-up" classname="text-2xl text-lime-600 mt-1" />
+                                        <paw:icon name="arrow-up" classname="font-bold border rounded-full w-6 h-6 bg-lime-50 border-lime-200 text-lime-600" />
                                     </c:when>
                                     <c:when test="${rating.type.name() == 'NEUTRAL'}">
-                                        <paw:icon name="minus" classname="text-2xl text-stone-500 mt-1" />
+                                        <paw:icon name="minus" classname="font-bold border rounded-full w-6 h-6 bg-stone-50 border-stone-200 text-stone-500" />
                                     </c:when>
                                     <c:otherwise>
-                                        <paw:icon name="arrow-down" classname="text-2xl text-red-600 mt-1" />
+                                        <paw:icon name="arrow-down" classname="font-bold border rounded-full w-6 h-6 bg-red-50 border-red-200 text-red-600" />
                                     </c:otherwise>
                                 </c:choose>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex flex-row gap-2 items-center mb-1">
                                         <span class="font-medium text-black truncate"><c:out value="${rating.listing.title}"/></span>
-                                        <paw:badge text="${rating.type.name() == 'POSITIVE' ? ratingFilterPositive : (rating.type.name() == 'NEUTRAL' ? ratingFilterNeutral : ratingFilterNegative)}" classname="${rating.type.name() == 'POSITIVE' ? 'text-lime-600' : (rating.type.name() == 'NEUTRAL' ? 'text-stone-500' : 'text-red-600')}" size="sm" />
                                     </div>
                                     <p class="text-sm text-black/60 mt-1 whitespace-pre-wrap"><c:out value="${rating.reviewText}"/></p>
                                 </div>
