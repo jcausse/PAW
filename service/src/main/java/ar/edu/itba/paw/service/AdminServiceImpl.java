@@ -27,7 +27,7 @@ public class AdminServiceImpl implements AdminService {
     public boolean takeDownListing(@NonNull Long listingId) {
         LOGGER.info("Admin taking down listing id={}", listingId);
         try {
-            listingService.cancel(listingId);
+            listingService.cancelByAdmin(listingId);
             return true;
         } catch (NotFoundException e) {
             LOGGER.warn("Listing {} not found for takedown", listingId);
@@ -40,7 +40,7 @@ public class AdminServiceImpl implements AdminService {
     public boolean takeDownOffer(@NonNull Long offerId) {
         LOGGER.info("Admin taking down offer id={}", offerId);
         try {
-            offerService.cancel(offerId);
+            offerService.cancelByAdmin(offerId);
             return true;
         } catch (NotFoundException | BadParameterException e) {
             LOGGER.warn("Offer {} cannot be taken down: {}", offerId, e.getMessage());

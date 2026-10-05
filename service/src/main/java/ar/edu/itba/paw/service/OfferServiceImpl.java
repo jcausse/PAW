@@ -280,8 +280,8 @@ public class OfferServiceImpl implements OfferService {
 
         // Collect offered listing IDs to bulk update
         List<Long> offeredListingIds = rejected.stream()
-                .filter(o -> o.getOfferedListingId() != null)
                 .map(Offer::getOfferedListingId)
+                .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
@@ -513,7 +513,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     @Transactional
-    public void cancel(Long offerId) {
+    public void cancelByAdmin(Long offerId) {
         LOGGER.info("Canceling offer by admin: offerId={}", offerId);
 
         /* Get offer */

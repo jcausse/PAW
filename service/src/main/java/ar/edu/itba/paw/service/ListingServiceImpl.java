@@ -255,6 +255,15 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
+    public void cancelByAdmin(Long id) {
+        LOGGER.info("Canceling listing id={} by Admin", id);
+        offerService.rejectPendingOffersForListing(id, null);
+        listingDao.cancel(id);
+        LOGGER.info("Listing canceled by Admin: id={}", id);
+    }
+
+    @Override
+    @Transactional
     public void updateStatus(Long id, ListingStatus status) {
         LOGGER.debug("Updating listing status: id={}, newStatus={}", id, status);
         listingDao.updateStatus(id, status);

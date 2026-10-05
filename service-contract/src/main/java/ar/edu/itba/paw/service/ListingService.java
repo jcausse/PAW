@@ -26,4 +26,6 @@ public interface ListingService {
     Listing update(ListingUpdateDto dto, Long currentUserId);
 
     void cancel(Long id, Long currentUserId);
+
+    void cancelByAdmin(Long id);
 }
