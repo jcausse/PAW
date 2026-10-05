@@ -1,6 +1,28 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.OfferRating;
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
 import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingSort;
@@ -14,35 +36,17 @@ import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.RatingService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
+import ar.edu.itba.paw.service.exception.BadParameterException;
+import ar.edu.itba.paw.service.exception.ForbiddenException;
+import ar.edu.itba.paw.service.exception.NotFoundException;
+import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.OfferFilterForm;
 import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
 import ar.edu.itba.paw.webapp.form.ProofOfShippingUploadForm;
 import ar.edu.itba.paw.webapp.form.RateForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
-import ar.edu.itba.paw.webapp.auth.CurrentUser;
-import ar.edu.itba.paw.service.exception.BadParameterException;
-import ar.edu.itba.paw.service.exception.ForbiddenException;
-import ar.edu.itba.paw.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.Valid;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -202,7 +206,7 @@ public class AccountController {
         return mav;
     }
 
-@PostMapping("/my-offers/{offerId}/payment")
+    @PostMapping("/my-offers/{offerId}/payment")
     public ModelAndView uploadProofOfPayment(@PathVariable Long offerId,
                                               @CurrentUser User currentUser,
                                               @Valid @ModelAttribute("proofOfPaymentUploadForm") ProofOfPaymentUploadForm form,
@@ -210,7 +214,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             LOGGER.debug("Validation failed for proof of payment upload on offer {}", offerId);
             var mav = new ModelAndView("account/proofOfPaymentUpload");
-            mav.addObject("offer", offerService.getById(offerId).orElseThrow());
+            mav.addObject("offer", offerService.getById(offerId).orElseThrow(() -> NotFoundException.createFor("Offer")));
             mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
@@ -263,7 +267,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             LOGGER.debug("Validation failed for proof of shipping upload on offer {}", offerId);
             var mav = new ModelAndView("account/proofOfShippingUpload");
-            mav.addObject("offer", offerService.getById(offerId).orElseThrow());
+            mav.addObject("offer", offerService.getById(offerId).orElseThrow(() -> NotFoundException.createFor("Offer")));
             mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
@@ -299,19 +303,8 @@ public class AccountController {
     @GetMapping("/my-offers/{offerId}/payment/download")
     public ResponseEntity<Resource> downloadProofOfPayment(@PathVariable Long offerId, @CurrentUser User currentUser) {
         LOGGER.debug("User {} downloading proof of payment for offer {}", currentUser.getId(), offerId);
-        final Offer offer = offerService.getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        // Both buyer and seller can download the proof of payment
         final Long currentUserId = currentUser.getId();
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
-
-        if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("Not authorized to download proof of payment");
-        }
-
-        final File file = offerService.getProofOfPaymentFile(offerId)
+        final File file = offerService.getProofOfPaymentFile(offerId, currentUserId)
                 .orElseThrow(() -> NotFoundException.createFor("Proof of payment not found"));
 
         final ByteArrayResource resource = new ByteArrayResource(file.getData());
@@ -327,19 +320,8 @@ public class AccountController {
     @GetMapping("/my-offers/{offerId}/shipping/download")
     public ResponseEntity<Resource> downloadProofOfShipping(@PathVariable Long offerId, @CurrentUser User currentUser) {
         LOGGER.debug("User {} downloading proof of shipping for offer {}", currentUser.getId(), offerId);
-        final Offer offer = offerService.getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
-        // Both buyer and seller can download the proof of shipping
         final Long currentUserId = currentUser.getId();
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
-
-        if (!isBuyer && !isSeller) {
-            throw new ForbiddenException("Not authorized to download proof of shipping");
-        }
-
-        final File file = offerService.getProofOfShippingFile(offerId)
+        final File file = offerService.getProofOfShippingFile(offerId, currentUserId)
                 .orElseThrow(() -> NotFoundException.createFor("Proof of shipping not found"));
 
         final ByteArrayResource resource = new ByteArrayResource(file.getData());

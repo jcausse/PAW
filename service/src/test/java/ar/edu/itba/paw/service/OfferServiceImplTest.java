@@ -109,12 +109,12 @@ public class OfferServiceImplTest {
             .build();
     }
 
-    
+
     private static Listing buildSellerListing() {
         return buildFakeListing(LISTING_ID, buildFakeUser(SELLER_ID), ListingStatus.ACTIVE, true);
     }
 
-    
+
     private static Offer.OfferBuilder offerBuilder(final OfferStatus status) {
         return Offer.builder()
             .id(OFFER_ID)
@@ -874,7 +874,7 @@ public class OfferServiceImplTest {
         givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
 
         // Act
-        final Optional<File> maybeFile = offerService.getProofOfPaymentFile(OFFER_ID);
+        final Optional<File> maybeFile = offerService.getProofOfPaymentFile(OFFER_ID, SELLER_ID);
 
         // Assert
         Assert.assertFalse(maybeFile.isPresent());
@@ -887,7 +887,7 @@ public class OfferServiceImplTest {
         when(fileDao.getById(eq(FILE_ID))).thenReturn(Optional.of(buildFakeFile()));
 
         // Act
-        final Optional<File> maybeFile = offerService.getProofOfPaymentFile(OFFER_ID);
+        final Optional<File> maybeFile = offerService.getProofOfPaymentFile(OFFER_ID, SELLER_ID);
 
         // Assert
         Assert.assertTrue(maybeFile.isPresent());
@@ -901,7 +901,7 @@ public class OfferServiceImplTest {
         when(fileDao.getById(eq(FILE_ID))).thenReturn(Optional.of(buildFakeFile()));
 
         // Act
-        final Optional<File> maybeFile = offerService.getProofOfShippingFile(OFFER_ID);
+        final Optional<File> maybeFile = offerService.getProofOfShippingFile(OFFER_ID, SELLER_ID);
 
         // Assert
         Assert.assertTrue(maybeFile.isPresent());
@@ -913,7 +913,7 @@ public class OfferServiceImplTest {
         when(offerDao.getById(eq(NON_EXISTING_ID))).thenReturn(Optional.empty());
 
         // Act
-        offerService.getProofOfPaymentFile(NON_EXISTING_ID);
+        offerService.getProofOfPaymentFile(NON_EXISTING_ID, SELLER_ID);
     }
 
     @Test
