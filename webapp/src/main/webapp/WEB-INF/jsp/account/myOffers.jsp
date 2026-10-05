@@ -18,7 +18,9 @@
 
 <account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
     <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
-        <paw:formButtonToggle path="statusGroup" items="${statusGroupOptions}" selectedOption="${filterForm.getStatusGroup()}" classname="mb-4" />
+        <paw:card classname="p-2! mb-4">
+            <paw:formButtonToggle path="statusGroup" items="${statusGroupOptions}" selectedOption="${filterForm.getStatusGroup()}" />
+        </paw:card>
     </form:form>
 
     <c:choose>

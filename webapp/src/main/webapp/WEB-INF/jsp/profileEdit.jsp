@@ -26,6 +26,15 @@
                 <spring:message code="field.confirmPassword" var="confirmPasswordLabel"/>
                 <paw:formInput path="confirmPassword" type="password" label="${confirmPasswordLabel}" variant="outline"/>
 
+                <spring:message code="profileEdit.province" var="provinceLabel"/>
+                <spring:message code="profileEdit.province.select" var="provincePlaceholder"/>
+                <paw:formSelect path="provinceId" label="${provinceLabel}" placeholder="${provincePlaceholder}"
+                                items="${provinces}" itemLabel="name" itemValue="id" variant="outline"/>
+
+                <spring:message code="profileEdit.locationDetail" var="locationDetailLabel"/>
+                <spring:message code="profileEdit.locationDetail.placeholder" var="locationDetailPlaceholder"/>
+                <paw:formInput path="locationDetail" label="${locationDetailLabel}" placeholder="${locationDetailPlaceholder}" variant="outline"/>
+
                 <div class="flex gap-2 mt-2">
                     <spring:message code="profileEdit.submit" var="submitLabel"/>
                     <paw:button text="${submitLabel}" type="submit"/>

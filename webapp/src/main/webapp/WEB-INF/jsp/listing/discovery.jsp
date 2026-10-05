@@ -20,9 +20,11 @@
 <spring:message code="discovery.filter.category" var="categoryLabel"/>
 <spring:message code="discovery.filter.subcategory" var="subcategoryLabel"/>
 <spring:message code="discovery.filter.condition" var="conditionLabel"/>
+<spring:message code="discovery.filter.province" var="provinceLabel"/>
 <spring:message code="discovery.filter.minPrice" var="minPriceLabel"/>
 <spring:message code="discovery.filter.maxPrice" var="maxPriceLabel"/>
 <spring:message code="discovery.filter.acceptsTrade" var="acceptsTradeLabel"/>
+<spring:message code="discovery.filter.acceptsShipping" var="acceptsShippingLabel"/>
 <spring:message code="discovery.filter.apply" var="applyLabel"/>
 <spring:message code="discovery.filter.clear" var="clearLabel"/>
 <spring:message code="discovery.sort.label" var="sortLabel"/>
@@ -47,6 +49,8 @@
 
                         <paw:formSelect path="condition" label="${conditionLabel}" placeholder="${allLabel}" items="${conditionOptions}" itemLabel="label" itemValue="value" />
 
+                        <paw:formSelect path="provinceId" label="${provinceLabel}" placeholder="${allLabel}" items="${provinceOptions}" />
+
                         <div class="flex flex-row gap-2">
                             <paw:formInput path="minPrice" type="number" step="0.01" min="0" label="${minPriceLabel}" classname="min-w-0" />
                             <paw:formInput path="maxPrice" type="number" step="0.01" min="0" label="${maxPriceLabel}" classname="min-w-0" />
@@ -56,6 +60,10 @@
                             <label class="flex items-center gap-2 text-sm">
                                 <form:checkbox path="acceptsTrade" value="true" class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"/>
                                 <c:out value="${acceptsTradeLabel}"/>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm">
+                                <form:checkbox path="acceptsShipping" value="true" class="w-4 h-4 text-lime-600 border-black/20 outline-0 outline-offset-0 outline-lime-600/30 focus-visible:outline-2 accent-lime-600"/>
+                                <c:out value="${acceptsShippingLabel}"/>
                             </label>
                         </div>
 

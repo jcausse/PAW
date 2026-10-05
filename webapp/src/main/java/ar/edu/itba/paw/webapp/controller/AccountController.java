@@ -10,12 +10,14 @@ import ar.edu.itba.paw.model.OfferStatusGroup;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.OfferService;
+import ar.edu.itba.paw.service.RatingService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.webapp.form.ListingFilterForm;
 import ar.edu.itba.paw.webapp.form.OfferFilterForm;
 import ar.edu.itba.paw.webapp.form.ProofOfPaymentUploadForm;
 import ar.edu.itba.paw.webapp.form.ProofOfShippingUploadForm;
+import ar.edu.itba.paw.webapp.form.RateForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.service.exception.BadParameterException;
@@ -51,6 +53,7 @@ public class AccountController {
 
     private final ListingService listingService;
     private final OfferService offerService;
+    private final RatingService ratingService;
     private final MessageSource messageSource;
 
     @GetMapping
@@ -72,6 +75,8 @@ public class AccountController {
             filterForm.getStatus(),
             filterForm.getPage(),
             ACCOUNT_LISTINGS_PAGE_SIZE,
+            null,
+            null,
             null
         );
 
@@ -348,5 +353,59 @@ public class AccountController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
                 .contentLength(file.getData().length)
                 .body(resource);
+    }
+
+    // Rate offer page
+    @GetMapping("/rate/{offerId}")
+    public ModelAndView showRateForm(@PathVariable Long offerId, @CurrentUser User currentUser,
+                                      @ModelAttribute("rateForm") RateForm rateForm) {
+        final Offer offer = offerService.getById(offerId)
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        if (offer.getStatus() != OfferStatus.ACCEPTED) {
+            throw new BadParameterException("Only accepted offers can be rated");
+        }
+
+        final Long currentUserId = currentUser.getId();
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
+        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
+
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenException("You did not participate in this offer");
+        }
+
+        // Check if already rated
+        boolean alreadyRated = isBuyer ? offer.getSellerRating().isPresent() : offer.getBuyerRating().isPresent();
+        if (alreadyRated) {
+            throw new BadParameterException("You have already rated this offer");
+        }
+
+        var mav = new ModelAndView("account/rate");
+        mav.addObject("offer", offer);
+        mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
+        return mav;
+    }
+
+    @PostMapping("/rate/{offerId}")
+    public ModelAndView submitRateForm(@PathVariable Long offerId,
+                                        @CurrentUser User currentUser,
+                                        @Valid @ModelAttribute("rateForm") RateForm rateForm,
+                                        BindingResult bindingResult) {
+        final Offer offer = offerService.getById(offerId)
+                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+
+        if (bindingResult.hasErrors()) {
+            var mav = new ModelAndView("account/rate");
+            mav.addObject("offer", offer);
+            return mav;
+        }
+
+        offerService.rate(offer, currentUser, rateForm.getRating(), rateForm.getReviewText());
+
+        final Long currentUserId = currentUser.getId();
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
+
+        String redirectUrl = isBuyer ? "/account/incoming-offers?statusGroup=resolved" : "/account/my-offers?statusGroup=resolved";
+        return new ModelAndView("redirect:" + redirectUrl);
     }
 }

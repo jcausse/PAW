@@ -8,5 +8,6 @@ public record ListingUpdateDto(
     Long productId,
     String condition,
     boolean acceptsTrade,
+    boolean acceptsShipping,
     String description
 ) {}

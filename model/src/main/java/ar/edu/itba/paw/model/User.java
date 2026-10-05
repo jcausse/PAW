@@ -43,6 +43,16 @@ public final class User {
         return emailVerifiedAt != null;
     }
 
+    private final Province province;
+    public Optional<Province> getProvince() {              
+        return Optional.ofNullable(province);
+    }
+
+    private final String locationDetail;
+    public Optional<String> getLocationDetail() {          
+        return Optional.ofNullable(locationDetail);
+    }
+
     public int getSellerTotalRatings() {
         return sellerPositiveRatings + sellerNeutralRatings + sellerNegativeRatings;
     }

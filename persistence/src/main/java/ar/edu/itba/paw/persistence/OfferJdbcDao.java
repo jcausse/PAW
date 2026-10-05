@@ -84,7 +84,7 @@ public class OfferJdbcDao implements OfferDao {
             params.addAll(filter.getStatus().stream().map((s) -> s.getStatus()).toList());
         }
 
-        final var whereClause = " WHERE " + String.join(" AND ", conditions);
+        final var whereClause = conditions.isEmpty() ? "" : " WHERE " + String.join(" AND ", conditions);
 
         final long totalCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*)" + Queries.BASE_FROM + whereClause,
@@ -158,7 +158,7 @@ public class OfferJdbcDao implements OfferDao {
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
             .description(rs.getString(ListingSchema.DESCRIPTION))
-            .status(ListingStatus.fromString(rs.getString(ListingSchema.STATUS)).orElse(ListingStatus.ACTIVE))
+            .status(ListingStatus.fromString(rs.getString("listing_status")).orElse(ListingStatus.ACTIVE))
             .condition(Condition.fromString(rs.getString(ListingSchema.CONDITION)).orElse(Condition.GOOD))
             .acceptsTrade(rs.getBoolean(ListingSchema.ACCEPTS_TRADE))
             .creator(
@@ -341,6 +341,13 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
  		            " LEFT JOIN " + CategorySchema.TABLE_NAME + " ocat ON ocat." + CategorySchema.ID + " = os." + SubcategorySchema.CATEGORY_ID +
  		            " LEFT JOIN " + UserSchema.TABLE_NAME + " ocl ON ocl." + UserSchema.ID + " = ol." + ListingSchema.CREATOR_ID;
 
+        private static String coverImageIdSubquery(final String listingAlias) {
+            return "COALESCE((SELECT CAST(li.image_id AS VARCHAR(20)) FROM listing_images li" +
+                " WHERE li.listing_id = " + listingAlias + "." + ListingSchema.ID +
+                " AND li.display_order = (SELECT MIN(li2.display_order) FROM listing_images li2" +
+                " WHERE li2.listing_id = " + listingAlias + "." + ListingSchema.ID + ")), '')";
+        }
+
 		private static final String BASE_SELECT =
             "SELECT o." + OfferSchema.ID + ", o." + OfferSchema.LISTING_ID + ", o." + OfferSchema.BUYER_ID +
             ", o." + OfferSchema.AMOUNT + ", o." + OfferSchema.IS_FULL_PRICE + ", o." + OfferSchema.STATUS +
@@ -360,7 +367,7 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
-            ", l." + ListingSchema.PRICE + ", l." + ListingSchema.STATUS + ", l." + ListingSchema.CONDITION +
+            ", l." + ListingSchema.PRICE + ", l." + ListingSchema.STATUS + " as listing_status, l." + ListingSchema.CONDITION +
             ", l." + ListingSchema.ACCEPTS_TRADE + ", l." + ListingSchema.CREATOR_ID + ", l." + ListingSchema.PRODUCT_ID +
             ", c." + UserSchema.ID + " as creator_id, c." + UserSchema.USERNAME + " as creator_username" +
             ", c." + UserSchema.DISPLAY_NAME + " as creator_display_name, c." + UserSchema.EMAIL + " as creator_email" +
@@ -391,10 +398,8 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", ocl." + UserSchema.EMAIL + " as offered_creator_email" +
             ", ocl." + UserSchema.IMAGE_ID + " as offered_creator_image_id" +
             ", ocl." + UserSchema.JOINED_AT + " as offered_creator_joined_at" +
-            ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
-            " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as image_ids" +
-            ", COALESCE((SELECT li.image_id::text FROM listing_images li " +
-            " WHERE li.listing_id = ol." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '') as offered_listing_image_id" +
+            ", " + coverImageIdSubquery("l") + " as image_ids" +
+            ", " + coverImageIdSubquery("ol") + " as offered_listing_image_id" +
             ", EXISTS(SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o2 " +
             " WHERE o2." + OfferSchema.LISTING_ID + " = o." + OfferSchema.LISTING_ID +
             " AND o2." + OfferSchema.ID + " != o." + OfferSchema.ID +
@@ -446,14 +451,14 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             BASE_SELECT +
             " WHERE o." + OfferSchema.LISTING_ID + " = ?" +
             " AND o." + OfferSchema.STATUS + " = ?" +
-            " AND (?::bigint IS NULL OR o." + OfferSchema.ID + " != ?)";
+            " AND (CAST(? AS BIGINT) IS NULL OR o." + OfferSchema.ID + " != ?)";
 
         private static final String REJECT_PENDING =
             "UPDATE " + OfferSchema.TABLE_NAME +
             " SET " + OfferSchema.STATUS + " = ?" +
             " WHERE " + OfferSchema.LISTING_ID + " = ?" +
             " AND " + OfferSchema.STATUS + " = ?" +
-            " AND (?::bigint IS NULL OR " + OfferSchema.ID + " != ?)";
+            " AND (CAST(? AS BIGINT) IS NULL OR " + OfferSchema.ID + " != ?)";
 
         private static final String MARK_ACCEPTED =
             "UPDATE " + OfferSchema.TABLE_NAME +

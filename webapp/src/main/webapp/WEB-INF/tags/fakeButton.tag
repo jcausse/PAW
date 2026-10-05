@@ -1,4 +1,5 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
+<%@ attribute name="htmlFor" required="true" %>
 <%@ attribute name="text" required="false" %>
 <%@ attribute name="icon" required="false" %>
 <%@ attribute name="variant" required="false" %>
@@ -20,11 +21,14 @@
 <c:set var="isDisabled" value="${disabled ne null ? disabled : false}"/>
 <c:set var="isOn" value="${on ne null ? on : false}"/>
 
+<c:set var="outlineClassnames" value="border border-current/15 hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10 data-[state=on]:bg-current/10 peer-checked/${htmlFor}:bg-current/10" />
+<c:set var="ghostClassnames" value="hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10 data-[state=on]:bg-current/10 peer-checked/${htmlFor}:bg-current/10" />
+
 <c:set var="variantClassnames" value="${
   btnVariant eq 'outline'
-    ? 'border border-current/15 hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10 data-[state=on]:bg-current/10'
+    ? outlineClassnames
     : btnVariant eq 'ghost'
-    ? 'hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10 data-[state=on]:bg-current/10'
+    ? ghostClassnames
     : '[background-position:-1px_-1px] [background-size:calc(100%+2px)_calc(100%+2px)] bg-gradient-to-b from-current/3 to-current/7 border-t border-b border-t-white/30 border-b-black/20
        hover:from-current/5 hover:to-current/10 active:border-t-black/15 active:border-b-white/30 active:translate-y-px'
 }"/>
@@ -71,8 +75,9 @@
     : 'text-lime-600'
 }"/>
 
-<div
+<label
     id="${id}"
+    for="${htmlFor}"
     class="
         font-semibold rounded-lg
         flex flex-row flex-shrink-0 items-center justify-center gap-2
@@ -96,4 +101,4 @@
         <c:out value="${text}"/>
     </c:if>
     <jsp:doBody/>
-</div>
+</label>
