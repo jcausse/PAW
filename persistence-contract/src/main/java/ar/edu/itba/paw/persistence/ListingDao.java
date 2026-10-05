@@ -21,6 +21,9 @@ public interface ListingDao {
     ListingStatus purchase(Long id, Long buyerId);
     ListingStatus pendingTransaction(Long id, Long buyerId);
     void updateStatus(Long id, ListingStatus status);
+
+    void updateStatusBulk(List<Long> ids, ListingStatus status);
+
     Listing update(Long id, String title, Price price, Product product,
                    Condition condition, boolean acceptsTrade, boolean acceptsShipping, String description);
     void cancel(Long id);

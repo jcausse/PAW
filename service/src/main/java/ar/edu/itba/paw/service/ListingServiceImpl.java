@@ -259,4 +259,11 @@ public class ListingServiceImpl implements ListingService {
         LOGGER.debug("Updating listing status: id={}, newStatus={}", id, status);
         listingDao.updateStatus(id, status);
     }
+
+    @Override
+    @Transactional
+    public void updateStatusBulk(List<Long> ids, ListingStatus status) {
+        LOGGER.debug("Bulk updating listing status: ids={}, newStatus={}", ids, status);
+        listingDao.updateStatusBulk(ids, status);
+    }
 }
