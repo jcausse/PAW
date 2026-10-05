@@ -18,4 +18,6 @@ public final class UserSchema {
     public static final String BUYER_POSITIVE_RATINGS = "buyer_positive_ratings";
     public static final String BUYER_NEUTRAL_RATINGS = "buyer_neutral_ratings";
     public static final String BUYER_NEGATIVE_RATINGS = "buyer_negative_ratings";
+    public static final String PROVINCE_ID = "province_id";
+    public static final String LOCATION_DETAIL = "location_detail";
 }

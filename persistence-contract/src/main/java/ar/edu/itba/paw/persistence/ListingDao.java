@@ -16,12 +16,12 @@ public interface ListingDao {
     Optional<Listing> getById(Long id);
 
     Listing create(String title, Price price, User creator, Product product,
-                    Condition condition, boolean acceptsTrade, String description, List<Long> imageIds);
+                    Condition condition, boolean acceptsTrade, boolean acceptsShipping, String description, List<Long> imageIds);
     Page<Listing> search(ListingFilter filter);
     ListingStatus purchase(Long id, Long buyerId);
     ListingStatus pendingTransaction(Long id, Long buyerId);
     void updateStatus(Long id, ListingStatus status);
     Listing update(Long id, String title, Price price, Product product,
-                   Condition condition, boolean acceptsTrade, String description);
+                   Condition condition, boolean acceptsTrade, boolean acceptsShipping, String description);
     void cancel(Long id);
 }

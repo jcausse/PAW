@@ -27,4 +27,9 @@ public class UserEditForm {
 
     @ValidFile(message = "{ValidFiles.userForm.profilePicture}", allowedTypes = {"image/*"}, optional = true)
     private MultipartFile profilePicture;
+
+    private Long provinceId;
+
+    @Size(max = 100)
+    private String locationDetail;
 }

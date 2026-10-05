@@ -20,17 +20,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/checkout")
 public class CheckoutController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckoutController.class);
+
     private final ListingService listingService;
     private final OfferService offerService;
 
     @GetMapping
     public ModelAndView checkout(@RequestParam("listingId") Long listingId, @ModelAttribute("checkoutForm") CheckoutForm form, @CurrentUser(required = false) User currentUser) {
+        LOGGER.debug("User accessing checkout page for listing {}", listingId);
         Listing listing = listingService.getById(listingId);
         form.setListingId(listingId);
         form.setOfferType("full");
@@ -48,6 +53,7 @@ public class CheckoutController {
         Listing listing = listingService.getById(form.getListingId());
 
         if (bindingResult.hasErrors()) {
+            LOGGER.debug("Validation failed for checkout on listing {}", form.getListingId());
             return withUserListings(listing, currentUser);
         }
 
@@ -71,6 +77,7 @@ public class CheckoutController {
 
         OfferCreationDto offerDto = new OfferCreationDto(listing.getId(), buyerId, amount, isFullPrice, form.getMessage(), offeredListingId);
         offerService.create(offerDto);
+        LOGGER.info("User {} submitted {} offer for listing {}", buyerId, form.getOfferType(), form.getListingId());
 
         return new ModelAndView("redirect:/listing/" + form.getListingId());
     }
@@ -84,6 +91,8 @@ public class CheckoutController {
                 ListingStatus.ACTIVE.name(),
                 1,
                 100,
+                null,
+                null,
                 null
             );
             var userListings = listingService.search(filter).getContent();

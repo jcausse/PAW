@@ -35,9 +35,14 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @Transactional(readOnly = true)
 public class OfferServiceImpl implements OfferService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OfferServiceImpl.class);
 
     private final OfferDao offerDao;
     private final FileDao fileDao;
@@ -103,9 +108,11 @@ public class OfferServiceImpl implements OfferService {
     @Transactional
     public Offer create(OfferCreationDto dto) {
         Objects.requireNonNull(dto, "OfferCreationDto cannot be null");
+        LOGGER.debug("Creating offer: listingId={}, buyerId={}, amount={}", dto.listingId(), dto.buyerId(), dto.amount());
 
         final Listing listing = listingService.getById(dto.listingId());
         if (Objects.equals(dto.buyerId(), listing.getCreator().getId())) {
+            LOGGER.warn("User {} attempted to buy their own listing {}", dto.buyerId(), dto.listingId());
             throw BadParameterException.create("buyerId", "User cannot buy their own listing");
         }
 
@@ -117,6 +124,7 @@ public class OfferServiceImpl implements OfferService {
 
         if (isTrade) {
             if (!listing.isAcceptsTrade()) {
+                LOGGER.warn("Trade offer attempted on listing {} that does not accept trades", dto.listingId());
                 throw BadParameterException.create("listingId", "This listing does not accept trades");
             }
             final Listing offeredListing = listingService.getById(offeredListingId);
@@ -141,6 +149,9 @@ public class OfferServiceImpl implements OfferService {
             offeredListingId
         );
 
+        LOGGER.info("Offer created: id={}, listingId={}, buyerId={}, amount={}, isTrade={}",
+                offer.getId(), dto.listingId(), dto.buyerId(), dto.amount(), isTrade);
+
         // Send email notification to seller about the new offer
         mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
 
@@ -150,14 +161,17 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer accept(Long offerId, Long currentUserId) {
+        LOGGER.debug("Accepting offer: offerId={}, by userId={}", offerId, currentUserId);
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
         if (!offer.getListing().getCreator().getId().equals(currentUserId)) {
+            LOGGER.warn("User {} unauthorized to accept offer {}", currentUserId, offerId);
             throw new ForbiddenException("Not authorized to accept this offer");
         }
 
         if (offer.getStatus() != OfferStatus.PENDING) {
+            LOGGER.warn("Cannot accept offer {} in status {}", offerId, offer.getStatus());
             throw new BadParameterException("Offer is not pending");
         }
 
@@ -169,6 +183,9 @@ public class OfferServiceImpl implements OfferService {
         listingService.pendingTransaction(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
         rejectPendingOffersForListing(offer.getListing().getId(), offerId);
         offerDao.updateStatus(offerId, OfferStatus.PENDING_PAYMENT);
+
+        LOGGER.info("Offer accepted: offerId={}, listingId={}, buyerId={}, sellerId={}",
+                offerId, offer.getListing().getId(), offer.getBuyer().getId(), currentUserId);
 
         // Send email notification to buyer about offer acceptance (pending payment)
         mailingService.sendOfferPendingPaymentEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
@@ -182,21 +199,25 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer reject(Long offerId, Long currentUserId) {
+        LOGGER.debug("Rejecting offer: offerId={}, by userId={}", offerId, currentUserId);
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
         if (!offer.getListing().getCreator().getId().equals(currentUserId)) {
+            LOGGER.warn("User {} unauthorized to reject offer {}", currentUserId, offerId);
             throw new ForbiddenException("Not authorized to reject this offer");
         }
 
         switch (offer.getStatus()) {
            	case OfferStatus.PENDING -> {}
-            case OfferStatus.PENDING_PAYMENT -> {
+            case OfferStatus.PENDING_PAYMENT ->
                 // Reset listing to ACTIVE
                 listingService.updateStatus(offer.getListing().getId(), ListingStatus.ACTIVE);
+            default -> {
+                LOGGER.warn("Cannot reject offer {} in status {}", offerId, offer.getStatus());
+                throw new BadParameterException("Offer cannot be rejected in its current state");
             }
-            default -> throw new BadParameterException("Offer cannot be rejected in its current state");
-        };
+        }
 
         // Handle trade offer: reset offered listing to ACTIVE
         if (offer.getOfferedListingId() != null) {
@@ -204,6 +225,8 @@ public class OfferServiceImpl implements OfferService {
         }
 
         offerDao.updateStatus(offerId, OfferStatus.REJECTED);
+
+        LOGGER.info("Offer rejected: offerId={}, listingId={}, by sellerId={}", offerId, offer.getListing().getId(), currentUserId);
 
         // Send email notification to buyer about offer rejection
         mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
@@ -215,14 +238,17 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer withdraw(Long offerId, Long currentUserId) {
+        LOGGER.debug("Withdrawing offer: offerId={}, by userId={}", offerId, currentUserId);
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
         if (!offer.getBuyer().getId().equals(currentUserId)) {
+            LOGGER.warn("User {} unauthorized to withdraw offer {}", currentUserId, offerId);
             throw new BadParameterException("Not authorized to withdraw this offer");
         }
 
         if (offer.getStatus() != OfferStatus.PENDING) {
+            LOGGER.warn("Cannot withdraw offer {} in status {}", offerId, offer.getStatus());
             throw new BadParameterException("Offer is not pending");
         }
 
@@ -232,6 +258,8 @@ public class OfferServiceImpl implements OfferService {
         }
 
         offerDao.withdraw(offerId, currentUserId);
+
+        LOGGER.info("Offer withdrawn: offerId={}, listingId={}, by buyerId={}", offerId, offer.getListing().getId(), currentUserId);
 
         // Send email notification to seller about offer withdrawal
         mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
@@ -244,6 +272,7 @@ public class OfferServiceImpl implements OfferService {
     @Transactional
     public List<Offer> rejectPendingOffersForListing(Long listingId, Long exceptOfferId) {
         final List<Offer> rejected = offerDao.rejectPendingOffers(listingId, exceptOfferId);
+        LOGGER.info("Rejected {} pending offers for listing id={} (except offerId={})", rejected.size(), listingId, exceptOfferId);
         final Locale locale = LocaleContextHolder.getLocale();
         for (Offer offer : rejected) {
             // Handle trade offer: reset offered listing to ACTIVE
@@ -258,10 +287,12 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer uploadProofOfPayment(Long offerId, Long buyerId, String filename, String alt, String contentType, byte[] data) {
+        LOGGER.debug("Uploading proof of payment: offerId={}, buyerId={}", offerId, buyerId);
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
         if (!offer.getBuyer().getId().equals(buyerId)) {
+            LOGGER.warn("User {} unauthorized to upload proof of payment for offer {}", buyerId, offerId);
             throw new BadParameterException("Only the buyer can upload proof of payment");
         }
 
@@ -280,6 +311,8 @@ public class OfferServiceImpl implements OfferService {
         final File file = fileDao.create(filename, alt, contentType, data);
         offerDao.updateProofOfPaymentId(offerId, file.getId());
 
+        LOGGER.info("Proof of payment uploaded: offerId={}, buyerId={}, fileId={}", offerId, buyerId, file.getId());
+
         // Notify seller that proof of payment was uploaded
         mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
@@ -289,10 +322,12 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer uploadProofOfShipping(Long offerId, Long sellerId, String filename, String alt, String contentType, byte[] data, String trackingNumber) {
+        LOGGER.debug("Uploading proof of shipping: offerId={}, sellerId={}", offerId, sellerId);
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
         if (!offer.getListing().getCreator().getId().equals(sellerId)) {
+            LOGGER.warn("User {} unauthorized to upload proof of shipping for offer {}", sellerId, offerId);
             throw new BadParameterException("Only the seller can upload proof of shipping");
         }
 
@@ -318,6 +353,9 @@ public class OfferServiceImpl implements OfferService {
 
         offerDao.updateProofOfShipping(offerId, proofOfShippingId, trackingNumber);
 
+        LOGGER.info("Proof of shipping uploaded: offerId={}, sellerId={}, hasFile={}, trackingNumber='{}'",
+                offerId, sellerId, proofOfShippingId != null, trackingNumber);
+
         // Notify buyer that proof of shipping was uploaded
         mailingService.sendProofOfShippingUploadedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
 
@@ -327,19 +365,24 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional
     public Offer confirmPayment(Long offerId, Long sellerId) {
+        LOGGER.debug("Confirming payment: offerId={}, sellerId={}", offerId, sellerId);
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
 
         if (!offer.getListing().getCreator().getId().equals(sellerId)) {
+            LOGGER.warn("User {} unauthorized to confirm payment for offer {}", sellerId, offerId);
             throw new BadParameterException("Only the seller can confirm payment");
         }
 
         if (offer.getStatus() != OfferStatus.PENDING_PAYMENT) {
+            LOGGER.warn("Cannot confirm payment for offer {} in status {}", offerId, offer.getStatus());
             throw new BadParameterException("Offer is not pending payment");
         }
 
         listingService.purchase(offer.getListing().getId(), offer.getBuyer().getId(), offer.getMessage());
         offerDao.markAccepted(offerId, Instant.now());
+
+        LOGGER.info("Payment confirmed: offerId={}, listingId={}, sellerId={}", offerId, offer.getListing().getId(), sellerId);
 
         return offerDao.getById(offerId).orElseThrow();
     }
