@@ -7,7 +7,7 @@
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 
 <dialog id="${id}" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-black/10 p-4 max-w-sm w-[90vw] backdrop:bg-black/40">
-    <h3 class="text-lg font-semibold mb-2">${title}</h3>
+    <h3 class="text-lg font-semibold mb-2"><c:out value="${title}"/></h3>
 
     <paw:divider />
 
