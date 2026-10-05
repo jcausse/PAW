@@ -70,6 +70,8 @@ public class ListingServiceImpl implements ListingService {
             .creatorId(dto.creatorId())
             .status(parseStatus(dto.status()))
             .hasActiveOffers(dto.hasActiveOffers())
+            .provinceId(dto.provinceId())
+            .acceptsShipping(Boolean.TRUE.equals(dto.acceptsShipping()) ? Boolean.TRUE : null)
             .build();
 
         return listingDao.search(filter);
@@ -142,6 +144,7 @@ public class ListingServiceImpl implements ListingService {
             product,
             condition,
             dto.acceptsTrade(),
+            dto.acceptsShipping(),
             dto.description(),
             imageIds
         );
@@ -217,6 +220,7 @@ public class ListingServiceImpl implements ListingService {
             product,
             condition,
             dto.acceptsTrade(),
+            dto.acceptsShipping(),
             dto.description()
         );
         LOGGER.info("Listing updated: id={}, title='{}'", updated.getId(), updated.getTitle());

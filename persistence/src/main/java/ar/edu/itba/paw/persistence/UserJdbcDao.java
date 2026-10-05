@@ -3,6 +3,8 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.model.OfferRating;
+import ar.edu.itba.paw.model.Province;
+import ar.edu.itba.paw.persistence.schema.ProvinceSchema;
 import ar.edu.itba.paw.persistence.schema.UserSchema;
 
 import java.sql.Timestamp;
@@ -149,6 +151,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public Optional<User> updateLocation(Long userId, Long provinceId, String locationDetail) {
+        final int rowsAffected = jdbcTemplate.update(Queries.UPDATE_LOCATION, provinceId, locationDetail, userId);
+        return rowsAffected == 0 ? Optional.empty() : getById(userId);
+    }
+
+    @Override
     public boolean isUsernameTaken(String username) {
         return jdbcTemplate.queryForObject(
                 Queries.IS_USERNAME_TAKEN,
@@ -229,41 +237,64 @@ public class UserJdbcDao implements UserDao {
             .buyerPositiveRatings(rs.getInt(UserSchema.BUYER_POSITIVE_RATINGS))
             .buyerNeutralRatings(rs.getInt(UserSchema.BUYER_NEUTRAL_RATINGS))
             .buyerNegativeRatings(rs.getInt(UserSchema.BUYER_NEGATIVE_RATINGS))
+            .province(mapProvince(rs))
+            .locationDetail(rs.getString(UserSchema.LOCATION_DETAIL))
             .build();
+
+    private static Province mapProvince(final java.sql.ResultSet rs) throws java.sql.SQLException {
+        final Integer provinceId = rs.getObject(UserSchema.PROVINCE_ID, Integer.class);
+        if (provinceId == null) {
+            return null;
+        }
+        return Province.builder()
+            .id(provinceId.longValue())
+            .name(rs.getString("province_name"))
+            .build();
+    }
 
     private static final class Queries {
 
         private static final String FIELDS = String.join(", ",
-            UserSchema.ID,
-            UserSchema.USERNAME,
-            UserSchema.DISPLAY_NAME,
-            UserSchema.EMAIL,
-            UserSchema.PASSWORD,
-            UserSchema.IMAGE_ID,
-            UserSchema.JOINED_AT,
-            UserSchema.EMAIL_VERIFIED_AT,
-            UserSchema.SELLER_POSITIVE_RATINGS,
-            UserSchema.SELLER_NEUTRAL_RATINGS,
-            UserSchema.SELLER_NEGATIVE_RATINGS,
-            UserSchema.BUYER_POSITIVE_RATINGS,
-            UserSchema.BUYER_NEUTRAL_RATINGS,
-            UserSchema.BUYER_NEGATIVE_RATINGS
+            "u." + UserSchema.ID,
+            "u." + UserSchema.USERNAME,
+            "u." + UserSchema.DISPLAY_NAME,
+            "u." + UserSchema.EMAIL,
+            "u." + UserSchema.PASSWORD,
+            "u." + UserSchema.IMAGE_ID,
+            "u." + UserSchema.JOINED_AT,
+            "u." + UserSchema.EMAIL_VERIFIED_AT,
+            "u." + UserSchema.SELLER_POSITIVE_RATINGS,
+            "u." + UserSchema.SELLER_NEUTRAL_RATINGS,
+            "u." + UserSchema.SELLER_NEGATIVE_RATINGS,
+            "u." + UserSchema.BUYER_POSITIVE_RATINGS,
+            "u." + UserSchema.BUYER_NEUTRAL_RATINGS,
+            "u." + UserSchema.BUYER_NEGATIVE_RATINGS,
+            "u." + UserSchema.PROVINCE_ID,
+            "u." + UserSchema.LOCATION_DETAIL,
+            "pr." + ProvinceSchema.NAME + " AS province_name"
         );
 
+        private static final String BASE_FROM =
+            " FROM " + UserSchema.TABLE_NAME + " AS u" +
+            " LEFT JOIN " + ProvinceSchema.TABLE_NAME + " AS pr" +
+            " ON pr." + ProvinceSchema.ID + " = u." + UserSchema.PROVINCE_ID;
+
         private static final String GET_BY_ID =
-            "SELECT " + FIELDS +
-            " FROM " + UserSchema.TABLE_NAME +
-            " WHERE " + UserSchema.ID + " = ?";
+            "SELECT " + FIELDS + BASE_FROM +
+            " WHERE u." + UserSchema.ID + " = ?";
 
         private static final String GET_BY_USERNAME =
-            "SELECT " + FIELDS +
-            " FROM " + UserSchema.TABLE_NAME +
-            " WHERE " + UserSchema.USERNAME + " = ?";
+            "SELECT " + FIELDS + BASE_FROM +
+            " WHERE u." + UserSchema.USERNAME + " = ?";
 
         private static final String GET_BY_EMAIL =
-            "SELECT " + FIELDS +
-            " FROM " + UserSchema.TABLE_NAME +
-            " WHERE " + UserSchema.EMAIL + " = ?";
+            "SELECT " + FIELDS + BASE_FROM +
+            " WHERE u." + UserSchema.EMAIL + " = ?";
+
+        private static final String UPDATE_LOCATION =
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + UserSchema.PROVINCE_ID + " = ?, " + UserSchema.LOCATION_DETAIL + " = ?" +
+            " WHERE " + UserSchema.ID + " = ?";
 
         private static final String VERIFY_EMAIL =
             "UPDATE " + UserSchema.TABLE_NAME +

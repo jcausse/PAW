@@ -22,6 +22,9 @@ public interface UserDao {
     );
 
     Optional<User> update(Long userId, String displayName, String email, String password, Long imageId);
+
+    Optional<User> updateLocation(Long userId, Long provinceId, String locationDetail);
+    
     Optional<User> verifyEmail(Long userId, Instant verifiedAt);
 
     boolean isUsernameTaken(String username);

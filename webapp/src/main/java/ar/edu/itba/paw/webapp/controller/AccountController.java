@@ -72,6 +72,8 @@ public class AccountController {
             filterForm.getStatus(),
             filterForm.getPage(),
             ACCOUNT_LISTINGS_PAGE_SIZE,
+            null,
+            null,
             null
         );
 

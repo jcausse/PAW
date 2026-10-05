@@ -32,6 +32,18 @@
                             <spring:message code="profile.memberSince" arguments="${user.joinedAt.toEpochMilli()}"/>
                         </span>
                     </c:if>
+                    <span class="text-sm text-neutral-500 mt-1 flex items-center gap-1">
+                        <paw:icon name="map-pin" />
+                        <c:choose>
+                            <c:when test="${user.province.present}">
+                                <spring:message code="province.${user.province.get().name}" var="provinceLabel"/>
+                                <c:out value="${provinceLabel}"/><c:if test="${user.locationDetail.present}">, <c:out value="${user.locationDetail.get()}"/></c:if>
+                            </c:when>
+                            <c:otherwise>
+                                <spring:message code="profile.location.notSpecified"/>
+                            </c:otherwise>
+                        </c:choose>
+                    </span>
                     <c:if test="${allowEdit}">
                         <div class="mt-6">
                             <c:url value="/profile/edit" var="editUrl"/>
