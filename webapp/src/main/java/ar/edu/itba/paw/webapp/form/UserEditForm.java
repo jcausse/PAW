@@ -32,4 +32,6 @@ public class UserEditForm {
 
     @Size(max = 100)
     private String locationDetail;
+
+    private String preferredLanguage;
 }

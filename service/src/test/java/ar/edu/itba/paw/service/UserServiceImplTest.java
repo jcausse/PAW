@@ -340,6 +340,46 @@ public class UserServiceImplTest {
     }
 
     /* ---------------------------------------------------------------------------------------------- */
+    /* updatePreferredLanguage                                                                         */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test
+    public void testUpdatePreferredLanguagePersistsChosenLanguage() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updatePreferredLanguage(eq(USER_ID), eq(Language.SPANISH))).thenReturn(Optional.of(user));
+
+        // Act
+        userService.updatePreferredLanguage(user, Language.SPANISH);
+
+        // Assert
+        verify(userDao).updatePreferredLanguage(USER_ID, Language.SPANISH);
+    }
+
+    @Test
+    public void testUpdatePreferredLanguageReturnsUpdatedUser() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updatePreferredLanguage(eq(USER_ID), eq(Language.ENGLISH))).thenReturn(Optional.of(user));
+
+        // Act
+        final User result = userService.updatePreferredLanguage(user, Language.ENGLISH);
+
+        // Assert
+        Assert.assertSame(user, result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdatePreferredLanguageNonExistingUserThrows() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updatePreferredLanguage(eq(USER_ID), eq(Language.SPANISH))).thenReturn(Optional.empty());
+
+        // Act
+        userService.updatePreferredLanguage(user, Language.SPANISH);
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
     /* updateEmail / markEmailAsVerified                                                               */
     /* ---------------------------------------------------------------------------------------------- */
 

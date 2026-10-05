@@ -136,6 +136,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public User updatePreferredLanguage(@NonNull User user, @NonNull Language preferredLanguage) {
+        LOGGER.info("Updating preferred language for user id={} to '{}'", user.getId(), preferredLanguage.getCode());
+        return userDao.updatePreferredLanguage(user.getId(), preferredLanguage)
+                .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+    }
+
+    @Override
+    @Transactional
     public User updateEmail(@NonNull User user, @NonNull String email) {
         LOGGER.info("Updating email for user id={}", user.getId());
         return userDao.update(user.getId(), null, email.trim().toLowerCase(), null, null)
