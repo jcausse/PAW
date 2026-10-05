@@ -75,7 +75,7 @@ public class ImageServiceImplTest {
         final Image result = imageService.create(IMAGE_FILENAME, IMAGE_ALT, IMAGE_CONTENT_TYPE, IMAGE_DATA);
 
         // Assert
-        Assert.assertEquals(createdImage, result);
+        Assert.assertSame(createdImage, result);
     }
 
     @Test
