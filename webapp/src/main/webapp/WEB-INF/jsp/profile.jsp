@@ -39,10 +39,10 @@
             <div class="flex items-center gap-6">
                 <paw:userAvatar user="${user}" size="xl" />
                 <div class="flex flex-col">
-                    <h1 class="text-3xl font-bold tracking-tight text-neutral-900"><c:out value="${user.displayName}"/></h1>
-                    <span class="text-lg text-neutral-500 font-medium">@<c:out value="${user.username}"/></span>
+                    <h1 class="text-3xl font-bold tracking-tight"><c:out value="${user.displayName}"/></h1>
+                    <span class="text-lg text-black/60 font-medium">@<c:out value="${user.username}"/></span>
                     <c:if test="${not empty user.joinedAt}">
-                        <span class="text-sm text-neutral-500 mt-1">
+                        <span class="text-sm text-black/60 mt-1">
                             <spring:message code="profile.memberSince" arguments="${user.joinedAt.toEpochMilli()}"/>
                         </span>
                     </c:if>
@@ -59,50 +59,82 @@
 
         <paw:card title="${ratingsTitle}">
             <c:set var="sellerBalance" value="${user.sellerRatingBalance}"/>
+            <c:set var="sellerTotalRatings" value="${user.sellerTotalRatings}"/>
             <c:set var="buyerBalance" value="${user.buyerRatingBalance}"/>
+            <c:set var="buyerTotalRatings" value="${user.buyerTotalRatings}"/>
 
-            <div class="flex flex-col sm:flex-row gap-8 mt-2">
-                <div class="flex-1">
-                    <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">
-                        <c:out value="${ratingsAsSeller}"/>:
-                        <c:choose>
-                            <c:when test="${sellerBalance > 0}">
-                                <span class="text-green-600 font-bold">+<c:out value="${sellerBalance}"/></span>
-                            </c:when>
-                            <c:when test="${sellerBalance < 0}">
-                                <span class="text-red-600 font-bold"><c:out value="${sellerBalance}"/></span>
-                            </c:when>
-                            <c:otherwise>
-                                <span class="text-neutral-500 font-bold">0</span>
-                            </c:otherwise>
-                        </c:choose>
-                    </h3>
-                    <div class="flex gap-4 text-sm text-neutral-600">
+            <div class="flex flex-col sm:flex-row gap-8 my-4">
+                <div class="flex flex-col gap-2 flex-1">
+                    <div class="flex flex-row items-center gap-6">
+                        <h3 class="text-sm font-semibold text-black/60 uppercase tracking-wide"><c:out value="${ratingsAsSeller}"/></h3>
+                        <div class="h-3 w-full bg-gradient-to-r from-red-50 via-neutral-50 to-green-50 relative rounded-full bg-border border border-black/10">
+                            <div
+                                class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 min-w-6 h-6 bg-white border border-black/10 rounded-full text-sm z-5 grid place-items-center px-1"
+                                style="left: calc(5px + (100% - 10px) * ${0.5 + (sellerTotalRatings == 0 ? 0 : sellerBalance/sellerTotalRatings) * 0.5})"
+                            >
+                                <c:choose>
+                                    <c:when test="${sellerBalance > 0}">
+                                        <span class="text-green-600 font-bold">+<c:out value="${sellerBalance}"/></span>
+                                        <c:set var="sellerBalanceStyle" value="clip-path: xywh(50% 0 ${sellerBalance/sellerTotalRatings * 50}% 100%);"/>
+                                    </c:when>
+                                    <c:when test="${sellerBalance < 0}">
+                                        <span class="text-red-600 font-bold"><c:out value="${sellerBalance}"/></span>
+                                        <c:set var="sellerBalanceStyle" value="clip-path: xywh(${50 + sellerBalance/sellerTotalRatings * 50}% 0 ${-sellerBalance/sellerTotalRatings * 50}% 100%);"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="text-black/60 font-bold">0</span>
+                                        <c:set var="sellerBalanceStyle" value="clip-path: xywh(0 0 0 0)"/>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-red-400 via-neutral-50 to-green-400 rounded-full"
+                                style="${sellerBalanceStyle}"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 text-sm text-black/60">
                         <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.sellerPositiveRatings}"/></span></span>
                         <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.sellerNeutralRatings}"/></span>
                         <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.sellerNegativeRatings}"/></span></span>
                     </div>
                 </div>
 
-                <div class="flex-1">
-                    <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">
-                        <c:out value="${ratingsAsBuyer}"/>:
-                        <c:choose>
-                            <c:when test="${buyerBalance > 0}">
-                                <span class="text-green-600 font-bold">+<c:out value="${buyerBalance}"/></span>
-                            </c:when>
-                            <c:when test="${buyerBalance < 0}">
-                                <span class="text-red-600 font-bold"><c:out value="${buyerBalance}"/></span>
-                            </c:when>
-                            <c:otherwise>
-                                <span class="text-neutral-500 font-bold">0</span>
-                            </c:otherwise>
-                        </c:choose>
-                    </h3>
-                    <div class="flex gap-4 text-sm text-neutral-600">
+                <div class="flex flex-col gap-2 flex-1">
+                    <div class="flex flex-row items-center gap-6">
+                        <h3 class="text-sm font-semibold text-black/60 uppercase tracking-wide"><c:out value="${ratingsAsBuyer}"/></h3>
+                        <div class="h-3 w-full bg-gradient-to-r from-red-50 via-neutral-50 to-green-50 relative rounded-full bg-border border border-black/10">
+                            <div
+                                class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 min-w-6 h-6 bg-white border border-black/10 rounded-full text-sm z-5 grid place-items-center px-1"
+                                style="left: calc(5px + (100% - 10px) * ${0.5 + (buyerTotalRatings == 0 ? 0 : buyerBalance/buyerTotalRatings) * 0.5})"
+                            >
+                                <c:choose>
+                                    <c:when test="${buyerBalance > 0}">
+                                      <span class="text-green-600 font-bold">+<c:out value="${buyerBalance}"/></span>
+                                    <c:set var="buyerBalanceStyle" value="clip-path: xywh(50% 0 ${buyerBalance/buyerTotalRatings * 50}% 100%);"/>
+                                    </c:when>
+                                    <c:when test="${buyerBalance < 0}">
+                                        <span class="text-red-600 font-bold"><c:out value="${buyerBalance}"/></span>
+                                        <c:set var="buyerBalanceStyle" value="clip-path: xywh(${50 + buyerBalance/buyerTotalRatings * 50}% 0 ${-buyerBalance/buyerTotalRatings * 50}% 100%);"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="text-black/60 font-bold">0</span>
+                                        <c:set var="buyerBalanceStyle" value="clip-path: xywh(0 0 0 0)"/>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-red-400 via-neutral-50 to-green-400 rounded-full"
+                                style="${buyerBalanceStyle}"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 text-sm text-black/60">
                         <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.buyerPositiveRatings}"/></span></span>
                         <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.buyerNeutralRatings}"/></span>
-                        <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.buyerNegativeRatings}"/></span></span>
+                    <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.buyerNegativeRatings}"/></span></span>
                     </div>
                 </div>
             </div>
@@ -113,13 +145,13 @@
             <form:form modelAttribute="ratingFilterForm" action="${filterAction}" method="get" id="filterForm" class="mt-4">
                 <div class="flex flex-wrap gap-4 mb-4">
                     <div class="flex flex-col gap-1 grow">
-                        <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterRole}"/></label>
+                        <label class="text-xs font-medium text-black/60"><c:out value="${ratingFilterRole}"/></label>
                         <div class="border border-black/10 rounded-xl p-1">
                             <paw:formButtonToggle path="role" items="${roleOptions}" selectedOption="${ratingFilterForm.role}" />
                         </div>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-neutral-500"><c:out value="${ratingFilterType}"/></label>
+                        <label class="text-xs font-medium text-black/60"><c:out value="${ratingFilterType}"/></label>
                         <div class="border border-black/10 rounded-xl p-1">
                             <paw:formButtonToggle path="type" items="${typeOptions}" selectedOption="${ratingFilterForm.type}" />
                         </div>
@@ -139,7 +171,7 @@
                             <div class="flex flex-row gap-4 items-center">
                                 <c:choose>
                                     <c:when test="${rating.type.name() == 'POSITIVE'}">
-                                        <paw:icon name="arrow-up" classname="font-bold border rounded-full w-6 h-6 bg-lime-50 border-lime-200 text-lime-600" />
+                                        <paw:icon name="arrow-up" classname="font-bold border rounded-full w-6 h-6 bg-green-50 border-green-200 text-green-600" />
                                     </c:when>
                                     <c:when test="${rating.type.name() == 'NEUTRAL'}">
                                         <paw:icon name="minus" classname="font-bold border rounded-full w-6 h-6 bg-stone-50 border-stone-200 text-stone-500" />
