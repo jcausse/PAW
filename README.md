@@ -8,6 +8,7 @@
 - [Running Locally](#running-locally)
 - [Deploying To Production](#deploying-to-production)
 - [Application Info Endpoint](#application-info-endpoint)
+- [Administrator User and Example User Credentials](#administrator-user-and-example-user-credentials)
 
 ## Team Members
 
@@ -77,3 +78,11 @@ Information available:
 - GIT branch
 - GIT commit hash
 - Build time
+
+## Administrator User and Example User Credentials
+
+The following credentials correspond to a user that can be used as an example, which is also an administrator, so
+admin-only application flows can be also tested using it:
+
+- Email: `jcausse@itba.edu.ar`
+- Password: `123123123`
