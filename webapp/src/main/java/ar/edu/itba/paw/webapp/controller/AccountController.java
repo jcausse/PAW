@@ -202,19 +202,16 @@ public class AccountController {
         return mav;
     }
 
-    @PostMapping("/my-offers/{offerId}/payment")
+@PostMapping("/my-offers/{offerId}/payment")
     public ModelAndView uploadProofOfPayment(@PathVariable Long offerId,
                                               @CurrentUser User currentUser,
                                               @Valid @ModelAttribute("proofOfPaymentUploadForm") ProofOfPaymentUploadForm form,
                                               BindingResult bindingResult) {
-        final Offer offer = offerService.getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
         if (bindingResult.hasErrors()) {
             LOGGER.debug("Validation failed for proof of payment upload on offer {}", offerId);
             var mav = new ModelAndView("account/proofOfPaymentUpload");
-            mav.addObject("offer", offer);
-            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
+            mav.addObject("offer", offerService.getById(offerId).orElseThrow());
+            mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
 
@@ -263,14 +260,11 @@ public class AccountController {
                                                @CurrentUser User currentUser,
                                                @Valid @ModelAttribute("proofOfShippingUploadForm") ProofOfShippingUploadForm form,
                                                BindingResult bindingResult) {
-        final Offer offer = offerService.getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
-
         if (bindingResult.hasErrors()) {
             LOGGER.debug("Validation failed for proof of shipping upload on offer {}", offerId);
             var mav = new ModelAndView("account/proofOfShippingUpload");
-            mav.addObject("offer", offer);
-            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
+            mav.addObject("offer", offerService.getById(offerId).orElseThrow());
+            mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
 
