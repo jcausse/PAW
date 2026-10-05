@@ -36,7 +36,8 @@
                 <paw:formInput path="locationDetail" label="${locationDetailLabel}" placeholder="${locationDetailPlaceholder}" variant="outline"/>
 
                 <spring:message code="profileEdit.language" var="languageLabel"/>
-                <paw:formSelect path="preferredLanguage" label="${languageLabel}" placeholder="${languageLabel}"
+                <spring:message code="profileEdit.language.select" var="languagePlaceholder"/>
+                <paw:formSelect path="preferredLanguage" label="${languageLabel}" placeholder="${languagePlaceholder}"
                                 items="${languages}" itemLabel="label" itemValue="value" variant="outline"/>
 
                 <div class="flex gap-2 mt-2">
