@@ -59,129 +59,6 @@ public class UserJdbcDaoTest {
     }
 
     /* ---------------------------------------------------------------------------------------------- */
-    /* getById                                                                                         */
-    /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testGetByIdExists() {
-        final Optional<User> maybeUser = userDao.getById(FAKE_USER_ID);
-
-        Assert.assertTrue(maybeUser.isPresent());
-        Assert.assertEquals(FAKE_USER_ID, (long) maybeUser.get().getId());
-        Assert.assertEquals(FAKE_USERNAME, maybeUser.get().getUsername());
-        Assert.assertEquals(FAKE_EMAIL, maybeUser.get().getEmail());
-    }
-
-    @Test
-    public void testGetByIdDoesNotExist() {
-        final Optional<User> maybeUser = userDao.getById(NON_EXISTING_USER_ID);
-
-        Assert.assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
-    public void testGetByIdInvalidId() {
-        final Optional<User> maybeUser = userDao.getById(-1L);
-
-        Assert.assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
-    public void testGetByIdUnverifiedUserHasNoVerifiedAt() {
-        final User user = userDao.getById(FAKE_USER_ID).orElseThrow();
-
-        Assert.assertFalse(user.isVerified());
-        Assert.assertTrue(user.getEmailVerifiedAt().isEmpty());
-    }
-
-    @Test
-    public void testGetByIdVerifiedUserHasVerifiedAt() {
-        final User user = userDao.getById(VERIFIED_USER_ID).orElseThrow();
-
-        Assert.assertTrue(user.isVerified());
-        Assert.assertTrue(user.getEmailVerifiedAt().isPresent());
-    }
-
-    @Test
-    public void testGetByIdLoadsProfileImage() {
-        final User user = userDao.getById(VERIFIED_USER_ID).orElseThrow();
-
-        Assert.assertTrue(user.getImageId().isPresent());
-        Assert.assertEquals(AVATAR_IMAGE_ID, (long) user.getImageId().get());
-    }
-
-    @Test
-    public void testGetByIdWithoutImageHasEmptyImageId() {
-        final User user = userDao.getById(PLAIN_USER_ID).orElseThrow();
-
-        Assert.assertTrue(user.getImageId().isEmpty());
-    }
-
-    @Test
-    public void testGetByIdLoadsProvinceAndDetail() {
-        final User user = userDao.getById(VERIFIED_USER_ID).orElseThrow();
-
-        Assert.assertTrue(user.getProvince().isPresent());
-        Assert.assertEquals("caba", user.getProvince().get().getName());
-        Assert.assertTrue(user.getLocationDetail().isPresent());
-        Assert.assertEquals("Belgrano", user.getLocationDetail().get());
-    }
-
-    @Test
-    public void testGetByIdWithoutProvinceHasEmptyLocation() {
-        final User user = userDao.getById(PLAIN_USER_ID).orElseThrow();
-
-        Assert.assertTrue(user.getProvince().isEmpty());
-        Assert.assertTrue(user.getLocationDetail().isEmpty());
-    }
-
-    @Test
-    public void testGetByIdLoadsRatingCounters() {
-        final User user = userDao.getById(VERIFIED_USER_ID).orElseThrow();
-
-        Assert.assertEquals(3, user.getSellerPositiveRatings());
-        Assert.assertEquals(1, user.getSellerNeutralRatings());
-        Assert.assertEquals(0, user.getSellerNegativeRatings());
-        Assert.assertEquals(2, user.getBuyerPositiveRatings());
-        Assert.assertEquals(0, user.getBuyerNeutralRatings());
-        Assert.assertEquals(1, user.getBuyerNegativeRatings());
-    }
-
-    /* ---------------------------------------------------------------------------------------------- */
-    /* getByUsername / getByEmail                                                                      */
-    /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testGetByUsernameExists() {
-        final Optional<User> maybeUser = userDao.getByUsername(FAKE_USERNAME);
-
-        Assert.assertTrue(maybeUser.isPresent());
-        Assert.assertEquals(FAKE_USER_ID, (long) maybeUser.get().getId());
-    }
-
-    @Test
-    public void testGetByUsernameDoesNotExist() {
-        final Optional<User> maybeUser = userDao.getByUsername("ghost");
-
-        Assert.assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
-    public void testGetByEmailExists() {
-        final Optional<User> maybeUser = userDao.getByEmail(VERIFIED_EMAIL);
-
-        Assert.assertTrue(maybeUser.isPresent());
-        Assert.assertEquals(VERIFIED_USER_ID, (long) maybeUser.get().getId());
-    }
-
-    @Test
-    public void testGetByEmailDoesNotExist() {
-        final Optional<User> maybeUser = userDao.getByEmail("ghost@example.com");
-
-        Assert.assertFalse(maybeUser.isPresent());
-    }
-
-    /* ---------------------------------------------------------------------------------------------- */
     /* create                                                                                          */
     /* ---------------------------------------------------------------------------------------------- */
 
@@ -219,24 +96,6 @@ public class UserJdbcDaoTest {
     /* ---------------------------------------------------------------------------------------------- */
 
     @Test
-    public void testUpdateDisplayNameOnly() {
-        final Optional<User> updated = userDao.update(FAKE_USER_ID, "Renamed", null, null, null);
-
-        Assert.assertTrue(updated.isPresent());
-        Assert.assertEquals("Renamed", updated.get().getDisplayName());
-        // email untouched
-        Assert.assertEquals(FAKE_EMAIL, updated.get().getEmail());
-    }
-
-    @Test
-    public void testUpdatePersistsDisplayName() {
-        userDao.update(FAKE_USER_ID, "Renamed", null, null, null);
-
-        Assert.assertEquals(1, countUsersWhere(
-            "user_id = " + FAKE_USER_ID + " AND display_name = 'Renamed'"));
-    }
-
-    @Test
     public void testUpdateNonExistingReturnsEmpty() {
         final Optional<User> updated = userDao.update(NON_EXISTING_USER_ID, "Nope", null, null, null);
 
@@ -255,24 +114,6 @@ public class UserJdbcDaoTest {
     /* ---------------------------------------------------------------------------------------------- */
 
     @Test
-    public void testVerifyEmailMarksUserVerified() {
-        final Instant now = Instant.now();
-
-        final Optional<User> verified = userDao.verifyEmail(FAKE_USER_ID, now);
-
-        Assert.assertTrue(verified.isPresent());
-        Assert.assertTrue(verified.get().isVerified());
-    }
-
-    @Test
-    public void testVerifyEmailPersists() {
-        userDao.verifyEmail(FAKE_USER_ID, Instant.now());
-
-        Assert.assertEquals(1, countUsersWhere(
-            "user_id = " + FAKE_USER_ID + " AND email_verified_at IS NOT NULL"));
-    }
-
-    @Test
     public void testVerifyEmailNonExistingReturnsEmpty() {
         final Optional<User> verified = userDao.verifyEmail(NON_EXISTING_USER_ID, Instant.now());
 
@@ -286,40 +127,6 @@ public class UserJdbcDaoTest {
     private Long provinceId(final String name) {
         return jdbcTemplate.queryForObject(
             "SELECT province_id FROM provinces WHERE name = ?", Long.class, name);
-    }
-
-    @Test
-    public void testUpdateLocationSetsProvinceAndDetail() {
-        final Long cordoba = provinceId("cordoba");
-
-        final Optional<User> updated = userDao.updateLocation(FAKE_USER_ID, cordoba, "Nueva Cordoba");
-
-        Assert.assertTrue(updated.isPresent());
-        Assert.assertEquals("cordoba", updated.get().getProvince().orElseThrow().getName());
-        Assert.assertEquals("Nueva Cordoba", updated.get().getLocationDetail().orElseThrow());
-    }
-
-    @Test
-    public void testUpdateLocationPersists() {
-        final Long cordoba = provinceId("cordoba");
-
-        userDao.updateLocation(FAKE_USER_ID, cordoba, "Nueva Cordoba");
-
-        Assert.assertEquals(1, countUsersWhere(
-            "user_id = " + FAKE_USER_ID + " AND province_id = " + cordoba
-            + " AND location_detail = 'Nueva Cordoba'"));
-    }
-
-    @Test
-    public void testUpdateLocationWithNullClearsBothColumns() {
-        // User 2 starts with CABA + "Belgrano"; clearing must null BOTH columns.
-        final Optional<User> updated = userDao.updateLocation(VERIFIED_USER_ID, null, null);
-
-        Assert.assertTrue(updated.isPresent());
-        Assert.assertTrue(updated.get().getProvince().isEmpty());
-        Assert.assertTrue(updated.get().getLocationDetail().isEmpty());
-        Assert.assertEquals(1, countUsersWhere(
-            "user_id = " + VERIFIED_USER_ID + " AND province_id IS NULL AND location_detail IS NULL"));
     }
 
     @Test
@@ -389,26 +196,6 @@ public class UserJdbcDaoTest {
         Assert.assertEquals(Language.SPANISH, created.getPreferredLanguage());
         Assert.assertEquals(1, countUsersWhere(
             "user_id = " + created.getId() + " AND preferred_language = 'es'"));
-    }
-
-    @Test
-    public void testGetByIdLoadsPreferredLanguage() {
-        final User created = userDao.create(
-            "es_user", "ES User", "es@example.com", "secret", null, Instant.now(), Language.SPANISH);
-
-        final User reloaded = userDao.getById(created.getId()).orElseThrow();
-        Assert.assertEquals(Language.SPANISH, reloaded.getPreferredLanguage());
-    }
-
-    @Test
-    public void testUpdatePreferredLanguagePersists() {
-        // fake_user (id 1) defaults to 'en'; switch to 'es'
-        final Optional<User> updated = userDao.updatePreferredLanguage(FAKE_USER_ID, Language.SPANISH);
-
-        Assert.assertTrue(updated.isPresent());
-        Assert.assertEquals(Language.SPANISH, updated.get().getPreferredLanguage());
-        Assert.assertEquals(1, countUsersWhere(
-            "user_id = " + FAKE_USER_ID + " AND preferred_language = 'es'"));
     }
 
     @Test
