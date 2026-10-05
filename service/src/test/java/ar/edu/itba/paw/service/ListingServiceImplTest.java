@@ -97,6 +97,10 @@ public class ListingServiceImplTest {
     }
 
     private static Listing buildFakeListing(final User creator) {
+        return buildFakeListing(creator, ListingStatus.ACTIVE);
+    }
+
+    private static Listing buildFakeListing(final User creator, final ListingStatus status) {
         return Listing.builder()
             .id(LISTING_ID)
             .title(LISTING_TITLE)
@@ -104,7 +108,7 @@ public class ListingServiceImplTest {
             .price(LISTING_PRICE)
             .product(buildFakeProduct())
             .description(LISTING_DESCRIPTION)
-            .status(ListingStatus.ACTIVE)
+            .status(status)
             .condition(Condition.GOOD)
             .acceptsTrade(true)
             .build();
@@ -433,7 +437,7 @@ public class ListingServiceImplTest {
     public void testPurchaseReturnsListing() {
         // Arrange
         final User seller = buildFakeUser(SELLER_ID, "seller");
-        final Listing listing = buildFakeListing(seller);
+        final Listing listing = buildFakeListing(seller, ListingStatus.PENDING_TRANSACTION);
         when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(listing));
         when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buildFakeUser(BUYER_ID, "buyer")));
 
@@ -447,7 +451,7 @@ public class ListingServiceImplTest {
     @Test
     public void testPurchaseMarksListingAsPurchased() {
         // Arrange
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
+        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"), ListingStatus.PENDING_TRANSACTION)));
         when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buildFakeUser(BUYER_ID, "buyer")));
 
         // Act
@@ -462,7 +466,7 @@ public class ListingServiceImplTest {
         // Arrange
         final User seller = buildFakeUser(SELLER_ID, "seller");
         final User buyer = buildFakeUser(BUYER_ID, "buyer");
-        final Listing listing = buildFakeListing(seller);
+        final Listing listing = buildFakeListing(seller, ListingStatus.PENDING_TRANSACTION);
         when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(listing));
         when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buyer));
 
@@ -480,7 +484,7 @@ public class ListingServiceImplTest {
         // Arrange
         final User seller = buildFakeUser(SELLER_ID, "seller");
         final User buyer = buildFakeUser(BUYER_ID, "buyer");
-        final Listing listing = buildFakeListing(seller);
+        final Listing listing = buildFakeListing(seller, ListingStatus.PENDING_TRANSACTION);
         when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(listing));
         when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buyer));
 
@@ -503,7 +507,7 @@ public class ListingServiceImplTest {
     @Test(expected = BadParameterException.class)
     public void testPurchaseUnknownBuyerThrows() {
         // Arrange
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
+        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"), ListingStatus.PENDING_TRANSACTION)));
         when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.empty());
 
         // Act

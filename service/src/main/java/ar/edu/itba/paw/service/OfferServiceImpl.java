@@ -26,8 +26,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Locale;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,7 +275,6 @@ public class OfferServiceImpl implements OfferService {
     public List<Offer> rejectPendingOffersForListing(Long listingId, Long exceptOfferId) {
         final List<Offer> rejected = offerDao.rejectPendingOffers(listingId, exceptOfferId);
         LOGGER.info("Rejected {} pending offers for listing id={} (except offerId={})", rejected.size(), listingId, exceptOfferId);
-        final Locale locale = LocaleContextHolder.getLocale();
         for (Offer offer : rejected) {
             // Handle trade offer: reset offered listing to ACTIVE
             if (offer.getOfferedListingId() != null) {

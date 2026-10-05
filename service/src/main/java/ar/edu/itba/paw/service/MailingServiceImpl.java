@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
@@ -235,7 +236,10 @@ public class MailingServiceImpl implements MailingService {
      * recipient's language regardless of who triggered the action.
      */
     private static Locale localeOf(final User recipient) {
-        return new Locale(recipient.getPreferredLanguage().getCode());
+        final Language language = recipient.getPreferredLanguage() != null
+                ? recipient.getPreferredLanguage()
+                : Language.getDefault();
+        return new Locale(language.getCode());
     }
 
     private void sendEmail(String to, String subject, String templateName, Context context) {

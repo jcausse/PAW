@@ -156,7 +156,10 @@ public class UserController {
         form.setDisplayName(currentUser.getDisplayName());
         form.setProvinceId(currentUser.getProvince().map(Province::getId).orElse(null));
         form.setLocationDetail(currentUser.getLocationDetail().orElse(null));
-        form.setPreferredLanguage(currentUser.getPreferredLanguage().getCode());
+        final Language currentLanguage = currentUser.getPreferredLanguage() != null
+                ? currentUser.getPreferredLanguage()
+                : Language.getDefault();
+        form.setPreferredLanguage(currentLanguage.getCode());
         return profileEditView(currentUser);
     }
 
