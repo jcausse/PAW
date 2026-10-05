@@ -156,7 +156,8 @@
                                         </h3>
                                     </div>
                                     <c:if test="${listing.pendingOffersCount > 0}">
-                                        <paw:badge text="${listing.pendingOffersCount} offers" classname="text-red-600 ml-auto" />
+                                        <spring:message code="listing.detail.pendingOffersBadge" arguments="${listing.pendingOffersCount}" var="pendingOffersBadge"/>
+                                        <paw:badge text="${pendingOffersBadge}" classname="text-red-600 ml-auto" />
                                     </c:if>
                                 </div>
 

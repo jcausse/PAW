@@ -23,7 +23,7 @@ public interface ListingService {
 
     void updateStatusBulk(List<Long> ids, ListingStatus status);
 
-    Listing update(ListingUpdateDto dto);
+    Listing update(ListingUpdateDto dto, Long currentUserId);
 
-    void cancel(Long id);
+    void cancel(Long id, Long currentUserId);
 }
