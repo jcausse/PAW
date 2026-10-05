@@ -152,7 +152,7 @@ public class ListingServiceImpl implements ListingService {
         LOGGER.info("Listing created: id={}, title='{}', creatorId={}, price={}, images={}",
                 listing.getId(), listing.getTitle(), creator.getId(), dto.price(), imageIds.size());
 
-        mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+        mailingService.sendListingPublishedEmail(creator, listing);
 
         return listing;
     }
@@ -172,8 +172,8 @@ public class ListingServiceImpl implements ListingService {
         final User seller = listing.getCreator();
         final Locale locale = LocaleContextHolder.getLocale();
 
-        mailingService.sendPurchaseSellerEmail(seller, buyer, listing, message, locale);
-        mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
+        mailingService.sendPurchaseSellerEmail(seller, buyer, listing, message);
+        mailingService.sendPurchaseBuyerEmail(buyer, seller, listing);
 
         LOGGER.info("Listing purchased: id={}, buyerId={}, sellerId={}", id, buyerId, seller.getId());
         return listing;

@@ -111,7 +111,7 @@ public class EmailVerificationServiceImplTest {
         emailVerificationService.sendVerificationEmail(user);
 
         // Assert
-        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP), eq(LOCALE));
+        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP));
     }
 
     @Test(expected = NullPointerException.class)
@@ -197,7 +197,7 @@ public class EmailVerificationServiceImplTest {
         emailVerificationService.resendVerificationEmail(USER_USERNAME);
 
         // Assert
-        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP), eq(LOCALE));
+        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP));
     }
 
     @Test(expected = NullPointerException.class)
@@ -295,7 +295,7 @@ public class EmailVerificationServiceImplTest {
         emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
 
         // Assert
-        verify(mailingService).sendWelcomeEmail(eq(user), eq(LOCALE));
+        verify(mailingService).sendWelcomeEmail(eq(user));
     }
 
     @Test

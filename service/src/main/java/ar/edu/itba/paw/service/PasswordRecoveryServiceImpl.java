@@ -36,7 +36,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
         final var user = maybeUser.get();
         final var otp = otpService.create(user);
-        mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
+        mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue());
         LOGGER.info("Password recovery email sent for user id={}", user.getId());
         return Optional.of(otp);
     }

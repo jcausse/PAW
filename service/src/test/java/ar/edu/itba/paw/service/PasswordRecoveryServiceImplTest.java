@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -70,7 +69,7 @@ public class PasswordRecoveryServiceImplTest {
         // Assert: no OTP created, no email sent
         Assert.assertTrue(result.isEmpty());
         verify(otpService, never()).create(any());
-        verify(mailingService, never()).sendPasswordRecoveryEmail(any(), any(), any());
+        verify(mailingService, never()).sendPasswordRecoveryEmail(any(), any());
     }
 
     @Test
@@ -88,7 +87,7 @@ public class PasswordRecoveryServiceImplTest {
         Assert.assertTrue(result.isPresent());
         Assert.assertEquals(OTP_VALUE, result.get().getOtpValue());
         verify(otpService).create(user);
-        verify(mailingService).sendPasswordRecoveryEmail(eq(user), eq(OTP_VALUE), any(Locale.class));
+        verify(mailingService).sendPasswordRecoveryEmail(eq(user), eq(OTP_VALUE));
     }
 
     /* ---------------------------------------------------------------------------------------------- */

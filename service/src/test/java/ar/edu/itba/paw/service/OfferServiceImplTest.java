@@ -31,7 +31,6 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -278,7 +277,7 @@ public class OfferServiceImplTest {
         offerService.create(buildCreationDto(BUYER_ID, null));
 
         // Assert
-        verify(mailingService).sendNewOfferEmail(eq(listing.getCreator()), eq(buyer), eq(listing), eq(offer), any(Locale.class));
+        verify(mailingService).sendNewOfferEmail(eq(listing.getCreator()), eq(buyer), eq(listing), eq(offer));
     }
 
     @Test(expected = BadParameterException.class)
@@ -423,10 +422,10 @@ public class OfferServiceImplTest {
 
         // Assert
         verify(mailingService).sendOfferPendingPaymentEmail(
-            eq(offer.getBuyer()), eq(offer.getListing().getCreator()), eq(offer.getListing()), eq(offer), any(Locale.class)
+            eq(offer.getBuyer()), eq(offer.getListing().getCreator()), eq(offer.getListing()), eq(offer)
         );
         verify(mailingService).sendPendingTransactionEmail(
-            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer), any(Locale.class)
+            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer)
         );
     }
 
@@ -531,7 +530,7 @@ public class OfferServiceImplTest {
         offerService.reject(OFFER_ID, SELLER_ID);
 
         // Assert
-        verify(mailingService).sendOfferRejectedEmail(eq(offer.getBuyer()), eq(offer.getListing()), eq(offer), any(Locale.class));
+        verify(mailingService).sendOfferRejectedEmail(eq(offer.getBuyer()), eq(offer.getListing()), eq(offer));
     }
 
     @Test(expected = ForbiddenException.class)
@@ -579,7 +578,7 @@ public class OfferServiceImplTest {
 
         // Assert
         verify(mailingService).sendOfferWithdrawnEmail(
-            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer), any(Locale.class)
+            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer)
         );
     }
 
@@ -645,7 +644,7 @@ public class OfferServiceImplTest {
         offerService.rejectPendingOffersForListing(LISTING_ID, null);
 
         // Assert
-        verify(mailingService, times(2)).sendOfferRejectedEmail(any(), any(), any(), any());
+        verify(mailingService, times(2)).sendOfferRejectedEmail(any(), any(), any());
     }
 
     @Test
@@ -706,7 +705,7 @@ public class OfferServiceImplTest {
 
         // Assert
         verify(mailingService).sendProofOfPaymentUploadedEmail(
-            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer), any(Locale.class)
+            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer)
         );
     }
 
@@ -787,7 +786,7 @@ public class OfferServiceImplTest {
 
         // Assert
         verify(mailingService).sendProofOfShippingUploadedEmail(
-            eq(offer.getBuyer()), eq(offer.getListing().getCreator()), eq(offer.getListing()), eq(offer), any(Locale.class)
+            eq(offer.getBuyer()), eq(offer.getListing().getCreator()), eq(offer.getListing()), eq(offer)
         );
     }
 

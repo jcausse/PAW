@@ -31,7 +31,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -352,7 +351,7 @@ public class ListingServiceImplTest {
         listingService.create(buildCreationDto("GOOD", null));
 
         // Assert
-        verify(mailingService).sendListingPublishedEmail(eq(seller), eq(listing), any(Locale.class));
+        verify(mailingService).sendListingPublishedEmail(eq(seller), eq(listing));
     }
 
     @Test
@@ -472,7 +471,7 @@ public class ListingServiceImplTest {
 
         // Assert
         verify(mailingService).sendPurchaseSellerEmail(
-            eq(seller), eq(buyer), eq(listing), eq(PURCHASE_MESSAGE), any(Locale.class)
+            eq(seller), eq(buyer), eq(listing), eq(PURCHASE_MESSAGE)
         );
     }
 
@@ -489,7 +488,7 @@ public class ListingServiceImplTest {
         listingService.purchase(LISTING_ID, BUYER_ID, PURCHASE_MESSAGE);
 
         // Assert
-        verify(mailingService).sendPurchaseBuyerEmail(eq(buyer), eq(seller), eq(listing), any(Locale.class));
+        verify(mailingService).sendPurchaseBuyerEmail(eq(buyer), eq(seller), eq(listing));
     }
 
     @Test(expected = NotFoundException.class)

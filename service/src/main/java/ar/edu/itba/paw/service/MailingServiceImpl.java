@@ -46,87 +46,87 @@ public class MailingServiceImpl implements MailingService {
 
     @Async
     @Override
-    public void sendWelcomeEmail(User user, Locale locale) {
-        var context = new Context(locale);
+    public void sendWelcomeEmail(User user) {
+        var context = new Context(localeOf(user));
         context.setVariable("user", user);
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/profile/" + user.getId());
 
-        String subject = messageSource.getMessage("email.welcome.subject", null, locale);
+        String subject = messageSource.getMessage("email.welcome.subject", null, localeOf(user));
         sendEmail(user.getEmail(), subject, "welcome", context);
     }
 
     @Async
     @Override
-    public void sendListingPublishedEmail(User seller, Listing listing, Locale locale) {
-        var context = new Context(locale);
+    public void sendListingPublishedEmail(User seller, Listing listing) {
+        var context = new Context(localeOf(seller));
         context.setVariable("user", seller);
         context.setVariable("listing", listing);
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
 
-        String subject = messageSource.getMessage("email.listing.subject", null, locale);
+        String subject = messageSource.getMessage("email.listing.subject", null, localeOf(seller));
         sendEmail(seller.getEmail(), subject, "listing-published", context);
     }
 
     @Async
     @Override
-    public void sendPurchaseSellerEmail(User seller, User buyer, Listing listing, String message, Locale locale) {
-        var context = new Context(locale);
+    public void sendPurchaseSellerEmail(User seller, User buyer, Listing listing, String message) {
+        var context = new Context(localeOf(seller));
         context.setVariable("seller", seller);
         context.setVariable("buyer", buyer);
         context.setVariable("listing", listing);
         context.setVariable("message", message);
         context.setVariable("baseUrl", baseUrl);
 
-        String subject = messageSource.getMessage("email.purchase.seller.subject", null, locale);
+        String subject = messageSource.getMessage("email.purchase.seller.subject", null, localeOf(seller));
         sendEmail(seller.getEmail(), subject, "purchase-seller", context);
     }
 
     @Async
     @Override
-    public void sendPurchaseBuyerEmail(User buyer, User seller, Listing listing, Locale locale) {
-        var context = new Context(locale);
+    public void sendPurchaseBuyerEmail(User buyer, User seller, Listing listing) {
+        var context = new Context(localeOf(buyer));
         context.setVariable("buyer", buyer);
         context.setVariable("seller", seller);
         context.setVariable("listing", listing);
         context.setVariable("baseUrl", baseUrl);
 
-        String subject = messageSource.getMessage("email.purchase.buyer.subject", null, locale);
+        String subject = messageSource.getMessage("email.purchase.buyer.subject", null, localeOf(buyer));
         sendEmail(buyer.getEmail(), subject, "purchase-buyer", context);
     }
 
     @Async
     @Override
-    public void sendNewOfferEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendNewOfferEmail(User seller, User buyer, Listing listing, Offer offer) {
+        var context = new Context(localeOf(seller));
         context.setVariable("buyer", buyer);
         context.setVariable("listing", listing);
         context.setVariable("offer", offer);
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
 
-        String subject = messageSource.getMessage("email.offer.new.subject", null, locale);
+        String subject = messageSource.getMessage("email.offer.new.subject", null, localeOf(seller));
         sendEmail(seller.getEmail(), subject, "offer-new", context);
     }
 
     @Async
     @Override
-    public void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendOfferRejectedEmail(User buyer, Listing listing, Offer offer) {
+        var context = new Context(localeOf(buyer));
         context.setVariable("buyer", buyer);
         context.setVariable("listing", listing);
         context.setVariable("offer", offer);
         context.setVariable("baseUrl", baseUrl);
 
-        String subject = messageSource.getMessage("email.offer.rejected.subject", null, locale);
+        String subject = messageSource.getMessage("email.offer.rejected.subject", null, localeOf(buyer));
         sendEmail(buyer.getEmail(), subject, "offer-rejected", context);
     }
 
     @Async
     @Override
-    public void sendOfferWithdrawnEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendOfferWithdrawnEmail(User seller, User buyer, Listing listing, Offer offer) {
+        var context = new Context(localeOf(seller));
         context.setVariable("seller", seller);
         context.setVariable("buyer", buyer);
         context.setVariable("listing", listing);
@@ -134,14 +134,14 @@ public class MailingServiceImpl implements MailingService {
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
 
-        String subject = messageSource.getMessage("email.offer.withdrawn.subject", null, locale);
+        String subject = messageSource.getMessage("email.offer.withdrawn.subject", null, localeOf(seller));
         sendEmail(seller.getEmail(), subject, "offer-withdrawn", context);
     }
 
     @Async
     @Override
-    public void sendOfferPendingPaymentEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendOfferPendingPaymentEmail(User buyer, User seller, Listing listing, Offer offer) {
+        var context = new Context(localeOf(buyer));
         context.setVariable("buyer", buyer);
         context.setVariable("seller", seller);
         context.setVariable("listing", listing);
@@ -149,14 +149,14 @@ public class MailingServiceImpl implements MailingService {
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/listing/" + listing.getId());
 
-        String subject = messageSource.getMessage("email.offer.pendingPayment.subject", null, locale);
+        String subject = messageSource.getMessage("email.offer.pendingPayment.subject", null, localeOf(buyer));
         sendEmail(buyer.getEmail(), subject, "offer-pending-payment", context);
     }
 
     @Async
     @Override
-    public void sendPendingTransactionEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendPendingTransactionEmail(User seller, User buyer, Listing listing, Offer offer) {
+        var context = new Context(localeOf(seller));
         context.setVariable("seller", seller);
         context.setVariable("buyer", buyer);
         context.setVariable("listing", listing);
@@ -164,14 +164,14 @@ public class MailingServiceImpl implements MailingService {
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
 
-        String subject = messageSource.getMessage("email.pendingTransaction.subject", null, locale);
+        String subject = messageSource.getMessage("email.pendingTransaction.subject", null, localeOf(seller));
         sendEmail(seller.getEmail(), subject, "pending-transaction", context);
     }
 
     @Async
     @Override
-    public void sendProofOfPaymentUploadedEmail(User seller, User buyer, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendProofOfPaymentUploadedEmail(User seller, User buyer, Listing listing, Offer offer) {
+        var context = new Context(localeOf(seller));
         context.setVariable("seller", seller);
         context.setVariable("buyer", buyer);
         context.setVariable("listing", listing);
@@ -179,14 +179,14 @@ public class MailingServiceImpl implements MailingService {
         context.setVariable("baseUrl", baseUrl);
         context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
 
-        String subject = messageSource.getMessage("email.proofOfPayment.uploaded.subject", null, locale);
+        String subject = messageSource.getMessage("email.proofOfPayment.uploaded.subject", null, localeOf(seller));
         sendEmail(seller.getEmail(), subject, "proof-of-payment-uploaded", context);
     }
 
     @Async
     @Override
-    public void sendProofOfShippingUploadedEmail(User buyer, User seller, Listing listing, Offer offer, Locale locale) {
-        var context = new Context(locale);
+    public void sendProofOfShippingUploadedEmail(User buyer, User seller, Listing listing, Offer offer) {
+        var context = new Context(localeOf(buyer));
         context.setVariable("buyer", buyer);
         context.setVariable("seller", seller);
         context.setVariable("listing", listing);
@@ -195,14 +195,14 @@ public class MailingServiceImpl implements MailingService {
         context.setVariable("actionUrl", baseUrl + "/offer/" + offer.getId());
         context.setVariable("trackingNumber", offer.getTrackingNumber());
 
-        String subject = messageSource.getMessage("email.proofOfShipping.uploaded.subject", null, locale);
+        String subject = messageSource.getMessage("email.proofOfShipping.uploaded.subject", null, localeOf(buyer));
         sendEmail(buyer.getEmail(), subject, "proof-of-shipping-uploaded", context);
     }
 
     @Async
     @Override
-    public void sendPasswordRecoveryEmail(User user, String otpValue, Locale locale) {
-        var context = new Context(locale);
+    public void sendPasswordRecoveryEmail(User user, String otpValue) {
+        var context = new Context(localeOf(user));
         context.setVariable("user", user);
         context.setVariable("otpValue", otpValue);
         context.setVariable("baseUrl", baseUrl);
@@ -210,14 +210,14 @@ public class MailingServiceImpl implements MailingService {
                 + URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)
                 + "&otp=" + URLEncoder.encode(otpValue, StandardCharsets.UTF_8));
 
-        String subject = messageSource.getMessage("email.passwordRecovery.subject", null, locale);
+        String subject = messageSource.getMessage("email.passwordRecovery.subject", null, localeOf(user));
         sendEmail(user.getEmail(), subject, "password-recovery", context);
     }
 
     @Async
     @Override
-    public void sendVerificationEmail(User user, String otpValue, Locale locale) {
-        var context = new Context(locale);
+    public void sendVerificationEmail(User user, String otpValue) {
+        var context = new Context(localeOf(user));
         context.setVariable("user", user);
         context.setVariable("otpValue", otpValue);
         context.setVariable("baseUrl", baseUrl);
@@ -225,8 +225,17 @@ public class MailingServiceImpl implements MailingService {
                 + URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)
                 + "&otp=" + URLEncoder.encode(otpValue, StandardCharsets.UTF_8));
 
-        String subject = messageSource.getMessage("email.verification.subject", null, locale);
+        String subject = messageSource.getMessage("email.verification.subject", null, localeOf(user));
         sendEmail(user.getEmail(), subject, "email-verification", context);
+    }
+
+    /**
+     * The locale to use for an email, derived from the recipient's preferred language
+     * (not the acting user's request locale). This is what makes emails arrive in the
+     * recipient's language regardless of who triggered the action.
+     */
+    private static Locale localeOf(final User recipient) {
+        return new Locale(recipient.getPreferredLanguage().getCode());
     }
 
     private void sendEmail(String to, String subject, String templateName, Context context) {

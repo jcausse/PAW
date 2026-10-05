@@ -153,7 +153,7 @@ public class OfferServiceImpl implements OfferService {
                 offer.getId(), dto.listingId(), dto.buyerId(), dto.amount(), isTrade);
 
         // Send email notification to seller about the new offer
-        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
+        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer);
 
         return offer;
     }
@@ -188,9 +188,9 @@ public class OfferServiceImpl implements OfferService {
                 offerId, offer.getListing().getId(), offer.getBuyer().getId(), currentUserId);
 
         // Send email notification to buyer about offer acceptance (pending payment)
-        mailingService.sendOfferPendingPaymentEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferPendingPaymentEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer);
         // Send email notification to seller about pending transaction
-        mailingService.sendPendingTransactionEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendPendingTransactionEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer);
 
         // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
@@ -229,7 +229,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Offer rejected: offerId={}, listingId={}, by sellerId={}", offerId, offer.getListing().getId(), currentUserId);
 
         // Send email notification to buyer about offer rejection
-        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer);
 
         // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
@@ -262,7 +262,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Offer withdrawn: offerId={}, listingId={}, by buyerId={}", offerId, offer.getListing().getId(), currentUserId);
 
         // Send email notification to seller about offer withdrawal
-        mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer);
 
         // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
@@ -279,7 +279,7 @@ public class OfferServiceImpl implements OfferService {
             if (offer.getOfferedListingId() != null) {
                 listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.ACTIVE);
             }
-            mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, locale);
+            mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer);
         }
         return rejected;
     }
@@ -314,7 +314,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Proof of payment uploaded: offerId={}, buyerId={}, fileId={}", offerId, buyerId, file.getId());
 
         // Notify seller that proof of payment was uploaded
-        mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer);
 
         return offerDao.getById(offerId).orElseThrow();
     }
@@ -357,7 +357,7 @@ public class OfferServiceImpl implements OfferService {
                 offerId, sellerId, proofOfShippingId != null, trackingNumber);
 
         // Notify buyer that proof of shipping was uploaded
-        mailingService.sendProofOfShippingUploadedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendProofOfShippingUploadedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer);
 
         return offerDao.getById(offerId).orElseThrow();
     }

@@ -29,7 +29,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     public OneTimePassword sendVerificationEmail(@NonNull User user) {
         LOGGER.debug("Sending verification email to user id={}", user.getId());
         final var otp = otpService.create(user);
-        mailingService.sendVerificationEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
+        mailingService.sendVerificationEmail(user, otp.getOtpValue());
         LOGGER.info("Verification email sent to user id={}", user.getId());
         return otp;
     }
@@ -51,7 +51,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         }
 
         final var otp = otpService.create(user);
-        mailingService.sendVerificationEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
+        mailingService.sendVerificationEmail(user, otp.getOtpValue());
         LOGGER.info("Resent verification email to user id={}", user.getId());
         return Optional.of(otp);
     }
@@ -76,7 +76,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         LOGGER.info("Email verification result for user id={}: {}", user.getId(), result);
         if (result == OneTimePasswordVerificationResult.ACCEPTED) {
             userService.markEmailAsVerified(user);
-            mailingService.sendWelcomeEmail(user, LocaleContextHolder.getLocale());
+            mailingService.sendWelcomeEmail(user);
             LOGGER.info("User id={} email successfully verified and welcome email dispatched", user.getId());
         }
 
