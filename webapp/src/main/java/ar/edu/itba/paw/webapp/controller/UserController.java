@@ -7,11 +7,8 @@ import ar.edu.itba.paw.model.RatingRole;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EmailVerificationService;
 import ar.edu.itba.paw.service.ListingService;
-<<<<<<< HEAD
 import ar.edu.itba.paw.service.RatingService;
-=======
 import ar.edu.itba.paw.service.ProvinceService;
->>>>>>> dev
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
@@ -20,12 +17,9 @@ import ar.edu.itba.paw.service.dto.UserEditDto;
 import ar.edu.itba.paw.webapp.auth.AuthHelper;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
 import ar.edu.itba.paw.webapp.exception.UserNotFoundException;
-<<<<<<< HEAD
 import ar.edu.itba.paw.webapp.form.RatingFilterForm;
 import ar.edu.itba.paw.webapp.form.StringSelectOption;
-=======
 import ar.edu.itba.paw.webapp.form.SelectOption;
->>>>>>> dev
 import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import javax.validation.Valid;
@@ -44,10 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-<<<<<<< HEAD
 import java.util.Arrays;
-=======
->>>>>>> dev
 import java.util.List;
 import java.util.Objects;
 
