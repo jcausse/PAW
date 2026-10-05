@@ -8,6 +8,8 @@ deploy_secrets.properties
 !**/app.properties.sample
 !**/mail.properties.sample
 !**/rememberMe.key.sample
+secrets.tar.gz
+secrets/
 
 # deploy.py build log
 build.log
