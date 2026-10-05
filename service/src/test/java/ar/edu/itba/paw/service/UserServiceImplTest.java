@@ -224,7 +224,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, "New Name", null, null));
+        userService.update(UserEditDto.builder().user(user).newDisplayName("New Name").build());
 
         // Assert: only display name set; email/password/image null
         verify(userDao).update(eq(USER_ID), eq("New Name"), isNull(), isNull(), isNull());
@@ -239,7 +239,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, null, "brandNew", null));
+        userService.update(UserEditDto.builder().user(user).newPassword("brandNew").build());
 
         // Assert
         verify(userDao).update(eq(USER_ID), isNull(), isNull(), eq(ENCODED_PASSWORD), isNull());
@@ -256,7 +256,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, null, null, imageData));
+        userService.update(UserEditDto.builder().user(user).newImageData(imageData).build());
 
         // Assert: new image saved, user updated with it, old image deleted
         verify(userDao).update(eq(USER_ID), isNull(), isNull(), isNull(), eq(IMAGE_ID));
@@ -271,7 +271,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, "New Name", null, null));
+        userService.update(UserEditDto.builder().user(user).newDisplayName("New Name").build());
 
         // Assert
         verify(imageService, never()).delete(any());

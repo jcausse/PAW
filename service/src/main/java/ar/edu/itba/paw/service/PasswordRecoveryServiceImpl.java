@@ -59,7 +59,10 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
         LOGGER.info("Password recovery verification result for user id={}: {}", user.getId(), result);
 
         if (result == OneTimePasswordVerificationResult.ACCEPTED) {
-            userService.update(new UserEditDto(user, null, password, null));
+            userService.update(UserEditDto.builder()
+                    .user(user)
+                    .newPassword(password)
+                    .build());
             LOGGER.info("Password updated successfully for user id={}", user.getId());
         }
 

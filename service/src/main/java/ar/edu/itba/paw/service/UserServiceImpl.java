@@ -114,6 +114,17 @@ public class UserServiceImpl implements UserService {
 
         var updated = updateResult
                 .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+
+        /*
+         * Location and preferred language live on the same user, so we apply them in the same
+         * transaction. Only when the caller opted in (the profile edit form); other flows such as
+         * a password reset leave these untouched instead of clearing them by omission.
+         */
+        if (dto.updateLocationAndLanguage()) {
+            updateLocation(user, dto.newProvinceId(), dto.newLocationDetail());
+            updated = updatePreferredLanguage(user, dto.newPreferredLanguage());
+        }
+
         LOGGER.info("User profile updated: id={}, displayNameChanged={}, passwordChanged={}, imageChanged={}",
                 user.getId(), displayName != null, encodedPassword != null, maybeNewImage.isPresent());
         return updated;

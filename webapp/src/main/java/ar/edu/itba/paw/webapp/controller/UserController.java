@@ -213,18 +213,20 @@ public class UserController {
 
         LOGGER.info("User {} profile edit submitted", currentUser.getId());
         LOGGER.debug("User {} updating profile", currentUser.getUsername());
-        userService.update(new UserEditDto(
-            currentUser,
-            form.getDisplayName(),
-            form.getPassword(),
-            imageData
-        ));
-        userService.updateLocation(currentUser, form.getProvinceId(), form.getLocationDetail());
 
-        // Persisting the preferred language updates the website locale too: the LocaleResolver
-        // reads it from the (refreshed) authenticated principal, so no cookie juggling is needed.
-        final Language chosenLanguage = Language.fromCode(form.getPreferredLanguage());
-        final User updatedUser = userService.updatePreferredLanguage(currentUser, chosenLanguage);
+        // One service call does the whole profile update (display name, password, image, location,
+        // language) in a single transaction. Persisting the language also updates the website locale,
+        // since the LocaleResolver reads it from the refreshed authenticated principal below.
+        final User updatedUser = userService.update(UserEditDto.builder()
+            .user(currentUser)
+            .newDisplayName(form.getDisplayName())
+            .newPassword(form.getPassword())
+            .newImageData(imageData)
+            .updateLocationAndLanguage(true)
+            .newProvinceId(form.getProvinceId())
+            .newLocationDetail(form.getLocationDetail())
+            .newPreferredLanguage(Language.fromCode(form.getPreferredLanguage()))
+            .build());
 
         authHelper.update(updatedUser);
 
