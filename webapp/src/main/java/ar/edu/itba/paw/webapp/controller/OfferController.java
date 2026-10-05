@@ -3,7 +3,6 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.service.OfferService;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import ar.edu.itba.paw.webapp.auth.CurrentUser;
@@ -63,19 +62,5 @@ public class OfferController {
         offerService.confirmPayment(offerId, currentUser.getId());
 
         return new ModelAndView("redirect:/account/incoming-offers?statusGroup=resolved");
-    }
-
-    @PostMapping("/{offerId}/rate")
-    public ModelAndView rate(@PathVariable Long offerId,
-                              @CurrentUser User currentUser,
-                              @RequestParam OfferRating rating,
-                              @RequestHeader(value = "Referer", required = false) String referer) {
-        offerService.rate(offerId, currentUser, rating);
- 
-        String redirectUrl = "/account/incoming-offers?statusGroup=resolved";
-        if (referer != null && referer.contains("/account/my-offers")) {
-            redirectUrl = "/account/my-offers?statusGroup=resolved";
-        }
-        return new ModelAndView("redirect:" + redirectUrl);
     }
 }
