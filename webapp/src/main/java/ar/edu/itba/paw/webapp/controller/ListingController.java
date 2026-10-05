@@ -296,7 +296,7 @@ public class ListingController {
         LOGGER.info("User {} submitted listing creation/edit for product {}", currentUser.getId(), form.getProductId());
         if (bindingResult.hasErrors()) {
             LOGGER.debug("Validation failed for listing creation/edit for product {}", form.getProductId());
-            return detailsWithErrors();
+            return detailsWithErrors(form);
         }
 
         List<ImageData> imageDataList = new ArrayList<>();
@@ -312,17 +312,13 @@ public class ListingController {
                     } catch (IOException e) {
                         LOGGER.error("Failed to read uploaded image", e);
                         bindingResult.rejectValue("images", "error.image.upload");
-                        return detailsWithErrors();
+                        return detailsWithErrors(form);
                     }
                 }
             }
         }
 
         if (form.getEditListingId() != null) {
-            var listing = listingService.getById(form.getEditListingId());
-            if (!listing.getCreator().getId().equals(currentUser.getId())) {
-                throw new ForbiddenException("Not authorized to edit this listing");
-            }
             var updated = listingService.update(new ListingUpdateDto(
                 form.getEditListingId(),
                 form.getTitle(),
@@ -332,7 +328,7 @@ public class ListingController {
                 form.isAcceptsTrade(),
                 form.isAcceptsShipping(),
                 form.getDescription()
-            ));
+            ), currentUser.getId());
             return new ModelAndView("redirect:/listing/" + updated.getId());
         }
 
@@ -350,8 +346,10 @@ public class ListingController {
         return new ModelAndView("redirect:/listing/" + newListing.getId());
     }
 
-    private ModelAndView detailsWithErrors() {
+    private ModelAndView detailsWithErrors(ListingDetailsForm form) {
+        var product = productService.getById(form.getProductId());
         return new ModelAndView("listing/new/details")
+                .addObject("product", product)
                 .addObject("conditionOptions", buildConditionOptions());
     }
 
@@ -407,11 +405,7 @@ public class ListingController {
     @PostMapping("/{id}/cancel")
     public ModelAndView cancelListing(@PathVariable Long id, @CurrentUser User currentUser) {
         LOGGER.info("User {} canceled listing {}", currentUser.getId(), id);
-        var listing = listingService.getById(id);
-        if (!listing.getCreator().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not authorized to cancel this listing");
-        }
-        listingService.cancel(id);
+        listingService.cancel(id, currentUser.getId());
         return new ModelAndView("redirect:/account/listings");
     }
 

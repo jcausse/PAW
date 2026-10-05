@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -93,7 +94,8 @@
                                 <div class="flex items-center gap-2 ml-auto">
                                     <paw:badge text="${statusLabel}" classname="${statusClass}" />
                                     <c:if test="${listing.pendingOffersCount > 0}">
-                                        <paw:badge text="${listing.pendingOffersCount} offers" classname="text-amber-600" />
+                                        <spring:message code="listing.detail.pendingOffersBadge" arguments="${listing.pendingOffersCount}" var="pendingOffersBadge"/>
+                                        <paw:badge text="${pendingOffersBadge}" classname="text-amber-600" />
                                     </c:if>
                                 </div>
                             </div>

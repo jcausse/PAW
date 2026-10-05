@@ -553,7 +553,7 @@ public class ListingServiceImplTest {
         )).thenReturn(listing);
 
         // Act
-        final Listing result = listingService.update(buildUpdateDto(LISTING_ID, "fair"));
+        final Listing result = listingService.update(buildUpdateDto(LISTING_ID, "fair"), SELLER_ID);
 
         // Assert
         Assert.assertEquals(LISTING_ID, (long) result.getId());
@@ -565,7 +565,7 @@ public class ListingServiceImplTest {
         when(listingDao.getById(eq(NON_EXISTING_ID))).thenReturn(Optional.empty());
 
         // Act
-        listingService.update(buildUpdateDto(NON_EXISTING_ID, "GOOD"));
+        listingService.update(buildUpdateDto(NON_EXISTING_ID, "GOOD"), SELLER_ID);
     }
 
     @Test(expected = BadParameterException.class)
@@ -575,7 +575,7 @@ public class ListingServiceImplTest {
         when(productService.getById(eq(PRODUCT_ID))).thenThrow(NotFoundException.createFor("Product with ID " + PRODUCT_ID));
 
         // Act
-        listingService.update(buildUpdateDto(LISTING_ID, "GOOD"));
+        listingService.update(buildUpdateDto(LISTING_ID, "GOOD"), SELLER_ID);
     }
 
     @Test(expected = BadParameterException.class)
@@ -585,7 +585,7 @@ public class ListingServiceImplTest {
         when(productService.getById(eq(PRODUCT_ID))).thenReturn(buildFakeProduct());
 
         // Act
-        listingService.update(buildUpdateDto(LISTING_ID, "BRAND_NEW_IN_BOX"));
+        listingService.update(buildUpdateDto(LISTING_ID, "BRAND_NEW_IN_BOX"), SELLER_ID);
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -598,7 +598,7 @@ public class ListingServiceImplTest {
         when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
 
         // Act
-        listingService.cancel(LISTING_ID);
+        listingService.cancel(LISTING_ID, SELLER_ID);
 
         // Assert
         verify(offerService).rejectPendingOffersForListing(eq(LISTING_ID), isNull());
@@ -610,7 +610,7 @@ public class ListingServiceImplTest {
         when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
 
         // Act
-        listingService.cancel(LISTING_ID);
+        listingService.cancel(LISTING_ID, SELLER_ID);
 
         // Assert
         verify(listingDao).cancel(eq(LISTING_ID));
@@ -622,7 +622,7 @@ public class ListingServiceImplTest {
         when(listingDao.getById(eq(NON_EXISTING_ID))).thenReturn(Optional.empty());
 
         // Act
-        listingService.cancel(NON_EXISTING_ID);
+        listingService.cancel(NON_EXISTING_ID, SELLER_ID);
     }
 
     @Test
