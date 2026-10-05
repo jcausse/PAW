@@ -3,7 +3,6 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.OneTimePassword;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.enumeration.OneTimePasswordVerificationResult;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,10 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -31,9 +28,6 @@ public class EmailVerificationServiceImplTest {
 
     private static final String PLAIN_OTP = "Ab3dE5gH9k";
 
-    // Not the JVM default on purpose, so the test proves the request locale is the one being used
-    private static final Locale LOCALE = new Locale("es");
-
     @InjectMocks
     private EmailVerificationServiceImpl emailVerificationService;
     @Mock
@@ -42,16 +36,6 @@ public class EmailVerificationServiceImplTest {
     private OneTimePasswordService otpService;
     @Mock
     private MailingService mailingService;
-
-    @Before
-    public void setUp() {
-        LocaleContextHolder.setLocale(LOCALE);
-    }
-
-    @After
-    public void tearDown() {
-        LocaleContextHolder.resetLocaleContext();
-    }
 
     /* ---------------------------------------------------------------------------------------------- */
     /* Fixtures & helpers                                                                              */
@@ -102,7 +86,7 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testSendVerificationEmailSendsOtpInRequestLocale() {
+    public void testSendVerificationEmailSendsOtpToUser() {
         // Arrange
         final User user = buildFakeUser(false);
         when(otpService.create(eq(user))).thenReturn(buildFakeOtp());
@@ -111,7 +95,7 @@ public class EmailVerificationServiceImplTest {
         emailVerificationService.sendVerificationEmail(user);
 
         // Assert
-        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP), eq(LOCALE));
+        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP));
     }
 
     @Test(expected = NullPointerException.class)
@@ -188,7 +172,7 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testResendVerificationEmailUnverifiedUserSendsOtpInRequestLocale() {
+    public void testResendVerificationEmailUnverifiedUserSendsOtpToUser() {
         // Arrange
         final User user = givenUser(false);
         when(otpService.create(eq(user))).thenReturn(buildFakeOtp());
@@ -197,7 +181,7 @@ public class EmailVerificationServiceImplTest {
         emailVerificationService.resendVerificationEmail(USER_USERNAME);
 
         // Assert
-        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP), eq(LOCALE));
+        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP));
     }
 
     @Test(expected = NullPointerException.class)
@@ -286,7 +270,7 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testVerifyEmailCorrectOtpSendsWelcomeEmailInRequestLocale() {
+    public void testVerifyEmailCorrectOtpSendsWelcomeEmailToUser() {
         // Arrange
         final User user = givenUser(false);
         when(otpService.verify(eq(user), eq(PLAIN_OTP))).thenReturn(OneTimePasswordVerificationResult.ACCEPTED);
@@ -295,7 +279,7 @@ public class EmailVerificationServiceImplTest {
         emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
 
         // Assert
-        verify(mailingService).sendWelcomeEmail(eq(user), eq(LOCALE));
+        verify(mailingService).sendWelcomeEmail(eq(user));
     }
 
     @Test

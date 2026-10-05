@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingFilter;
@@ -310,6 +311,7 @@ public class ListingJdbcDao implements ListingDao {
                     .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
                     .province(mapCreatorProvince(rs))
                     .locationDetail(rs.getString("creator_location_detail"))
+                    .preferredLanguage(Language.fromCode(rs.getString("creator_preferred_language")))
                     .build()
             )
             .product(
@@ -387,6 +389,7 @@ public class ListingJdbcDao implements ListingDao {
             "c." + UserSchema.SELLER_NEGATIVE_RATINGS,
             "c." + UserSchema.PROVINCE_ID + " as creator_province_id",
             "c." + UserSchema.LOCATION_DETAIL + " as creator_location_detail",
+            "c." + UserSchema.PREFERRED_LANGUAGE + " as creator_preferred_language",
             "cpr." + ProvinceSchema.NAME + " as creator_province_name",
             "p." + ProductSchema.ID,
             "p." + ProductSchema.BRAND,

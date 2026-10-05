@@ -20,4 +20,5 @@ public final class UserSchema {
     public static final String BUYER_NEGATIVE_RATINGS = "buyer_negative_ratings";
     public static final String PROVINCE_ID = "province_id";
     public static final String LOCATION_DETAIL = "location_detail";
+    public static final String PREFERRED_LANGUAGE = "preferred_language";
 }

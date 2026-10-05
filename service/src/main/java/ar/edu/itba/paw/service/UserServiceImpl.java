@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.persistence.UserRoleDao;
 import ar.edu.itba.paw.service.dto.ImageData;
@@ -19,6 +20,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +75,8 @@ public class UserServiceImpl implements UserService {
             dto.email().trim().toLowerCase(),
             passwordEncoder.encode(dto.password()),
             saveUserImage(dto.image(), dto.username()),
-            Instant.now()
+            Instant.now(),
+            Language.fromCode(LocaleContextHolder.getLocale().getLanguage())
         );
         userRoleDao.addRole(user, Role.USER);
         LOGGER.info("User created: id={}, username='{}'", user.getId(), user.getUsername());
@@ -116,6 +119,17 @@ public class UserServiceImpl implements UserService {
 
         var updated = updateResult
                 .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+
+        /*
+         * Location and preferred language live on the same user, so we apply them in the same
+         * transaction. Only when the caller opted in (the profile edit form); other flows such as
+         * a password reset leave these untouched instead of clearing them by omission.
+         */
+        if (dto.updateLocationAndLanguage()) {
+            updateLocation(user, dto.newProvinceId(), dto.newLocationDetail());
+            updated = updatePreferredLanguage(user, dto.newPreferredLanguage());
+        }
+
         LOGGER.info("User profile updated: id={}, displayNameChanged={}, passwordChanged={}, imageChanged={}",
                 user.getId(), displayName != null, encodedPassword != null, maybeNewImage.isPresent());
         return updated;
@@ -133,6 +147,14 @@ public class UserServiceImpl implements UserService {
         final String detail = province == null ? null : normalizeDetail(locationDetail);
 
         return userDao.updateLocation(user.getId(), resolvedProvinceId, detail)
+                .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+    }
+
+    @Override
+    @Transactional
+    public User updatePreferredLanguage(@NonNull User user, @NonNull Language preferredLanguage) {
+        LOGGER.info("Updating preferred language for user id={} to '{}'", user.getId(), preferredLanguage.getCode());
+        return userDao.updatePreferredLanguage(user.getId(), preferredLanguage)
                 .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
     }
 

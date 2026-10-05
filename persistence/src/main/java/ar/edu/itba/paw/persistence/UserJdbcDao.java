@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.persistence.schema.ProvinceSchema;
@@ -65,7 +66,8 @@ public class UserJdbcDao implements UserDao {
             String email,
             String password,
             Image image,
-            Instant joinedAt
+            Instant joinedAt,
+            Language preferredLanguage
     ) {
         final Long imageId = image != null ? image.getId() : null;
 
@@ -82,6 +84,7 @@ public class UserJdbcDao implements UserDao {
         values.put(UserSchema.BUYER_POSITIVE_RATINGS, 0);
         values.put(UserSchema.BUYER_NEUTRAL_RATINGS, 0);
         values.put(UserSchema.BUYER_NEGATIVE_RATINGS, 0);
+        values.put(UserSchema.PREFERRED_LANGUAGE, preferredLanguage.getCode());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -100,6 +103,7 @@ public class UserJdbcDao implements UserDao {
                 .buyerPositiveRatings(0)
                 .buyerNeutralRatings(0)
                 .buyerNegativeRatings(0)
+                .preferredLanguage(preferredLanguage)
                 .build();
     }
 
@@ -153,6 +157,12 @@ public class UserJdbcDao implements UserDao {
     @Override
     public Optional<User> updateLocation(Long userId, Long provinceId, String locationDetail) {
         final int rowsAffected = jdbcTemplate.update(Queries.UPDATE_LOCATION, provinceId, locationDetail, userId);
+        return rowsAffected == 0 ? Optional.empty() : getById(userId);
+    }
+
+    @Override
+    public Optional<User> updatePreferredLanguage(Long userId, Language preferredLanguage) {
+        final int rowsAffected = jdbcTemplate.update(Queries.UPDATE_PREFERRED_LANGUAGE, preferredLanguage.getCode(), userId);
         return rowsAffected == 0 ? Optional.empty() : getById(userId);
     }
 
@@ -239,6 +249,7 @@ public class UserJdbcDao implements UserDao {
             .buyerNegativeRatings(rs.getInt(UserSchema.BUYER_NEGATIVE_RATINGS))
             .province(mapProvince(rs))
             .locationDetail(rs.getString(UserSchema.LOCATION_DETAIL))
+            .preferredLanguage(Language.fromCode(rs.getString(UserSchema.PREFERRED_LANGUAGE)))
             .build();
 
     private static Province mapProvince(final java.sql.ResultSet rs) throws java.sql.SQLException {
@@ -271,6 +282,7 @@ public class UserJdbcDao implements UserDao {
             "u." + UserSchema.BUYER_NEGATIVE_RATINGS,
             "u." + UserSchema.PROVINCE_ID,
             "u." + UserSchema.LOCATION_DETAIL,
+            "u." + UserSchema.PREFERRED_LANGUAGE,
             "pr." + ProvinceSchema.NAME + " AS province_name"
         );
 
@@ -294,6 +306,11 @@ public class UserJdbcDao implements UserDao {
         private static final String UPDATE_LOCATION =
             "UPDATE " + UserSchema.TABLE_NAME +
             " SET " + UserSchema.PROVINCE_ID + " = ?, " + UserSchema.LOCATION_DETAIL + " = ?" +
+            " WHERE " + UserSchema.ID + " = ?";
+
+        private static final String UPDATE_PREFERRED_LANGUAGE =
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + UserSchema.PREFERRED_LANGUAGE + " = ?" +
             " WHERE " + UserSchema.ID + " = ?";
 
         private static final String VERIFY_EMAIL =

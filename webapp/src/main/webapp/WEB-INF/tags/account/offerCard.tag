@@ -100,6 +100,31 @@
         <paw:banner text="${warningMsg}" icon="triangle-alert" role="warning" />
     </c:if>
 
+    <c:if test="${offer.status.name() == 'PENDING_PAYMENT'}">
+        <c:choose>
+            <c:when test="${user == 'buyer'}">
+                <spring:message code="offer.contactInfo.buyerEmail" var="buyerEmailLabel"/>
+                <paw:banner role="secondary" icon="contact-round">
+                    <div class="text-sm">
+                        <c:out value="${buyerEmailLabel}:" />
+                        <c:url value="mailto:${offer.buyer.email}" var="buyerEmailUrl" />
+                        <a class="hover:text-lime-600 underline cursor-pointer" href="${buyerEmailUrl}"><c:out value="${offer.buyer.email}" /></a>
+                    </div>
+                </paw:banner>
+            </c:when>
+            <c:when test="${user == 'seller'}">
+                <spring:message code="offer.contactInfo.sellerEmail" var="sellerEmailLabel"/>
+                <paw:banner role="secondary" icon="contact-round">
+                    <div class="text-sm">
+                        <c:out value="${sellerEmailLabel}:" />
+                        <c:url value="mailto:${offer.seller.email}" var="sellerEmailUrl" />
+                        <a class="hover:text-lime-600 underline cursor-pointer" href="${sellerEmailUrl}"><c:out value="${offer.seller.email}" /></a>
+                    </div>
+                </paw:banner>
+            </c:when>
+        </c:choose>
+    </c:if>
+
     <c:if test="${offer.proofOfPaymentId != null && user == 'buyer'}">
         <spring:message code="offer.proofOfPayment.uploadedNotification" var="proofOfPaymentMsg"/>
         <paw:banner text="${proofOfPaymentMsg}" icon="badge-check" />

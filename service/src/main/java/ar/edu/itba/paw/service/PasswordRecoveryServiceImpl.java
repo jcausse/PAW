@@ -7,7 +7,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +35,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
         final var user = maybeUser.get();
         final var otp = otpService.create(user);
-        mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue(), LocaleContextHolder.getLocale());
+        mailingService.sendPasswordRecoveryEmail(user, otp.getOtpValue());
         LOGGER.info("Password recovery email sent for user id={}", user.getId());
         return Optional.of(otp);
     }
@@ -60,7 +59,10 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
         LOGGER.info("Password recovery verification result for user id={}: {}", user.getId(), result);
 
         if (result == OneTimePasswordVerificationResult.ACCEPTED) {
-            userService.update(new UserEditDto(user, null, password, null));
+            userService.update(UserEditDto.builder()
+                    .user(user)
+                    .newPassword(password)
+                    .build());
             LOGGER.info("Password updated successfully for user id={}", user.getId());
         }
 

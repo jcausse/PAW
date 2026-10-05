@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
@@ -20,6 +21,7 @@ public interface UserService {
     User update(UserEditDto dto);
 
     User updateLocation(User user, Long provinceId, String locationDetail);
+    User updatePreferredLanguage(User user, Language preferredLanguage);
     User updateEmail(User user, String email);
     User markEmailAsVerified(User user);
 

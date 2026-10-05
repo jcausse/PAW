@@ -1,5 +1,5 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
-<%@ attribute name="text" required="true" %>
+<%@ attribute name="text" required="false" %>
 <%@ attribute name="icon" required="false" %>
 <%@ attribute name="role" required="false" %>
 <%@ attribute name="classname" required="false" %>
@@ -26,5 +26,6 @@
 
 <div class="p-3 rounded-lg border flex flex-row gap-2 items-center ${roleClassnames} ${bannerClass}">
     <c:if test="${not empty icon}"><paw:icon name="${icon}" /></c:if>
-    <p class="text-sm"><c:out value="${text}"/></p>
+    <c:if test="${not empty text}"><p class="text-sm"><c:out value="${text}"/></p></c:if>
+    <jsp:doBody />
 </div>
