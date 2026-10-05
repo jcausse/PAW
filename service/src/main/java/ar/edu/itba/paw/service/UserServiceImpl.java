@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Image;
+import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.ImageData;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserDao userDao;
+    private final ProvinceService provinceService;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
 
@@ -116,6 +118,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public User updateLocation(@NonNull User user, Long provinceId, String locationDetail) {
+        LOGGER.debug("Updating location for user id={}", user.getId());
+
+        final Province province = provinceId == null
+                ? null
+                : provinceService.getById(provinceId).orElse(null);
+        final Long resolvedProvinceId = province == null ? null : province.getId();
+        final String detail = province == null ? null : normalizeDetail(locationDetail);
+
+        return userDao.updateLocation(user.getId(), resolvedProvinceId, detail)
+                .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+    }
+
+    @Override
+    @Transactional
     public User updateEmail(@NonNull User user, @NonNull String email) {
         LOGGER.info("Updating email for user id={}", user.getId());
         return userDao.update(user.getId(), null, email.trim().toLowerCase(), null, null)
@@ -150,5 +167,13 @@ public class UserServiceImpl implements UserService {
             );
         }
         return null;
+    }
+
+    private static String normalizeDetail(final String detail) {
+        if (detail == null) {
+            return null;
+        }
+        final String trimmed = detail.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

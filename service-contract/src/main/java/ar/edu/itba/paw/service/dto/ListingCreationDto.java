@@ -8,6 +8,7 @@ public record ListingCreationDto(
     Long productId,
     String condition,
     boolean acceptsTrade,
+    boolean acceptsShipping,
     String description,
     List<ImageData> images
 ) {}

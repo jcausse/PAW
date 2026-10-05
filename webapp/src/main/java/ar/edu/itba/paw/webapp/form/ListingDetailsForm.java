@@ -36,6 +36,7 @@ public class ListingDetailsForm {
     @NotBlank
     private String condition;
     private boolean acceptsTrade;
+    private boolean acceptsShipping;
 
     @Size(max = 2000)
     private String description;

@@ -15,4 +15,5 @@ public final class ListingSchema {
     public static final String STATUS = "status";
     public static final String CONDITION = "condition";
     public static final String ACCEPTS_TRADE = "accepts_trade";
+    public static final String ACCEPTS_SHIPPING = "accepts_shipping";
 }

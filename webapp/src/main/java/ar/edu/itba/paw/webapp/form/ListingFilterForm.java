@@ -20,4 +20,6 @@ public class ListingFilterForm {
     private String sort;
     private String status;
     private Integer page;
+    private Long provinceId;
+    private Boolean acceptsShipping;
 }
