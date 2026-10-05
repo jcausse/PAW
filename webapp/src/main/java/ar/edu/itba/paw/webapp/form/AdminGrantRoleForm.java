@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.webapp.form.validation.Username;
+import ar.edu.itba.paw.webapp.form.validation.UserExists;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +14,15 @@ import javax.validation.constraints.Size;
 public class AdminGrantRoleForm {
 
     @NotEmpty
-    @Size(min = 3, max = 24)
-    @Username
+    @Size(min = 3, max = 100)
+    @UserExists
     private String username;
+
+    public String getUsernameOrEmail() {
+        return username;
+    }
+
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.username = usernameOrEmail;
+    }
 }
