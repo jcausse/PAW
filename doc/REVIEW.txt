@@ -3,31 +3,12 @@ PAW 2026b-08 (Swappr) - Code Review Remaining Items
 
 This document lists the review items from the audit that were NOT addressed in the fix branches.
 
----
-
 CRITICAL (Architectural / Structural)
 -------------------------------------
 
 1. **Business logic in CheckoutController.checkoutPost**
    - Controller decides offer amount/type (full/custom/trade) and builds DTO reading listing.getPrice()
    - Should move to OfferService.create()
-
-2. **Emails sent in wrong language (conceptual error)**
-   - MailingServiceImpl uses LocaleContextHolder.getLocale() (actor's locale)
-   - No preferredLanguage column in User model
-   - Emails to recipients arrive in sender's language
-   - Required: add preferredLanguage to User, use it in MailingServiceImpl
-
-3. **Webapp layer knows about persistence (layer violation)**
-   - WebConfig @ComponentScan includes "ar.edu.itba.paw.persistence" and "ar.edu.itba.paw.service"
-   - DataSource, Flyway, TransactionManager live in webapp
-   - Violates: webapp should only compile-depend on service-contract
-
-4. **Services using other entities' DAOs directly**
-   - OfferServiceImpl injects UserDao and FileDao (should delegate to UserService/ImageService)
-   - ProductServiceImpl uses CategoryDao/SubcategoryDao (should delegate to CategoryService/SubcategoryService)
-
----
 
 MEDIUM
 ------
@@ -43,36 +24,3 @@ MEDIUM
 7. **Controller doing too much / NPE risks**
    - ListingController: product wizard state machine + __OTHER__ sentinel + new Price() in controller
    - UserController.profile: parses enums with silent default, uses List.of(null) (NPE risk)
-
----
-
-MINOR / QUICK FIXES
--------------------
-
-8. **UserServiceImpl repeated trim()/toLowerCase() normalization**
-   - Acknowledged debt in code, not critical
-
-9. **autoRatePendingOffers @Scheduled has write-side N+1**
-   - Loops with individual updates (setSellerRating, setBuyerRating, increment counters)
-   - Left per instructions ("leave double query comments alone")
-
-10. **Double query FIXME comments in OfferServiceImpl**
-    - Multiple // FIXME double query comments after create/update operations
-    - Left per instructions
-
----
-
-FIXED (for reference)
----------------------
-The following items WERE addressed in separate fix branches merged to dev:
-- Ownership/state checks moved from POST controllers to service layer
-- POST validation errors now repopulate model (pendingOffersCount, product)
-- Double-submit guards: ACTIVE check in OfferService.create, PENDING_TRANSACTION in ListingService.purchase
-- XSS in custom tags: c:out with var for JS context, c:out for title
-- i18n: removed duplicates, renamed orphans, added missing Spanish translations
-- Hardcoded text: deleted components.jsp, added i18n keys for "Condition:" and "offers"
-- LIKE wildcards escaped with private escapeLike() method
-- DOCTYPE added to 18 JSPs
-- Open redirect prevented: Referer hostname/port validation
-- Page parameter validation: @Min(1) on all filter forms
-- N+1 in rejectPendingOffersForListing replaced with bulk updateStatusBulk
