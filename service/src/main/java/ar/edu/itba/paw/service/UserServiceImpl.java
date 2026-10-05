@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Image;
+import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.ImageData;
@@ -13,6 +14,8 @@ import java.util.Optional;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+
     private final UserDao userDao;
+    private final ProvinceService provinceService;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
 
@@ -51,11 +57,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User create(@NonNull UserCreationDto dto) {
+        LOGGER.debug("Creating user with username '{}'", dto.username());
         if (dto.username().contains("@")) {
+            LOGGER.warn("User creation rejected: username '{}' contains '@'", dto.username());
             throw new IllegalArgumentException("UserCreationDto.username cannot contain @");
         }
 
-        return userDao.create(
+        var user = userDao.create(
             dto.username().trim().toLowerCase(),
             dto.displayName().trim(),
             dto.email().trim().toLowerCase(),
@@ -63,6 +71,8 @@ public class UserServiceImpl implements UserService {
             saveUserImage(dto.image(), dto.username()),
             Instant.now()
         );
+        LOGGER.info("User created: id={}, username='{}'", user.getId(), user.getUsername());
+        return user;
     }
 
     @Override
@@ -70,6 +80,7 @@ public class UserServiceImpl implements UserService {
     public User update(@NonNull UserEditDto dto) {
         Objects.requireNonNull(dto.user(), "User cannot be null");
         final var user = dto.user();
+        LOGGER.debug("Updating profile for user id={}", user.getId());
 
         /* Prepare User properties to be updated */
         var displayName = (dto.newDisplayName() != null && !dto.newDisplayName().isBlank())
@@ -94,16 +105,36 @@ public class UserServiceImpl implements UserService {
 
         /* Delete the old image to prevent orphans, if a new one was set and the user previously had one */
         if (maybeNewImage.isPresent() && user.getImageId().isPresent()) {
+            LOGGER.debug("Replacing old profile image id={} for user id={}", user.getImageId().get(), user.getId());
             imageService.delete(user.getImageId().get());
         }
 
-        return updateResult
+        var updated = updateResult
+                .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+        LOGGER.info("User profile updated: id={}, displayNameChanged={}, passwordChanged={}, imageChanged={}",
+                user.getId(), displayName != null, encodedPassword != null, maybeNewImage.isPresent());
+        return updated;
+    }
+
+    @Override
+    @Transactional
+    public User updateLocation(@NonNull User user, Long provinceId, String locationDetail) {
+        LOGGER.debug("Updating location for user id={}", user.getId());
+
+        final Province province = provinceId == null
+                ? null
+                : provinceService.getById(provinceId).orElse(null);
+        final Long resolvedProvinceId = province == null ? null : province.getId();
+        final String detail = province == null ? null : normalizeDetail(locationDetail);
+
+        return userDao.updateLocation(user.getId(), resolvedProvinceId, detail)
                 .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
     }
 
     @Override
     @Transactional
     public User updateEmail(@NonNull User user, @NonNull String email) {
+        LOGGER.info("Updating email for user id={}", user.getId());
         return userDao.update(user.getId(), null, email.trim().toLowerCase(), null, null)
                 .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
     }
@@ -111,6 +142,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User markEmailAsVerified(@NonNull User user) {
+        LOGGER.info("Marking email as verified for user id={}", user.getId());
         return userDao.verifyEmail(user.getId(), Instant.now())
                 .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
     }
@@ -135,5 +167,13 @@ public class UserServiceImpl implements UserService {
             );
         }
         return null;
+    }
+
+    private static String normalizeDetail(final String detail) {
+        if (detail == null) {
+            return null;
+        }
+        final String trimmed = detail.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

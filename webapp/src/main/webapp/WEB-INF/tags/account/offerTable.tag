@@ -14,9 +14,7 @@
                 <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.${user}"/></th>
                 <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.amount"/></th>
                 <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.status"/></th>
-                <c:if test="${user == 'buyer'}">
-                    <th class="pb-2 font-medium text-black/60"></th>
-                </c:if>
+                <th class="pb-2 font-medium text-black/60"><spring:message code="account.incomingOffers.table.review"/></th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +38,7 @@
                     </c:otherwise>
                 </c:choose>
 
+                <c:set var="myRating" value="${user == 'buyer' ? offer.buyerRating : offer.sellerRating}"/>
                 <tr class="border-b border-black/5 last:border-0">
                     <td class="py-1">
                         <c:url value="/listing/${offer.listing.id}" var="listingUrl"/>
@@ -64,14 +63,45 @@
                             <paw:badge text="${statusLabel}" classname="${statusClass}" size="sm" />
                         </div>
                     </td>
-                    <c:if test="${user == 'buyer'}">
-                        <td class="py-1">
-                            <div class="flex flex-row gap-1 justify-end">
-                                <c:url value="/offer/${offer.id}" var="offerUrl"/>
-                                <paw:linkButton variant="outline" href="${offerUrl}" icon="eye" />
-                            </div>
-                        </td>
-                    </c:if>
+                    <td class="py-1">
+                        <c:choose>
+                            <c:when test="${offer.status.name() == 'ACCEPTED' and not myRating.isPresent()}">
+                                <div class="flex flex-row gap-1 justify-start">
+                                    <c:url value="/account/rate/${offer.id}" var="rateUrl"/>
+                                    <c:choose>
+                                        <c:when test="${user == 'buyer'}">
+                                            <c:url value="${rateUrl}?role=SELLER&rating=POSITIVE" var="positiveUrl"/>
+                                            <c:url value="${rateUrl}?role=SELLER&rating=NEUTRAL" var="neutralUrl"/>
+                                            <c:url value="${rateUrl}?role=SELLER&rating=NEGATIVE" var="negativeUrl"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:url value="${rateUrl}?role=BUYER&rating=POSITIVE" var="positiveUrl"/>
+                                            <c:url value="${rateUrl}?role=BUYER&rating=NEUTRAL" var="neutralUrl"/>
+                                            <c:url value="${rateUrl}?role=BUYER&rating=NEGATIVE" var="negativeUrl"/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <paw:linkButton href="${positiveUrl}" variant="outline" size="sm" icon="arrow-up" />
+                                    <paw:linkButton href="${neutralUrl}" variant="outline" size="sm" icon="minus" role="secondary" />
+                                    <paw:linkButton href="${negativeUrl}" variant="outline" size="sm" icon="arrow-down" role="danger" />
+                                </div>
+                            </c:when>
+                            <c:when test="${offer.status.name() == 'ACCEPTED' and myRating.isPresent()}">
+                                <div class="flex flex-row justify-start">
+                                    <c:choose>
+                                        <c:when test="${myRating.get().name() == 'POSITIVE'}">
+                                            <paw:icon name="arrow-up" classname="text-lime-600"/>
+                                        </c:when>
+                                        <c:when test="${myRating.get().name() == 'NEUTRAL'}">
+                                            <paw:icon name="minus" classname="text-stone-500"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <paw:icon name="arrow-down" classname="text-red-600"/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </c:when>
+                        </c:choose>
+                    </td>
                 </tr>
             </c:forEach>
         </tbody>

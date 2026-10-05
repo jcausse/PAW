@@ -6,6 +6,7 @@ import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferStatus;
 import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.OfferRating;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,4 +34,12 @@ public interface OfferDao {
     boolean updateProofOfPaymentId(Long offerId, Long proofOfPaymentId);
 
     boolean updateProofOfShipping(Long offerId, Long proofOfShippingId, String trackingNumber);
+
+    boolean markAccepted(Long offerId, Instant acceptedAt);
+
+    boolean setSellerRating(Long offerId, OfferRating rating);
+
+    boolean setBuyerRating(Long offerId, OfferRating rating);
+
+    List<Offer> getAcceptedUnratedBefore(Instant cutoff);
 }

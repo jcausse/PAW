@@ -3,6 +3,8 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.Offer;
 import ar.edu.itba.paw.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -19,6 +21,8 @@ import java.util.Locale;
 
 @Service
 public class MailingServiceImpl implements MailingService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailingServiceImpl.class);
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine emailTemplateEngine;
@@ -226,6 +230,8 @@ public class MailingServiceImpl implements MailingService {
     }
 
     private void sendEmail(String to, String subject, String templateName, Context context) {
+        final var maskedEmail = maskEmail(to);
+        LOGGER.info("Sending '{}' email to {}", templateName, maskedEmail);
         try {
             var mimeMessage = mailSender.createMimeMessage();
             var helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
@@ -237,8 +243,18 @@ public class MailingServiceImpl implements MailingService {
             helper.setText(htmlContent, true);
 
             mailSender.send(mimeMessage);
+            LOGGER.debug("Email '{}' sent successfully to {}", templateName, maskedEmail);
         } catch (Exception e) {
-            // Error handling to be added later
+            LOGGER.error("Failed to send '{}' email to {}: {}", templateName, maskedEmail, e.getMessage(), e);
         }
+    }
+
+    private static String maskEmail(String email) {
+        if (email == null) return "null";
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 0) return "***";
+        String prefix = email.substring(0, Math.min(3, atIndex));
+        String domain = email.substring(atIndex);
+        return prefix + "***" + domain;
     }
 }

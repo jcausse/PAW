@@ -9,6 +9,8 @@ import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.ProductService;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import org.springframework.stereotype.Controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Controller
 public class RootController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RootController.class);
 
     private static final int LANDING_LIST_SIZE = 12;
 
@@ -29,12 +33,13 @@ public class RootController {
 
     @GetMapping("/")
     public ModelAndView landing() {
+        LOGGER.debug("Accessing landing page");
         // Hot items: active listings with most active offers
         var hotItemsFilter = new ListingFilterDto(
             null, null, null, null, null, null, null,
             ListingSort.MOST_OFFERS.getKey(),
             null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, true
+            1, LANDING_LIST_SIZE, true, null, null
         );
         Page<Listing> hotItemsPage = listingService.search(hotItemsFilter);
 
@@ -43,7 +48,7 @@ public class RootController {
             null, null, null, null, null, null, null,
             ListingSort.RECENT_OFFERS.getKey(),
             null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, true
+            1, LANDING_LIST_SIZE, true, null, null
         );
         Page<Listing> trendingItemsPage = listingService.search(trendingItemsFilter);
 
@@ -52,7 +57,7 @@ public class RootController {
             null, null, null, null, null, null, null,
             ListingSort.RECENT.getKey(),
             null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, null
+            1, LANDING_LIST_SIZE, null, null, null
         );
         Page<Listing> newItemsPage = listingService.search(newItemsFilter);
 

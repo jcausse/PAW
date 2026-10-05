@@ -42,9 +42,9 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/login
 
 **Important**: Do NOT use commands with semicolons (;) — they will break. Execute each command separately.
 
-**Important**: The dev server requires the development `app.properties` (from `src/main/environments/dev/`) to be copied to `target/classes/`. The Maven build with `-Pdev` profile should do this automatically, but if the production `app.properties` was previously copied (e.g., by a default build), the dev server will fail with "password authentication failed for user". **Always ensure the dev `app.properties` is used before running the dev server** — copy it manually after build if necessary:
+**Important**: The dev server requires the development `app.properties` (from `src/main/resources/env/dev/`) to be copied to `target/classes/`. The Maven build with `-Pdev` profile should do this automatically, but if the production `app.properties` was previously copied (e.g., by a default build), the dev server will fail with "password authentication failed for user". **Always ensure the dev `app.properties` is used before running the dev server** — copy it manually after build if necessary:
 ```bash
-cp webapp/src/main/environments/dev/app.properties webapp/target/classes/app.properties
+cp webapp/src/main/resources/env/dev/app.properties webapp/target/classes/app.properties
 ```
 
 The server runs until you kill it or the environment times out (~58s).
