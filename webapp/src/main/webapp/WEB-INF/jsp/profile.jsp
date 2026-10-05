@@ -1,21 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="profile" tagdir="/WEB-INF/tags/profile" %>
 
 
 <spring:message code="profile.listings.title" var="listingsTitle"/>
 <spring:message code="profile.listings.empty" var="listingsEmpty"/>
 <spring:message code="profile.listings.view" var="viewListingLabel"/>
 <spring:message code="profile.ratings.title" var="ratingsTitle"/>
-<spring:message code="profile.ratings.asSeller" var="ratingsAsSeller"/>
-<spring:message code="profile.ratings.asBuyer" var="ratingsAsBuyer"/>
-<spring:message code="profile.ratings.positive" var="ratingPositive"/>
-<spring:message code="profile.ratings.neutral" var="ratingNeutral"/>
-<spring:message code="profile.ratings.negative" var="ratingNegative"/>
-<spring:message code="profile.ratings.total" var="ratingTotal"/>
 <spring:message code="profile.ratings.filter.role" var="ratingFilterRole"/>
 <spring:message code="profile.ratings.filter.type" var="ratingFilterType"/>
 <spring:message code="profile.ratings.filter.all" var="ratingFilterAll"/>
@@ -28,7 +23,6 @@
 
 <c:url value="/profile/${user.id}" var="profileUrl"/>
 <c:url value="/profile/${user.id}" var="filterAction"/>
-<c:url value="/profile/${user.id}" var="listingsBaseUrl"/>
 
 <html lang="${pageContext.response.locale.language}">
 <paw:head title="${user.displayName}"/>
@@ -64,79 +58,8 @@
             <c:set var="buyerTotalRatings" value="${user.buyerTotalRatings}"/>
 
             <div class="flex flex-col sm:flex-row gap-8 my-4">
-                <div class="flex flex-col gap-2 flex-1">
-                    <div class="flex flex-row items-center gap-6">
-                        <h3 class="text-sm font-semibold text-black/60 uppercase tracking-wide"><c:out value="${ratingsAsSeller}"/></h3>
-                        <div class="h-3 w-full bg-gradient-to-r from-red-50 via-neutral-50 to-green-50 relative rounded-full bg-border border border-black/10">
-                            <div
-                                class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 min-w-6 h-6 bg-white border border-black/10 rounded-full text-sm z-5 grid place-items-center px-1"
-                                style="left: calc(5px + (100% - 10px) * ${0.5 + (sellerTotalRatings == 0 ? 0 : sellerBalance/sellerTotalRatings) * 0.5})"
-                            >
-                                <c:choose>
-                                    <c:when test="${sellerBalance > 0}">
-                                        <span class="text-green-600 font-bold">+<c:out value="${sellerBalance}"/></span>
-                                        <c:set var="sellerBalanceStyle" value="clip-path: xywh(50% 0 ${sellerBalance/sellerTotalRatings * 50}% 100%);"/>
-                                    </c:when>
-                                    <c:when test="${sellerBalance < 0}">
-                                        <span class="text-red-600 font-bold"><c:out value="${sellerBalance}"/></span>
-                                        <c:set var="sellerBalanceStyle" value="clip-path: xywh(${50 + sellerBalance/sellerTotalRatings * 50}% 0 ${-sellerBalance/sellerTotalRatings * 50}% 100%);"/>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="text-black/60 font-bold">0</span>
-                                        <c:set var="sellerBalanceStyle" value="clip-path: xywh(0 0 0 0)"/>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-r from-red-400 via-neutral-50 to-green-400 rounded-full"
-                                style="${sellerBalanceStyle}"
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 text-sm text-black/60">
-                        <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.sellerPositiveRatings}"/></span></span>
-                        <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.sellerNeutralRatings}"/></span>
-                        <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.sellerNegativeRatings}"/></span></span>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2 flex-1">
-                    <div class="flex flex-row items-center gap-6">
-                        <h3 class="text-sm font-semibold text-black/60 uppercase tracking-wide"><c:out value="${ratingsAsBuyer}"/></h3>
-                        <div class="h-3 w-full bg-gradient-to-r from-red-50 via-neutral-50 to-green-50 relative rounded-full bg-border border border-black/10">
-                            <div
-                                class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 min-w-6 h-6 bg-white border border-black/10 rounded-full text-sm z-5 grid place-items-center px-1"
-                                style="left: calc(5px + (100% - 10px) * ${0.5 + (buyerTotalRatings == 0 ? 0 : buyerBalance/buyerTotalRatings) * 0.5})"
-                            >
-                                <c:choose>
-                                    <c:when test="${buyerBalance > 0}">
-                                      <span class="text-green-600 font-bold">+<c:out value="${buyerBalance}"/></span>
-                                    <c:set var="buyerBalanceStyle" value="clip-path: xywh(50% 0 ${buyerBalance/buyerTotalRatings * 50}% 100%);"/>
-                                    </c:when>
-                                    <c:when test="${buyerBalance < 0}">
-                                        <span class="text-red-600 font-bold"><c:out value="${buyerBalance}"/></span>
-                                        <c:set var="buyerBalanceStyle" value="clip-path: xywh(${50 + buyerBalance/buyerTotalRatings * 50}% 0 ${-buyerBalance/buyerTotalRatings * 50}% 100%);"/>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="text-black/60 font-bold">0</span>
-                                        <c:set var="buyerBalanceStyle" value="clip-path: xywh(0 0 0 0)"/>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-r from-red-400 via-neutral-50 to-green-400 rounded-full"
-                                style="${buyerBalanceStyle}"
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 text-sm text-black/60">
-                        <span><c:out value="${ratingPositive}"/>: <span class="text-green-600"><c:out value="${user.buyerPositiveRatings}"/></span></span>
-                        <span><c:out value="${ratingNeutral}"/>: <c:out value="${user.buyerNeutralRatings}"/></span>
-                    <span><c:out value="${ratingNegative}"/>: <span class="text-red-600"><c:out value="${user.buyerNegativeRatings}"/></span></span>
-                    </div>
-                </div>
+                <profile:reputation user="${user}" role="seller" classname="flex-1" />
+                <profile:reputation user="${user}" role="buyer" classname="flex-1" />
             </div>
 
             <!-- Ratings list with filters -->
