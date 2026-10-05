@@ -24,6 +24,9 @@ clean:
 troubleshoot:
 	@$(PYTHON) ./.script/troubleshooter/main.py $(ARGS)
 
+test:
+	$(MAVEN) clean test
+
 # PRODUCTION TARGETS
 
 prod-deploy:
