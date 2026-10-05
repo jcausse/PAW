@@ -67,21 +67,12 @@ public class AdminController {
     ) {
         LOGGER.debug("Admin {} accessed listings page: page={}, query={}, status={}", currentUser.getUsername(), page, query, status);
         ModelAndView mav = new ModelAndView("admin/listings");
-        var filter = new ListingFilterDto(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                query,
-                null,
-                null,
-                status,
-                page,
-                DEFAULT_PAGE_SIZE,
-                null
-        );
+        var filter = ListingFilterDto.builder()
+                .query(query)
+                .status(status)
+                .page(page)
+                .pageSize(DEFAULT_PAGE_SIZE)
+                .build();
         mav.addObject("listingsPage", listingService.search(filter));
         mav.addObject("currentQuery", query);
         mav.addObject("currentStatus", status);
@@ -142,13 +133,11 @@ public class AdminController {
     ) {
         LOGGER.debug("Admin {} accessed offers page: page={}, statusGroup={}", currentUser.getUsername(), page, statusGroup);
         ModelAndView mav = new ModelAndView("admin/offers");
-        var filter = new OfferFilterDto(
-                null,
-                null,
-                statusGroup,
-                page,
-                DEFAULT_PAGE_SIZE
-        );
+        var filter = OfferFilterDto.builder()
+                .statusGroup(statusGroup)
+                .page(page)
+                .pageSize(DEFAULT_PAGE_SIZE)
+                .build();
         mav.addObject("offersPage", offerService.get(filter));
         mav.addObject("currentStatusGroup", statusGroup);
         return mav;

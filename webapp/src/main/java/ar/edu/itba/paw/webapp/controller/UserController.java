@@ -1,10 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.ListingSort;
-import ar.edu.itba.paw.model.Province;
-import ar.edu.itba.paw.model.ListingStatus;
-import ar.edu.itba.paw.model.RatingRole;
-import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EmailVerificationService;
 import ar.edu.itba.paw.service.ListingService;
 import ar.edu.itba.paw.service.RatingService;
@@ -68,18 +64,13 @@ public class UserController {
         final User user = userService.getById(id).orElseThrow(() -> UserNotFoundException.byId(id));
         final boolean isSelfRequest = currentUser != null && Objects.equals(id, currentUser.getId());
 
-        final var filter = new ListingFilterDto(
-                null, null, null, null, null, null,
-                null,
-                ListingSort.RECENT.getKey(),
-                user.getId(),
-                ListingStatus.ACTIVE.name(),
-                1,
-                PROFILE_LISTINGS_PAGE_SIZE,
-                null,
-                null,
-                null
-        );
+        final var filter = ListingFilterDto.builder()
+                .sort(ListingSort.RECENT.getKey())
+                .creatorId(user.getId())
+                .status(ListingStatus.ACTIVE.name())
+                .page(1)
+                .pageSize(PROFILE_LISTINGS_PAGE_SIZE)
+                .build();
 
         final var listingPage = listingService.search(filter);
         final var listings = listingPage.getContent();
@@ -102,7 +93,11 @@ public class UserController {
         var ratingFilter = ar.edu.itba.paw.model.RatingFilter.builder()
                 .ratedId(user.getId())
                 .roles(role != null ? java.util.List.of(RatingRole.fromString(role).orElse(RatingRole.SELLER)) : null)
-                .types(type != null ? java.util.List.of(ar.edu.itba.paw.model.OfferRating.fromString(type).orElse(null)) : null)
+                .types(type != null
+                        ? java.util.List.of(OfferRating.fromString(type)
+                                    .orElseThrow(() -> new IllegalArgumentException("Illegal rating filter type")))
+                        : null
+                )
                 .page(page)
                 .pageSize(PROFILE_RATINGS_PAGE_SIZE)
                 .build();

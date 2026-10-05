@@ -60,23 +60,21 @@ public class ListingController {
     @GetMapping
     public ModelAndView discovery(@ModelAttribute("filterForm") ListingFilterForm filterForm) {
         LOGGER.debug("Accessing discovery page with query '{}', category {}", filterForm.getQuery(), filterForm.getCategoryId());
-        final var filter = new ListingFilterDto(
-            filterForm.getCategoryId(),
-            filterForm.getSubcategoryId(),
-            filterForm.getMinPrice(),
-            filterForm.getMaxPrice(),
-            filterForm.getCondition(),
-            filterForm.getAcceptsTrade(),
-            filterForm.getQuery(),
-            filterForm.getSort(),
-            null,
-            ListingStatus.ACTIVE.getStatus(),
-            filterForm.getPage(),
-            DISCOVERY_PAGE_SIZE,
-            null,
-            filterForm.getProvinceId(),
-            filterForm.getAcceptsShipping()
-        );
+        final var filter = ListingFilterDto.builder()
+            .categoryId(filterForm.getCategoryId())
+            .subcategoryId(filterForm.getSubcategoryId())
+            .minPrice(filterForm.getMinPrice())
+            .maxPrice(filterForm.getMaxPrice())
+            .condition(filterForm.getCondition())
+            .acceptsTrade(filterForm.getAcceptsTrade())
+            .query(filterForm.getQuery())
+            .sort(filterForm.getSort())
+            .status(ListingStatus.ACTIVE.getStatus())
+            .page(filterForm.getPage())
+            .pageSize(DISCOVERY_PAGE_SIZE)
+            .provinceId(filterForm.getProvinceId())
+            .acceptsShipping(filterForm.getAcceptsShipping())
+            .build();
 
         final var listingPage = listingService.search(filter);
 

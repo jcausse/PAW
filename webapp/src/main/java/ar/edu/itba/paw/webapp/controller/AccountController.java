@@ -71,18 +71,14 @@ public class AccountController {
     public ModelAndView listings(@CurrentUser User currentUser, @ModelAttribute("filterForm") ListingFilterForm filterForm) {
         LOGGER.debug("User {} accessing account listings", currentUser.getId());
 
-        final var filter = new ListingFilterDto(
-            null, null, null, null, null, null,
-            filterForm.getQuery(),
-            filterForm.getSort(),
-            currentUser.getId(),
-            filterForm.getStatus(),
-            filterForm.getPage(),
-            ACCOUNT_LISTINGS_PAGE_SIZE,
-            null,
-            null,
-            null
-        );
+        final var filter = ListingFilterDto.builder()
+            .query(filterForm.getQuery())
+            .sort(filterForm.getSort())
+            .creatorId(currentUser.getId())
+            .status(filterForm.getStatus())
+            .page(filterForm.getPage())
+            .pageSize(ACCOUNT_LISTINGS_PAGE_SIZE)
+            .build();
 
         final var listingPage = listingService.search(filter);
         final var listings = listingPage.getContent();
@@ -120,7 +116,12 @@ public class AccountController {
             filterForm.setStatusGroup(OfferStatusGroup.PENDING.getStatus());
         }
 
-        final var filter = new OfferFilterDto(currentUser.getId(), null, filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var filter = OfferFilterDto.builder()
+            .sellerId(currentUser.getId())
+            .statusGroup(filterForm.getStatusGroup())
+            .page(filterForm.getPage())
+            .pageSize(5)
+            .build();
         final var offerPage = offerService.get(filter);
 
         final var locale = LocaleContextHolder.getLocale();
@@ -142,7 +143,12 @@ public class AccountController {
             filterForm.setStatusGroup(OfferStatusGroup.PENDING.getStatus());
         }
 
-        final var filter = new OfferFilterDto(null, currentUser.getId(), filterForm.getStatusGroup(), filterForm.getPage(), 5);
+        final var filter = OfferFilterDto.builder()
+            .buyerId(currentUser.getId())
+            .statusGroup(filterForm.getStatusGroup())
+            .page(filterForm.getPage())
+            .pageSize(5)
+            .build();
         final var offerPage = offerService.get(filter);
 
         final var locale = LocaleContextHolder.getLocale();

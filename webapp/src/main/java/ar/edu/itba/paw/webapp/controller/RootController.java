@@ -35,30 +35,32 @@ public class RootController {
     public ModelAndView landing() {
         LOGGER.debug("Accessing landing page");
         // Hot items: active listings with most active offers
-        var hotItemsFilter = new ListingFilterDto(
-            null, null, null, null, null, null, null,
-            ListingSort.MOST_OFFERS.getKey(),
-            null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, true, null, null
-        );
+        var hotItemsFilter = ListingFilterDto.builder()
+            .sort(ListingSort.MOST_OFFERS.getKey())
+            .status(ListingStatus.ACTIVE.getStatus())
+            .page(1)
+            .pageSize(LANDING_LIST_SIZE)
+            .hasActiveOffers(true)
+            .build();
         Page<Listing> hotItemsPage = listingService.search(hotItemsFilter);
 
         // Trending items: active listings with most recent active offers
-        var trendingItemsFilter = new ListingFilterDto(
-            null, null, null, null, null, null, null,
-            ListingSort.RECENT_OFFERS.getKey(),
-            null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, true, null, null
-        );
+        var trendingItemsFilter = ListingFilterDto.builder()
+            .sort(ListingSort.RECENT_OFFERS.getKey())
+            .status(ListingStatus.ACTIVE.getStatus())
+            .page(1)
+            .pageSize(LANDING_LIST_SIZE)
+            .hasActiveOffers(true)
+            .build();
         Page<Listing> trendingItemsPage = listingService.search(trendingItemsFilter);
 
         // New items: most recently created active listings
-        var newItemsFilter = new ListingFilterDto(
-            null, null, null, null, null, null, null,
-            ListingSort.RECENT.getKey(),
-            null, ListingStatus.ACTIVE.getStatus(),
-            1, LANDING_LIST_SIZE, null, null, null
-        );
+        var newItemsFilter = ListingFilterDto.builder()
+            .sort(ListingSort.RECENT.getKey())
+            .status(ListingStatus.ACTIVE.getStatus())
+            .page(1)
+            .pageSize(LANDING_LIST_SIZE)
+            .build();
         Page<Listing> newItemsPage = listingService.search(newItemsFilter);
 
         // Categories for the grid

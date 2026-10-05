@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.service.dto;
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
+@Builder
 public record ListingFilterDto(
     Long categoryId,
     Long subcategoryId,
