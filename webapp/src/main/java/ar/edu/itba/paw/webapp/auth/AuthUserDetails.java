@@ -17,9 +17,10 @@ public class AuthUserDetails extends org.springframework.security.core.userdetai
                 domainUser.isVerified(),
                 true,
                 true,
-                true,
+                !domainUser.isSuspended(),
                 authorities
         );
+
         this.domainUser = domainUser;
     }
 }

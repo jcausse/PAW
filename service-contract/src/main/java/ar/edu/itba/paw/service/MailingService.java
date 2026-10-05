@@ -44,4 +44,10 @@ public interface MailingService {
 
     /** Send email verification email containing the one-time password code. */
     void sendVerificationEmail(User user, String otpValue);
+
+    /** Notify user that their account has been suspended by an administrator. */
+    void sendAccountSuspendedEmail(User user);
+
+    /** Notify user that their account has been unsuspended by an administrator. */
+    void sendAccountUnsuspendedEmail(User user);
 }

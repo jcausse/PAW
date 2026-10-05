@@ -29,12 +29,23 @@
 <body class="min-h-screen bg-neutral-50 flex flex-col">
     <paw:navbar/>
     <main class="max-w-5xl w-full mx-auto px-6 pt-8 pb-16 flex flex-col gap-6">
+        <c:if test="${user.suspended}">
+            <spring:message code="profile.suspended.banner" var="profileSuspendedMsg"/>
+            <paw:banner text="${profileSuspendedMsg}" role="danger" icon="alert-triangle"/>
+        </c:if>
         <paw:card classname="w-full flex flex-col gap-8">
             <div class="flex items-center gap-6">
                 <paw:userAvatar user="${user}" size="xl" />
                 <div class="flex flex-col">
-                    <h1 class="text-3xl font-bold tracking-tight"><c:out value="${user.displayName}"/></h1>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-bold tracking-tight"><c:out value="${user.displayName}"/></h1>
+                        <c:if test="${user.suspended}">
+                            <spring:message code="profile.badge.suspended" var="profileSuspendedBadge"/>
+                            <paw:badge text="${profileSuspendedBadge}" classname="text-red-700 bg-red-100" size="sm"/>
+                        </c:if>
+                    </div>
                     <span class="text-lg text-black/60 font-medium">@<c:out value="${user.username}"/></span>
+
                     <c:if test="${not empty user.joinedAt}">
                         <span class="text-sm text-black/60 mt-1">
                             <spring:message code="profile.memberSince" arguments="${user.joinedAt.toEpochMilli()}"/>

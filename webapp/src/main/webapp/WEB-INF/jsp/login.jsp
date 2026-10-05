@@ -44,11 +44,17 @@
                             </div>
                         </div>
                     </c:when>
+                    <c:when test="${sessionScope.SPRING_SECURITY_LAST_EXCEPTION['class'].simpleName == 'LockedException'}">
+                        <div class="text-xs text-red-800 bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p><spring:message code="login.error.suspended"/></p>
+                        </div>
+                    </c:when>
                     <c:otherwise>
                         <div class="text-xs text-red-600 font-medium">
                             <spring:message code="login.error.invalidCredentials"/>
                         </div>
                     </c:otherwise>
+
                 </c:choose>
             </c:if>
 

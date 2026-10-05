@@ -50,6 +50,9 @@ public class UserServiceImplTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private ProvinceService provinceService;
+    @Mock
+    private MailingService mailingService;
+
 
     private User buildFakeUser() {
         return User.builder()

@@ -43,6 +43,16 @@ public final class User {
         return emailVerifiedAt != null;
     }
 
+    // Nullable! Active users will have this set to null
+    private final Instant suspendedAt;
+    public Optional<Instant> getSuspendedAt() {             // Overrides Lombok's getter
+        return Optional.ofNullable(suspendedAt);
+    }
+
+    public boolean isSuspended() {
+        return suspendedAt != null;
+    }
+
     private final Province province;
     public Optional<Province> getProvince() {              
         return Optional.ofNullable(province);

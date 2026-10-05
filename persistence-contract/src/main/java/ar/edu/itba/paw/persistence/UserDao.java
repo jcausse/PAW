@@ -31,6 +31,10 @@ public interface UserDao {
     
     Optional<User> verifyEmail(Long userId, Instant verifiedAt);
 
+    Optional<User> suspend(Long userId, Instant suspendedAt);
+
+    Optional<User> unsuspend(Long userId);
+
     boolean isUsernameTaken(String username);
     boolean isEmailTaken(String email);
 

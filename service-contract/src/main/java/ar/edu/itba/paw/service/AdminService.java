@@ -12,4 +12,7 @@ public interface AdminService {
     User grantRole(String usernameOrEmail, Role role);
 
     User suspendUser(String usernameOrEmail);
+
+    User unsuspendUser(String usernameOrEmail);
 }
+

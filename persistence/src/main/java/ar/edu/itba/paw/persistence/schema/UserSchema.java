@@ -21,4 +21,5 @@ public final class UserSchema {
     public static final String PROVINCE_ID = "province_id";
     public static final String LOCATION_DETAIL = "location_detail";
     public static final String PREFERRED_LANGUAGE = "preferred_language";
+    public static final String SUSPENDED_AT = "suspended_at";
 }

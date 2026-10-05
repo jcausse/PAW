@@ -276,8 +276,8 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Rejected {} pending offers for listing id={} (except offerId={})", rejected.size(), listingId, exceptOfferId);
         // Collect offered listing IDs to bulk update
         final List<Long> offeredListingIds = rejected.stream()
-                .filter(o -> o.getOfferedListingId() != null)
                 .map(Offer::getOfferedListingId)
+                .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
@@ -538,6 +538,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Offer canceled by admin: offerId={}, listingId={}", offerId, offer.getListing().getId());
 
         /* Send the buyer an email telling them the offer has been rejected */
-        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer);
     }
 }
+

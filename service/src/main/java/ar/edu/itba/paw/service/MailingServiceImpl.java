@@ -242,6 +242,31 @@ public class MailingServiceImpl implements MailingService {
         return new Locale(language.getCode());
     }
 
+    @Async
+    @Override
+    public void sendAccountSuspendedEmail(User user) {
+        var context = new Context(localeOf(user));
+        context.setVariable("user", user);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl);
+
+        String subject = messageSource.getMessage("email.user.suspended.subject", null, localeOf(user));
+        sendEmail(user.getEmail(), subject, "user-suspended", context);
+    }
+
+    @Async
+    @Override
+    public void sendAccountUnsuspendedEmail(User user) {
+        var context = new Context(localeOf(user));
+        context.setVariable("user", user);
+        context.setVariable("baseUrl", baseUrl);
+        context.setVariable("actionUrl", baseUrl + "/login");
+
+        String subject = messageSource.getMessage("email.user.unsuspended.subject", null, localeOf(user));
+        sendEmail(user.getEmail(), subject, "user-unsuspended", context);
+    }
+
+
     private void sendEmail(String to, String subject, String templateName, Context context) {
         final var maskedEmail = maskEmail(to);
         LOGGER.info("Sending '{}' email to {}", templateName, maskedEmail);

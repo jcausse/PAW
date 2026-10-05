@@ -155,6 +155,27 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public Optional<User> suspend(Long userId, Instant suspendedAt) {
+        var rowsAffected = jdbcTemplate.update(
+                Queries.SUSPEND,
+                Timestamp.from(suspendedAt),
+                userId
+        );
+
+        return rowsAffected == 0 ? Optional.empty() : getById(userId);
+    }
+
+    @Override
+    public Optional<User> unsuspend(Long userId) {
+        var rowsAffected = jdbcTemplate.update(
+                Queries.UNSUSPEND,
+                userId
+        );
+
+        return rowsAffected == 0 ? Optional.empty() : getById(userId);
+    }
+
+    @Override
     public Optional<User> updateLocation(Long userId, Long provinceId, String locationDetail) {
         final int rowsAffected = jdbcTemplate.update(Queries.UPDATE_LOCATION, provinceId, locationDetail, userId);
         return rowsAffected == 0 ? Optional.empty() : getById(userId);
@@ -241,6 +262,11 @@ public class UserJdbcDao implements UserDao {
                             .map(Timestamp::toInstant)
                             .orElse(null)
             )
+            .suspendedAt(
+                    Optional.ofNullable(rs.getTimestamp(UserSchema.SUSPENDED_AT))
+                            .map(Timestamp::toInstant)
+                            .orElse(null)
+            )
             .sellerPositiveRatings(rs.getInt(UserSchema.SELLER_POSITIVE_RATINGS))
             .sellerNeutralRatings(rs.getInt(UserSchema.SELLER_NEUTRAL_RATINGS))
             .sellerNegativeRatings(rs.getInt(UserSchema.SELLER_NEGATIVE_RATINGS))
@@ -274,6 +300,7 @@ public class UserJdbcDao implements UserDao {
             "u." + UserSchema.IMAGE_ID,
             "u." + UserSchema.JOINED_AT,
             "u." + UserSchema.EMAIL_VERIFIED_AT,
+            "u." + UserSchema.SUSPENDED_AT,
             "u." + UserSchema.SELLER_POSITIVE_RATINGS,
             "u." + UserSchema.SELLER_NEUTRAL_RATINGS,
             "u." + UserSchema.SELLER_NEGATIVE_RATINGS,
@@ -316,6 +343,16 @@ public class UserJdbcDao implements UserDao {
         private static final String VERIFY_EMAIL =
             "UPDATE " + UserSchema.TABLE_NAME +
             " SET " + UserSchema.EMAIL_VERIFIED_AT + " = ?" +
+            " WHERE " + UserSchema.ID + " = ?";
+
+        private static final String SUSPEND =
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + UserSchema.SUSPENDED_AT + " = ?" +
+            " WHERE " + UserSchema.ID + " = ?";
+
+        private static final String UNSUSPEND =
+            "UPDATE " + UserSchema.TABLE_NAME +
+            " SET " + UserSchema.SUSPENDED_AT + " = NULL" +
             " WHERE " + UserSchema.ID + " = ?";
 
         private static final String IS_USERNAME_TAKEN =

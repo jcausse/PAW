@@ -243,7 +243,28 @@ public class AdminController {
         return new ModelAndView("redirect:/admin/users?success=user_suspended&username=" + URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8));
     }
 
+    @PostMapping("/users/unsuspend")
+    public ModelAndView unsuspendUser(
+            @CurrentUser User currentUser,
+            @Valid @ModelAttribute("suspendUserForm") AdminSuspendUserForm form,
+            BindingResult errors,
+            @ModelAttribute("grantRoleForm") AdminGrantRoleForm grantRoleForm
+    ) {
+        final var formUsernameOrEmail = form.getUsernameOrEmail().trim().toLowerCase();
+        LOGGER.info("Admin {} requested user unsuspension for '{}'", currentUser.getUsername(), formUsernameOrEmail);
+
+        if (errors.hasErrors()) {
+            return new ModelAndView("admin/users");
+        }
+
+        User user = adminService.unsuspendUser(formUsernameOrEmail);
+
+        LOGGER.info("Admin {} unsuspended user {}", currentUser.getUsername(), user.getUsername());
+        return new ModelAndView("redirect:/admin/users?success=user_unsuspended&username=" + URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8));
+    }
+
     @PostMapping("/users/grant-admin")
+
     public ModelAndView grantAdminRole(
             @CurrentUser User currentUser,
             @Valid @ModelAttribute("grantRoleForm") AdminGrantRoleForm form,

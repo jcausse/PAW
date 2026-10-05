@@ -37,6 +37,8 @@ public class UserServiceImpl implements UserService {
     private final ProvinceService provinceService;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
+    private final MailingService mailingService;
+
 
     @Override
     public Optional<User> getById(@NonNull Long id) {
@@ -195,6 +197,28 @@ public class UserServiceImpl implements UserService {
     public List<Role> getRoles(@NonNull User user) {
         return userRoleDao.getRoles(user);
     }
+
+    @Override
+    @Transactional
+    public User suspend(@NonNull Long userId) {
+        LOGGER.info("Suspending user id={}", userId);
+        final User user = userDao.suspend(userId, Instant.now())
+                .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+        mailingService.sendAccountSuspendedEmail(user);
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public User unsuspend(@NonNull Long userId) {
+        LOGGER.info("Unsuspending user id={}", userId);
+        final User user = userDao.unsuspend(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Non-valid User received"));
+        mailingService.sendAccountUnsuspendedEmail(user);
+        return user;
+    }
+
+
 
     private Image saveUserImage(ImageData imageData, String username) {
         if (imageData != null && imageData.imageBytes() != null && imageData.imageBytes().length > 0) {

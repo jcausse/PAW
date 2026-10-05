@@ -10,6 +10,7 @@
 
 <c:url value="/admin/users" var="usersBaseUrl"/>
 <c:url value="/admin/users/suspend" var="suspendUserUrl"/>
+<c:url value="/admin/users/unsuspend" var="unsuspendUserUrl"/>
 <c:url value="/admin/users/grant-admin" var="grantAdminUrl"/>
 
 <html lang="${pageContext.response.locale.language}">
@@ -65,6 +66,10 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </c:forEach>
+                                <c:if test="${targetUser.suspended}">
+                                    <spring:message code="admin.users.badge.suspended" var="suspendedBadgeText"/>
+                                    <paw:badge text="${suspendedBadgeText}" classname="text-red-700 bg-red-100" size="sm"/>
+                                </c:if>
                             </div>
                         </div>
                     </div>
@@ -81,15 +86,27 @@
                             </form:form>
                         </c:if>
 
-                        <form:form method="post" action="${suspendUserUrl}" modelAttribute="suspendUserForm">
-                            <input type="hidden" name="username" value="<c:out value='${targetUser.username}'/>"/>
-                            <spring:message code="admin.users.suspend.btn" var="suspendBtnText"/>
-                            <paw:button text="${suspendBtnText}" type="submit" variant="outline" role="danger" size="sm" icon="user-x"/>
-                        </form:form>
+                        <c:choose>
+                            <c:when test="${targetUser.suspended}">
+                                <form:form method="post" action="${unsuspendUserUrl}" modelAttribute="suspendUserForm">
+                                    <input type="hidden" name="username" value="<c:out value='${targetUser.username}'/>"/>
+                                    <spring:message code="admin.users.unsuspend.btn" var="unsuspendBtnText"/>
+                                    <paw:button text="${unsuspendBtnText}" type="submit" variant="outline" role="default" size="sm" icon="user-check"/>
+                                </form:form>
+                            </c:when>
+                            <c:otherwise>
+                                <form:form method="post" action="${suspendUserUrl}" modelAttribute="suspendUserForm">
+                                    <input type="hidden" name="username" value="<c:out value='${targetUser.username}'/>"/>
+                                    <spring:message code="admin.users.suspend.btn" var="suspendBtnText"/>
+                                    <paw:button text="${suspendBtnText}" type="submit" variant="outline" role="danger" size="sm" icon="user-x"/>
+                                </form:form>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </paw:card>
         </c:if>
+
 
         <%-- Direct Action Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

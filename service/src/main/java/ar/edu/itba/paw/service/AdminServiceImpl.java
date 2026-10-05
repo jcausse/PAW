@@ -1,9 +1,18 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Listing;
+
+import ar.edu.itba.paw.model.ListingStatus;
+import ar.edu.itba.paw.model.Offer;
+import ar.edu.itba.paw.model.OfferStatusGroup;
+import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.dto.ListingFilterDto;
+import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -72,8 +81,91 @@ public class AdminServiceImpl implements AdminService {
                     return NotFoundException.createFor("User");
                 });
 
-        // TODO: Call UserService.suspend(user) here once implemented: boolean suspended = userService.suspend(user);
+        final User suspendedUser = userService.suspend(user.getId());
 
-        return user;
+        // Cancel all active listings of the user (also automatically rejects pending offers on them)
+        try {
+            final Page<Listing> activeListings = listingService.search(
+                    ListingFilterDto.builder()
+                            .creatorId(user.getId())
+                            .status(ListingStatus.ACTIVE.getStatus())
+                            .page(1)
+                            .pageSize(1000)
+                            .build()
+            );
+            for (Listing listing : activeListings.getContent()) {
+                try {
+                    listingService.cancelByAdmin(listing.getId());
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to cancel listing {} during suspension of user {}: {}",
+                            listing.getId(), user.getId(), e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to retrieve listings for user {}: {}", user.getId(), e.getMessage());
+        }
+
+        // Cancel all pending and pending-payment offers made by the user
+        for (OfferStatusGroup group : List.of(OfferStatusGroup.PENDING, OfferStatusGroup.PENDING_PAYMENT)) {
+            try {
+                final Page<Offer> buyerOffers = offerService.get(
+                        OfferFilterDto.builder()
+                                .buyerId(user.getId())
+                                .statusGroup(group.getStatus())
+                                .page(1)
+                                .pageSize(1000)
+                                .build()
+                );
+                for (Offer offer : buyerOffers.getContent()) {
+                    try {
+                        offerService.cancelByAdmin(offer.getId());
+                    } catch (Exception e) {
+                        LOGGER.warn("Failed to cancel buyer offer {} during suspension of user {}: {}",
+                                offer.getId(), user.getId(), e.getMessage());
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to retrieve buyer offers for user {} in group {}: {}",
+                        user.getId(), group, e.getMessage());
+            }
+        }
+
+        // Cancel any pending-payment offers where the user is the seller (releasing buyers)
+        try {
+            final Page<Offer> sellerPendingPaymentOffers = offerService.get(
+                    OfferFilterDto.builder()
+                            .sellerId(user.getId())
+                            .statusGroup(OfferStatusGroup.PENDING_PAYMENT.getStatus())
+                            .page(1)
+                            .pageSize(1000)
+                            .build()
+            );
+            for (Offer offer : sellerPendingPaymentOffers.getContent()) {
+                try {
+                    offerService.cancelByAdmin(offer.getId());
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to cancel seller pending-payment offer {} during suspension of user {}: {}",
+                            offer.getId(), user.getId(), e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to retrieve seller pending payment offers for user {}: {}", user.getId(), e.getMessage());
+        }
+
+        return suspendedUser;
+    }
+
+    @Override
+    @Transactional
+    public User unsuspendUser(@NonNull String usernameOrEmail) {
+        LOGGER.info("Admin unsuspending user '{}'", usernameOrEmail);
+        final var user = userService.getByUsernameOrEmail(usernameOrEmail)
+                .orElseThrow(() -> {
+                    LOGGER.warn("User '{}' not found for unsuspension", usernameOrEmail);
+                    return NotFoundException.createFor("User");
+                });
+
+        return userService.unsuspend(user.getId());
     }
 }
+
