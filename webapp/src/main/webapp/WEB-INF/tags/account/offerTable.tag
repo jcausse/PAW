@@ -67,18 +67,22 @@
                         <c:choose>
                             <c:when test="${offer.status.name() == 'ACCEPTED' and not myRating.isPresent()}">
                                 <div class="flex flex-row gap-1 justify-start">
-                                    <form action="<c:url value='/offer/${offer.id}/rate'/>" method="POST">
-                                        <input type="hidden" name="rating" value="POSITIVE"/>
-                                        <paw:button type="submit" variant="outline" size="sm" icon="arrow-up" classname="text-lime-600 border-lime-300 hover:bg-lime-50"/>
-                                    </form>
-                                    <form action="<c:url value='/offer/${offer.id}/rate'/>" method="POST">
-                                        <input type="hidden" name="rating" value="NEUTRAL"/>
-                                        <paw:button type="submit" variant="outline" size="sm" icon="minus" classname="text-stone-500 border-stone-300 hover:bg-stone-50"/>
-                                    </form>
-                                    <form action="<c:url value='/offer/${offer.id}/rate'/>" method="POST">
-                                        <input type="hidden" name="rating" value="NEGATIVE"/>
-                                        <paw:button type="submit" variant="outline" size="sm" icon="arrow-down" classname="text-red-600 border-red-300 hover:bg-red-50"/>
-                                    </form>
+                                    <c:url value="/account/rate/${offer.id}" var="rateUrl"/>
+                                    <c:choose>
+                                        <c:when test="${user == 'buyer'}">
+                                            <c:url value="${rateUrl}?role=SELLER&rating=POSITIVE" var="positiveUrl"/>
+                                            <c:url value="${rateUrl}?role=SELLER&rating=NEUTRAL" var="neutralUrl"/>
+                                            <c:url value="${rateUrl}?role=SELLER&rating=NEGATIVE" var="negativeUrl"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:url value="${rateUrl}?role=BUYER&rating=POSITIVE" var="positiveUrl"/>
+                                            <c:url value="${rateUrl}?role=BUYER&rating=NEUTRAL" var="neutralUrl"/>
+                                            <c:url value="${rateUrl}?role=BUYER&rating=NEGATIVE" var="negativeUrl"/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <paw:linkButton href="${positiveUrl}" variant="outline" size="sm" icon="arrow-up" />
+                                    <paw:linkButton href="${neutralUrl}" variant="outline" size="sm" icon="minus" role="secondary" />
+                                    <paw:linkButton href="${negativeUrl}" variant="outline" size="sm" icon="arrow-down" role="danger" />
                                 </div>
                             </c:when>
                             <c:when test="${offer.status.name() == 'ACCEPTED' and myRating.isPresent()}">

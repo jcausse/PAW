@@ -13,11 +13,13 @@ import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.FileDao;
 import ar.edu.itba.paw.persistence.UserDao;
+import ar.edu.itba.paw.model.RatingRole;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
 import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
+import lombok.NonNull;
 
 import java.time.Instant;
 import java.time.Duration;
@@ -48,17 +50,20 @@ public class OfferServiceImpl implements OfferService {
     private final UserService userService;
     private final ListingService listingService;
     private final MailingService mailingService;
+    private final RatingService ratingService;
     private static final Duration RATING_AUTO_ASSIGN_DELAY = Duration.ofDays(14);
 
     @Autowired
     public OfferServiceImpl(OfferDao offerDao, FileDao fileDao, UserDao userDao,
-                            UserService userService, @Lazy ListingService listingService, MailingService mailingService) {
+                            UserService userService, @Lazy ListingService listingService,
+                            MailingService mailingService, RatingService ratingService) {
         this.offerDao = offerDao;
         this.fileDao = fileDao;
         this.userDao = userDao;
         this.userService = userService;
         this.listingService = listingService;
         this.mailingService = mailingService;
+        this.ratingService = ratingService;
     }
 
     @Override
@@ -413,36 +418,49 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     @Transactional
-    public Offer rate(Long offerId, User currentUser, OfferRating rating) {
-        final Offer offer = getById(offerId)
-                .orElseThrow(() -> NotFoundException.createFor("Offer"));
+    public Offer rate(Offer offer, User currentUser, OfferRating rating) {
+        return rate(offer, currentUser, rating, null);
+    }
 
+    @Override
+    @Transactional
+    public Offer rate(Offer offer, User currentUser, OfferRating rating, String reviewText) {
         if (offer.getStatus() != OfferStatus.ACCEPTED) {
             throw new BadParameterException("Only accepted offers can be rated");
         }
 
-        final boolean isBuyer = offer.getBuyer().getId().equals(currentUser.getId());
-        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUser.getId());
+		final var buyer = offer.getBuyer();
+		final var seller = offer.getListing().getCreator();
+
+		final boolean isBuyer = buyer.getId().equals(currentUser.getId());
+		final boolean isSeller = seller.getId().equals(currentUser.getId());
 
         if (!isBuyer && !isSeller) {
             throw new ForbiddenException("You did not participate in this offer");
         }
 
-        if (isBuyer) {
-            final boolean updated = offerDao.setSellerRating(offerId, rating);
-            if (!updated) {
-                throw new BadParameterException("You have already rated this offer");
-            }
-            userDao.incrementSellerRatingCounter(offer.getListing().getCreator().getId(), rating);
-        } else {
-            final boolean updated = offerDao.setBuyerRating(offerId, rating);
-            if (!updated) {
-                throw new BadParameterException("You have already rated this offer");
-            }
-            userDao.incrementBuyerRatingCounter(offer.getBuyer().getId(), rating);
+        final var role = isBuyer ? RatingRole.SELLER : RatingRole.BUYER;
+        final var ratedUser = isBuyer ? seller : buyer;
+
+        if (reviewText != null && !reviewText.isBlank()) {
+            ratingService.create(currentUser, ratedUser, offer, role, rating, reviewText.trim());
         }
 
-        return getById(offerId).orElseThrow();
+        if (isBuyer) {
+            final boolean updated = offerDao.setSellerRating(offer.getId(), rating);
+            if (!updated) {
+                throw new BadParameterException("You have already rated this offer");
+            }
+            userDao.incrementSellerRatingCounter(seller.getId(), rating);
+        } else {
+            final boolean updated = offerDao.setBuyerRating(offer.getId(), rating);
+            if (!updated) {
+                throw new BadParameterException("You have already rated this offer");
+            }
+            userDao.incrementBuyerRatingCounter(buyer.getId(), rating);
+        }
+
+        return getById(offer.getId()).orElseThrow();
     }
 
     @Override

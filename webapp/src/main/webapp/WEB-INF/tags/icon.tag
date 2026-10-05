@@ -6,6 +6,6 @@
 <c:set var="iconName" value="${name}" />
 <c:set var="iconClass" value="${not empty classname ? classname : ''}" />
 
-<span class="${iconClass} inline-flex flex-row items-center">
+<span class="${iconClass} inline-flex flex-row items-center justify-center">
     <i class="icon-${iconName}"></i>
 </span>
