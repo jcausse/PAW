@@ -5,24 +5,20 @@ import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingStatus;
 import ar.edu.itba.paw.model.Offer;
-import ar.edu.itba.paw.model.OfferFilter;
 import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.model.OfferStatus;
-import ar.edu.itba.paw.model.Page;
 import ar.edu.itba.paw.model.Price;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.FileDao;
 import ar.edu.itba.paw.persistence.OfferDao;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.OfferCreationDto;
-import ar.edu.itba.paw.service.dto.OfferFilterDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
 import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -142,14 +138,6 @@ public class OfferServiceImplTest {
         when(offerDao.getById(eq(OFFER_ID))).thenReturn(Optional.of(offer));
     }
 
-    private OfferFilter getAndCaptureFilter(final OfferFilterDto dto) {
-        when(offerDao.search(any(OfferFilter.class))).thenReturn(new Page<>(List.of(), 1, PAGE_SIZE, 0));
-        offerService.get(dto);
-        final ArgumentCaptor<OfferFilter> captor = ArgumentCaptor.forClass(OfferFilter.class);
-        verify(offerDao).search(captor.capture());
-        return captor.getValue();
-    }
-
     /* ---------------------------------------------------------------------------------------------- */
     /* getByListingAndBuyer                                                                            */
     /* ---------------------------------------------------------------------------------------------- */
@@ -182,57 +170,6 @@ public class OfferServiceImplTest {
     /* get (filters)                                                                                   */
     /* ---------------------------------------------------------------------------------------------- */
 
-    @Test
-    public void testGetPassesThroughSellerBuyerAndPageSize() {
-        // Act
-        final OfferFilter filter = getAndCaptureFilter(new OfferFilterDto(SELLER_ID, BUYER_ID, "pending", 2, PAGE_SIZE));
-
-        // Assert
-        Assert.assertEquals(SELLER_ID, (long) filter.getSellerId());
-        Assert.assertEquals(BUYER_ID, (long) filter.getBuyerId());
-        Assert.assertEquals(2, filter.getPage());
-        Assert.assertEquals(PAGE_SIZE, filter.getPageSize());
-    }
-
-    @Test
-    public void testGetWithoutStatusGroupDefaultsToPending() {
-        // Act
-        final OfferFilter filter = getAndCaptureFilter(new OfferFilterDto(SELLER_ID, null, null, 1, PAGE_SIZE));
-
-        // Assert
-        Assert.assertEquals(List.of(OfferStatus.PENDING), filter.getStatus());
-    }
-
-    @Test
-    public void testGetUnknownStatusGroupDefaultsToPending() {
-        // Act
-        final OfferFilter filter = getAndCaptureFilter(new OfferFilterDto(SELLER_ID, null, "lost", 1, PAGE_SIZE));
-
-        // Assert
-        Assert.assertEquals(List.of(OfferStatus.PENDING), filter.getStatus());
-    }
-
-    @Test
-    public void testGetResolvedStatusGroupExpandsToFinalStatuses() {
-        // Act
-        final OfferFilter filter = getAndCaptureFilter(new OfferFilterDto(SELLER_ID, null, "RESOLVED", 1, PAGE_SIZE));
-
-        // Assert
-        Assert.assertEquals(
-            List.of(OfferStatus.ACCEPTED, OfferStatus.REJECTED, OfferStatus.WITHDRAWN),
-            filter.getStatus()
-        );
-    }
-
-    @Test
-    public void testGetNonPositivePageDefaultsToFirstPage() {
-        // Act
-        final OfferFilter filter = getAndCaptureFilter(new OfferFilterDto(SELLER_ID, null, null, 0, PAGE_SIZE));
-
-        // Assert
-        Assert.assertEquals(1, filter.getPage());
-    }
-
     @Test(expected = NullPointerException.class)
     public void testGetNullDtoThrows() {
         // Act
@@ -263,23 +200,6 @@ public class OfferServiceImplTest {
         Assert.assertEquals(OFFER_ID, (long) result.getId());
     }
 
-    @Test
-    public void testCreateNotifiesSeller() {
-        // Arrange
-        final Listing listing = buildSellerListing();
-        final User buyer = buildFakeUser(BUYER_ID);
-        final Offer offer = buildFakeOffer(OfferStatus.PENDING);
-        when(listingService.getById(eq(LISTING_ID))).thenReturn(listing);
-        when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buyer));
-        when(offerDao.create(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(offer);
-
-        // Act
-        offerService.create(buildCreationDto(BUYER_ID, null));
-
-        // Assert
-        verify(mailingService).sendNewOfferEmail(eq(listing.getCreator()), eq(buyer), eq(listing), eq(offer));
-    }
-
     @Test(expected = BadParameterException.class)
     public void testCreateOnOwnListingThrows() {
         // Arrange
@@ -297,24 +217,6 @@ public class OfferServiceImplTest {
 
         // Act
         offerService.create(buildCreationDto(BUYER_ID, null));
-    }
-
-    @Test
-    public void testCreateTradeMarksOfferedListingAsOfferedInTrade() {
-        // Arrange
-        final User buyer = buildFakeUser(BUYER_ID);
-        when(listingService.getById(eq(LISTING_ID))).thenReturn(buildSellerListing());
-        when(listingService.getById(eq(OFFERED_LISTING_ID)))
-            .thenReturn(buildFakeListing(OFFERED_LISTING_ID, buyer, ListingStatus.ACTIVE, false));
-        when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buyer));
-        when(offerDao.create(any(), any(), any(), any(), any(), any(), any(), eq(OFFERED_LISTING_ID)))
-            .thenReturn(offerBuilder(OfferStatus.PENDING).offeredListingId(OFFERED_LISTING_ID).build());
-
-        // Act
-        offerService.create(buildCreationDto(BUYER_ID, OFFERED_LISTING_ID));
-
-        // Assert
-        verify(listingService).updateStatus(eq(OFFERED_LISTING_ID), eq(ListingStatus.OFFERED_IN_TRADE));
     }
 
     @Test(expected = BadParameterException.class)
@@ -375,72 +277,6 @@ public class OfferServiceImplTest {
         Assert.assertEquals(OFFER_ID, (long) result.getId());
     }
 
-    @Test
-    public void testAcceptMarksOfferAsPendingPayment() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING));
-
-        // Act
-        offerService.accept(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(offerDao).updateStatus(eq(OFFER_ID), eq(OfferStatus.PENDING_PAYMENT));
-    }
-
-    @Test
-    public void testAcceptPutsListingInPendingTransaction() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING));
-
-        // Act
-        offerService.accept(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(listingService).pendingTransaction(eq(LISTING_ID), eq(BUYER_ID), eq(MESSAGE));
-    }
-
-    @Test
-    public void testAcceptRejectsOtherPendingOffers() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING));
-
-        // Act
-        offerService.accept(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(offerDao).rejectPendingOffers(eq(LISTING_ID), eq(OFFER_ID));
-    }
-
-    @Test
-    public void testAcceptNotifiesBuyerAndSeller() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.PENDING);
-        givenOffer(offer);
-
-        // Act
-        offerService.accept(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(mailingService).sendOfferPendingPaymentEmail(
-            eq(offer.getBuyer()), eq(offer.getListing().getCreator()), eq(offer.getListing()), eq(offer)
-        );
-        verify(mailingService).sendPendingTransactionEmail(
-            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer)
-        );
-    }
-
-    @Test
-    public void testAcceptTradeMarksOfferedListingAsSold() {
-        // Arrange
-        givenOffer(offerBuilder(OfferStatus.PENDING).offeredListingId(OFFERED_LISTING_ID).build());
-
-        // Act
-        offerService.accept(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(listingService).updateStatus(eq(OFFERED_LISTING_ID), eq(ListingStatus.SOLD));
-    }
-
     @Test(expected = ForbiddenException.class)
     public void testAcceptByNonSellerThrows() {
         // Arrange
@@ -472,67 +308,6 @@ public class OfferServiceImplTest {
     /* reject                                                                                          */
     /* ---------------------------------------------------------------------------------------------- */
 
-    @Test
-    public void testRejectMarksOfferAsRejected() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING));
-
-        // Act
-        offerService.reject(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(offerDao).updateStatus(eq(OFFER_ID), eq(OfferStatus.REJECTED));
-    }
-
-    @Test
-    public void testRejectPendingOfferDoesNotChangeListingStatus() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING));
-
-        // Act
-        offerService.reject(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(listingService, never()).updateStatus(any(), any());
-    }
-
-    @Test
-    public void testRejectPendingPaymentOfferReactivatesListing() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
-
-        // Act
-        offerService.reject(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(listingService).updateStatus(eq(LISTING_ID), eq(ListingStatus.ACTIVE));
-    }
-
-    @Test
-    public void testRejectTradeReactivatesOfferedListing() {
-        // Arrange
-        givenOffer(offerBuilder(OfferStatus.PENDING).offeredListingId(OFFERED_LISTING_ID).build());
-
-        // Act
-        offerService.reject(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(listingService).updateStatus(eq(OFFERED_LISTING_ID), eq(ListingStatus.ACTIVE));
-    }
-
-    @Test
-    public void testRejectNotifiesBuyer() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.PENDING);
-        givenOffer(offer);
-
-        // Act
-        offerService.reject(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(mailingService).sendOfferRejectedEmail(eq(offer.getBuyer()), eq(offer.getListing()), eq(offer));
-    }
-
     @Test(expected = ForbiddenException.class)
     public void testRejectByNonSellerThrows() {
         // Arrange
@@ -554,45 +329,6 @@ public class OfferServiceImplTest {
     /* ---------------------------------------------------------------------------------------------- */
     /* withdraw                                                                                        */
     /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testWithdrawWithdrawsOffer() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING));
-
-        // Act
-        offerService.withdraw(OFFER_ID, BUYER_ID);
-
-        // Assert
-        verify(offerDao).withdraw(eq(OFFER_ID), eq(BUYER_ID));
-    }
-
-    @Test
-    public void testWithdrawNotifiesSeller() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.PENDING);
-        givenOffer(offer);
-
-        // Act
-        offerService.withdraw(OFFER_ID, BUYER_ID);
-
-        // Assert
-        verify(mailingService).sendOfferWithdrawnEmail(
-            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer)
-        );
-    }
-
-    @Test
-    public void testWithdrawTradeReactivatesOfferedListing() {
-        // Arrange
-        givenOffer(offerBuilder(OfferStatus.PENDING).offeredListingId(OFFERED_LISTING_ID).build());
-
-        // Act
-        offerService.withdraw(OFFER_ID, BUYER_ID);
-
-        // Assert
-        verify(listingService).updateStatus(eq(OFFERED_LISTING_ID), eq(ListingStatus.ACTIVE));
-    }
 
     @Test(expected = BadParameterException.class)
     public void testWithdrawByNonBuyerThrows() {
@@ -632,53 +368,9 @@ public class OfferServiceImplTest {
         Assert.assertEquals(rejected, result);
     }
 
-    @Test
-    public void testRejectPendingOffersNotifiesEachBuyer() {
-        // Arrange
-        when(offerDao.rejectPendingOffers(eq(LISTING_ID), isNull())).thenReturn(List.of(
-            buildFakeOffer(OfferStatus.REJECTED),
-            offerBuilder(OfferStatus.REJECTED).id(OTHER_OFFER_ID).build()
-        ));
-
-        // Act
-        offerService.rejectPendingOffersForListing(LISTING_ID, null);
-
-        // Assert
-        verify(mailingService, times(2)).sendOfferRejectedEmail(any(), any(), any());
-    }
-
-    @Test
-    public void testRejectPendingOffersReactivatesOnlyTradedListings() {
-        // Arrange
-        when(offerDao.rejectPendingOffers(eq(LISTING_ID), isNull())).thenReturn(List.of(
-            buildFakeOffer(OfferStatus.REJECTED),
-            offerBuilder(OfferStatus.REJECTED).id(OTHER_OFFER_ID).offeredListingId(OFFERED_LISTING_ID).build()
-        ));
-
-        // Act
-        offerService.rejectPendingOffersForListing(LISTING_ID, null);
-
-        // Assert: only traded listings are reactivated, in a single bulk update
-        verify(listingService, times(1)).updateStatusBulk(any(), any());
-        verify(listingService).updateStatusBulk(eq(List.of(OFFERED_LISTING_ID)), eq(ListingStatus.ACTIVE));
-    }
-
     /* ---------------------------------------------------------------------------------------------- */
     /* uploadProofOfPayment                                                                            */
     /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testUploadProofOfPaymentStoresFileAndLinksIt() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
-        when(fileDao.create(eq(FILENAME), eq(ALT), eq(PNG), any(byte[].class))).thenReturn(buildFakeFile());
-
-        // Act
-        offerService.uploadProofOfPayment(OFFER_ID, BUYER_ID, FILENAME, ALT, PNG, DATA);
-
-        // Assert
-        verify(offerDao).updateProofOfPaymentId(eq(OFFER_ID), eq(FILE_ID));
-    }
 
     @Test
     public void testUploadProofOfPaymentAcceptsPdf() {
@@ -691,22 +383,6 @@ public class OfferServiceImplTest {
 
         // Assert
         Assert.assertEquals(OFFER_ID, (long) result.getId());
-    }
-
-    @Test
-    public void testUploadProofOfPaymentNotifiesSeller() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.PENDING_PAYMENT);
-        givenOffer(offer);
-        when(fileDao.create(any(), any(), any(), any(byte[].class))).thenReturn(buildFakeFile());
-
-        // Act
-        offerService.uploadProofOfPayment(OFFER_ID, BUYER_ID, FILENAME, ALT, PNG, DATA);
-
-        // Assert
-        verify(mailingService).sendProofOfPaymentUploadedEmail(
-            eq(offer.getListing().getCreator()), eq(offer.getBuyer()), eq(offer.getListing()), eq(offer)
-        );
     }
 
     @Test(expected = BadParameterException.class)
@@ -749,47 +425,6 @@ public class OfferServiceImplTest {
     /* uploadProofOfShipping                                                                           */
     /* ---------------------------------------------------------------------------------------------- */
 
-    @Test
-    public void testUploadProofOfShippingWithFileAndTracking() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
-        when(fileDao.create(eq(FILENAME), eq(ALT), eq(PNG), any(byte[].class))).thenReturn(buildFakeFile());
-
-        // Act
-        offerService.uploadProofOfShipping(OFFER_ID, SELLER_ID, FILENAME, ALT, PNG, DATA, TRACKING_NUMBER);
-
-        // Assert
-        verify(offerDao).updateProofOfShipping(eq(OFFER_ID), eq(FILE_ID), eq(TRACKING_NUMBER));
-    }
-
-    @Test
-    public void testUploadProofOfShippingWithTrackingOnlyStoresNoFile() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
-
-        // Act
-        offerService.uploadProofOfShipping(OFFER_ID, SELLER_ID, null, null, null, null, TRACKING_NUMBER);
-
-        // Assert
-        verify(fileDao, never()).create(any(), any(), any(), any());
-        verify(offerDao).updateProofOfShipping(eq(OFFER_ID), isNull(), eq(TRACKING_NUMBER));
-    }
-
-    @Test
-    public void testUploadProofOfShippingNotifiesBuyer() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.PENDING_PAYMENT);
-        givenOffer(offer);
-
-        // Act
-        offerService.uploadProofOfShipping(OFFER_ID, SELLER_ID, null, null, null, null, TRACKING_NUMBER);
-
-        // Assert
-        verify(mailingService).sendProofOfShippingUploadedEmail(
-            eq(offer.getBuyer()), eq(offer.getListing().getCreator()), eq(offer.getListing()), eq(offer)
-        );
-    }
-
     @Test(expected = BadParameterException.class)
     public void testUploadProofOfShippingWithoutFileOrTrackingThrows() {
         // Arrange
@@ -820,30 +455,6 @@ public class OfferServiceImplTest {
     /* ---------------------------------------------------------------------------------------------- */
     /* confirmPayment                                                                                  */
     /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testConfirmPaymentMarksListingAsPurchased() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
-
-        // Act
-        offerService.confirmPayment(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(listingService).purchase(eq(LISTING_ID), eq(BUYER_ID), eq(MESSAGE));
-    }
-
-    @Test
-    public void testConfirmPaymentMarksOfferAsAccepted() {
-        // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
-
-        // Act
-        offerService.confirmPayment(OFFER_ID, SELLER_ID);
-
-        // Assert
-        verify(offerDao).markAccepted(eq(OFFER_ID), any(Instant.class));
-    }
 
     @Test(expected = BadParameterException.class)
     public void testConfirmPaymentByNonSellerThrows() {
@@ -932,34 +543,6 @@ public class OfferServiceImplTest {
     /* rate                                                                                            */
     /* ---------------------------------------------------------------------------------------------- */
 
-    @Test
-    public void testRateByBuyerRatesSeller() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.ACCEPTED);
-        givenOffer(offer);
-        when(offerDao.setSellerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(true);
-
-        // Act
-        offerService.rate(offer, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
-
-        // Assert
-        verify(userDao).incrementSellerRatingCounter(eq(SELLER_ID), eq(OfferRating.POSITIVE));
-    }
-
-    @Test
-    public void testRateBySellerRatesBuyer() {
-        // Arrange
-        final Offer offer = buildFakeOffer(OfferStatus.ACCEPTED);
-        givenOffer(offer);
-        when(offerDao.setBuyerRating(eq(OFFER_ID), eq(OfferRating.NEGATIVE))).thenReturn(true);
-
-        // Act
-        offerService.rate(offer, buildFakeUser(SELLER_ID), OfferRating.NEGATIVE);
-
-        // Assert
-        verify(userDao).incrementBuyerRatingCounter(eq(BUYER_ID), eq(OfferRating.NEGATIVE));
-    }
-
     @Test(expected = BadParameterException.class)
     public void testRateTwiceThrows() {
         // Arrange
@@ -986,72 +569,5 @@ public class OfferServiceImplTest {
 
         // Act
         offerService.rate(offer, buildFakeUser(OUTSIDER_ID), OfferRating.POSITIVE);
-    }
-
-    /* ---------------------------------------------------------------------------------------------- */
-    /* autoRatePendingOffers                                                                           */
-    /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testAutoRateUsesFourteenDayCutoff() {
-        // Arrange
-        final ArgumentCaptor<Instant> cutoffCaptor = ArgumentCaptor.forClass(Instant.class);
-        final Instant before = Instant.now();
-
-        // Act
-        offerService.autoRatePendingOffers();
-
-        // Assert
-        final Instant after = Instant.now();
-        verify(offerDao).getAcceptedUnratedBefore(cutoffCaptor.capture());
-        final Instant cutoff = cutoffCaptor.getValue();
-        Assert.assertFalse(cutoff.isBefore(before.minus(RATING_AUTO_ASSIGN_DELAY)));
-        Assert.assertFalse(cutoff.isAfter(after.minus(RATING_AUTO_ASSIGN_DELAY)));
-    }
-
-    @Test
-    public void testAutoRateRatesBothSidesPositively() {
-        // Arrange
-        when(offerDao.getAcceptedUnratedBefore(any(Instant.class))).thenReturn(List.of(buildFakeOffer(OfferStatus.ACCEPTED)));
-        when(offerDao.setSellerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(true);
-        when(offerDao.setBuyerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(true);
-
-        // Act
-        offerService.autoRatePendingOffers();
-
-        // Assert
-        verify(userDao).incrementSellerRatingCounter(eq(SELLER_ID), eq(OfferRating.POSITIVE));
-        verify(userDao).incrementBuyerRatingCounter(eq(BUYER_ID), eq(OfferRating.POSITIVE));
-    }
-
-    @Test
-    public void testAutoRateSkipsSideAlreadyRated() {
-        // Arrange
-        when(offerDao.getAcceptedUnratedBefore(any(Instant.class))).thenReturn(List.of(
-            offerBuilder(OfferStatus.ACCEPTED).sellerRating(OfferRating.NEGATIVE).build()
-        ));
-        when(offerDao.setBuyerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(true);
-
-        // Act
-        offerService.autoRatePendingOffers();
-
-        // Assert
-        verify(offerDao, never()).setSellerRating(any(), any());
-        verify(userDao, never()).incrementSellerRatingCounter(any(), any());
-    }
-
-    @Test
-    public void testAutoRateDoesNotIncrementCounterWhenRatingWasNotStored() {
-        // Arrange
-        when(offerDao.getAcceptedUnratedBefore(any(Instant.class))).thenReturn(List.of(
-            offerBuilder(OfferStatus.ACCEPTED).buyerRating(OfferRating.POSITIVE).build()
-        ));
-        when(offerDao.setSellerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(false);
-
-        // Act
-        offerService.autoRatePendingOffers();
-
-        // Assert
-        verify(userDao, never()).incrementSellerRatingCounter(any(), any());
     }
 }

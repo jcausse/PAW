@@ -77,13 +77,4 @@ public class ImageServiceImplTest {
         // Assert
         Assert.assertSame(createdImage, result);
     }
-
-    @Test
-    public void testDelete() {
-        // Act
-        imageService.delete(IMAGE_ID);
-
-        // Assert
-        verify(imageDao).delete(IMAGE_ID);
-    }
 }

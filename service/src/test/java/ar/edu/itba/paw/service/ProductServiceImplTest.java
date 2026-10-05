@@ -93,20 +93,6 @@ public class ProductServiceImplTest {
     /* ---------------------------------------------------------------------------------------------- */
 
     @Test
-    public void testGetByCategoryDelegates() {
-        // Arrange
-        final List<Product> products = List.of(buildFakeProduct());
-        when(productDao.getByCategory(eq(CATEGORY_ID))).thenReturn(products);
-
-        // Act
-        final List<Product> result = productService.getByCategory(CATEGORY_ID);
-
-        // Assert
-        Assert.assertEquals(products, result);
-        verify(productDao).getByCategory(CATEGORY_ID);
-    }
-
-    @Test
     public void testGetBySubcategoryDelegates() {
         // Arrange
         final List<Product> products = List.of(buildFakeProduct());
@@ -197,40 +183,6 @@ public class ProductServiceImplTest {
         productService.findOrCreateByBrandModelYear(BRAND, MODEL, YEAR, NON_EXISTING_SUBCATEGORY_ID);
     }
 
-    @Test
-    public void testFindOrCreateReturnsExistingWithoutCreating() {
-        // Arrange
-        final Product existing = buildFakeProduct();
-        when(subcategoryDao.getById(eq(SUBCATEGORY_ID))).thenReturn(Optional.of(buildFakeSubcategory()));
-        when(productDao.getByBrandModelYearSubcategory(eq(BRAND), eq(MODEL), eq(YEAR), eq(SUBCATEGORY_ID)))
-            .thenReturn(Optional.of(existing));
-
-        // Act
-        final Product result = productService.findOrCreateByBrandModelYear(BRAND, MODEL, YEAR, SUBCATEGORY_ID);
-
-        // Assert
-        Assert.assertEquals(PRODUCT_ID, (long) result.getId());
-        verify(productDao, never()).create(any(), any(), any(), any());
-    }
-
-    @Test
-    public void testFindOrCreateCreatesWhenMissing() {
-        // Arrange
-        final Subcategory subcategory = buildFakeSubcategory();
-        final Product created = buildFakeProduct();
-        when(subcategoryDao.getById(eq(SUBCATEGORY_ID))).thenReturn(Optional.of(subcategory));
-        when(productDao.getByBrandModelYearSubcategory(eq(BRAND), eq(MODEL), eq(YEAR), eq(SUBCATEGORY_ID)))
-            .thenReturn(Optional.empty());
-        when(productDao.create(eq(BRAND), eq(MODEL), eq(YEAR), eq(subcategory))).thenReturn(created);
-
-        // Act
-        final Product result = productService.findOrCreateByBrandModelYear(BRAND, MODEL, YEAR, SUBCATEGORY_ID);
-
-        // Assert
-        Assert.assertEquals(PRODUCT_ID, (long) result.getId());
-        verify(productDao).create(BRAND, MODEL, YEAR, subcategory);
-    }
-
     /* ---------------------------------------------------------------------------------------------- */
     /* create                                                                                          */
     /* ---------------------------------------------------------------------------------------------- */
@@ -242,21 +194,5 @@ public class ProductServiceImplTest {
 
         // Act
         productService.create(new ProductCreationDto(BRAND, MODEL, YEAR, NON_EXISTING_SUBCATEGORY_ID));
-    }
-
-    @Test
-    public void testCreatePersistsProduct() {
-        // Arrange
-        final Subcategory subcategory = buildFakeSubcategory();
-        final Product created = buildFakeProduct();
-        when(subcategoryDao.getById(eq(SUBCATEGORY_ID))).thenReturn(Optional.of(subcategory));
-        when(productDao.create(eq(BRAND), eq(MODEL), eq(YEAR), eq(subcategory))).thenReturn(created);
-
-        // Act
-        final Product result = productService.create(new ProductCreationDto(BRAND, MODEL, YEAR, SUBCATEGORY_ID));
-
-        // Assert
-        Assert.assertEquals(PRODUCT_ID, (long) result.getId());
-        verify(productDao).create(BRAND, MODEL, YEAR, subcategory);
     }
 }

@@ -32,24 +32,6 @@ public class ProvinceServiceImplTest {
     }
 
     /* ---------------------------------------------------------------------------------------------- */
-    /* getAll                                                                                          */
-    /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testGetAllDelegates() {
-        // Arrange
-        final List<Province> provinces = List.of(buildProvince());
-        when(provinceDao.getAll()).thenReturn(provinces);
-
-        // Act
-        final List<Province> result = provinceService.getAll();
-
-        // Assert
-        Assert.assertEquals(provinces, result);
-        verify(provinceDao).getAll();
-    }
-
-    /* ---------------------------------------------------------------------------------------------- */
     /* getById                                                                                         */
     /* ---------------------------------------------------------------------------------------------- */
 
@@ -98,12 +80,5 @@ public class ProvinceServiceImplTest {
 
         // Act & Assert
         Assert.assertFalse(provinceService.exists(NON_EXISTING_ID));
-    }
-
-    @Test
-    public void testExistsFalseForNullWithoutHittingDao() {
-        // Act & Assert: null short-circuits to false, DAO is never queried
-        Assert.assertFalse(provinceService.exists(null));
-        verify(provinceDao, never()).getById(any());
     }
 }

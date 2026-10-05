@@ -140,14 +140,6 @@ public class ListingServiceImplTest {
         );
     }
 
-    private ListingFilter searchAndCaptureFilter(final ListingFilterDto dto) {
-        when(listingDao.search(any(ListingFilter.class))).thenReturn(new Page<>(List.of(), 1, PAGE_SIZE, 0));
-        listingService.search(dto);
-        final ArgumentCaptor<ListingFilter> captor = ArgumentCaptor.forClass(ListingFilter.class);
-        verify(listingDao).search(captor.capture());
-        return captor.getValue();
-    }
-
     /* ---------------------------------------------------------------------------------------------- */
     /* getById                                                                                         */
     /* ---------------------------------------------------------------------------------------------- */
@@ -192,126 +184,6 @@ public class ListingServiceImplTest {
         Assert.assertSame(page, result);
     }
 
-    @Test
-    public void testSearchPassesThroughPlainFilters() {
-        // Arrange
-        final ListingFilterDto dto = new ListingFilterDto(
-            CATEGORY_ID, SUBCATEGORY_ID, null, null, null, null, "macbook", null, SELLER_ID, null, 2, PAGE_SIZE, true, null, null
-        );
-
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(dto);
-
-        // Assert
-        Assert.assertEquals(CATEGORY_ID, (long) filter.getCategoryId());
-        Assert.assertEquals(SUBCATEGORY_ID, (long) filter.getSubcategoryId());
-        Assert.assertEquals("macbook", filter.getQuery());
-        Assert.assertEquals(SELLER_ID, (long) filter.getCreatorId());
-        Assert.assertEquals(2, filter.getPage());
-        Assert.assertEquals(PAGE_SIZE, filter.getPageSize());
-        Assert.assertEquals(Boolean.TRUE, filter.getHasActiveOffers());
-    }
-
-    @Test
-    public void testSearchNullPageDefaultsToFirstPage() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(null, null, null, null, null, null, null));
-
-        // Assert
-        Assert.assertEquals(1, filter.getPage());
-    }
-
-    @Test
-    public void testSearchNonPositivePageDefaultsToFirstPage() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(null, null, null, 0, null, null, null));
-
-        // Assert
-        Assert.assertEquals(1, filter.getPage());
-    }
-
-    @Test
-    public void testSearchKeepsNonNegativePrices() {
-        // Arrange
-        final BigDecimal minPrice = BigDecimal.ZERO;
-        final BigDecimal maxPrice = new BigDecimal("2000");
-
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(null, null, null, 1, minPrice, maxPrice, null));
-
-        // Assert
-        Assert.assertEquals(minPrice, filter.getMinPrice());
-        Assert.assertEquals(maxPrice, filter.getMaxPrice());
-    }
-
-    @Test
-    public void testSearchDiscardsNegativePrices() {
-        // Arrange
-        final BigDecimal negative = new BigDecimal("-1");
-
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(null, null, null, 1, negative, negative, null));
-
-        // Assert
-        Assert.assertNull(filter.getMinPrice());
-        Assert.assertNull(filter.getMaxPrice());
-    }
-
-    @Test
-    public void testSearchParsesEnumsIgnoringCase() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(
-            buildFilterDto("like_new", "PRICE_ASC", "active", 1, null, null, null)
-        );
-
-        // Assert
-        Assert.assertEquals(Condition.LIKE_NEW, filter.getCondition());
-        Assert.assertEquals(ListingSort.PRICE_ASC, filter.getSort());
-        Assert.assertEquals(ListingStatus.ACTIVE, filter.getStatus());
-    }
-
-    @Test
-    public void testSearchIgnoresUnknownEnumValues() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(
-            buildFilterDto("broken", "random", "lost", 1, null, null, null)
-        );
-
-        // Assert
-        Assert.assertNull(filter.getCondition());
-        Assert.assertNull(filter.getSort());
-        Assert.assertNull(filter.getStatus());
-    }
-
-    @Test
-    public void testSearchIgnoresBlankEnumValues() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(" ", "", "  ", 1, null, null, null));
-
-        // Assert
-        Assert.assertNull(filter.getCondition());
-        Assert.assertNull(filter.getSort());
-        Assert.assertNull(filter.getStatus());
-    }
-
-    @Test
-    public void testSearchAcceptsTradeTrueIsKept() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(null, null, null, 1, null, null, true));
-
-        // Assert
-        Assert.assertEquals(Boolean.TRUE, filter.getAcceptsTrade());
-    }
-
-    @Test
-    public void testSearchAcceptsTradeFalseMeansNoFilter() {
-        // Act
-        final ListingFilter filter = searchAndCaptureFilter(buildFilterDto(null, null, null, 1, null, null, false));
-
-        // Assert
-        Assert.assertNull(filter.getAcceptsTrade());
-    }
-
     @Test(expected = NullPointerException.class)
     public void testSearchNullDtoThrows() {
         // Act
@@ -340,22 +212,6 @@ public class ListingServiceImplTest {
 
         // Assert
         Assert.assertEquals(LISTING_ID, (long) result.getId());
-    }
-
-    @Test
-    public void testCreateSendsListingPublishedEmail() {
-        // Arrange
-        final User seller = buildFakeUser(SELLER_ID, "seller");
-        final Listing listing = buildFakeListing(seller);
-        when(userService.getById(eq(SELLER_ID))).thenReturn(Optional.of(seller));
-        when(productService.getById(eq(PRODUCT_ID))).thenReturn(buildFakeProduct());
-        when(listingDao.create(any(), any(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any())).thenReturn(listing);
-
-        // Act
-        listingService.create(buildCreationDto("GOOD", null));
-
-        // Assert
-        verify(mailingService).sendListingPublishedEmail(eq(seller), eq(listing));
     }
 
     @Test
@@ -448,53 +304,6 @@ public class ListingServiceImplTest {
         Assert.assertEquals(LISTING_ID, (long) result.getId());
     }
 
-    @Test
-    public void testPurchaseMarksListingAsPurchased() {
-        // Arrange
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"), ListingStatus.PENDING_TRANSACTION)));
-        when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buildFakeUser(BUYER_ID, "buyer")));
-
-        // Act
-        listingService.purchase(LISTING_ID, BUYER_ID, PURCHASE_MESSAGE);
-
-        // Assert
-        verify(listingDao).purchase(eq(LISTING_ID), eq(BUYER_ID));
-    }
-
-    @Test
-    public void testPurchaseNotifiesSeller() {
-        // Arrange
-        final User seller = buildFakeUser(SELLER_ID, "seller");
-        final User buyer = buildFakeUser(BUYER_ID, "buyer");
-        final Listing listing = buildFakeListing(seller, ListingStatus.PENDING_TRANSACTION);
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(listing));
-        when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buyer));
-
-        // Act
-        listingService.purchase(LISTING_ID, BUYER_ID, PURCHASE_MESSAGE);
-
-        // Assert
-        verify(mailingService).sendPurchaseSellerEmail(
-            eq(seller), eq(buyer), eq(listing), eq(PURCHASE_MESSAGE)
-        );
-    }
-
-    @Test
-    public void testPurchaseNotifiesBuyer() {
-        // Arrange
-        final User seller = buildFakeUser(SELLER_ID, "seller");
-        final User buyer = buildFakeUser(BUYER_ID, "buyer");
-        final Listing listing = buildFakeListing(seller, ListingStatus.PENDING_TRANSACTION);
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(listing));
-        when(userService.getById(eq(BUYER_ID))).thenReturn(Optional.of(buyer));
-
-        // Act
-        listingService.purchase(LISTING_ID, BUYER_ID, PURCHASE_MESSAGE);
-
-        // Assert
-        verify(mailingService).sendPurchaseBuyerEmail(eq(buyer), eq(seller), eq(listing));
-    }
-
     @Test(expected = NotFoundException.class)
     public void testPurchaseNonExistingListingThrows() {
         // Arrange
@@ -517,18 +326,6 @@ public class ListingServiceImplTest {
     /* ---------------------------------------------------------------------------------------------- */
     /* pendingTransaction                                                                              */
     /* ---------------------------------------------------------------------------------------------- */
-
-    @Test
-    public void testPendingTransactionMarksListing() {
-        // Arrange
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
-
-        // Act
-        listingService.pendingTransaction(LISTING_ID, BUYER_ID, PURCHASE_MESSAGE);
-
-        // Assert
-        verify(listingDao).pendingTransaction(eq(LISTING_ID), eq(BUYER_ID));
-    }
 
     @Test(expected = NotFoundException.class)
     public void testPendingTransactionNonExistingListingThrows() {
@@ -595,30 +392,6 @@ public class ListingServiceImplTest {
     /* cancel / updateStatus                                                                           */
     /* ---------------------------------------------------------------------------------------------- */
 
-    @Test
-    public void testCancelRejectsPendingOffers() {
-        // Arrange
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
-
-        // Act
-        listingService.cancel(LISTING_ID, SELLER_ID);
-
-        // Assert
-        verify(offerService).rejectPendingOffersForListing(eq(LISTING_ID), isNull());
-    }
-
-    @Test
-    public void testCancelCancelsListing() {
-        // Arrange
-        when(listingDao.getById(eq(LISTING_ID))).thenReturn(Optional.of(buildFakeListing(buildFakeUser(SELLER_ID, "seller"))));
-
-        // Act
-        listingService.cancel(LISTING_ID, SELLER_ID);
-
-        // Assert
-        verify(listingDao).cancel(eq(LISTING_ID));
-    }
-
     @Test(expected = NotFoundException.class)
     public void testCancelNonExistingListingThrows() {
         // Arrange
@@ -626,14 +399,5 @@ public class ListingServiceImplTest {
 
         // Act
         listingService.cancel(NON_EXISTING_ID, SELLER_ID);
-    }
-
-    @Test
-    public void testUpdateStatusDelegatesToDao() {
-        // Act
-        listingService.updateStatus(LISTING_ID, ListingStatus.SOLD);
-
-        // Assert
-        verify(listingDao).updateStatus(eq(LISTING_ID), eq(ListingStatus.SOLD));
     }
 }

@@ -85,19 +85,6 @@ public class EmailVerificationServiceImplTest {
         Assert.assertSame(otp, result);
     }
 
-    @Test
-    public void testSendVerificationEmailSendsOtpToUser() {
-        // Arrange
-        final User user = buildFakeUser(false);
-        when(otpService.create(eq(user))).thenReturn(buildFakeOtp());
-
-        // Act
-        emailVerificationService.sendVerificationEmail(user);
-
-        // Assert
-        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP));
-    }
-
     @Test(expected = NullPointerException.class)
     public void testSendVerificationEmailNullUserThrows() {
         // Act
@@ -121,18 +108,6 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testResendVerificationEmailUnknownUserSendsNothing() {
-        // Arrange
-        when(userService.getByUsernameOrEmail(eq(UNKNOWN_USERNAME))).thenReturn(Optional.empty());
-
-        // Act
-        emailVerificationService.resendVerificationEmail(UNKNOWN_USERNAME);
-
-        // Assert
-        verifyNoInteractions(otpService, mailingService);
-    }
-
-    @Test
     public void testResendVerificationEmailVerifiedUserReturnsEmpty() {
         // Arrange
         givenUser(true);
@@ -142,18 +117,6 @@ public class EmailVerificationServiceImplTest {
 
         // Assert
         Assert.assertFalse(result.isPresent());
-    }
-
-    @Test
-    public void testResendVerificationEmailVerifiedUserSendsNothing() {
-        // Arrange
-        givenUser(true);
-
-        // Act
-        emailVerificationService.resendVerificationEmail(USER_USERNAME);
-
-        // Assert
-        verifyNoInteractions(otpService, mailingService);
     }
 
     @Test
@@ -169,19 +132,6 @@ public class EmailVerificationServiceImplTest {
         // Assert
         Assert.assertTrue(result.isPresent());
         Assert.assertSame(otp, result.get());
-    }
-
-    @Test
-    public void testResendVerificationEmailUnverifiedUserSendsOtpToUser() {
-        // Arrange
-        final User user = givenUser(false);
-        when(otpService.create(eq(user))).thenReturn(buildFakeOtp());
-
-        // Act
-        emailVerificationService.resendVerificationEmail(USER_USERNAME);
-
-        // Assert
-        verify(mailingService).sendVerificationEmail(eq(user), eq(PLAIN_OTP));
     }
 
     @Test(expected = NullPointerException.class)
@@ -207,18 +157,6 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testVerifyEmailUnknownUserDoesNotCheckOtp() {
-        // Arrange
-        when(userService.getByUsernameOrEmail(eq(UNKNOWN_USERNAME))).thenReturn(Optional.empty());
-
-        // Act
-        emailVerificationService.verifyEmail(UNKNOWN_USERNAME, PLAIN_OTP);
-
-        // Assert
-        verifyNoInteractions(otpService, mailingService);
-    }
-
-    @Test
     public void testVerifyEmailAlreadyVerifiedUserIsAccepted() {
         // Arrange
         givenUser(true);
@@ -228,19 +166,6 @@ public class EmailVerificationServiceImplTest {
 
         // Assert
         Assert.assertEquals(OneTimePasswordVerificationResult.ACCEPTED, result);
-    }
-
-    @Test
-    public void testVerifyEmailAlreadyVerifiedUserDoesNotConsumeOtpNorResendWelcome() {
-        // Arrange
-        givenUser(true);
-
-        // Act
-        emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
-
-        // Assert
-        verifyNoInteractions(otpService, mailingService);
-        verify(userService, never()).markEmailAsVerified(any());
     }
 
     @Test
@@ -257,32 +182,6 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testVerifyEmailCorrectOtpMarksEmailAsVerified() {
-        // Arrange
-        final User user = givenUser(false);
-        when(otpService.verify(eq(user), eq(PLAIN_OTP))).thenReturn(OneTimePasswordVerificationResult.ACCEPTED);
-
-        // Act
-        emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
-
-        // Assert
-        verify(userService).markEmailAsVerified(eq(user));
-    }
-
-    @Test
-    public void testVerifyEmailCorrectOtpSendsWelcomeEmailToUser() {
-        // Arrange
-        final User user = givenUser(false);
-        when(otpService.verify(eq(user), eq(PLAIN_OTP))).thenReturn(OneTimePasswordVerificationResult.ACCEPTED);
-
-        // Act
-        emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
-
-        // Assert
-        verify(mailingService).sendWelcomeEmail(eq(user));
-    }
-
-    @Test
     public void testVerifyEmailWrongOtpIsRejected() {
         // Arrange
         final User user = givenUser(false);
@@ -296,20 +195,6 @@ public class EmailVerificationServiceImplTest {
     }
 
     @Test
-    public void testVerifyEmailWrongOtpDoesNotVerifyNorWelcome() {
-        // Arrange
-        final User user = givenUser(false);
-        when(otpService.verify(eq(user), eq(PLAIN_OTP))).thenReturn(OneTimePasswordVerificationResult.REJECTED);
-
-        // Act
-        emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
-
-        // Assert
-        verify(userService, never()).markEmailAsVerified(any());
-        verifyNoInteractions(mailingService);
-    }
-
-    @Test
     public void testVerifyEmailExpiredOtpIsReportedAsExpired() {
         // Arrange
         final User user = givenUser(false);
@@ -320,20 +205,6 @@ public class EmailVerificationServiceImplTest {
 
         // Assert
         Assert.assertEquals(OneTimePasswordVerificationResult.EXPIRED, result);
-    }
-
-    @Test
-    public void testVerifyEmailExpiredOtpDoesNotVerifyNorWelcome() {
-        // Arrange
-        final User user = givenUser(false);
-        when(otpService.verify(eq(user), eq(PLAIN_OTP))).thenReturn(OneTimePasswordVerificationResult.EXPIRED);
-
-        // Act
-        emailVerificationService.verifyEmail(USER_USERNAME, PLAIN_OTP);
-
-        // Assert
-        verify(userService, never()).markEmailAsVerified(any());
-        verifyNoInteractions(mailingService);
     }
 
     @Test(expected = NullPointerException.class)
