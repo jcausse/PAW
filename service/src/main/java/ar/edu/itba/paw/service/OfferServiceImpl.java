@@ -111,6 +111,10 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.debug("Creating offer: listingId={}, buyerId={}, amount={}", dto.listingId(), dto.buyerId(), dto.amount());
 
         final Listing listing = listingService.getById(dto.listingId());
+        if (listing.getStatus() != ListingStatus.ACTIVE) {
+            LOGGER.warn("Offer attempted on listing {} with non-ACTIVE status: {}", dto.listingId(), listing.getStatus());
+            throw BadParameterException.create("listingId", "Listing is not available for offers");
+        }
         if (Objects.equals(dto.buyerId(), listing.getCreator().getId())) {
             LOGGER.warn("User {} attempted to buy their own listing {}", dto.buyerId(), dto.listingId());
             throw BadParameterException.create("buyerId", "User cannot buy their own listing");

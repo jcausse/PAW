@@ -165,6 +165,11 @@ public class ListingServiceImpl implements ListingService {
             .getById(id)
             .orElseThrow(() -> NotFoundException.createFor("Listing with ID " + id));
 
+        if (listing.getStatus() != ListingStatus.PENDING_TRANSACTION) {
+            LOGGER.warn("Purchase attempted on listing {} with non-PENDING_TRANSACTION status: {}", id, listing.getStatus());
+            throw new BadParameterException("Listing is not in a pending transaction state");
+        }
+
         listingDao.purchase(id, buyerId);
 
         final User buyer = userService.getById(buyerId)
