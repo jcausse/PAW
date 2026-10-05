@@ -113,13 +113,13 @@ public class ListingServiceImplTest {
 
     private static ListingCreationDto buildCreationDto(final String condition, final List<ImageData> images) {
         return new ListingCreationDto(
-            LISTING_TITLE, LISTING_PRICE, SELLER_ID, PRODUCT_ID, condition, true, LISTING_DESCRIPTION, images
+            LISTING_TITLE, LISTING_PRICE, SELLER_ID, PRODUCT_ID, condition, true, false, LISTING_DESCRIPTION, images
         );
     }
 
     private static ListingUpdateDto buildUpdateDto(final long listingId, final String condition) {
         return new ListingUpdateDto(
-            listingId, LISTING_TITLE, LISTING_PRICE, PRODUCT_ID, condition, true, LISTING_DESCRIPTION
+            listingId, LISTING_TITLE, LISTING_PRICE, PRODUCT_ID, condition, true, false, LISTING_DESCRIPTION
         );
     }
 
@@ -133,7 +133,7 @@ public class ListingServiceImplTest {
         final Boolean acceptsTrade
     ) {
         return new ListingFilterDto(
-            null, null, minPrice, maxPrice, condition, acceptsTrade, null, sort, null, status, page, PAGE_SIZE, null
+            null, null, minPrice, maxPrice, condition, acceptsTrade, null, sort, null, status, page, PAGE_SIZE, null, null, null
         );
     }
 
@@ -193,7 +193,7 @@ public class ListingServiceImplTest {
     public void testSearchPassesThroughPlainFilters() {
         // Arrange
         final ListingFilterDto dto = new ListingFilterDto(
-            CATEGORY_ID, SUBCATEGORY_ID, null, null, null, null, "macbook", null, SELLER_ID, null, 2, PAGE_SIZE, true
+            CATEGORY_ID, SUBCATEGORY_ID, null, null, null, null, "macbook", null, SELLER_ID, null, 2, PAGE_SIZE, true, null, null
         );
 
         // Act
@@ -329,7 +329,7 @@ public class ListingServiceImplTest {
         when(productService.getById(eq(PRODUCT_ID))).thenReturn(product);
         when(listingDao.create(
             eq(LISTING_TITLE), eq(LISTING_PRICE), eq(seller), eq(product),
-            eq(Condition.GOOD), eq(true), eq(LISTING_DESCRIPTION), eq(List.of())
+            eq(Condition.GOOD), eq(true), anyBoolean(), eq(LISTING_DESCRIPTION), eq(List.of())
         )).thenReturn(listing);
 
         // Act
@@ -346,7 +346,7 @@ public class ListingServiceImplTest {
         final Listing listing = buildFakeListing(seller);
         when(userService.getById(eq(SELLER_ID))).thenReturn(Optional.of(seller));
         when(productService.getById(eq(PRODUCT_ID))).thenReturn(buildFakeProduct());
-        when(listingDao.create(any(), any(), any(), any(), any(), anyBoolean(), any(), any())).thenReturn(listing);
+        when(listingDao.create(any(), any(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any())).thenReturn(listing);
 
         // Act
         listingService.create(buildCreationDto("GOOD", null));
@@ -371,7 +371,7 @@ public class ListingServiceImplTest {
         when(imageService.create(
             eq("photo.jpg"), eq("Image 1 for listing: " + LISTING_TITLE), eq("image/jpeg"), any(byte[].class)
         )).thenReturn(storedImage);
-        when(listingDao.create(any(), any(), any(), any(), any(), anyBoolean(), any(), eq(List.of(IMAGE_ID))))
+        when(listingDao.create(any(), any(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), eq(List.of(IMAGE_ID))))
             .thenReturn(listing);
 
         // Act
@@ -549,7 +549,7 @@ public class ListingServiceImplTest {
         when(productService.getById(eq(PRODUCT_ID))).thenReturn(product);
         when(listingDao.update(
             eq(LISTING_ID), eq(LISTING_TITLE), eq(LISTING_PRICE), eq(product),
-            eq(Condition.FAIR), eq(true), eq(LISTING_DESCRIPTION)
+            eq(Condition.FAIR), eq(true), anyBoolean(), eq(LISTING_DESCRIPTION)
         )).thenReturn(listing);
 
         // Act
