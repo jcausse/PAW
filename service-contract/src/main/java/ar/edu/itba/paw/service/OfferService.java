@@ -38,14 +38,14 @@ public interface OfferService {
 
     Offer confirmPayment(Long offerId, Long sellerId);
 
-    Optional<File> getProofOfPaymentFile(Long offerId);
+    Optional<File> getProofOfPaymentFile(Long offerId, Long currentUserId);
 
-    Optional<File> getProofOfShippingFile(Long offerId);
+    Optional<File> getProofOfShippingFile(Long offerId, Long currentUserId);
 
     Offer rate(Offer offer, User currentUser, OfferRating rating);
 
     Offer rate(Offer offer, User currentUser, OfferRating rating, String reviewText);
 
-    @SuppressWarnings("unused") 
+    @SuppressWarnings("unused")
     void autoRatePendingOffers();
 }

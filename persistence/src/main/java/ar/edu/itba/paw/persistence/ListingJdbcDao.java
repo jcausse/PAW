@@ -109,7 +109,7 @@ public class ListingJdbcDao implements ListingDao {
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add("(LOWER(" + "l." + ListingSchema.TITLE + ") LIKE ?"
                 + " OR LOWER(" + "l." + ListingSchema.DESCRIPTION + ") LIKE ?)");
-            final String like = "%" + filter.getQuery().toLowerCase() + "%";
+            final String like = "%" + escapeLike(filter.getQuery().toLowerCase()) + "%";
             params.add(like);
             params.add(like);
         }
@@ -345,6 +345,10 @@ public class ListingJdbcDao implements ListingDao {
             ids.add(Long.parseLong(part.trim()));
         }
         return ids;
+    }
+
+    private static String escapeLike(String input) {
+        return input.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     private static final class Queries {

@@ -319,10 +319,6 @@ public class ListingController {
         }
 
         if (form.getEditListingId() != null) {
-            var listing = listingService.getById(form.getEditListingId());
-            if (!listing.getCreator().getId().equals(currentUser.getId())) {
-                throw new ForbiddenException("Not authorized to edit this listing");
-            }
             var updated = listingService.update(new ListingUpdateDto(
                 form.getEditListingId(),
                 form.getTitle(),
@@ -332,7 +328,7 @@ public class ListingController {
                 form.isAcceptsTrade(),
                 form.isAcceptsShipping(),
                 form.getDescription()
-            ));
+            ), currentUser.getId());
             return new ModelAndView("redirect:/listing/" + updated.getId());
         }
 
@@ -409,11 +405,7 @@ public class ListingController {
     @PostMapping("/{id}/cancel")
     public ModelAndView cancelListing(@PathVariable Long id, @CurrentUser User currentUser) {
         LOGGER.info("User {} canceled listing {}", currentUser.getId(), id);
-        var listing = listingService.getById(id);
-        if (!listing.getCreator().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not authorized to cancel this listing");
-        }
-        listingService.cancel(id);
+        listingService.cancel(id, currentUser.getId());
         return new ModelAndView("redirect:/account/listings");
     }
 

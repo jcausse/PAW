@@ -15,6 +15,7 @@ import ar.edu.itba.paw.service.dto.ListingCreationDto;
 import ar.edu.itba.paw.service.dto.ListingFilterDto;
 import ar.edu.itba.paw.service.dto.ListingUpdateDto;
 import ar.edu.itba.paw.service.exception.BadParameterException;
+import ar.edu.itba.paw.service.exception.ForbiddenException;
 import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -194,11 +195,18 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
-    public Listing update(ListingUpdateDto dto) {
+    public Listing update(ListingUpdateDto dto, Long currentUserId) {
         Objects.requireNonNull(dto, "ListingUpdateDto cannot be null");
-        LOGGER.debug("Updating listing id={}", dto.listingId());
+        LOGGER.debug("Updating listing id={} by user {}", dto.listingId(), currentUserId);
 
         var existing = getById(dto.listingId());
+
+        if (!existing.getCreator().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to update this listing");
+        }
+        if (existing.getStatus() == ListingStatus.CANCELED) {
+            throw new ForbiddenException("Cannot edit a canceled listing");
+        }
 
         Product product;
         try {
@@ -229,9 +237,12 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
-    public void cancel(Long id) {
-        LOGGER.info("Canceling listing id={}", id);
-        getById(id);
+    public void cancel(Long id, Long currentUserId) {
+        LOGGER.info("Canceling listing id={} by user {}", id, currentUserId);
+        var listing = getById(id);
+        if (!listing.getCreator().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Not authorized to cancel this listing");
+        }
         offerService.rejectPendingOffersForListing(id, null);
         listingDao.cancel(id);
         LOGGER.info("Listing canceled: id={}", id);
