@@ -111,6 +111,10 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.debug("Creating offer: listingId={}, buyerId={}, amount={}", dto.listingId(), dto.buyerId(), dto.amount());
 
         final Listing listing = listingService.getById(dto.listingId());
+        if (listing.getStatus() != ListingStatus.ACTIVE) {
+            LOGGER.warn("Offer attempted on listing {} with non-ACTIVE status: {}", dto.listingId(), listing.getStatus());
+            throw BadParameterException.create("listingId", "Listing is not available for offers");
+        }
         if (Objects.equals(dto.buyerId(), listing.getCreator().getId())) {
             LOGGER.warn("User {} attempted to buy their own listing {}", dto.buyerId(), dto.listingId());
             throw BadParameterException.create("buyerId", "User cannot buy their own listing");
@@ -388,9 +392,16 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public Optional<File> getProofOfPaymentFile(Long offerId) {
+    public Optional<File> getProofOfPaymentFile(Long offerId, Long currentUserId) {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
+        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
+
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenException("Not authorized to download proof of payment");
+        }
 
         if (offer.getProofOfPaymentId() == null) {
             return Optional.empty();
@@ -400,9 +411,16 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public Optional<File> getProofOfShippingFile(Long offerId) {
+    public Optional<File> getProofOfShippingFile(Long offerId, Long currentUserId) {
         final Offer offer = offerDao.getById(offerId)
             .orElseThrow(() -> NotFoundException.createFor("Offer with ID " + offerId));
+
+        final boolean isBuyer = offer.getBuyer().getId().equals(currentUserId);
+        final boolean isSeller = offer.getListing().getCreator().getId().equals(currentUserId);
+
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenException("Not authorized to download proof of shipping");
+        }
 
         if (offer.getProofOfShippingId() == null) {
             return Optional.empty();

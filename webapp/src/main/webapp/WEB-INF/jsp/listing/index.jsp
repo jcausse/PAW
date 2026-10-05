@@ -46,7 +46,8 @@
 
                         <spring:message code="condition.${listing.condition}" var="conditionLabel"/>
                         <spring:message code="condition.description.${listing.condition}" var="conditionDescription"/>
-                        <paw:collapsible title="Condition: ${conditionLabel}" classname="w-full">
+                        <spring:message code="listing.detail.condition" var="conditionTitle"/>
+                        <paw:collapsible title="${conditionTitle} ${conditionLabel}" classname="w-full">
                             <p class="text-sm text-black/70"><c:out value="${conditionDescription}"/></p>
                         </paw:collapsible>
 
