@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,10 +48,15 @@ public class ListingJdbcDao implements ListingDao {
 
     @Override
     public Optional<Listing> getById(Long id) {
+        final List<Long> imageIds = getImageIds(id);
         return jdbcTemplate
-            .query(Queries.GET_BY_ID, ROW_MAPPER, id)
+            .query(Queries.GET_BY_ID, (rs, rowNum) -> mapListing(rs, imageIds), id)
             .stream()
             .findFirst();
+    }
+
+    private List<Long> getImageIds(final Long listingId) {
+        return jdbcTemplate.queryForList(Queries.GET_IMAGE_IDS_BY_LISTING_ID, Long.class, listingId);
     }
 
     @Override
@@ -100,7 +107,9 @@ public class ListingJdbcDao implements ListingDao {
             conditions.add("EXISTS (SELECT 1 FROM " + OfferSchema.TABLE_NAME + " o WHERE o." + OfferSchema.LISTING_ID + " = l." + ListingSchema.ID + " AND o." + OfferSchema.STATUS + " = '" + OfferStatus.PENDING.getStatus() + "')");
         }
 
-        final String whereClause = " WHERE " + String.join(" AND ", conditions);
+        final String whereClause = conditions.isEmpty()
+            ? ""
+            : " WHERE " + String.join(" AND ", conditions);
         final String orderBy = resolveOrderBy(filter.getSort());
 
         final long totalCount = jdbcTemplate.queryForObject(
@@ -244,7 +253,10 @@ public class ListingJdbcDao implements ListingDao {
     /* ---------------------------------------------------------------------------------------------- */
 
     private static final RowMapper<Listing> ROW_MAPPER = (rs, rowNum) ->
-        Listing.builder()
+        mapListing(rs, parseImageIds(rs.getString("image_ids")));
+
+    private static Listing mapListing(final ResultSet rs, final List<Long> imageIds) throws SQLException {
+        return Listing.builder()
             .id(rs.getLong(ListingSchema.ID))
             .title(rs.getString(ListingSchema.TITLE))
             .price(new Price(rs.getBigDecimal(ListingSchema.PRICE)))
@@ -290,9 +302,10 @@ public class ListingJdbcDao implements ListingDao {
                     )
                     .build()
             )
-            .imageIds(parseImageIds(rs.getString("image_ids")))
+            .imageIds(imageIds)
             .pendingOffersCount(rs.getInt("pending_offers_count"))
             .build();
+    }
 
     private static List<Long> parseImageIds(String imageIdsStr) {
         if (imageIdsStr == null || imageIdsStr.isEmpty()) {
@@ -350,18 +363,19 @@ public class ListingJdbcDao implements ListingDao {
             " LEFT JOIN " + SubcategorySchema.TABLE_NAME + " ON " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID + " = p." + ProductSchema.SUBCATEGORY_ID +
             " LEFT JOIN " + CategorySchema.TABLE_NAME + " ON " + CategorySchema.TABLE_NAME + "." + CategorySchema.ID + " = " + SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.CATEGORY_ID;
 
-        private static final String IMAGE_IDS_SUBQUERY =
-            "COALESCE((SELECT STRING_AGG(li.image_id::text, ',' ORDER BY li.display_order) " +
-            " FROM listing_images li WHERE li.listing_id = l." + ListingSchema.ID + "), '')";
-
         private static final String COVER_IMAGE_ID_SUBQUERY =
-            "COALESCE((SELECT li.image_id::text FROM listing_images li " +
-            " WHERE li.listing_id = l." + ListingSchema.ID + " ORDER BY li.display_order LIMIT 1), '')";
+            "COALESCE((SELECT CAST(li.image_id AS VARCHAR(20)) FROM listing_images li" +
+            " WHERE li.listing_id = l." + ListingSchema.ID +
+            " AND li.display_order = (SELECT MIN(li2.display_order) FROM listing_images li2" +
+            " WHERE li2.listing_id = l." + ListingSchema.ID + ")), '')";
 
         private static final String GET_BY_ID =
-            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS + ", " + IMAGE_IDS_SUBQUERY + " as image_ids" +
+            "SELECT " + FIELDS + ", " + SUBCATEGORY_FIELDS +
             BASE_FROM +
             " WHERE l." + ListingSchema.ID + " = ?";
+
+        private static final String GET_IMAGE_IDS_BY_LISTING_ID =
+            "SELECT image_id FROM listing_images WHERE listing_id = ? ORDER BY display_order";
 
         private static final String UPDATE_STATUS_BY_ID =
             "UPDATE " + ListingSchema.TABLE_NAME + " SET " + ListingSchema.STATUS + " = ? " +
