@@ -74,7 +74,7 @@ public class SubcategoryJdbcDao implements SubcategoryDao {
             .name(rs.getString(SubcategorySchema.NAME))
             .category(Category.builder()
                 .id(rs.getLong(CategorySchema.ID))
-                .name(rs.getString(CategorySchema.NAME))
+                .name(rs.getString("category_name"))
                 .build())
             .build();
 
@@ -85,7 +85,7 @@ public class SubcategoryJdbcDao implements SubcategoryDao {
             SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.ID,
             SubcategorySchema.TABLE_NAME + "." + SubcategorySchema.NAME,
             CategorySchema.TABLE_NAME + "." + CategorySchema.ID,
-            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME
+            CategorySchema.TABLE_NAME + "." + CategorySchema.NAME + " AS category_name"
         );
 
         private static final String GET_BY_ID =
