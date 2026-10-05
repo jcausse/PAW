@@ -21,6 +21,8 @@ public interface ListingService {
 
     void updateStatus(Long id, ListingStatus status);
 
+    void updateStatusBulk(List<Long> ids, ListingStatus status);
+
     Listing update(ListingUpdateDto dto);
 
     void cancel(Long id);

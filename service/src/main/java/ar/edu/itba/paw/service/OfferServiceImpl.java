@@ -274,11 +274,19 @@ public class OfferServiceImpl implements OfferService {
         final List<Offer> rejected = offerDao.rejectPendingOffers(listingId, exceptOfferId);
         LOGGER.info("Rejected {} pending offers for listing id={} (except offerId={})", rejected.size(), listingId, exceptOfferId);
         final Locale locale = LocaleContextHolder.getLocale();
+
+        // Collect offered listing IDs to bulk update
+        List<Long> offeredListingIds = rejected.stream()
+                .filter(o -> o.getOfferedListingId() != null)
+                .map(Offer::getOfferedListingId)
+                .distinct()
+                .toList();
+
+        if (!offeredListingIds.isEmpty()) {
+            listingService.updateStatusBulk(offeredListingIds, ListingStatus.ACTIVE);
+        }
+
         for (Offer offer : rejected) {
-            // Handle trade offer: reset offered listing to ACTIVE
-            if (offer.getOfferedListingId() != null) {
-                listingService.updateStatus(offer.getOfferedListingId(), ListingStatus.ACTIVE);
-            }
             mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, locale);
         }
         return rejected;
