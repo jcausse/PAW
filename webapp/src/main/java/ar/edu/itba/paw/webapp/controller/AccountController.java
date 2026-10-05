@@ -214,7 +214,7 @@ public class AccountController {
             LOGGER.debug("Validation failed for proof of payment upload on offer {}", offerId);
             var mav = new ModelAndView("account/proofOfPaymentUpload");
             mav.addObject("offer", offer);
-            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
+            mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
 
@@ -270,7 +270,7 @@ public class AccountController {
             LOGGER.debug("Validation failed for proof of shipping upload on offer {}", offerId);
             var mav = new ModelAndView("account/proofOfShippingUpload");
             mav.addObject("offer", offer);
-            // Do not add currentUser - it's already provided by CurrentUserControllerAdvice as Optional<User>
+            mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
 
@@ -399,6 +399,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             var mav = new ModelAndView("account/rate");
             mav.addObject("offer", offer);
+            mav.addObject("pendingOffersCount", getPendingOffersCount(currentUser));
             return mav;
         }
 
