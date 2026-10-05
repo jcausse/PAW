@@ -1,34 +1,52 @@
 package ar.edu.itba.paw.service;
 
-import org.junit.Test;
-import org.junit.Before;
-import java.util.Optional;
-import java.time.Instant;
+import ar.edu.itba.paw.model.Image;
+import ar.edu.itba.paw.model.Province;
+import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.persistence.UserDao;
+import ar.edu.itba.paw.service.dto.ImageData;
+import ar.edu.itba.paw.service.dto.UserCreationDto;
+import ar.edu.itba.paw.service.dto.UserEditDto;
 import org.junit.Assert;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.junit.runner.RunWith;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.persistence.UserDao;
+import java.time.Instant;
+import java.util.Optional;
+
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
 
-	private static final long USER_ID = 1;
+    private static final long USER_ID = 1L;
     private static final String USER_USERNAME = "fake_user";
     private static final String USER_DISPLAY_NAME = "Fake User";
-	private static final String USER_EMAIL = "fake@example.com";
+    private static final String USER_EMAIL = "fake@example.com";
     private static final String USER_PASSWORD = "fake_password";
-    
+    private static final String ENCODED_PASSWORD = "encoded-password";
+
+    private static final long PROVINCE_ID = 1L;
+    private static final long NON_EXISTING_PROVINCE_ID = 9000L;
+    private static final long IMAGE_ID = 50L;
+    private static final long OLD_IMAGE_ID = 40L;
+
     @InjectMocks
-	private UserServiceImpl userService;
-	@Mock
-	private UserDao userDao;
+    private UserServiceImpl userService;
+
+    @Mock
+    private UserDao userDao;
     @Mock
     private ImageService imageService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private ProvinceService provinceService;
 
     private User buildFakeUser() {
         return User.builder()
@@ -41,144 +59,320 @@ public class UserServiceImplTest {
             .build();
     }
 
-	@Test
-	public void testGetByIdUserExists() {
-		// Arrange
-        final User user = buildFakeUser();
-		when(userDao.getById(eq(USER_ID))).thenReturn(Optional.of(user));
-		
-		// Act
-		final Optional<User> maybeUser = userService.getById(USER_ID);
-		
-		// Assert
-		Assert.assertTrue(maybeUser.isPresent());
-		Assert.assertEquals(USER_ID, (long) maybeUser.get().getId());
-		Assert.assertEquals(USER_USERNAME, maybeUser.get().getUsername());
-		Assert.assertEquals(USER_EMAIL, maybeUser.get().getEmail());
-	}
-	
-	@Test
-	public void testGetByIdUserDoesNotExist() {
-		// Arrange
-		when(userDao.getById(eq(USER_ID))).thenReturn(Optional.empty());
-	
-		// Act
-		final Optional<User> maybeUser = userService.getById(USER_ID);
-	
-		// Assert
-		Assert.assertFalse(maybeUser.isPresent());
-	}
-	
-	@Test
-	public void testGetByIdUserInvalid() {
-		// Arrange
-		when(userDao.getById(eq(-1L))).thenReturn(Optional.empty());
-	
-		// Act
-		final Optional<User> maybeUser = userService.getById(-1L);
-	
-		// Assert
-		Assert.assertFalse(maybeUser.isPresent());
-	}
+    private User buildUserWithImage(final Long imageId) {
+        return User.builder()
+            .id(USER_ID)
+            .username(USER_USERNAME)
+            .displayName(USER_DISPLAY_NAME)
+            .email(USER_EMAIL)
+            .password(USER_PASSWORD)
+            .imageId(imageId)
+            .joinedAt(Instant.now())
+            .build();
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* getById / getByUsername / getByEmail                                                            */
+    /* ---------------------------------------------------------------------------------------------- */
 
     @Test
-    public void testGetByUsernameUserExists() {
-        // Arrange
-        final User user = buildFakeUser();
-        when(userDao.getByUsername(eq(USER_USERNAME))).thenReturn(Optional.of(user));
+    public void testGetByIdUserExists() {
+        when(userDao.getById(eq(USER_ID))).thenReturn(Optional.of(buildFakeUser()));
 
-        // Act
-        final Optional<User> maybeUser = userService.getByUsername(USER_USERNAME);
+        final Optional<User> maybeUser = userService.getById(USER_ID);
 
-        // Assert
         Assert.assertTrue(maybeUser.isPresent());
+        Assert.assertEquals(USER_ID, (long) maybeUser.get().getId());
         Assert.assertEquals(USER_USERNAME, maybeUser.get().getUsername());
     }
 
     @Test
-    public void testGetByUsernameUserDoesNotExist() {
-        // Arrange
-        when(userDao.getByUsername(eq(USER_USERNAME))).thenReturn(Optional.empty());
+    public void testGetByIdUserDoesNotExist() {
+        when(userDao.getById(eq(USER_ID))).thenReturn(Optional.empty());
 
-        // Act
-        final Optional<User> maybeUser = userService.getByUsername(USER_USERNAME);
+        Assert.assertFalse(userService.getById(USER_ID).isPresent());
+    }
 
-        // Assert
-        Assert.assertFalse(maybeUser.isPresent());
+    @Test
+    public void testGetByUsernameUserExists() {
+        when(userDao.getByUsername(eq(USER_USERNAME))).thenReturn(Optional.of(buildFakeUser()));
+
+        Assert.assertTrue(userService.getByUsername(USER_USERNAME).isPresent());
+    }
+
+    @Test
+    public void testGetByUsernameNormalizesInput() {
+        when(userDao.getByUsername(eq(USER_USERNAME))).thenReturn(Optional.of(buildFakeUser()));
+
+        // Mixed-case + spaces must be normalized before hitting the DAO
+        userService.getByUsername("  Fake_User  ");
+
+        verify(userDao).getByUsername(USER_USERNAME);
     }
 
     @Test
     public void testGetByEmailUserExists() {
-        // Arrange
-        final User user = buildFakeUser();
-        when(userDao.getByEmail(eq(USER_EMAIL))).thenReturn(Optional.of(user));
+        when(userDao.getByEmail(eq(USER_EMAIL))).thenReturn(Optional.of(buildFakeUser()));
 
-        // Act
-        final Optional<User> maybeUser = userService.getByEmail(USER_EMAIL);
-
-        // Assert
-        Assert.assertTrue(maybeUser.isPresent());
-        Assert.assertEquals(USER_EMAIL, maybeUser.get().getEmail());
+        Assert.assertTrue(userService.getByEmail(USER_EMAIL).isPresent());
     }
 
     @Test
-    public void testGetByEmailUserDoesNotExist() {
-        // Arrange
-        when(userDao.getByEmail(eq(USER_EMAIL))).thenReturn(Optional.empty());
+    public void testGetByUsernameOrEmailPicksEmailWhenHasAt() {
+        when(userDao.getByEmail(eq(USER_EMAIL))).thenReturn(Optional.of(buildFakeUser()));
 
-        // Act
-        final Optional<User> maybeUser = userService.getByEmail(USER_EMAIL);
+        userService.getByUsernameOrEmail(USER_EMAIL);
 
-        // Assert
-        Assert.assertFalse(maybeUser.isPresent());
+        verify(userDao).getByEmail(USER_EMAIL);
+        verify(userDao, never()).getByUsername(any());
     }
+
+    @Test
+    public void testGetByUsernameOrEmailPicksUsernameWhenNoAt() {
+        when(userDao.getByUsername(eq(USER_USERNAME))).thenReturn(Optional.of(buildFakeUser()));
+
+        userService.getByUsernameOrEmail(USER_USERNAME);
+
+        verify(userDao).getByUsername(USER_USERNAME);
+        verify(userDao, never()).getByEmail(any());
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* isUsernameTaken / isEmailTaken                                                                  */
+    /* ---------------------------------------------------------------------------------------------- */
 
     @Test
     public void testIsUsernameTakenTrue() {
-        // Arrange
         when(userDao.isUsernameTaken(eq(USER_USERNAME))).thenReturn(true);
 
-        // Act
-        final boolean taken = userService.isUsernameTaken(USER_USERNAME);
-
-        // Assert
-        Assert.assertTrue(taken);
+        Assert.assertTrue(userService.isUsernameTaken(USER_USERNAME));
     }
 
     @Test
-    public void testIsUsernameTakenFalse() {
-        // Arrange
+    public void testIsUsernameTakenNormalizesInput() {
         when(userDao.isUsernameTaken(eq(USER_USERNAME))).thenReturn(false);
 
-        // Act
-        final boolean taken = userService.isUsernameTaken(USER_USERNAME);
+        userService.isUsernameTaken("  Fake_User  ");
 
-        // Assert
-        Assert.assertFalse(taken);
+        verify(userDao).isUsernameTaken(USER_USERNAME);
     }
 
     @Test
     public void testIsEmailTakenTrue() {
-        // Arrange
         when(userDao.isEmailTaken(eq(USER_EMAIL))).thenReturn(true);
 
-        // Act
-        final boolean taken = userService.isEmailTaken(USER_EMAIL);
+        Assert.assertTrue(userService.isEmailTaken(USER_EMAIL));
+    }
 
-        // Assert
-        Assert.assertTrue(taken);
+    /* ---------------------------------------------------------------------------------------------- */
+    /* create                                                                                          */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateRejectsUsernameWithAt() {
+        userService.create(new UserCreationDto("user@bad", USER_DISPLAY_NAME, USER_EMAIL, USER_PASSWORD, null));
     }
 
     @Test
-    public void testIsEmailTakenFalse() {
+    public void testCreateNormalizesAndEncodes() {
         // Arrange
-        when(userDao.isEmailTaken(eq(USER_EMAIL))).thenReturn(false);
+        when(passwordEncoder.encode(eq(USER_PASSWORD))).thenReturn(ENCODED_PASSWORD);
+        when(userDao.create(any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
 
-        // Act
-        final boolean taken = userService.isEmailTaken(USER_EMAIL);
+        // Act: mixed case / spaces must be normalized; password encoded
+        userService.create(new UserCreationDto("  Fake_User ", "  Fake User  ", "  FAKE@Example.com ", USER_PASSWORD, null));
 
         // Assert
-        Assert.assertFalse(taken);
+        verify(userDao).create(
+            eq(USER_USERNAME),              // trimmed + lowercased
+            eq("Fake User"),                // trimmed display name
+            eq(USER_EMAIL),                 // trimmed + lowercased
+            eq(ENCODED_PASSWORD),           // encoded, never plain
+            isNull(),                       // no image
+            any(Instant.class)
+        );
     }
 
+    @Test
+    public void testCreateWithImageSavesImage() {
+        // Arrange
+        final ImageData imageData = new ImageData(new byte[]{1, 2, 3}, "pic.png", "image/png");
+        final Image stored = Image.builder().id(IMAGE_ID).filename("pic.png").alt("alt").build();
+        when(passwordEncoder.encode(any())).thenReturn(ENCODED_PASSWORD);
+        when(imageService.create(any(), any(), any(), any())).thenReturn(stored);
+        when(userDao.create(any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
+
+        // Act
+        userService.create(new UserCreationDto(USER_USERNAME, USER_DISPLAY_NAME, USER_EMAIL, USER_PASSWORD, imageData));
+
+        // Assert
+        verify(imageService).create(eq("pic.png"), any(), eq("image/png"), any(byte[].class));
+        verify(userDao).create(any(), any(), any(), any(), eq(stored), any(Instant.class));
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* update                                                                                          */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test
+    public void testUpdateDisplayNameOnlyLeavesOthersNull() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.update(eq(USER_ID), eq("New Name"), isNull(), isNull(), isNull()))
+            .thenReturn(Optional.of(user));
+
+        // Act
+        userService.update(new UserEditDto(user, "New Name", null, null));
+
+        // Assert: only display name set; email/password/image null
+        verify(userDao).update(eq(USER_ID), eq("New Name"), isNull(), isNull(), isNull());
+    }
+
+    @Test
+    public void testUpdateEncodesNewPassword() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(passwordEncoder.encode(eq("brandNew"))).thenReturn(ENCODED_PASSWORD);
+        when(userDao.update(eq(USER_ID), isNull(), isNull(), eq(ENCODED_PASSWORD), isNull()))
+            .thenReturn(Optional.of(user));
+
+        // Act
+        userService.update(new UserEditDto(user, null, "brandNew", null));
+
+        // Assert
+        verify(userDao).update(eq(USER_ID), isNull(), isNull(), eq(ENCODED_PASSWORD), isNull());
+    }
+
+    @Test
+    public void testUpdateReplacesImageAndDeletesOld() {
+        // Arrange: user already had an image, uploads a new one
+        final User user = buildUserWithImage(OLD_IMAGE_ID);
+        final ImageData imageData = new ImageData(new byte[]{9}, "new.png", "image/png");
+        final Image newImage = Image.builder().id(IMAGE_ID).filename("new.png").alt("alt").build();
+        when(imageService.create(any(), any(), any(), any())).thenReturn(newImage);
+        when(userDao.update(eq(USER_ID), isNull(), isNull(), isNull(), eq(IMAGE_ID)))
+            .thenReturn(Optional.of(user));
+
+        // Act
+        userService.update(new UserEditDto(user, null, null, imageData));
+
+        // Assert: new image saved, user updated with it, old image deleted
+        verify(userDao).update(eq(USER_ID), isNull(), isNull(), isNull(), eq(IMAGE_ID));
+        verify(imageService).delete(OLD_IMAGE_ID);
+    }
+
+    @Test
+    public void testUpdateWithoutNewImageDoesNotDeleteOld() {
+        // Arrange
+        final User user = buildUserWithImage(OLD_IMAGE_ID);
+        when(userDao.update(eq(USER_ID), eq("New Name"), isNull(), isNull(), isNull()))
+            .thenReturn(Optional.of(user));
+
+        // Act
+        userService.update(new UserEditDto(user, "New Name", null, null));
+
+        // Assert
+        verify(imageService, never()).delete(any());
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* updateLocation                                                                                  */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test
+    public void testUpdateLocationNullProvinceClearsBoth() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updateLocation(eq(USER_ID), isNull(), isNull())).thenReturn(Optional.of(user));
+
+        // Act: no province -> both columns cleared, detail dropped
+        userService.updateLocation(user, null, "ignored detail");
+
+        // Assert
+        verify(userDao).updateLocation(USER_ID, null, null);
+        verify(provinceService, never()).getById(any());
+    }
+
+    @Test
+    public void testUpdateLocationUnknownProvinceClearsBoth() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(provinceService.getById(eq(NON_EXISTING_PROVINCE_ID))).thenReturn(Optional.empty());
+        when(userDao.updateLocation(eq(USER_ID), isNull(), isNull())).thenReturn(Optional.of(user));
+
+        // Act: unknown province -> treated as no province (consistent with category filters)
+        userService.updateLocation(user, NON_EXISTING_PROVINCE_ID, "Belgrano");
+
+        // Assert
+        verify(userDao).updateLocation(USER_ID, null, null);
+    }
+
+    @Test
+    public void testUpdateLocationValidProvinceStoresNormalizedDetail() {
+        // Arrange
+        final User user = buildFakeUser();
+        final Province province = Province.builder().id(PROVINCE_ID).name("caba").build();
+        when(provinceService.getById(eq(PROVINCE_ID))).thenReturn(Optional.of(province));
+        when(userDao.updateLocation(eq(USER_ID), eq(PROVINCE_ID), eq("Belgrano"))).thenReturn(Optional.of(user));
+
+        // Act: detail has surrounding whitespace -> trimmed before persisting
+        userService.updateLocation(user, PROVINCE_ID, "  Belgrano  ");
+
+        // Assert
+        verify(userDao).updateLocation(USER_ID, PROVINCE_ID, "Belgrano");
+    }
+
+    @Test
+    public void testUpdateLocationValidProvinceBlankDetailStoredAsNull() {
+        // Arrange
+        final User user = buildFakeUser();
+        final Province province = Province.builder().id(PROVINCE_ID).name("caba").build();
+        when(provinceService.getById(eq(PROVINCE_ID))).thenReturn(Optional.of(province));
+        when(userDao.updateLocation(eq(USER_ID), eq(PROVINCE_ID), isNull())).thenReturn(Optional.of(user));
+
+        // Act: blank detail -> stored as null
+        userService.updateLocation(user, PROVINCE_ID, "   ");
+
+        // Assert
+        verify(userDao).updateLocation(USER_ID, PROVINCE_ID, null);
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* updateEmail / markEmailAsVerified                                                               */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test
+    public void testUpdateEmailNormalizes() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.update(eq(USER_ID), isNull(), eq(USER_EMAIL), isNull(), isNull()))
+            .thenReturn(Optional.of(user));
+
+        // Act
+        userService.updateEmail(user, "  FAKE@Example.com  ");
+
+        // Assert: email trimmed + lowercased
+        verify(userDao).update(eq(USER_ID), isNull(), eq(USER_EMAIL), isNull(), isNull());
+    }
+
+    @Test
+    public void testMarkEmailAsVerified() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.verifyEmail(eq(USER_ID), any(Instant.class))).thenReturn(Optional.of(user));
+
+        // Act
+        userService.markEmailAsVerified(user);
+
+        // Assert
+        verify(userDao).verifyEmail(eq(USER_ID), any(Instant.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdateEmailNonExistingUserThrows() {
+        final User user = buildFakeUser();
+        when(userDao.update(eq(USER_ID), isNull(), any(), isNull(), isNull())).thenReturn(Optional.empty());
+
+        userService.updateEmail(user, USER_EMAIL);
+    }
 }
