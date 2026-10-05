@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.ListingSort;
 import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.ListingStatus;
@@ -150,13 +151,28 @@ public class UserController {
         form.setDisplayName(currentUser.getDisplayName());
         form.setProvinceId(currentUser.getProvince().map(Province::getId).orElse(null));
         form.setLocationDetail(currentUser.getLocationDetail().orElse(null));
+        final Language currentLanguage = currentUser.getPreferredLanguage() != null
+                ? currentUser.getPreferredLanguage()
+                : Language.getDefault();
+        form.setPreferredLanguage(currentLanguage.getCode());
         return profileEditView(currentUser);
     }
 
     private ModelAndView profileEditView(final User currentUser) {
         return new ModelAndView("profileEdit")
                 .addObject("user", currentUser)
-                .addObject("provinces", buildProvinceOptions());
+                .addObject("provinces", buildProvinceOptions())
+                .addObject("languages", buildLanguageOptions());
+    }
+
+    private List<StringSelectOption> buildLanguageOptions() {
+        final var locale = LocaleContextHolder.getLocale();
+        return Arrays.stream(Language.values())
+                .map(language -> new StringSelectOption(
+                        language.getCode(),
+                        messageSource.getMessage("language." + language.getCode(), null, locale)
+                ))
+                .toList();
     }
 
     private List<SelectOption> buildProvinceOptions() {
@@ -197,13 +213,20 @@ public class UserController {
 
         LOGGER.info("User {} profile edit submitted", currentUser.getId());
         LOGGER.debug("User {} updating profile", currentUser.getUsername());
-        userService.update(new UserEditDto(
-            currentUser,
-            form.getDisplayName(),
-            form.getPassword(),
-            imageData
-        ));
-        User updatedUser = userService.updateLocation(currentUser, form.getProvinceId(), form.getLocationDetail());
+
+        // One service call does the whole profile update (display name, password, image, location,
+        // language) in a single transaction. Persisting the language also updates the website locale,
+        // since the LocaleResolver reads it from the refreshed authenticated principal below.
+        final User updatedUser = userService.update(UserEditDto.builder()
+            .user(currentUser)
+            .newDisplayName(form.getDisplayName())
+            .newPassword(form.getPassword())
+            .newImageData(imageData)
+            .updateLocationAndLanguage(true)
+            .newProvinceId(form.getProvinceId())
+            .newLocationDetail(form.getLocationDetail())
+            .newPreferredLanguage(Language.fromCode(form.getPreferredLanguage()))
+            .build());
 
         authHelper.update(updatedUser);
 

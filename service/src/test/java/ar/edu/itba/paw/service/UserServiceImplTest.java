@@ -3,6 +3,7 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
@@ -177,7 +178,7 @@ public class UserServiceImplTest {
     public void testCreateNormalizesAndEncodes() {
         // Arrange
         when(passwordEncoder.encode(eq(USER_PASSWORD))).thenReturn(ENCODED_PASSWORD);
-        when(userDao.create(any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
+        when(userDao.create(any(), any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
 
         // Act: mixed case / spaces must be normalized; password encoded
         userService.create(new UserCreationDto("  Fake_User ", "  Fake User  ", "  FAKE@Example.com ", USER_PASSWORD, null));
@@ -189,7 +190,8 @@ public class UserServiceImplTest {
             eq(USER_EMAIL),                 // trimmed + lowercased
             eq(ENCODED_PASSWORD),           // encoded, never plain
             isNull(),                       // no image
-            any(Instant.class)
+            any(Instant.class),
+            any(Language.class)              // preferred language (current request locale)
         );
     }
 
@@ -200,14 +202,14 @@ public class UserServiceImplTest {
         final Image stored = Image.builder().id(IMAGE_ID).filename("pic.png").alt("alt").build();
         when(passwordEncoder.encode(any())).thenReturn(ENCODED_PASSWORD);
         when(imageService.create(any(), any(), any(), any())).thenReturn(stored);
-        when(userDao.create(any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
+        when(userDao.create(any(), any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
 
         // Act
         userService.create(new UserCreationDto(USER_USERNAME, USER_DISPLAY_NAME, USER_EMAIL, USER_PASSWORD, imageData));
 
         // Assert
         verify(imageService).create(eq("pic.png"), any(), eq("image/png"), any(byte[].class));
-        verify(userDao).create(any(), any(), any(), any(), eq(stored), any(Instant.class));
+        verify(userDao).create(any(), any(), any(), any(), eq(stored), any(Instant.class), any(Language.class));
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -222,7 +224,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, "New Name", null, null));
+        userService.update(UserEditDto.builder().user(user).newDisplayName("New Name").build());
 
         // Assert: only display name set; email/password/image null
         verify(userDao).update(eq(USER_ID), eq("New Name"), isNull(), isNull(), isNull());
@@ -237,7 +239,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, null, "brandNew", null));
+        userService.update(UserEditDto.builder().user(user).newPassword("brandNew").build());
 
         // Assert
         verify(userDao).update(eq(USER_ID), isNull(), isNull(), eq(ENCODED_PASSWORD), isNull());
@@ -254,7 +256,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, null, null, imageData));
+        userService.update(UserEditDto.builder().user(user).newImageData(imageData).build());
 
         // Assert: new image saved, user updated with it, old image deleted
         verify(userDao).update(eq(USER_ID), isNull(), isNull(), isNull(), eq(IMAGE_ID));
@@ -269,7 +271,7 @@ public class UserServiceImplTest {
             .thenReturn(Optional.of(user));
 
         // Act
-        userService.update(new UserEditDto(user, "New Name", null, null));
+        userService.update(UserEditDto.builder().user(user).newDisplayName("New Name").build());
 
         // Assert
         verify(imageService, never()).delete(any());
@@ -335,6 +337,46 @@ public class UserServiceImplTest {
 
         // Assert
         verify(userDao).updateLocation(USER_ID, PROVINCE_ID, null);
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* updatePreferredLanguage                                                                         */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test
+    public void testUpdatePreferredLanguagePersistsChosenLanguage() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updatePreferredLanguage(eq(USER_ID), eq(Language.SPANISH))).thenReturn(Optional.of(user));
+
+        // Act
+        userService.updatePreferredLanguage(user, Language.SPANISH);
+
+        // Assert
+        verify(userDao).updatePreferredLanguage(USER_ID, Language.SPANISH);
+    }
+
+    @Test
+    public void testUpdatePreferredLanguageReturnsUpdatedUser() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updatePreferredLanguage(eq(USER_ID), eq(Language.ENGLISH))).thenReturn(Optional.of(user));
+
+        // Act
+        final User result = userService.updatePreferredLanguage(user, Language.ENGLISH);
+
+        // Assert
+        Assert.assertSame(user, result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdatePreferredLanguageNonExistingUserThrows() {
+        // Arrange
+        final User user = buildFakeUser();
+        when(userDao.updatePreferredLanguage(eq(USER_ID), eq(Language.SPANISH))).thenReturn(Optional.empty());
+
+        // Act
+        userService.updatePreferredLanguage(user, Language.SPANISH);
     }
 
     /* ---------------------------------------------------------------------------------------------- */

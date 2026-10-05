@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 @NoArgsConstructor
@@ -32,4 +33,7 @@ public class UserEditForm {
 
     @Size(max = 100)
     private String locationDetail;
+
+    @NotEmpty
+    private String preferredLanguage;
 }

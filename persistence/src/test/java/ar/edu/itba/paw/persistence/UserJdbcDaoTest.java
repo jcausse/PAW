@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.OfferRating;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -187,7 +188,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testCreateReturnsUserWithId() {
         final User created = userDao.create(
-            "new_user", "New User", "new@example.com", "secret", null, Instant.now());
+            "new_user", "New User", "new@example.com", "secret", null, Instant.now(), Language.ENGLISH);
 
         Assert.assertNotNull(created.getId());
         Assert.assertEquals("new_user", created.getUsername());
@@ -197,7 +198,7 @@ public class UserJdbcDaoTest {
 
     @Test
     public void testCreatePersistsUser() {
-        userDao.create("new_user", "New User", "new@example.com", "secret", null, Instant.now());
+        userDao.create("new_user", "New User", "new@example.com", "secret", null, Instant.now(), Language.ENGLISH);
 
         final int count = countUsersWhere(
             "username = 'new_user' AND email = 'new@example.com'");
@@ -207,7 +208,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testCreateInitializesRatingCountersToZero() {
         final User created = userDao.create(
-            "new_user", "New User", "new@example.com", "secret", null, Instant.now());
+            "new_user", "New User", "new@example.com", "secret", null, Instant.now(), Language.ENGLISH);
 
         Assert.assertEquals(0, created.getSellerTotalRatings());
         Assert.assertEquals(0, created.getBuyerTotalRatings());
@@ -374,5 +375,46 @@ public class UserJdbcDaoTest {
         // started at 1 negative buyer rating
         Assert.assertEquals(1, countUsersWhere(
             "user_id = " + VERIFIED_USER_ID + " AND buyer_negative_ratings = 2"));
+    }
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /* preferredLanguage                                                                               */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    @Test
+    public void testCreatePersistsPreferredLanguage() {
+        final User created = userDao.create(
+            "es_user", "ES User", "es@example.com", "secret", null, Instant.now(), Language.SPANISH);
+
+        Assert.assertEquals(Language.SPANISH, created.getPreferredLanguage());
+        Assert.assertEquals(1, countUsersWhere(
+            "user_id = " + created.getId() + " AND preferred_language = 'es'"));
+    }
+
+    @Test
+    public void testGetByIdLoadsPreferredLanguage() {
+        final User created = userDao.create(
+            "es_user", "ES User", "es@example.com", "secret", null, Instant.now(), Language.SPANISH);
+
+        final User reloaded = userDao.getById(created.getId()).orElseThrow();
+        Assert.assertEquals(Language.SPANISH, reloaded.getPreferredLanguage());
+    }
+
+    @Test
+    public void testUpdatePreferredLanguagePersists() {
+        // fake_user (id 1) defaults to 'en'; switch to 'es'
+        final Optional<User> updated = userDao.updatePreferredLanguage(FAKE_USER_ID, Language.SPANISH);
+
+        Assert.assertTrue(updated.isPresent());
+        Assert.assertEquals(Language.SPANISH, updated.get().getPreferredLanguage());
+        Assert.assertEquals(1, countUsersWhere(
+            "user_id = " + FAKE_USER_ID + " AND preferred_language = 'es'"));
+    }
+
+    @Test
+    public void testUpdatePreferredLanguageNonExistingReturnsEmpty() {
+        final Optional<User> updated = userDao.updatePreferredLanguage(NON_EXISTING_USER_ID, Language.SPANISH);
+
+        Assert.assertFalse(updated.isPresent());
     }
 }

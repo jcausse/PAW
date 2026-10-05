@@ -20,12 +20,10 @@ import ar.edu.itba.paw.service.exception.NotFoundException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -153,7 +151,7 @@ public class ListingServiceImpl implements ListingService {
         LOGGER.info("Listing created: id={}, title='{}', creatorId={}, price={}, images={}",
                 listing.getId(), listing.getTitle(), creator.getId(), dto.price(), imageIds.size());
 
-        mailingService.sendListingPublishedEmail(creator, listing, LocaleContextHolder.getLocale());
+        mailingService.sendListingPublishedEmail(creator, listing);
 
         return listing;
     }
@@ -176,10 +174,9 @@ public class ListingServiceImpl implements ListingService {
         final User buyer = userService.getById(buyerId)
             .orElseThrow(() -> new BadParameterException("Invalid buyerId"));
         final User seller = listing.getCreator();
-        final Locale locale = LocaleContextHolder.getLocale();
 
-        mailingService.sendPurchaseSellerEmail(seller, buyer, listing, message, locale);
-        mailingService.sendPurchaseBuyerEmail(buyer, seller, listing, locale);
+        mailingService.sendPurchaseSellerEmail(seller, buyer, listing, message);
+        mailingService.sendPurchaseBuyerEmail(buyer, seller, listing);
 
         LOGGER.info("Listing purchased: id={}, buyerId={}, sellerId={}", id, buyerId, seller.getId());
         return listing;

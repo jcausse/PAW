@@ -26,8 +26,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Locale;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,7 +155,7 @@ public class OfferServiceImpl implements OfferService {
                 offer.getId(), dto.listingId(), dto.buyerId(), dto.amount(), isTrade);
 
         // Send email notification to seller about the new offer
-        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer, LocaleContextHolder.getLocale());
+        mailingService.sendNewOfferEmail(listing.getCreator(), buyer, listing, offer);
 
         return offer;
     }
@@ -192,9 +190,9 @@ public class OfferServiceImpl implements OfferService {
                 offerId, offer.getListing().getId(), offer.getBuyer().getId(), currentUserId);
 
         // Send email notification to buyer about offer acceptance (pending payment)
-        mailingService.sendOfferPendingPaymentEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferPendingPaymentEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer);
         // Send email notification to seller about pending transaction
-        mailingService.sendPendingTransactionEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendPendingTransactionEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer);
 
         // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
@@ -233,7 +231,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Offer rejected: offerId={}, listingId={}, by sellerId={}", offerId, offer.getListing().getId(), currentUserId);
 
         // Send email notification to buyer about offer rejection
-        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer);
 
         // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
@@ -266,7 +264,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Offer withdrawn: offerId={}, listingId={}, by buyerId={}", offerId, offer.getListing().getId(), currentUserId);
 
         // Send email notification to seller about offer withdrawal
-        mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendOfferWithdrawnEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer);
 
         // FIXME double query
         return offerDao.getById(offerId).orElseThrow();
@@ -277,10 +275,8 @@ public class OfferServiceImpl implements OfferService {
     public List<Offer> rejectPendingOffersForListing(Long listingId, Long exceptOfferId) {
         final List<Offer> rejected = offerDao.rejectPendingOffers(listingId, exceptOfferId);
         LOGGER.info("Rejected {} pending offers for listing id={} (except offerId={})", rejected.size(), listingId, exceptOfferId);
-        final Locale locale = LocaleContextHolder.getLocale();
-
         // Collect offered listing IDs to bulk update
-        List<Long> offeredListingIds = rejected.stream()
+        final List<Long> offeredListingIds = rejected.stream()
                 .filter(o -> o.getOfferedListingId() != null)
                 .map(Offer::getOfferedListingId)
                 .distinct()
@@ -291,7 +287,7 @@ public class OfferServiceImpl implements OfferService {
         }
 
         for (Offer offer : rejected) {
-            mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer, locale);
+            mailingService.sendOfferRejectedEmail(offer.getBuyer(), offer.getListing(), offer);
         }
         return rejected;
     }
@@ -326,7 +322,7 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Proof of payment uploaded: offerId={}, buyerId={}, fileId={}", offerId, buyerId, file.getId());
 
         // Notify seller that proof of payment was uploaded
-        mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendProofOfPaymentUploadedEmail(offer.getListing().getCreator(), offer.getBuyer(), offer.getListing(), offer);
 
         return offerDao.getById(offerId).orElseThrow();
     }
@@ -369,7 +365,7 @@ public class OfferServiceImpl implements OfferService {
                 offerId, sellerId, proofOfShippingId != null, trackingNumber);
 
         // Notify buyer that proof of shipping was uploaded
-        mailingService.sendProofOfShippingUploadedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer, LocaleContextHolder.getLocale());
+        mailingService.sendProofOfShippingUploadedEmail(offer.getBuyer(), offer.getListing().getCreator(), offer.getListing(), offer);
 
         return offerDao.getById(offerId).orElseThrow();
     }

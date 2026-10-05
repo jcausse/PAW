@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingStatus;
@@ -148,6 +149,7 @@ public class OfferJdbcDao implements OfferDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .joinedAt(rs.getTimestamp(UserSchema.JOINED_AT).toInstant())
+            .preferredLanguage(Language.fromCode(rs.getString("buyer_preferred_language")))
             .build();
 
         String imageIdsStr = rs.getString("image_ids");
@@ -173,6 +175,7 @@ public class OfferJdbcDao implements OfferDao {
                                     .map(Integer::longValue)
                                     .orElse(null))
                     .joinedAt(rs.getTimestamp("creator_joined_at").toInstant())
+                    .preferredLanguage(Language.fromCode(rs.getString("creator_preferred_language")))
                     .build()
             )
             .product(
@@ -302,6 +305,7 @@ public class OfferJdbcDao implements OfferDao {
                                 .password("<redacted>")
                                 .imageId(offeredCreatorImageId)
                                 .joinedAt(offeredCreatorJoinedAt)
+                                .preferredLanguage(Language.fromCode(rs.getString("offered_creator_preferred_language")))
                                 .build()
                 )
                 .product(
@@ -366,12 +370,14 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", o." + OfferSchema.OFFERED_LISTING_ID +
             ", u." + UserSchema.ID + ", u." + UserSchema.USERNAME + ", u." + UserSchema.DISPLAY_NAME +
             ", u." + UserSchema.EMAIL + ", u." + UserSchema.IMAGE_ID + ", u." + UserSchema.JOINED_AT +
+            ", u." + UserSchema.PREFERRED_LANGUAGE + " as buyer_preferred_language" +
             ", l." + ListingSchema.ID + ", l." + ListingSchema.TITLE + ", l." + ListingSchema.DESCRIPTION +
             ", l." + ListingSchema.PRICE + ", l." + ListingSchema.STATUS + " as listing_status, l." + ListingSchema.CONDITION +
             ", l." + ListingSchema.ACCEPTS_TRADE + ", l." + ListingSchema.CREATOR_ID + ", l." + ListingSchema.PRODUCT_ID +
             ", c." + UserSchema.ID + " as creator_id, c." + UserSchema.USERNAME + " as creator_username" +
             ", c." + UserSchema.DISPLAY_NAME + " as creator_display_name, c." + UserSchema.EMAIL + " as creator_email" +
             ", c." + UserSchema.IMAGE_ID + " as creator_image_id" + ", c." + UserSchema.JOINED_AT + " as creator_joined_at" +
+            ", c." + UserSchema.PREFERRED_LANGUAGE + " as creator_preferred_language" +
             ", p." + ProductSchema.ID + ", p." + ProductSchema.BRAND + ", p." + ProductSchema.MODEL +
             ", p." + ProductSchema.YEAR + ", p." + ProductSchema.SUBCATEGORY_ID +
             ", s." + SubcategorySchema.ID + ", s." + SubcategorySchema.NAME +
@@ -396,6 +402,7 @@ private static final String BASE_FROM = " FROM " + OfferSchema.TABLE_NAME + " o"
             ", ocl." + UserSchema.USERNAME + " as offered_creator_username" +
             ", ocl." + UserSchema.DISPLAY_NAME + " as offered_creator_display_name" +
             ", ocl." + UserSchema.EMAIL + " as offered_creator_email" +
+            ", ocl." + UserSchema.PREFERRED_LANGUAGE + " as offered_creator_preferred_language" +
             ", ocl." + UserSchema.IMAGE_ID + " as offered_creator_image_id" +
             ", ocl." + UserSchema.JOINED_AT + " as offered_creator_joined_at" +
             ", " + coverImageIdSubquery("l") + " as image_ids" +

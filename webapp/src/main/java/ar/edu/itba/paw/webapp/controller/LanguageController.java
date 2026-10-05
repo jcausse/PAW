@@ -1,9 +1,9 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -11,6 +11,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class LanguageController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LanguageController.class);
+
+    /*
+     * The '?lang=' param is consumed by LocaleChangeInterceptor, which delegates to the
+     * DatabaseLocaleResolver. For a logged-in user that resolver persists the choice, so this
+     * handler only needs to send the user back where they came from.
+     */
     @GetMapping("/language")
     public ModelAndView changeLanguage(HttpServletRequest request) {
         final var referer = request.getHeader("Referer");
