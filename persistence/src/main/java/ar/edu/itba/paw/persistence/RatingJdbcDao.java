@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Category;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.model.Condition;
 import ar.edu.itba.paw.model.Listing;
 import ar.edu.itba.paw.model.ListingStatus;
@@ -139,6 +140,7 @@ public class RatingJdbcDao implements RatingDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .joinedAt(rs.getTimestamp("creator_joined_at").toInstant())
+            .preferredLanguage(Language.fromCode(rs.getString("creator_preferred_language")))
             .build();
 
         User rated = User.builder()
@@ -152,6 +154,7 @@ public class RatingJdbcDao implements RatingDao {
                             .map(Integer::longValue)
                             .orElse(null))
             .joinedAt(rs.getTimestamp("rated_joined_at").toInstant())
+            .preferredLanguage(Language.fromCode(rs.getString("rated_preferred_language")))
             .build();
 
         Listing listing = buildListing(rs);
@@ -205,6 +208,7 @@ public class RatingJdbcDao implements RatingDao {
                     .password("<redacted>")
                     .imageId(creatorImageId)
                     .joinedAt(creatorJoinedAt)
+                    .preferredLanguage(Language.fromCode(rs.getString("listing_creator_preferred_language")))
                     .build();
         }
 
@@ -248,9 +252,11 @@ public class RatingJdbcDao implements RatingDao {
             ", c." + UserSchema.ID + " as creator_id, c." + UserSchema.USERNAME + " as creator_username" +
             ", c." + UserSchema.DISPLAY_NAME + " as creator_display_name, c." + UserSchema.EMAIL + " as creator_email" +
             ", c." + UserSchema.IMAGE_ID + " as creator_image_id, c." + UserSchema.JOINED_AT + " as creator_joined_at" +
+            ", c." + UserSchema.PREFERRED_LANGUAGE + " as creator_preferred_language" +
             ", rt." + UserSchema.ID + " as rated_id, rt." + UserSchema.USERNAME + " as rated_username" +
             ", rt." + UserSchema.DISPLAY_NAME + " as rated_display_name, rt." + UserSchema.EMAIL + " as rated_email" +
             ", rt." + UserSchema.IMAGE_ID + " as rated_image_id, rt." + UserSchema.JOINED_AT + " as rated_joined_at" +
+            ", rt." + UserSchema.PREFERRED_LANGUAGE + " as rated_preferred_language" +
             ", l." + ListingSchema.ID + " as listing_id" +
             ", l." + ListingSchema.TITLE + " as listing_title" +
             ", l." + ListingSchema.DESCRIPTION + " as listing_description" +
@@ -273,6 +279,7 @@ public class RatingJdbcDao implements RatingDao {
             ", lc." + UserSchema.ID + " as listing_creator_id" +
             ", lc." + UserSchema.USERNAME + " as listing_creator_username" +
             ", lc." + UserSchema.DISPLAY_NAME + " as listing_creator_display_name" +
+            ", lc." + UserSchema.PREFERRED_LANGUAGE + " as listing_creator_preferred_language" +
             ", lc." + UserSchema.EMAIL + " as listing_creator_email" +
             ", lc." + UserSchema.IMAGE_ID + " as listing_creator_image_id" +
             ", lc." + UserSchema.JOINED_AT + " as listing_creator_joined_at" +

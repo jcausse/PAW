@@ -3,6 +3,7 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Province;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.Language;
 import ar.edu.itba.paw.persistence.UserDao;
 import ar.edu.itba.paw.service.dto.ImageData;
 import ar.edu.itba.paw.service.dto.UserCreationDto;
@@ -177,7 +178,7 @@ public class UserServiceImplTest {
     public void testCreateNormalizesAndEncodes() {
         // Arrange
         when(passwordEncoder.encode(eq(USER_PASSWORD))).thenReturn(ENCODED_PASSWORD);
-        when(userDao.create(any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
+        when(userDao.create(any(), any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
 
         // Act: mixed case / spaces must be normalized; password encoded
         userService.create(new UserCreationDto("  Fake_User ", "  Fake User  ", "  FAKE@Example.com ", USER_PASSWORD, null));
@@ -189,7 +190,8 @@ public class UserServiceImplTest {
             eq(USER_EMAIL),                 // trimmed + lowercased
             eq(ENCODED_PASSWORD),           // encoded, never plain
             isNull(),                       // no image
-            any(Instant.class)
+            any(Instant.class),
+            any(Language.class)              // preferred language (current request locale)
         );
     }
 
@@ -200,14 +202,14 @@ public class UserServiceImplTest {
         final Image stored = Image.builder().id(IMAGE_ID).filename("pic.png").alt("alt").build();
         when(passwordEncoder.encode(any())).thenReturn(ENCODED_PASSWORD);
         when(imageService.create(any(), any(), any(), any())).thenReturn(stored);
-        when(userDao.create(any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
+        when(userDao.create(any(), any(), any(), any(), any(), any(), any())).thenReturn(buildFakeUser());
 
         // Act
         userService.create(new UserCreationDto(USER_USERNAME, USER_DISPLAY_NAME, USER_EMAIL, USER_PASSWORD, imageData));
 
         // Assert
         verify(imageService).create(eq("pic.png"), any(), eq("image/png"), any(byte[].class));
-        verify(userDao).create(any(), any(), any(), any(), eq(stored), any(Instant.class));
+        verify(userDao).create(any(), any(), any(), any(), eq(stored), any(Instant.class), any(Language.class));
     }
 
     /* ---------------------------------------------------------------------------------------------- */
