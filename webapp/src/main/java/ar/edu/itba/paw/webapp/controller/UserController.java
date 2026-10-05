@@ -23,8 +23,6 @@ import ar.edu.itba.paw.webapp.form.StringSelectOption;
 import ar.edu.itba.paw.webapp.form.SelectOption;
 import ar.edu.itba.paw.webapp.form.UserEditForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -37,13 +35,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,7 +56,6 @@ public class UserController {
     private final ProvinceService provinceService;
     private final AuthHelper authHelper;
     private final MessageSource messageSource;
-    private final LocaleResolver localeResolver;
 
     private static final int PROFILE_LISTINGS_PAGE_SIZE = 5;
     private static final int PROFILE_RATINGS_PAGE_SIZE = 5;
@@ -193,9 +188,7 @@ public class UserController {
     public ModelAndView editProfile(
             @CurrentUser User currentUser,
             @Valid @ModelAttribute("userEditForm") UserEditForm form,
-            BindingResult errors,
-            HttpServletRequest request,
-            HttpServletResponse response
+            BindingResult errors
     ) {
         if (errors.hasErrors()) {
             LOGGER.debug("Validation failed for user {} profile edit", currentUser.getId());
@@ -228,11 +221,10 @@ public class UserController {
         ));
         userService.updateLocation(currentUser, form.getProvinceId(), form.getLocationDetail());
 
+        // Persisting the preferred language updates the website locale too: the LocaleResolver
+        // reads it from the (refreshed) authenticated principal, so no cookie juggling is needed.
         final Language chosenLanguage = Language.fromCode(form.getPreferredLanguage());
-        User updatedUser = userService.updatePreferredLanguage(currentUser, chosenLanguage);
-
-        // Keep the website locale in sync with the chosen preferred language.
-        localeResolver.setLocale(request, response, new Locale(chosenLanguage.getCode()));
+        final User updatedUser = userService.updatePreferredLanguage(currentUser, chosenLanguage);
 
         authHelper.update(updatedUser);
 
