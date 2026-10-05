@@ -79,6 +79,8 @@ public class OfferServiceImplTest {
     private ListingService listingService;
     @Mock
     private MailingService mailingService;
+    @Mock
+    private RatingService ratingService;
 
     /* ---------------------------------------------------------------------------------------------- */
     /* Fixtures                                                                                        */
@@ -934,11 +936,12 @@ public class OfferServiceImplTest {
     @Test
     public void testRateByBuyerRatesSeller() {
         // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.ACCEPTED));
+        final Offer offer = buildFakeOffer(OfferStatus.ACCEPTED);
+        givenOffer(offer);
         when(offerDao.setSellerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(true);
 
         // Act
-        offerService.rate(OFFER_ID, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
+        offerService.rate(offer, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
 
         // Assert
         verify(userDao).incrementSellerRatingCounter(eq(SELLER_ID), eq(OfferRating.POSITIVE));
@@ -947,11 +950,12 @@ public class OfferServiceImplTest {
     @Test
     public void testRateBySellerRatesBuyer() {
         // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.ACCEPTED));
+        final Offer offer = buildFakeOffer(OfferStatus.ACCEPTED);
+        givenOffer(offer);
         when(offerDao.setBuyerRating(eq(OFFER_ID), eq(OfferRating.NEGATIVE))).thenReturn(true);
 
         // Act
-        offerService.rate(OFFER_ID, buildFakeUser(SELLER_ID), OfferRating.NEGATIVE);
+        offerService.rate(offer, buildFakeUser(SELLER_ID), OfferRating.NEGATIVE);
 
         // Assert
         verify(userDao).incrementBuyerRatingCounter(eq(BUYER_ID), eq(OfferRating.NEGATIVE));
@@ -960,38 +964,29 @@ public class OfferServiceImplTest {
     @Test(expected = BadParameterException.class)
     public void testRateTwiceThrows() {
         // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.ACCEPTED));
+        final Offer offer = buildFakeOffer(OfferStatus.ACCEPTED);
         when(offerDao.setSellerRating(eq(OFFER_ID), eq(OfferRating.POSITIVE))).thenReturn(false);
 
         // Act
-        offerService.rate(OFFER_ID, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
+        offerService.rate(offer, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
     }
 
     @Test(expected = BadParameterException.class)
     public void testRateNonAcceptedOfferThrows() {
         // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.PENDING_PAYMENT));
+        final Offer offer = buildFakeOffer(OfferStatus.PENDING_PAYMENT);
 
         // Act
-        offerService.rate(OFFER_ID, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
+        offerService.rate(offer, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
     }
 
     @Test(expected = ForbiddenException.class)
     public void testRateByOutsiderThrows() {
         // Arrange
-        givenOffer(buildFakeOffer(OfferStatus.ACCEPTED));
+        final Offer offer = buildFakeOffer(OfferStatus.ACCEPTED);
 
         // Act
-        offerService.rate(OFFER_ID, buildFakeUser(OUTSIDER_ID), OfferRating.POSITIVE);
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void testRateNonExistingOfferThrows() {
-        // Arrange
-        when(offerDao.getById(eq(NON_EXISTING_ID))).thenReturn(Optional.empty());
-
-        // Act
-        offerService.rate(NON_EXISTING_ID, buildFakeUser(BUYER_ID), OfferRating.POSITIVE);
+        offerService.rate(offer, buildFakeUser(OUTSIDER_ID), OfferRating.POSITIVE);
     }
 
     /* ---------------------------------------------------------------------------------------------- */
