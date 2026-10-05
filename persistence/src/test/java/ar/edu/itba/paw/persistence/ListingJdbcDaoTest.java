@@ -479,7 +479,7 @@ public class ListingJdbcDaoTest {
         // Act
         final Listing created = listingDao.create(
             "Brand new listing", new Price(new BigDecimal("999.99")), buildFakeUser(SELLER_ID),
-            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, "Still sealed", List.of()
+            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, false, "Still sealed", List.of()
         );
 
         // Assert
@@ -495,7 +495,7 @@ public class ListingJdbcDaoTest {
         // Act
         listingDao.create(
             "Brand new listing", new Price(new BigDecimal("999.99")), buildFakeUser(SELLER_ID),
-            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, "Still sealed", List.of()
+            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, false, "Still sealed", List.of()
         );
 
         // Assert
@@ -512,7 +512,7 @@ public class ListingJdbcDaoTest {
         // Act
         final Listing created = listingDao.create(
             "Brand new listing", new Price(new BigDecimal("999.99")), buildFakeUser(SELLER_ID),
-            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, "Still sealed",
+            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, false, "Still sealed",
             List.of(BACK_IMAGE_ID, FRONT_IMAGE_ID)
         );
 
@@ -526,7 +526,7 @@ public class ListingJdbcDaoTest {
         // Act
         final Listing created = listingDao.create(
             "Brand new listing", new Price(new BigDecimal("999.99")), buildFakeUser(SELLER_ID),
-            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, "Still sealed", null
+            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, false, "Still sealed", null
         );
 
         // Assert
@@ -547,7 +547,7 @@ public class ListingJdbcDaoTest {
         final Listing updated = listingDao.update(
             MACBOOK_LISTING_ID, "MacBook Pro M3", new Price(new BigDecimal("1400.00")),
             buildFakeProduct(PHONE_PRODUCT_ID, PHONES_SUBCATEGORY_ID, PHONES_CATEGORY_ID),
-            Condition.FAIR, false, "Some scratches"
+            Condition.FAIR, false, false, "Some scratches"
         );
 
         // Assert
@@ -564,7 +564,7 @@ public class ListingJdbcDaoTest {
         // Act
         final Listing updated = listingDao.update(
             MACBOOK_LISTING_ID, "MacBook Pro M3", new Price(new BigDecimal("1400.00")),
-            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.FAIR, false, "Some scratches"
+            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.FAIR, false, false, "Some scratches"
         );
 
         // Assert
@@ -576,7 +576,7 @@ public class ListingJdbcDaoTest {
         // Act
         listingDao.update(
             MACBOOK_LISTING_ID, "MacBook Pro M3", new Price(new BigDecimal("1400.00")),
-            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.FAIR, false, "Some scratches"
+            buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.FAIR, false, false, "Some scratches"
         );
 
         // Assert
