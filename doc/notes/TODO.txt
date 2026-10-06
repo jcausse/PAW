@@ -13,3 +13,7 @@ MINOR CHANGES
 [ ] verificar broken links en mail ctas, algunas url cambiaron
 
 [ ] redirect roto al dar de baja un listing desde admin panel, funciona pero tira 404
+
+[ ] aviso de other/better offers le sale al comprador también
+
+[ ] bad request con formato numérico en checkout
