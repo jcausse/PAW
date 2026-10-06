@@ -7,3 +7,7 @@ MINOR CHANGES
 [ ] hacer que los forms tengan un .todto() para evitar instanciar todo el tiempo los dtos para pasar a los servicios
 
 [ ] la validación de imágenes @ValidFile en el listing create pierde el param productId en el redirect
+
+[ ] checkboxes en new listing form tienen color default, usar accent color o hacer un form:checkbox
+
+[ ] verificar broken links en mail ctas, algunas url cambiaron
