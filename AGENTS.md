@@ -6,9 +6,15 @@ This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a m
 
 The project is called **Swappr** (it is the official name). That name should be used in emailing and other site-id related things. Read `README.md` on the project's root to know more about the project.
 
-## Important
+## Important: Secrets & Production Deployment Rules
 
-**Never**, ever commit nor read `.script/deploy_secrets.properties` — it contains sensible secrets and is gitignored. You do not have read/write permission on that file under any circumstances.
+- **NEVER TOUCH, MOVE, EDIT, OR DELETE SECRETS**:
+  - **Never**, ever touch, read, write, commit, delete, or move `.script/deploy_secrets.properties`, `secrets.tar.gz`, or any other secret/gitignored files or archives anywhere.
+  - **Secrets stay where they are, ALWAYS.** You do not have permission to modify, move, inspect, or delete them under any circumstances.
+- **NEVER DEPLOY TO PRODUCTION**:
+  - **Never**, under any circumstances, attempt to run, dry-run, simulate, or trigger a deployment on your own (e.g. `make deploy`, `make prod-deploy`, `python3 .script/deploy.py`, etc.).
+  - Deployments are strictly manual and handled exclusively by the human developer.
+
 
 ## Architecture
 
@@ -191,8 +197,9 @@ JOIN categories c ON s.category_id = c.category_id;
   ```bash
   cp webapp/src/main/resources/env/dev/app.properties webapp/target/classes/app.properties
   ```
-- Deploy: `make deploy` (runs `.script/deploy.py`) (see associated skill).
+- **Deploy**: **NEVER RUN DEPLOYMENTS AS AN AGENT**. Production deployments (`make prod-deploy`, `.script/deploy.py`) are strictly manual and must only be executed by the human developer.
 - Scripts live in `.script/` directory.
+
 
 ## Attachment Output Format
 
