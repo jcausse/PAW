@@ -11,3 +11,5 @@ MINOR CHANGES
 [ ] checkboxes en new listing form tienen color default, usar accent color o hacer un form:checkbox
 
 [ ] verificar broken links en mail ctas, algunas url cambiaron
+
+[ ] redirect roto al dar de baja un listing desde admin panel, funciona pero tira 404

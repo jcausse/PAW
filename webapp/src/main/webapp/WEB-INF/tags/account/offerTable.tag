@@ -67,17 +67,16 @@
                         <c:choose>
                             <c:when test="${offer.status.name() == 'ACCEPTED' and not myRating.isPresent()}">
                                 <div class="flex flex-row gap-1 justify-start">
-                                    <c:url value="/account/rate/${offer.id}" var="rateUrl"/>
                                     <c:choose>
                                         <c:when test="${user == 'buyer'}">
-                                            <c:url value="${rateUrl}?role=SELLER&rating=POSITIVE" var="positiveUrl"/>
-                                            <c:url value="${rateUrl}?role=SELLER&rating=NEUTRAL" var="neutralUrl"/>
-                                            <c:url value="${rateUrl}?role=SELLER&rating=NEGATIVE" var="negativeUrl"/>
+                                            <c:url value="/account/rate/${offer.id}?role=SELLER&rating=POSITIVE" var="positiveUrl"/>
+                                            <c:url value="/account/rate/${offer.id}?role=SELLER&rating=NEUTRAL" var="neutralUrl"/>
+                                            <c:url value="/account/rate/${offer.id}?role=SELLER&rating=NEGATIVE" var="negativeUrl"/>
                                         </c:when>
                                         <c:otherwise>
-                                            <c:url value="${rateUrl}?role=BUYER&rating=POSITIVE" var="positiveUrl"/>
-                                            <c:url value="${rateUrl}?role=BUYER&rating=NEUTRAL" var="neutralUrl"/>
-                                            <c:url value="${rateUrl}?role=BUYER&rating=NEGATIVE" var="negativeUrl"/>
+                                            <c:url value="/account/rate/${offer.id}?role=BUYER&rating=POSITIVE" var="positiveUrl"/>
+                                            <c:url value="/account/rate/${offer.id}?role=BUYER&rating=NEUTRAL" var="neutralUrl"/>
+                                            <c:url value="/account/rate/${offer.id}?role=BUYER&rating=NEGATIVE" var="negativeUrl"/>
                                         </c:otherwise>
                                     </c:choose>
                                     <paw:linkButton href="${positiveUrl}" variant="outline" size="sm" icon="arrow-up" />
