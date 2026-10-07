@@ -132,6 +132,12 @@
       <groupId>org.logback-extensions</groupId>
       <artifactId>logback-ext-spring</artifactId>
     </dependency>
+
+    <!-- Hibernate ORM -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
