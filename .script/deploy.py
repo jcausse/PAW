@@ -251,6 +251,29 @@ def remove_war_file(secrets: Dict[str, str]) -> None:
         print("Error: sshpass or ssh command not found. Please install sshpass and OpenSSH client.")
         raise
 
+def show_warning():
+    SEARCH_STRING = "REVIEW BEFORE DEPLOY"
+    GREP_COMMAND = [
+        "grep", "-rn", SEARCH_STRING,
+        "--exclude-dir=.script",
+        "--exclude-dir=.agents",
+        "--exclude-dir=doc",
+        "--exclude-dir=.idea",
+        "."
+    ]
+    try:
+        result = run(GREP_COMMAND, capture_output=True, text=True, check=True)
+        print("=== WARNING ===")
+        print("Review this before deploying:")
+        print(result.stdout)
+    except CalledProcessError as e:
+        if e.returncode != 1:           # 1 is returned when no matches are found, but that is ok, we ignore that case
+            print(f"An error occurred while running grep: {e.stderr}")
+
+def should_deploy():
+    s = input("Ready to deploy? [y/yes to confirm] > ")
+    return s.lower() in ("y", "yes")
+
 ###########################################################################################################
 
 def full_deploy():
@@ -258,6 +281,11 @@ def full_deploy():
     Deploy the project to the server using Maven and SSH.
     """
     try:
+        show_warning()
+        was_cancelled = not should_deploy()
+        if was_cancelled:
+            print("Deploy cancelled.")
+            return
         clean()
         build()
         secrets = load_secrets(SECRETS_FILENAME)
@@ -268,7 +296,8 @@ def full_deploy():
     except Exception:
         print("=== DEPLOYMENT FAILED ===")
     finally:
-        clean()
+        if not was_cancelled:
+            clean()
 
 def backup_only():
     """

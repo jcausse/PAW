@@ -30,10 +30,10 @@ test:
 # PRODUCTION TARGETS
 
 prod-deploy:
-	$(PYTHON) ./.script/deploy.py
+	@$(PYTHON) ./.script/deploy.py
 
 prod-db-backup:
-	$(PYTHON) ./.script/deploy.py --db-backup-only
+	@$(PYTHON) ./.script/deploy.py --db-backup-only
 
 # MISCELLANEOUS
 

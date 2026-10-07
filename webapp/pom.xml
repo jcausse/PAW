@@ -230,7 +230,6 @@
             <includeOnlyProperty>^git.build.version$</includeOnlyProperty>
             <includeOnlyProperty>^git.branch$</includeOnlyProperty>
             <includeOnlyProperty>^git.tags$</includeOnlyProperty>
-            <includeOnlyProperty>^git.dirty$</includeOnlyProperty>
             <includeOnlyProperty>^git.total.commit.count$</includeOnlyProperty>
           </includeOnlyProperties>
         </configuration>

@@ -85,7 +85,6 @@ Information available:
 - Git branch
 - Git commit hash
 - Git tags
-- Git dirty flag (whether there were uncommitted changes locally when building)
 - Total repository commits at build time
 
 ### Example
@@ -96,7 +95,6 @@ Build Version: 1.0-SNAPSHOT
 Branch: main
 Commit: 56103e8a22339b653df75b3aae8c35f5588769a7
 Tags: Sprint-3
-Dirty: false
 Total Commits: 843
 ```
 

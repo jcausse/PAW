@@ -29,9 +29,6 @@ public class AppInfoController {
     @Value("${git.build.version:unknown}")
     private String buildVersion;
 
-    @Value("${git.dirty:unknown}")
-    private String dirty;
-
     @Value("${git.total.commit.count:unknown}")
     private String totalCommitCount;
 
@@ -45,7 +42,6 @@ public class AppInfoController {
                 "Branch: " + branch,
                 "Commit: " + commitId,
                 "Tags: " + tags,
-                "Dirty: " + dirty,
                 "Total Commits: " + totalCommitCount
         );
     }

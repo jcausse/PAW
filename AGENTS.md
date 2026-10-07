@@ -14,6 +14,11 @@ The project is called **Swappr** (it is the official name). That name should be 
 - **NEVER DEPLOY TO PRODUCTION**:
   - **Never**, under any circumstances, attempt to run, dry-run, simulate, or trigger a deployment on your own (e.g. `make deploy`, `make prod-deploy`, `python3 .script/deploy.py`, etc.).
   - Deployments are strictly manual and handled exclusively by the human developer.
+- Anything in the code that needs to be commented out before deploy **MUST** be signaled with this EXACT string placed in a comment that clearly shows which line needs to be removed:
+  ```text
+  IMPORTANT: REVIEW BEFORE DEPLOY. DO NOT CHANGE THIS COMMENT AS IT IS SEARCHED BY GREP
+  ```
+  This is crucial, and is designed and required by human developers not to forget about those lines.
 
 
 ## Architecture
