@@ -9,8 +9,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -33,10 +35,12 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 @Configuration
 @EnableWebMvc
@@ -135,7 +139,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     /* --------------------------------------------------------------- */
-    /* DATABASE (DataSource, Flyway) */
+    /* DATABASE (DataSource, Flyway, JPA / Hibernate ORM) */
     /* --------------------------------------------------------------- */
 
     @Bean
@@ -157,13 +161,36 @@ public class WebConfig implements WebMvcConfigurer {
                 .load();
     }
 
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        final var factoryBean = new LocalContainerEntityManagerFactoryBean();
+        factoryBean.setPackagesToScan("ar.edu.itba.model");                 // Set Model package to be scanned by JPA
+        factoryBean.setDataSource(dataSource());                            // Set JPA DataSource configured previously
+        factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());   // Set Hibernate ORM as JPA vendor
+        factoryBean.setJpaProperties(createHibernateProperties());          // Set Hibernate Properties
+        return factoryBean;
+    }
+
+    private static Properties createHibernateProperties() {
+        final Properties properties = new Properties();
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL92");
+
+        /* IMPORTANT: REVIEW BEFORE DEPLOY. DO NOT CHANGE THIS COMMENT AS IT IS SEARCHED BY GREP */
+        properties.setProperty("hibernate.show_sql", "true");               // Remove this before deploy
+        /* IMPORTANT: REVIEW BEFORE DEPLOY. DO NOT CHANGE THIS COMMENT AS IT IS SEARCHED BY GREP */
+        properties.setProperty("format_sql", "true");                       // Remove this before deploy
+
+        return properties;
+    }
+
     /* --------------------------------------------------------------- */
     /* TRANSACTION MANAGEMENT (@Transactional annotations) */
     /* --------------------------------------------------------------- */
 
     @Bean
-    public PlatformTransactionManager transactionManager(final DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    public PlatformTransactionManager transactionManager(final EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
     }
 
     /* --------------------------------------------------------------- */
