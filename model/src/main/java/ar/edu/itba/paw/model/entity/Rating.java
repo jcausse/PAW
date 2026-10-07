@@ -1,0 +1,46 @@
+package ar.edu.itba.paw.model.entity;
+
+import ar.edu.itba.paw.model.OfferRating;
+import ar.edu.itba.paw.model.RatingRole;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.*;
+import java.time.Instant;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "ratings")
+public class Rating {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "rating_id", nullable = false)
+    private Integer id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private ar.edu.itba.paw.model.entity.User creator;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "rated_id", nullable = false)
+    private ar.edu.itba.paw.model.entity.User rated;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "offer_id", nullable = false)
+    private Offer offer;
+
+    @Column(name = "role", nullable = false, length = 10)
+    private RatingRole role;
+
+    @Column(name = "type", nullable = false, length = 10)
+    private OfferRating type;
+
+    @Column(name = "review_text", nullable = false)
+    private String reviewText;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+
+}
