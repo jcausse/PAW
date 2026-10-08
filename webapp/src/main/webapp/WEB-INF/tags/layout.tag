@@ -1,5 +1,6 @@
 <%@ tag language="java" pageEncoding="UTF-8" %>
 <%@ attribute name="titleKey" required="true" %>
+<%@ attribute name="titleParams" required="false" %>
 <%@ attribute name="variant" required="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="paw" tagdir="/WEB-INF/tags" %>
@@ -15,7 +16,7 @@
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale.language}">
 
-<paw:head titleKey="${titleKey}" />
+<paw:head titleKey="${titleKey}" titleParams="${titleParams}" />
 
 <body class="min-h-screen bg-neutral-50">
     <paw:navbar/>

@@ -24,7 +24,7 @@
 <spring:message code="discovery.sort.label" var="sortLabel"/>
 <spring:message code="discovery.filter.all" var="allLabel"/>
 
-<paw:layout titleKey="discovery.title">
+<paw:layout variant="wide" titleKey="discovery.title">
     <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm" class="flex flex-col gap-6">
         <div class="flex gap-2">
             <paw:formInput variant="outline" path="query" placeholder="${queryPlaceholder}" classname="flex-1" inputClassname="min-h-8.5" />
