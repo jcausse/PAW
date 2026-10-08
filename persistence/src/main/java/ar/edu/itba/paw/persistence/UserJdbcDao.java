@@ -84,7 +84,7 @@ public class UserJdbcDao implements UserDao {
         values.put(UserSchema.BUYER_POSITIVE_RATINGS, 0);
         values.put(UserSchema.BUYER_NEUTRAL_RATINGS, 0);
         values.put(UserSchema.BUYER_NEGATIVE_RATINGS, 0);
-        values.put(UserSchema.PREFERRED_LANGUAGE, preferredLanguage.getCode());
+        values.put(UserSchema.PREFERRED_LANGUAGE, preferredLanguage.name());
 
         final Long key = jdbcInsert.executeAndReturnKey(values).longValue();
 
@@ -183,7 +183,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<User> updatePreferredLanguage(Long userId, Language preferredLanguage) {
-        final int rowsAffected = jdbcTemplate.update(Queries.UPDATE_PREFERRED_LANGUAGE, preferredLanguage.getCode(), userId);
+        final int rowsAffected = jdbcTemplate.update(Queries.UPDATE_PREFERRED_LANGUAGE, preferredLanguage.name(), userId);
         return rowsAffected == 0 ? Optional.empty() : getById(userId);
     }
 
