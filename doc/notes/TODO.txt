@@ -12,7 +12,7 @@ MINOR CHANGES
 
 [x] verificar broken links en mail ctas, algunas url cambiaron
 
-[x] redirect roto al dar de baja un listing desde admin panel, funciona pero tira 404 (era doble context path; de paso se escapo currentQuery/status en el redirect contra XSS)
+[x] redirect roto al dar de baja un listing desde admin panel, funciona pero tira 404
 
 [x] aviso de other/better offers le sale al comprador también
 
