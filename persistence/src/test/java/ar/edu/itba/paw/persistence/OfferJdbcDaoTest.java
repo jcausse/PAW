@@ -496,7 +496,7 @@ public class OfferJdbcDaoTest {
         Assert.assertEquals(1, countOffersWhere("offer_id = " + offer.getId()
             + " AND listing_id = " + GALAXY_LISTING_ID
             + " AND buyer_id = " + BUYER_ID
-            + " AND status = 'pending'"));
+            + " AND status = 'PENDING'"));
     }
 
     @Test
@@ -523,7 +523,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertTrue(updated);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'rejected'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'REJECTED'"));
     }
 
     @Test
@@ -546,7 +546,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertTrue(withdrawn);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'withdrawn'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'WITHDRAWN'"));
     }
 
     @Test
@@ -556,7 +556,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertFalse(withdrawn);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'pending'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'PENDING'"));
     }
 
     @Test
@@ -566,7 +566,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertFalse(withdrawn);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + REJECTED_OFFER_ID + " AND status = 'rejected'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + REJECTED_OFFER_ID + " AND status = 'REJECTED'"));
     }
 
     @Test
@@ -576,7 +576,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertFalse(withdrawn);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + TRADE_OFFER_ID + " AND status = 'pending_payment'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + TRADE_OFFER_ID + " AND status = 'PENDING_PAYMENT'"));
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -598,8 +598,8 @@ public class OfferJdbcDaoTest {
         offerDao.rejectPendingOffers(MACBOOK_LISTING_ID, FULL_PRICE_OFFER_ID);
 
         // Assert
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'rejected'"));
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + FULL_PRICE_OFFER_ID + " AND status = 'pending'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + LOW_OFFER_ID + " AND status = 'REJECTED'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + FULL_PRICE_OFFER_ID + " AND status = 'PENDING'"));
     }
 
     @Test
@@ -609,7 +609,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertEquals(List.of(LOW_OFFER_ID, FULL_PRICE_OFFER_ID), sortedIdsOf(rejected));
-        Assert.assertEquals(0, countOffersWhere("listing_id = " + MACBOOK_LISTING_ID + " AND status = 'pending'"));
+        Assert.assertEquals(0, countOffersWhere("listing_id = " + MACBOOK_LISTING_ID + " AND status = 'PENDING'"));
     }
 
     @Test
@@ -619,7 +619,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertEquals(List.of(GAMING_OFFER_ID), idsOf(rejected));
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + TRADE_OFFER_ID + " AND status = 'pending_payment'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + TRADE_OFFER_ID + " AND status = 'PENDING_PAYMENT'"));
     }
 
     @Test
@@ -628,7 +628,7 @@ public class OfferJdbcDaoTest {
         offerDao.rejectPendingOffers(MACBOOK_LISTING_ID, null);
 
         // Assert
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + GAMING_OFFER_ID + " AND status = 'pending'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + GAMING_OFFER_ID + " AND status = 'PENDING'"));
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -722,7 +722,7 @@ public class OfferJdbcDaoTest {
         // accepted_at is not mapped into Offer, so it is checked directly on the table
         Assert.assertTrue(updated);
         Assert.assertEquals(1, countOffersWhere("offer_id = " + TRADE_OFFER_ID
-            + " AND status = 'accepted' AND accepted_at IS NOT NULL"));
+            + " AND status = 'ACCEPTED' AND accepted_at IS NOT NULL"));
     }
 
     @Test
@@ -756,7 +756,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertFalse(updated);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + RATED_OFFER_ID + " AND seller_rating = 'neutral'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + RATED_OFFER_ID + " AND seller_rating = 'NEUTRAL'"));
     }
 
     @Test
@@ -777,7 +777,7 @@ public class OfferJdbcDaoTest {
 
         // Assert
         Assert.assertFalse(updated);
-        Assert.assertEquals(1, countOffersWhere("offer_id = " + ACCEPTED_OFFER_ID + " AND buyer_rating = 'positive'"));
+        Assert.assertEquals(1, countOffersWhere("offer_id = " + ACCEPTED_OFFER_ID + " AND buyer_rating = 'POSITIVE'"));
     }
 
     @Test

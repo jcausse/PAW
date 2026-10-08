@@ -19,7 +19,7 @@ VALUES (1, 2, 1),
        (1, 1, 0);
 
 INSERT INTO offers (offer_id, listing_id, buyer_id, amount, is_full_price, status, message, created_at)
-VALUES (1, 1, 2, 1400.00, FALSE, 'pending', NULL, TIMESTAMP '2026-01-01 10:00:00+00:00'),
-       (2, 1, 2, 1500.00, TRUE, 'pending', NULL, TIMESTAMP '2026-01-02 10:00:00+00:00'),
-       (3, 4, 1, 1900.00, FALSE, 'pending', NULL, TIMESTAMP '2026-01-05 10:00:00+00:00'),
-       (4, 4, 1, 1000.00, FALSE, 'rejected', NULL, TIMESTAMP '2026-01-06 10:00:00+00:00');
+VALUES (1, 1, 2, 1400.00, FALSE, 'PENDING', NULL, TIMESTAMP '2026-01-01 10:00:00+00:00'),
+       (2, 1, 2, 1500.00, TRUE, 'PENDING', NULL, TIMESTAMP '2026-01-02 10:00:00+00:00'),
+       (3, 4, 1, 1900.00, FALSE, 'PENDING', NULL, TIMESTAMP '2026-01-05 10:00:00+00:00'),
+       (4, 4, 1, 1000.00, FALSE, 'REJECTED', NULL, TIMESTAMP '2026-01-06 10:00:00+00:00');

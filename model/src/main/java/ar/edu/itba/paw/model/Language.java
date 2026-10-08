@@ -18,7 +18,7 @@ public enum Language {
 
     public static Language fromCode(final String code) {
         return Arrays.stream(Language.values())
-                .filter(l -> l.getCode().equalsIgnoreCase(code))
+                .filter(l -> l.getCode().equalsIgnoreCase(code) || l.name().equalsIgnoreCase(code))
                 .findFirst()
                 .orElse(getDefault());
     }

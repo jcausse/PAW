@@ -195,7 +195,7 @@ public class UserJdbcDaoTest {
 
         Assert.assertEquals(Language.SPANISH, created.getPreferredLanguage());
         Assert.assertEquals(1, countUsersWhere(
-            "user_id = " + created.getId() + " AND preferred_language = 'es'"));
+            "user_id = " + created.getId() + " AND preferred_language = 'SPANISH'"));
     }
 
     @Test

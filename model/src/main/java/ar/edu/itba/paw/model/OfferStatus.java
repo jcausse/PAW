@@ -8,18 +8,18 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public enum OfferStatus {
-    PENDING("pending"),
-    PENDING_PAYMENT("pending_payment"),
-    ACCEPTED("accepted"),
-    REJECTED("rejected"),
-    WITHDRAWN("withdrawn");
+    PENDING("PENDING"),
+    PENDING_PAYMENT("PENDING_PAYMENT"),
+    ACCEPTED("ACCEPTED"),
+    REJECTED("REJECTED"),
+    WITHDRAWN("WITHDRAWN");
 
     @Getter
     private final String status;
 
     public static Optional<OfferStatus> fromString(final String status) {
         return Arrays.stream(OfferStatus.values())
-                .filter(s -> s.status.equalsIgnoreCase(status))
+                .filter(s -> s.status.equalsIgnoreCase(status) || s.name().equalsIgnoreCase(status))
                 .findFirst();
     }
 }
