@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -14,10 +13,7 @@
 <spring:message code="account.myOffers.pendingPaymentTitle" var="pendingPaymentTitleMsg"/>
 <spring:message code="account.myOffers.resolvedTitle" var="resolvedTitleMsg"/>
 
-<html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="account.myOffers.title"/>
-
-<account:layout title="${titleMsg}" subtitle="${subtitleMsg}">
+<account:layout titleKey="account.myOffers.title" title="${titleMsg}" subtitle="${subtitleMsg}">
     <form:form modelAttribute="filterForm" action="${filterAction}" method="get" id="filterForm">
         <paw:card classname="p-2! mb-4">
             <paw:formButtonToggle path="statusGroup" items="${statusGroupOptions}" selectedOption="${filterForm.getStatusGroup()}" />
@@ -60,4 +56,3 @@
         </c:when>
     </c:choose>
 </account:layout>
-</html>

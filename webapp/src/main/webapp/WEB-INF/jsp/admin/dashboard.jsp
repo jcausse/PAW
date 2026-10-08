@@ -16,10 +16,7 @@
 <c:url value="/admin/users/suspend" var="suspendUserUrl"/>
 <c:url value="/admin/users/grant-admin" var="grantAdminUrl"/>
 
-<html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="admin.dashboard.title"/>
-
-<admin:layout title="${dashboardTitle}" subtitle="${dashboardSubtitle}">
+<admin:layout titleKey="admin.dashboard.title" title="${dashboardTitle}" subtitle="${dashboardSubtitle}">
     <div class="flex flex-col gap-6">
         <%-- Quick Navigation Cards --%>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -124,4 +121,3 @@
         </div>
     </div>
 </admin:layout>
-</html>
