@@ -11,10 +11,7 @@
 <c:url value="/admin/listings" var="listingsBaseUrl"/>
 <c:url value="/admin/listings/takedown" var="takedownListingUrl"/>
 
-<html lang="${pageContext.response.locale.language}">
-<paw:head titleKey="admin.listings.title"/>
-
-<admin:layout title="${listingsTitle}" subtitle="${listingsSubtitle}">
+<admin:layout titleKey="admin.listings.title" title="${listingsTitle}" subtitle="${listingsSubtitle}">
     <div class="flex flex-col gap-6">
         <%-- Quick Takedown by ID Form --%>
         <spring:message code="admin.listings.takedown.title" var="takedownCardTitle"/>
@@ -169,4 +166,3 @@
         </c:choose>
     </div>
 </admin:layout>
-</html>
