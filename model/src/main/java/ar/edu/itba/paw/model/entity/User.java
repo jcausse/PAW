@@ -1,11 +1,15 @@
 package ar.edu.itba.paw.model.entity;
 
 import ar.edu.itba.paw.model.Language;
+import ar.edu.itba.paw.model.Role;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,7 +19,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "username", nullable = false, length = 100)
     private String username;
@@ -64,11 +68,62 @@ public class User {
     @Column(name = "location_detail", length = 100)
     private String locationDetail;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "preferred_language", nullable = false, length = 8)
     private Language preferredLanguage;
 
     @Column(name = "suspended_at")
     private Instant suspendedAt;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role_name")
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();
 
+    //-------------------------------------------------------------------------------------------------
+
+    public Optional<Image> getImage() {
+        return Optional.ofNullable(image);
+    }
+
+    public Optional<Instant> getEmailVerifiedAt() {
+        return Optional.ofNullable(emailVerifiedAt);
+    }
+
+    public boolean isVerified() {
+        return emailVerifiedAt != null;
+    }
+
+    public Optional<Instant> getSuspendedAt() {
+        return Optional.ofNullable(suspendedAt);
+    }
+
+    public boolean isSuspended() {
+        return suspendedAt != null;
+    }
+
+    public Optional<Province> getProvince() {
+        return Optional.ofNullable(province);
+    }
+
+    public Optional<String> getLocationDetail() {
+        return Optional.ofNullable(locationDetail);
+    }
+
+    public int getSellerTotalRatings() {
+        return sellerPositiveRatings + sellerNeutralRatings + sellerNegativeRatings;
+    }
+
+    public int getBuyerTotalRatings() {
+        return buyerPositiveRatings + buyerNeutralRatings + buyerNegativeRatings;
+    }
+
+    public int getSellerRatingBalance() {
+        return sellerPositiveRatings - sellerNegativeRatings;
+    }
+
+    public int getBuyerRatingBalance() {
+        return buyerPositiveRatings - buyerNegativeRatings;
+    }
 }

@@ -7,8 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +18,7 @@ public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "listing_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -28,18 +28,20 @@ public class Listing {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
-    private ar.edu.itba.paw.model.entity.User creator;
+    private User creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private ar.edu.itba.paw.model.entity.Product product;
+    private Product product;
 
     @Column(name = "price", nullable = false, precision = 100, scale = 2)
     private BigDecimal price;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private ListingStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "condition", nullable = false, length = 20)
     private Condition condition;
 
@@ -49,8 +51,12 @@ public class Listing {
     @Column(name = "accepts_shipping", nullable = false)
     private Boolean acceptsShipping;
 
-    @OneToMany(mappedBy = "listing")
-    private Set<ListingImage> listingImages = new LinkedHashSet<>();
-
-
+    @OneToMany
+    @JoinTable(
+        name = "listing_images",
+        joinColumns = @JoinColumn(name = "listing_id"),
+        inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    @OrderColumn(name = "display_order")
+    private List<Image> images = new ArrayList<>();
 }

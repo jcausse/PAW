@@ -1,18 +1,20 @@
 package ar.edu.itba.paw.model.entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
-@Table(name = "images")
-public class Image {
+@Table(name = "files")
+public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_id", nullable = false)
+    @Column(name = "file_id", nullable = false)
     private Long id;
 
     @Column(name = "filename", nullable = false)

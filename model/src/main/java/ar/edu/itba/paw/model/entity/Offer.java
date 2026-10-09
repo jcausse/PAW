@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.model.entity;
 
-import ar.edu.itba.paw.model.File;
 import ar.edu.itba.paw.model.OfferRating;
 import ar.edu.itba.paw.model.OfferStatus;
 import lombok.Getter;
@@ -18,7 +17,7 @@ public class Offer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "offer_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "listing_id", nullable = false)
@@ -26,7 +25,7 @@ public class Offer {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "buyer_id", nullable = false)
-    private ar.edu.itba.paw.model.entity.User buyer;
+    private User buyer;
 
     @Column(name = "amount", nullable = false, precision = 100, scale = 2)
     private BigDecimal amount;
@@ -34,6 +33,7 @@ public class Offer {
     @Column(name = "is_full_price", nullable = false)
     private Boolean isFullPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private OfferStatus status;
 
@@ -61,11 +61,11 @@ public class Offer {
     @Column(name = "accepted_at")
     private Instant acceptedAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "buyer_rating", length = 10)
     private OfferRating buyerRating;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "seller_rating", length = 10)
     private OfferRating sellerRating;
-
-
 }

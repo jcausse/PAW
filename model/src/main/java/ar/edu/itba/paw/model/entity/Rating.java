@@ -16,23 +16,25 @@ public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rating_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
-    private ar.edu.itba.paw.model.entity.User creator;
+    private User creator;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rated_id", nullable = false)
-    private ar.edu.itba.paw.model.entity.User rated;
+    private User rated;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "offer_id", nullable = false)
     private Offer offer;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 10)
     private RatingRole role;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 10)
     private OfferRating type;
 
@@ -41,6 +43,4 @@ public class Rating {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
-
 }

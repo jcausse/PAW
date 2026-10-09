@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -13,18 +13,16 @@ import java.time.OffsetDateTime;
 public class OneTimePassword {
     @Id
     @Column(name = "requester_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "requester_id", nullable = false)
-    private ar.edu.itba.paw.model.entity.User users;
+    private User user;
 
     @Column(name = "otp_value", nullable = false)
     private String otpValue;
 
     @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
-
-
+    private Instant createdAt;
 }
