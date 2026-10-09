@@ -2,17 +2,35 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
-@RequiredArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+import javax.persistence.*;
+
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @ToString
-public final class Product {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
+@Table(name = "products")
+public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id", nullable = false)
     @EqualsAndHashCode.Include
-    private final @NonNull Long id;
-    private final @NonNull String brand;
-    private final @NonNull String model;
-    private final @NonNull Integer year;
-    private final @NonNull Subcategory subcategory;
+    private Long id;
+
+    @Column(name = "brand", nullable = false, length = 100)
+    private String brand;
+
+    @Column(name = "model", nullable = false, length = 100)
+    private String model;
+
+    @Column(name = "year", nullable = false)
+    private Integer year;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subcategory_id")
+    private Subcategory subcategory;
 }

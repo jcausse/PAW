@@ -2,14 +2,25 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
-@RequiredArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+import javax.persistence.*;
+
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @ToString
-public final class Province {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
+@Table(name = "provinces")
+public class Province {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "province_id", nullable = false)
     @EqualsAndHashCode.Include
-    private final @NonNull Long id;
-    private final @NonNull String name;
+    private Long id;
+
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 }

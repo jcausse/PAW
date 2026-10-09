@@ -2,24 +2,37 @@ package ar.edu.itba.paw.model;
 
 import lombok.*;
 
+import javax.persistence.*;
 import java.util.Optional;
 
-@RequiredArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@ToString
-public final class File {
+@ToString(exclude = "data")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
+@Table(name = "files")
+public class File {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "file_id", nullable = false)
     @EqualsAndHashCode.Include
-    private final @NonNull Long id;
-    private final @NonNull String filename;
-    private final @NonNull String alt;
+    private Long id;
 
-    // Nullable if not provided when creating file
-    private final String contentType;
+    @Column(name = "filename", nullable = false)
+    private String filename;
 
-    private final byte[] data;
+    @Column(name = "alt", nullable = false)
+    private String alt;
+
+    @Column(name = "content_type", length = 50)
+    private String contentType;
+
+    @Column(name = "data", nullable = false)
+    private byte[] data;
 
     public Optional<String> getContentType() {
         return Optional.ofNullable(contentType);
