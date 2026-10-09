@@ -14,6 +14,9 @@ secrets/
 # deploy.py build log
 build.log
 
+# IntelliJ JPA Plugin
+model/model.iml
+
 # Python Cache
 **/__pycache__/
 
