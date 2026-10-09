@@ -55,6 +55,8 @@ public class ListingJdbcDaoTest {
     private static final long PHONE_PRODUCT_ID = 2L;
     private static final long FRONT_IMAGE_ID = 1L;
     private static final long BACK_IMAGE_ID = 2L;
+    private static final long UNASSIGNED_IMAGE_1_ID = 3L;
+    private static final long UNASSIGNED_IMAGE_2_ID = 4L;
 
     private static final int PAGE_SIZE = 10;
 
@@ -357,7 +359,7 @@ public class ListingJdbcDaoTest {
         final Page<Listing> page = listingDao.search(baseFilter().query("MacBook Pro").build());
 
         // Assert
-        Assert.assertEquals(List.of(FRONT_IMAGE_ID), page.getContent().get(0).getImageIds());
+        Assert.assertEquals(List.of(FRONT_IMAGE_ID), page.getContent().getFirst().getImageIds());
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -513,12 +515,12 @@ public class ListingJdbcDaoTest {
         final Listing created = listingDao.create(
             "Brand new listing", new Price(new BigDecimal("999.99")), buildFakeUser(SELLER_ID),
             buildFakeProduct(PRODUCT_ID, SUBCATEGORY_ID, CATEGORY_ID), Condition.UNUSED, true, false, "Still sealed",
-            List.of(BACK_IMAGE_ID, FRONT_IMAGE_ID)
+            List.of(UNASSIGNED_IMAGE_2_ID, UNASSIGNED_IMAGE_1_ID)
         );
 
         // Assert
         final Listing reloaded = listingDao.getById(created.getId()).orElseThrow();
-        Assert.assertEquals(List.of(BACK_IMAGE_ID, FRONT_IMAGE_ID), reloaded.getImageIds());
+        Assert.assertEquals(List.of(UNASSIGNED_IMAGE_2_ID, UNASSIGNED_IMAGE_1_ID), reloaded.getImageIds());
     }
 
     @Test

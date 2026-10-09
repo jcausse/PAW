@@ -6,7 +6,9 @@ VALUES (2, 'Samsung', 'Galaxy S23', 2023, 2);
 
 INSERT INTO images (image_id, filename, alt, content_type, data)
 VALUES (1, 'front.jpg', 'Front view', 'image/jpeg', X'01'),
-       (2, 'back.jpg', 'Back view', 'image/jpeg', X'02');
+       (2, 'back.jpg', 'Back view', 'image/jpeg', X'02'),
+       (3, 'extra1.jpg', 'Extra view 1', 'image/jpeg', X'03'),
+       (4, 'extra2.jpg', 'Extra view 2', 'image/jpeg', X'04');
 
 INSERT INTO listings (listing_id, title, description, creator_id, product_id, price, status, condition, accepts_trade)
 VALUES (1, 'MacBook Pro 2023', 'Barely used laptop', 1, 1, 1500.00, 'ACTIVE', 'GOOD', TRUE),
