@@ -2,7 +2,7 @@
 
 ## Project Context
 
-This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a multi-module Maven project using Spring WebMVC (not Spring Boot), JSP views, JSTL, and PostgreSQL via Spring JDBC (will later use JPA/Hibernate but not yet until this file changes).
+This is an ITBA PAW (Proyecto de Aplicaciones Web) university project. It is a multi-module Maven project using Spring WebMVC (not Spring Boot), JSP views, JSTL, and PostgreSQL via JPA / Hibernate ORM (migrated from Spring JDBC).
 
 The project is called **Swappr** (it is the official name). That name should be used in emailing and other site-id related things. Read `README.md` on the project's root to know more about the project.
 
@@ -20,19 +20,25 @@ The project is called **Swappr** (it is the official name). That name should be 
   ```
   This is crucial, and is designed and required by human developers not to forget about those lines.
 
+## Important: Agent rules updates
+
+When interacting with a human developer, specially when making design decisions as a pair engineer / pair programmer, always summarize the decisions taken and architectural changes made,
+and persist what is relevant to this `AGENTS.md` files in order to keep other AI agents up-to-date with design choices and news in the project's state.
+
+While you as an AI agent are allowed to edit this file on your own, you must **always explicitly let the human developer know you have modified this file**, so they can review the new rules or changed rules.
 
 ## Architecture
 
 - **7 Maven modules** with strict dependency rules:
-  - `model` → Domain objects only. No Spring dependencies. Uses Lombok.
+  - `model` → Domain objects and JPA entities. No Spring dependencies. Uses Lombok, JPA (`javax.persistence`), and Hibernate annotations.
   - `service-contract` → Service interfaces, DTOs, and custom exceptions. Depends on `model`.
   - `persistence-contract` → DAO interfaces. Depends on `model`.
   - `service` → Service implementations. Depends on `service-contract` and `persistence-contract`.
-  - `persistence` → DAO implementations using Spring JDBC. Depends on `persistence-contract`.
+  - `persistence` → DAO implementations using JPA / Hibernate (`EntityManager`). Depends on `persistence-contract`.
   - `webapp` → Controllers, forms, JSP views, Spring config. Depends on `service-contract` (compile) and `service`/`persistence` (runtime).
 - **Never** leak `webapp` form classes into `service-contract` or `persistence-contract`.
-- **Never** leak DTOs from `service-contract` into `persistence-contract` — DAOs take flat parameters.
-- Schema constants live in `persistence` package `schema/` (e.g., `UserSchema.java`).
+- **Never** leak DTOs from `service-contract` into `persistence-contract` — DAOs take domain models or flat query parameters.
+- Schema constants live in `persistence` package `schema/` (e.g., `UserSchema.java`), used for native queries or legacy references. Those will be removed later.
 
 ## JSP Best Practices (Mandatory)
 
@@ -112,15 +118,45 @@ The project is called **Swappr** (it is the official name). That name should be 
 - **In JSPs & Views**: `CurrentUserControllerAdvice` exposes `${currentUser}` (as `Optional<User>`) globally to all views and custom tags (such as `navbar.tag`). **Never** re-add `"currentUser"` to `ModelAndView` in controllers — the controller advice already supplies it to the view.
 - **Why `@ModelAttribute` in `@ControllerAdvice` cannot enforce authentication**: `@ModelAttribute` methods in a `@ControllerAdvice` run globally for **every request** across the entire application before any controller handler method is selected. A `@ModelAttribute` method that throws an exception when unauthenticated would break all public routes (including `/login`, `/register`, etc.). Argument resolvers, by contrast, are lazy and run on-demand only for the specific parameters declared by a handler.
 
+## JPA / Hibernate Conventions (Active Stage)
+
+The project has entered the **JPA / Hibernate ORM stage**. All domain models are unified JPA entities and DAOs are being migrated to use `EntityManager`.
+
+### Entity Guidelines
+- **Unified Location**: All entities live directly in `ar.edu.itba.paw.model` (there is no `entity` subpackage; models are unified).
+- **Non-Final Entities**: Entities **must never** be declared `final` (Hibernate requires non-final classes for ByteBuddy runtime lazy-loading proxies).
+- **Constructors & Builders**: Every entity must provide:
+  - A no-argument constructor (`@NoArgsConstructor`), required by JPA.
+  - An all-arguments constructor (`@AllArgsConstructor`) and Lombok `@Builder` for convenient instantiation.
+- **Primary Keys**:
+  - Primary key IDs are always `Long` across all entities (never `Integer`).
+  - Mapped with `@Id @GeneratedValue(strategy = GenerationType.IDENTITY)` if the ID of said entity corresponds to an auto-increment or `SERIAL` type on the database. See migration files to get context.
+- **Field-Level Access**:
+  - All JPA annotations (`@Id`, `@Column`, `@ManyToOne`, etc.) are placed directly on fields, **not** on getters.
+  - This allows domain convenience methods and `Optional<T>` getters to coexist without interfering with Hibernate's property access.
+- **Enums**:
+  - Database stores enum names as **uppercase** strings (migrated via `V18`).
+  - Mapped via `@Enumerated(EnumType.STRING)` directly. **Never** use custom AttributeConverters when a standard enum string mapping suffices.
+- **Domain Optionals**:
+  - Nullable domain fields (e.g., `User.image`, `User.emailVerifiedAt`, `User.province`, `File.contentType`) provide `Optional<T>` getters for clean domain and controller consumption.
+  - **Never** use `Optional` as an entity field type or as a setter/method parameter.
+- **Relationships & Collections**:
+  - Ratings and offers have a 1:1 relationship mapped with `@OneToOne` and backed by a DB unique constraint on `ratings.offer_id` (migrated via `V20`).
+  - Relationships are lazy by default (`fetch = FetchType.LAZY`) unless eager fetching is strictly justified (e.g., user roles, given that a User might have two or three roles at most).
+- **Incremental DAO Migration (Strangler Fig Pattern)**:
+  - DAOs are migrated from `JdbcTemplate` to `EntityManager` incrementally.
+  - The entire test suite (`mvn clean test`) must remain green across all commits.
+  - Transitional builder adapter methods in domain entities are tagged with `// TODO: [JPA Migration Cleanup]` and will be removed once all DAOs are migrated.
+  - **IMPORTANT:** Always tag temporal / transitory code needed to keep the application running but needs to be removed after completing a migration with a comment like `// TODO: [JPA Migration Cleanup]`. 
+
 ## Other Conventions
 
-- Class names are singular (e.g. `UserService`, `UserJdbcDao`, `User` (model), `Listing`, `Product`).
+- Class names are singular (e.g. `UserService`, `UserJpaDao`, `User` (model), `Listing`, `Product`).
 - Identifier fields (IDs) are spelled `Id` when using `camelCase` (e.g. `productId`).
 - Prefer functional-style code and the use of Java Streams.
 - Use Optional for return values which may not be present, but DO NOT use Optional as method parameters, as it is a code smell.
 - Prefer using `var` for type inference when possible.
-- DAOs (in `persistence` layer) can read on any table, but each DAO should only write to one and just one table.
-- DAOs must never call other DAOs, nor have them injected as dependencies. As stated by another rule, if DAO A needs to access table B, it can access it directly, but never make DAO A depend on DAO B.
+- DAOs (in `persistence` layer): Each DAO should manage one domain aggregate entity. DAOs must never call other DAOs, nor have them injected as dependencies. If DAO A needs entities or data from entity B, it queries it directly via `EntityManager`.
 
 ## Mailing and Email Templates
 
@@ -144,9 +180,13 @@ The project is called **Swappr** (it is the official name). That name should be 
 ### Database Migrations (Flyway)
 
 - The project uses **Flyway** for database migrations.
+- **NEVER MODIFY PREVIOUS MIGRATION FILES**:
+  - **Strict rule**: Migrations are strictly immutable once committed. **NEVER** edit, rename, replace, or delete existing migration files. Modifying past migrations will cause checksum verification failures and break production/development databases.
+  - All schema changes, constraint additions, or data updates **must** be done via **new incremental migration scripts** (`VX__description.sql`).
 - Migration scripts must be placed in the `persistence/src/main/resources/db/migration/` directory.
+- For every new migration, a matching HSQLDB-compatible test migration **must** also be placed in `persistence/src/test/resources/db/migration-hsqldb/`.
 - Migration files **must** follow the strict naming convention: `VX__description.sql`
-  - `X` represents the incremental version number (e.g., 1, 2, 3). When creating a new migration, always check `persistence/src/main/resources/db/migration/` and increment the number of the highest numbered migration by 1 to name the migration being added.
+  - `X` represents the incremental version number (e.g., 18, 19, 20). When creating a new migration, always check `persistence/src/main/resources/db/migration/` and increment the number of the highest numbered migration by 1 to name the migration being added.
   - A double underscore (`__`) separating the version number from the description is **mandatory**.
   - Provide a descriptive name for the migration (e.g., `Original_schema`, `Add_users_table`). The first letter of the description must be uppercase and separate multi-word names using snake case (e.g. `Add_listing_creation_timestamp`).
   - All migration files must end with the `.sql` extension.
